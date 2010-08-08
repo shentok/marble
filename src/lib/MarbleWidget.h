@@ -171,11 +171,6 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
     virtual ~MarbleWidget();
 
     /**
-     * @brief Return the map that this view shows.
-     */
-    MarbleMap *map() const;
-
-    /**
      * @brief Return the model that this view shows.
      */
     MarbleModel *model() const;
