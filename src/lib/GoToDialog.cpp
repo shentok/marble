@@ -163,7 +163,7 @@ QVariant TargetModel::homeData ( int role ) const
         GeoDataLookAt result;
         result.setLongitude( lon, GeoDataCoordinates::Degree );
         result.setLatitude( lat, GeoDataCoordinates::Degree );
-        result.setRange( m_marbleWidget->map()->distanceFromZoom( zoom ) * KM2METER );
+        result.setRange( m_marbleWidget->model()->distanceFromZoom( zoom ) * KM2METER );
         return qVariantFromValue( result );
     }
     }

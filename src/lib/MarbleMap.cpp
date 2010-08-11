@@ -39,7 +39,6 @@
 #include "GeoPainter.h"
 #include "GeoSceneDocument.h"
 #include "GeoSceneHead.h"
-#include "GeoSceneZoom.h"
 #include "MarbleDebug.h"
 #include "MarbleDirs.h"
 #include "MarbleLocale.h"
@@ -302,7 +301,7 @@ void MarbleMap::setRadius( int radius )
 
     setNeedsUpdate();
 
-    d->m_logzoom = qRound( d->zoom( radius ) );
+    d->m_logzoom = qRound( MarbleModel::zoomFromRadius( radius ) );
     emit zoomChanged( d->m_logzoom );
     emit distanceChanged( distanceString() );
     emit visibleLatLonAltBoxChanged( d->m_viewParams.viewport()->viewLatLonAltBox() );
@@ -332,29 +331,7 @@ int MarbleMap::zoom() const
 
 qreal MarbleMap::distance() const
 {
-    return distanceFromRadius(radius());
-}
-
-qreal MarbleMap::distanceFromRadius( qreal radius ) const
-{
-    // Due to Marble's orthographic projection ("we have no focus")
-    // it's actually not possible to calculate a "real" distance.
-    // Additionally the viewing angle of the earth doesn't adjust to
-    // the window's size.
-    //
-    // So the only possible workaround is to come up with a distance
-    // definition which gives a reasonable approximation of
-    // reality. Therefore we assume that the average window width
-    // (about 800 pixels) equals the viewing angle of a human being.
-
-    return ( model()->planet()->radius() * 0.4
-            / radius / tan( 0.5 * d->m_viewAngle * DEG2RAD ) );
-}
-
-qreal MarbleMap::radiusFromDistance( qreal distance ) const
-{      
-    return  model()->planet()->radius() /
-            ( distance * tan( 0.5 * d->m_viewAngle * DEG2RAD ) / 0.4 );
+    return d->m_model->distanceFromRadius(radius());
 }
 
 void MarbleMap::setDistance( qreal newDistance )
@@ -366,7 +343,7 @@ void MarbleMap::setDistance( qreal newDistance )
         newDistance = minDistance;
     }    
 
-    int newRadius = radiusFromDistance( newDistance );
+    int newRadius = d->m_model->radiusFromDistance( newDistance );
     setRadius( newRadius );
 }
 
@@ -392,18 +369,12 @@ qreal MarbleMap::centerLongitude() const
 
 int  MarbleMap::minimumZoom() const
 {
-    if ( d->m_viewParams.mapTheme() )
-        return d->m_viewParams.mapTheme()->head()->zoom()->minimum();
-
-    return 950;
+    return d->m_model->minimumZoom();
 }
 
 int  MarbleMap::maximumZoom() const
 {
-    if ( d->m_viewParams.mapTheme() )
-        return d->m_viewParams.mapTheme()->head()->zoom()->maximum();
-
-    return 2100;
+    return d->m_model->maximumZoom();
 }
 
 void MarbleMap::addPlacemarkFile( const QString &filename )
@@ -577,7 +548,7 @@ void MarbleMap::zoomView( int newZoom )
     if ( newZoom  == d->m_logzoom )
         return;
 
-    d->m_viewParams.setRadius( d->radius( newZoom ) );
+    d->m_viewParams.setRadius( MarbleModel::radiusFromZoom( newZoom ) );
 
     setNeedsUpdate();
 
@@ -1020,17 +991,6 @@ AbstractFloatItem * MarbleMap::floatItem( const QString &nameId ) const
     return 0; // No item found
 }
 
-void MarbleMap::flyTo( const GeoDataLookAt &lookAt )
-{
-    int zoom = zoomFromDistance( lookAt.range() * METER2KM );
-    if ( zoom < minimumZoom() || zoom > maximumZoom() )
-        return; // avoid moving when zooming is impossible
-
-    setDistance( lookAt.range() * METER2KM );
-    GeoDataCoordinates::Unit deg = GeoDataCoordinates::Degree;
-    centerOn( lookAt.longitude( deg ), lookAt.latitude( deg ) );
-}
-
 GeoDataLookAt MarbleMap::lookAt() const
 {
     GeoDataLookAt result;
@@ -1043,16 +1003,6 @@ GeoDataLookAt MarbleMap::lookAt() const
     result.setRange( distance() * KM2METER );
 
     return result;
-}
-
-qreal MarbleMap::distanceFromZoom( qreal zoom ) const
-{
-    return distanceFromRadius( d->radius( zoom ) );
-}
-
-qreal MarbleMap::zoomFromDistance( qreal distance ) const
-{
-    return d->zoom( radiusFromDistance( distance ) );
 }
 
 void MarbleMap::addGeoDataFile( const QString &filename )

@@ -38,6 +38,7 @@
 #include "GeoSceneTexture.h"
 #include "GeoSceneVector.h"
 #include "GeoSceneXmlDataSource.h"
+#include "GeoSceneZoom.h"
 
 #include "GeoDataDocument.h"
 #include "GeoDataStyle.h"
@@ -116,7 +117,8 @@ class MarbleModelPrivate
           m_bookmarkManager( 0 ),
           m_routingManager( 0 ),
           m_legend( 0 ),
-          m_backgroundVisible( true )
+          m_backgroundVisible( true ),
+          m_viewAngle( 110.0 )
     {
     }
 
@@ -182,6 +184,7 @@ class MarbleModelPrivate
     QTextDocument           *m_legend;
     bool                     m_backgroundVisible;
 
+    const qreal              m_viewAngle;
 };
 
 GeoSceneGroup * MarbleModelPrivate::textureLayerProperties() const
@@ -802,6 +805,22 @@ QString MarbleModel::planetName()   const
     return d->m_planet->name();
 }
 
+int  MarbleModel::minimumZoom() const
+{
+    if ( d->m_mapTheme )
+        return d->m_mapTheme->head()->zoom()->minimum();
+
+    return 950;
+}
+
+int  MarbleModel::maximumZoom() const
+{
+    if ( d->m_mapTheme )
+        return d->m_mapTheme->head()->zoom()->maximum();
+
+    return 2100;
+}
+
 MarbleClock* MarbleModel::clock() const
 {
 //    mDebug() << "In dateTime, model:" << this;
@@ -954,6 +973,48 @@ MeasureTool *MarbleModel::measureTool()
 Planet* MarbleModel::planet() const
 {
     return d->m_planet;
+}
+
+qreal MarbleModel::distanceFromRadius( qreal radius ) const
+{
+    // Due to Marble's orthographic projection ("we have no focus")
+    // it's actually not possible to calculate a "real" distance.
+    // Additionally the viewing angle of the earth doesn't adjust to
+    // the window's size.
+    //
+    // So the only possible workaround is to come up with a distance
+    // definition which gives a reasonable approximation of
+    // reality. Therefore we assume that the average window width
+    // (about 800 pixels) equals the viewing angle of a human being.
+
+    return ( d->m_planet->radius() * 0.4
+            / radius / tan( 0.5 * d->m_viewAngle * DEG2RAD ) );
+}
+
+qreal MarbleModel::radiusFromDistance( qreal distance ) const
+{
+    return d->m_planet->radius() /
+            ( distance * tan( 0.5 * d->m_viewAngle * DEG2RAD ) / 0.4 );
+}
+
+qreal MarbleModel::zoomFromRadius(qreal radius)
+{
+     return (200.0 * log( radius ) );
+}
+
+qreal MarbleModel::radiusFromZoom(qreal zoom)
+{
+    return pow( M_E, ( zoom / 200.0 ) );
+}
+
+qreal MarbleModel::distanceFromZoom( qreal zoom ) const
+{
+    return distanceFromRadius( radiusFromZoom( zoom ) );
+}
+
+qreal MarbleModel::zoomFromDistance( qreal distance ) const
+{
+    return zoomFromRadius( radiusFromDistance( distance ) );
 }
 
 int MarbleModel::tileZoomLevel() const

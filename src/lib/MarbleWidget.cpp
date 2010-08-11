@@ -105,6 +105,12 @@ class MarbleWidgetPrivate
       */
     void repaint();
 
+    /**
+      * @brief Move camera to the given position. This can change
+      * both the zoom value and the position
+      */
+    void flyTo( const GeoDataLookAt &lookAt );
+
     MarbleWidget    *m_widget;
     // The model we are showing.
     MarbleMap       *m_map;
@@ -270,6 +276,17 @@ void MarbleWidgetPrivate::repaint()
                   m_widget->viewport()->mapCoversViewport() && !m_model->mapThemeId().isEmpty() );
 
     m_widget->repaint();
+}
+
+void MarbleWidgetPrivate::flyTo( const GeoDataLookAt &lookAt )
+{
+    int zoom = m_model->zoomFromDistance( lookAt.range() * METER2KM );
+    if ( zoom < m_model->minimumZoom() || zoom > m_model->maximumZoom() )
+        return; // avoid moving when zooming is impossible
+
+    m_map->setDistance( lookAt.range() * METER2KM );
+    GeoDataCoordinates::Unit deg = GeoDataCoordinates::Degree;
+    m_map->centerOn( lookAt.longitude( deg ), lookAt.latitude( deg ) );
 }
 
 // ----------------------------------------------------------------
@@ -510,7 +527,7 @@ void MarbleWidget::zoomView( int newZoom, FlyToMode mode )
     }
     else {
         GeoDataLookAt target = lookAt();
-        target.setRange( KM2METER * d->m_map->distanceFromZoom( newZoom ) );
+        target.setRange( KM2METER * d->m_model->distanceFromZoom( newZoom ) );
 
         flyTo( target, mode );
     }
@@ -816,7 +833,7 @@ void MarbleWidget::goHome( FlyToMode mode )
     GeoDataLookAt target;
     target.setLongitude( homeLon, GeoDataCoordinates::Degree );
     target.setLatitude( homeLat, GeoDataCoordinates::Degree );
-    target.setRange( 1000 * d->m_map->distanceFromZoom( homeZoom ) );
+    target.setRange( 1000 * d->m_model->distanceFromZoom( homeZoom ) );
 
     flyTo( target, mode );
 }
@@ -1286,7 +1303,7 @@ void MarbleWidget::changeEvent( QEvent * event )
 void MarbleWidget::flyTo( const GeoDataLookAt &newLookAt, FlyToMode mode )
 {
     if ( !d->m_animationsEnabled || mode == Instant ) {
-        d->m_map->flyTo( newLookAt );
+        d->flyTo( newLookAt );
         d->repaint();
     }
     else {
@@ -1303,7 +1320,7 @@ void MarbleWidget::reloadMap()
 void MarbleWidget::updateAnimation( const GeoDataLookAt &lookAt )
 {
     setViewContext( Marble::Animation );
-    d->m_map->flyTo( lookAt );
+    d->flyTo( lookAt );
     d->repaint();
 }
 

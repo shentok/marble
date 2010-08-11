@@ -34,9 +34,6 @@ class MarbleMapPrivate
  public:
     explicit MarbleMapPrivate( MarbleMap *parent );
 
-    inline static qreal zoom( qreal radius ) { return (200.0 * log( radius ) ); }
-    inline static qreal radius( qreal zoom ) { return pow( M_E, ( zoom / 200.0 ) ); }
-
     void construct();
 
     void paintMarbleSplash( GeoPainter &painter, QRect &dirtyRect );

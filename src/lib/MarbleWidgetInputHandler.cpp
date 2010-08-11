@@ -33,7 +33,6 @@
 #include "GeoDataCoordinates.h"
 #include "MarbleDirs.h"
 #include "MarbleWidget.h"
-#include "MarbleMap.h"
 #include "MarbleModel.h"
 #include "ViewportParams.h"
 #include "AbstractFloatItem.h"
@@ -247,7 +246,7 @@ void MarbleWidgetDefaultInputHandler::Private::ZoomAt(MarbleWidget* marbleWidget
     soon.setPlanetAxis(now->planetAxis());
     soon.setSize(now->size());
 
-    qreal newRadius = marbleWidget->map()->radiusFromDistance(newDistance);
+    qreal newRadius = marbleWidget->model()->radiusFromDistance(newDistance);
     soon.setRadius( newRadius );
 
     qreal mouseLon, mouseLat;
@@ -667,7 +666,7 @@ bool MarbleWidgetDefaultInputHandler::eventFilter( QObject* o, QEvent* e )
         
         // Find out if there are data items and if one has defined an action
         QList<AbstractDataPluginItem *> dataItems
-            = MarbleWidgetInputHandler::d->m_widget->model()->whichItemAt( mousePosition );
+            = MarbleWidgetInputHandler::d->m_model->whichItemAt( mousePosition );
         bool dataAction = false;
         QPointer<AbstractDataPluginItem> toolTipItem;
         QList<AbstractDataPluginItem *>::iterator it = dataItems.begin();
@@ -698,7 +697,7 @@ bool MarbleWidgetDefaultInputHandler::eventFilter( QObject* o, QEvent* e )
             d->m_toolTipPosition = mousePosition;
         }
 
-        if ( ( MarbleWidgetInputHandler::d->m_widget->model()->whichFeatureAt( mousePosition ).size() == 0 )
+        if ( ( MarbleWidgetInputHandler::d->m_model->whichFeatureAt( mousePosition ).size() == 0 )
              && ( !dataAction ) )
         {
             if ( !d->m_leftPressed )
@@ -731,9 +730,9 @@ bool MarbleWidgetDefaultInputHandler::eventFilter( QObject* o, QEvent* e )
             qreal target = MarbleWidgetInputHandler::d->m_wheelZoomTargetDistance;
             if ( marbleWidget->animationsEnabled() && target > 0.0 ) {
                 // Do not use intermediate (interpolated) distance values caused by animations
-                zoom = marbleWidget->map()->zoomFromDistance( target );
+                zoom = marbleWidget->model()->zoomFromDistance( target );
             }
-            qreal newDistance = marbleWidget->map()->distanceFromZoom( zoom + steps );
+            qreal newDistance = marbleWidget->model()->distanceFromZoom( zoom + steps );
             MarbleWidgetInputHandler::d->m_wheelZoomTargetDistance = newDistance;
             d->ZoomAt(MarbleWidgetInputHandler::d->m_widget, wheelevt->pos(), newDistance);
 

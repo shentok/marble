@@ -54,6 +54,7 @@ class MeasureTool;
 class TileCoordsPyramid;
 class FileViewModel;
 class PositionTracking;
+class MeasureTool;
 class HttpDownloadManager;
 class MarbleModelPrivate;
 class PlacemarkLayout;
@@ -251,6 +252,16 @@ class MARBLE_EXPORT MarbleModel : public QObject
     qreal                 planetRadius()   const;
     QString               planetName()     const;
 
+    /**
+     * @brief return the minimum zoom value for the current map theme.
+     */
+    int minimumZoom() const;
+
+    /**
+     * @brief return the minimum zoom value for the current map theme.
+     */
+    int maximumZoom() const;
+
     MarbleClock*          clock()       const;
     SunLocator*           sunLocator()     const;
 
@@ -308,6 +319,30 @@ class MARBLE_EXPORT MarbleModel : public QObject
      * @return the planet object for the current map
      */
     Planet* planet() const;
+
+    /**
+     * @brief Return the globe radius (pixel) for the given distance (km)
+     */
+    qreal radiusFromDistance( qreal distance ) const;
+
+    /**
+     * @brief Return the distance (km) at the given globe radius (pixel)
+     */
+    qreal distanceFromRadius( qreal radius ) const;
+
+    static qreal zoomFromRadius( qreal radius );
+
+    static qreal radiusFromZoom( qreal zoom );
+
+    /**
+     * @brief Returns the zoom value (no unit) corresponding to the given camera distance (km).
+     */
+    qreal zoomFromDistance( qreal distance ) const;
+
+    /**
+     * @brief Returns the distance (km) corresponding to the given zoom value.
+     */
+    qreal distanceFromZoom( qreal zoom ) const;
 
     /**
      * @brief Return the current tile zoom level. For example for OpenStreetMap

@@ -401,35 +401,9 @@ class MARBLE_EXPORT MarbleMap : public QObject
     AbstractFloatItem * floatItem( const QString &nameId ) const;
 
     /**
-      * @brief Move camera to the given position. This can change
-      * both the zoom value and the position
-      */
-    void flyTo( const GeoDataLookAt &lookAt );
-
-    /**
       * @brief Return the current camera position
       */
     GeoDataLookAt lookAt() const;
-
-    /**
-      * @brief Return the globe radius (pixel) for the given distance (km)
-      */
-    qreal radiusFromDistance( qreal distance ) const;
-
-    /**
-      * @brief Return the distance (km) at the given globe radius (pixel)
-      */
-    qreal distanceFromRadius( qreal radius ) const;
-
-    /**
-      * Returns the zoom value (no unit) corresponding to the given camera distance (km)
-      */
-    qreal zoomFromDistance( qreal distance ) const;
-
-    /**
-      * Returns the distance (km) corresponding to the given zoom value
-      */
-    qreal distanceFromZoom( qreal zoom ) const;
 
  public Q_SLOTS:
 
