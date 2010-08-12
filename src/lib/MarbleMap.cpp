@@ -313,16 +313,6 @@ void MarbleMap::setNeedsUpdate()
 }
 
 
-QAbstractItemModel *MarbleMap::placemarkModel() const
-{
-    return d->m_model->placemarkModel();
-}
-
-QItemSelectionModel *MarbleMap::placemarkSelectionModel() const
-{
-    return d->m_model->placemarkSelectionModel();
-}
-
 int MarbleMap::zoom() const
 {
     return d->m_logzoom;
@@ -376,22 +366,6 @@ int  MarbleMap::maximumZoom() const
 {
     return d->m_model->maximumZoom();
 }
-
-void MarbleMap::addPlacemarkFile( const QString &filename )
-{
-    addGeoDataFile( filename );
-}
-
-void MarbleMap::addPlacemarkData( const QString &data, const QString &key )
-{
-    addGeoDataString( data, key );
-}
-
-void MarbleMap::removePlacemarkKey( const QString &key )
-{
-    removeGeoData( key );
-}
-
 
 QPixmap MarbleMap::mapScreenShot()
 {
@@ -508,11 +482,6 @@ bool MarbleMap::showGps() const
 bool MarbleMap::showFrameRate() const
 {
     return d->m_showFrameRate;
-}
-
-quint64 MarbleMap::persistentTileCacheLimit() const
-{
-    return d->m_model->persistentTileCacheLimit();
 }
 
 quint64 MarbleMap::volatileTileCacheLimit() const
@@ -828,26 +797,6 @@ void MarbleMap::notifyMouseClick( int x, int y )
     }
 }
 
-void MarbleMap::openGpxFile( const QString &filename )
-{
-    addGeoDataFile( filename );
-}
-
-FileViewModel* MarbleMap::fileViewModel() const
-{
-    return d->m_model->fileViewModel();
-}
-
-void MarbleMap::clearPersistentTileCache()
-{
-    d->m_model->clearPersistentTileCache();
-}
-
-void MarbleMap::setPersistentTileCacheLimit( quint64 kiloBytes )
-{
-    d->m_model->setPersistentTileCacheLimit( kiloBytes );
-}
-
 void MarbleMap::clearVolatileTileCache()
 {
     d->m_model->clearVolatileTileCache();
@@ -937,11 +886,6 @@ void MarbleMap::centerSun()
     }
 }
 
-SunLocator* MarbleMap::sunLocator()
-{
-    return d->m_model->sunLocator();
-}
-
 QList<RenderPlugin *> MarbleMap::renderPlugins() const
 {
     return d->m_model->renderPlugins();
@@ -975,21 +919,6 @@ GeoDataLookAt MarbleMap::lookAt() const
     result.setRange( distance() * KM2METER );
 
     return result;
-}
-
-void MarbleMap::addGeoDataFile( const QString &filename )
-{
-    d->m_model->addGeoDataFile( filename );
-}
-
-void MarbleMap::addGeoDataString( const QString& data, const QString& key )
-{
-    d->m_model->addGeoDataString( data, key );
-}
-
-void MarbleMap::removeGeoData( const QString& key )
-{
-    d->m_model->removeGeoData( key );
 }
 
 #include "MarbleMap.moc"

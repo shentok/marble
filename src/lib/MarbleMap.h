@@ -216,38 +216,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
     qreal centerLatitude() const;
 
     /**
-     * @brief returns the model for all the placemarks on the globe.
-     */
-    QAbstractItemModel *placemarkModel() const;
-
-    /**
-     * @brief returns the selection model for all the placemarks on the globe.
-     */
-    QItemSelectionModel *placemarkSelectionModel() const;
-
-    /**
-     * @brief  Add a GeoData file to the model. Supported file types are .pnt, .gpx and .kml
-     * @param  filename  the filename of the file containing the Placemarks.
-     * @deprecated This method has been renamed addGeoDataFile
-     */
-    MARBLE_DEPRECATED( void addPlacemarkFile( const QString &filename ) );
-
-    /**
-     * @brief  Add GeoData data as string to the model.
-     * @param  data  the string containing the Placemarks.
-     * @param key  the string needed to identify the data
-     * @deprecated This method has been renamed addGeoDataString
-     */
-    MARBLE_DEPRECATED( void addPlacemarkData( const QString& data, const QString& key = "data" ) );
-
-    /**
-     * @brief  remove data or files from the model.
-     * @param key  either the filename or the string used to identify the data in addPlacemarkFile and addPlacemarkData
-     * @deprecated This method has been renamed removeGeoData
-     */
-    MARBLE_DEPRECATED( void removePlacemarkKey( const QString& key ) );
-
-    /**
      * @brief  Return the quaternion that specifies the rotation of the globe.
      * @return The quaternion that describes the rotation of the globe.
      */
@@ -373,22 +341,10 @@ class MARBLE_EXPORT MarbleMap : public QObject
     bool showFrameRate() const;
 
     /**
-     * @brief  Returns the limit in kilobytes of the persistent (on hard disc) tile cache.
-     * @return the limit of persistent tile cache in kilobytes.
-     */
-    quint64 persistentTileCacheLimit() const;
-
-    /**
      * @brief  Returns the limit in kilobytes of the volatile (in RAM) tile cache.
      * @return the limit of volatile tile cache in kilobytes.
      */
     quint64 volatileTileCacheLimit() const;
-
-    /**
-     * @brief  Return the sun locator object.
-     * @return the sun locator object
-     */
-    SunLocator* sunLocator();
 
     QList<RenderPlugin *> renderPlugins() const;
     QList<AbstractFloatItem *> floatItems() const;
@@ -642,43 +598,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
      * @brief used to notify about the position of the mouse click
       */
     void notifyMouseClick( int x, int y );
-
-    /**
-     * @brief Opens a gpx file for viewing on the Marble Map
-     * @deprecated Please use addGeoDataFile instead
-     */
-    void openGpxFile( const QString &filename );
-
-    /**
-     * @brief  Add a GeoData file to the model. Supported file types are .pnt, .gpx and .kml
-     * @param  filename  the filename of the file containing the data to be loaded.
-     */
-    void addGeoDataFile( const QString &filename );
-
-    /**
-     * @brief  Add GeoData data as string to the model.
-     * @param  data  the string containing the Placemarks.
-     * @param key  the string needed to identify the data
-     */
-    void addGeoDataString( const QString& data, const QString& key = "data" );
-
-    /**
-     * @brief  remove data or files from the model.
-     * @param key  either the filename or the string used to identify the data in addGeoDataFile and addGeoDataString
-     */
-    void removeGeoData( const QString& key );
-
-    /**
-     * @brief Return a QAbstractItemModel containing files.
-     */
-    FileViewModel* fileViewModel() const;
-
-    void clearPersistentTileCache();
-    /**
-     * @brief  Set the limit of the persistent (on hard disc) tile cache.
-     * @param  bytes The limit in kilobytes, 0 means no limit.
-     */
-    void setPersistentTileCacheLimit( quint64 kiloBytes );
 
     void clearVolatileTileCache();
     /**

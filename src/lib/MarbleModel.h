@@ -350,7 +350,6 @@ class MARBLE_EXPORT MarbleModel : public QObject
      */
     int tileZoomLevel() const;
 
-    void reloadMap() const;
     void downloadRegion( QString const & mapThemeId, QVector<TileCoordsPyramid> const & ) const;
 
     RoutingManager* routingManager();
@@ -393,6 +392,8 @@ class MARBLE_EXPORT MarbleModel : public QObject
     void setBackgroundVisible( bool visible );
 
  public Q_SLOTS:
+    void reloadMap() const;
+
     void clearVolatileTileCache();
 
     /**

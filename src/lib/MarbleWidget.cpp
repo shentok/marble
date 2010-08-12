@@ -355,12 +355,12 @@ void MarbleWidget::setRadius( int radius )
 
 QAbstractItemModel *MarbleWidget::placemarkModel() const
 {
-    return d->m_map->placemarkModel();
+    return d->m_model->placemarkModel();
 }
 
 QItemSelectionModel *MarbleWidget::placemarkSelectionModel() const
 {
-    return d->m_map->placemarkSelectionModel();
+    return d->m_model->placemarkSelectionModel();
 }
 
 qreal MarbleWidget::moveStep()
@@ -1138,22 +1138,22 @@ void MarbleWidget::setAnimationsEnabled( bool enabled )
 
 AngleUnit MarbleWidget::defaultAngleUnit() const
 {
-    return map()->defaultAngleUnit();
+    return d->m_map->defaultAngleUnit();
 }
 
 void MarbleWidget::setDefaultAngleUnit( AngleUnit angleUnit )
 {
-    map()->setDefaultAngleUnit( angleUnit );
+    d->m_map->setDefaultAngleUnit( angleUnit );
 }
 
 QFont MarbleWidget::defaultFont() const
 {
-    return map()->defaultFont();
+    return d->m_map->defaultFont();
 }
 
 void MarbleWidget::setDefaultFont( const QFont& font )
 {
-    map()->setDefaultFont( font );
+    d->m_map->setDefaultFont( font );
 }
 
 void MarbleWidget::setSelection( const QRect& region )
@@ -1368,18 +1368,18 @@ RoutingLayer* MarbleWidget::routingLayer()
 
 void MarbleWidget::addGeoDataFile( const QString &filename )
 {
-    d->m_map->addGeoDataFile( filename );
-    //d->m_model->addGeoDataFile( filename );
+    //d->m_map->addGeoDataFile( filename );
+    d->m_model->addGeoDataFile( filename );
 }
 
 void MarbleWidget::addGeoDataString( const QString &data, const QString &key )
 {
-    d->m_map->addGeoDataString( data, key );
+    d->m_model->addGeoDataString( data, key );
 }
 
 void MarbleWidget::removeGeoData( const QString &key )
 {
-    d->m_map->removeGeoData( key );
+    d->m_model->removeGeoData( key );
 }
 
 }
