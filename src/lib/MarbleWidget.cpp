@@ -188,11 +188,10 @@ void MarbleWidgetPrivate::construct()
     m_map->setSize( m_widget->width(), m_widget->height() );
     m_map->setMapQuality( m_stillQuality );
 
-    m_widget->connect( m_map,    SIGNAL( projectionChanged( Projection ) ),
-                       m_widget, SIGNAL( projectionChanged( Projection ) ) );
-
     // When some fundamental things change in the model, we got to
     // show this in the view, i.e. here.
+    m_widget->connect( m_model,  SIGNAL( projectionChanged( Projection ) ),
+                       m_widget, SIGNAL( projectionChanged( Projection ) ) );
     m_widget->connect( m_model,  SIGNAL( themeChanged( QString ) ),
 		       m_widget, SIGNAL( themeChanged( QString ) ) );
     m_widget->connect( m_model, SIGNAL( modelChanged() ),

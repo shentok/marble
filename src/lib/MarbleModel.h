@@ -441,6 +441,8 @@ class MARBLE_EXPORT MarbleModel : public QObject
      */
     void modelChanged();
 
+    void projectionChanged( Projection projection );
+
     /**
      * This signal is emit when the settings of a plugin changed.
      */

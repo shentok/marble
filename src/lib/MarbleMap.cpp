@@ -577,8 +577,6 @@ Projection MarbleMap::projection() const
 
 void MarbleMap::setProjection( Projection projection )
 {
-    emit projectionChanged( projection );
-
     d->m_viewParams.setProjection( projection );
 
     d->m_model->setupTextureMapper( projection );

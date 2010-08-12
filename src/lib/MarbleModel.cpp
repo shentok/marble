@@ -575,6 +575,8 @@ void MarbleModel::setHome( const GeoDataCoordinates& homePoint, int zoom )
 
 void MarbleModel::setupTextureMapper( Projection projection )
 {
+    emit projectionChanged( projection );
+
     if ( !d->m_mapTheme || !d->m_mapTheme->map()->hasTextureLayers() )
         return;
   // FIXME: replace this with an approach based on the factory method pattern.
