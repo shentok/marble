@@ -439,7 +439,7 @@ bool MarbleWidget::showAtmosphere() const
 
 bool MarbleWidget::showCrosshairs() const
 {
-    return d->m_map->showCrosshairs();
+    return d->m_model->showCrosshairs();
 }
 
 bool MarbleWidget::showGrid() const
@@ -909,7 +909,7 @@ void MarbleWidget::setShowAtmosphere( bool visible )
 
 void MarbleWidget::setShowCrosshairs( bool visible )
 {
-    d->m_map->setShowCrosshairs( visible );
+    d->m_model->setShowCrosshairs( visible );
 
     repaint();
 }

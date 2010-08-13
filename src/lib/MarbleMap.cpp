@@ -450,22 +450,6 @@ bool MarbleMap::showAtmosphere() const
     return d->m_viewParams.showAtmosphere();
 }
 
-bool MarbleMap::showCrosshairs() const
-{
-    bool visible = false;
-
-    QList<RenderPlugin *> pluginList = renderPlugins();
-    QList<RenderPlugin *>::const_iterator i = pluginList.constBegin();
-    QList<RenderPlugin *>::const_iterator const end = pluginList.constEnd();
-    for (; i != end; ++i ) {
-        if ( (*i)->nameId() == "crosshairs" ) {
-            visible = (*i)->visible();
-        }
-    }
-
-    return visible;
-}
-
 bool MarbleMap::showPlaces() const
 {
     return propertyValue( "places" );
@@ -745,18 +729,6 @@ void MarbleMap::setShowAtmosphere( bool visible )
 
         // Quick and dirty way to force a whole update of the view
         d->doResize();
-    }
-}
-
-void MarbleMap::setShowCrosshairs( bool visible )
-{
-    QList<RenderPlugin *> pluginList = renderPlugins();
-    QList<RenderPlugin *>::const_iterator i = pluginList.constBegin();
-    QList<RenderPlugin *>::const_iterator const end = pluginList.constEnd();
-    for (; i != end; ++i ) {
-        if ( (*i)->nameId() == "crosshairs" ) {
-            (*i)->setVisible( visible );
-        }
     }
 }
 

@@ -70,6 +70,7 @@
 #include "PlacemarkPainter.h"
 #include "Planet.h"
 #include "PluginManager.h"
+#include "RenderPlugin.h"
 #include "StoragePolicy.h"
 #include "SunLocator.h"
 #include "TextureColorizer.h"
@@ -1205,6 +1206,34 @@ void MarbleModel::removeGeoData( const QString& fileName )
     d->m_fileManager->removeFile( fileName );
 
     d->notifyModelChanged();
+}
+
+void MarbleModel::setShowCrosshairs( bool visible )
+{
+    QList<RenderPlugin *> pluginList = renderPlugins();
+    QList<RenderPlugin *>::const_iterator i = pluginList.constBegin();
+    QList<RenderPlugin *>::const_iterator const end = pluginList.constEnd();
+    for (; i != end; ++i ) {
+        if ( (*i)->nameId() == "crosshairs" ) {
+            (*i)->setVisible( visible );
+        }
+    }
+}
+
+bool MarbleModel::showCrosshairs() const
+{
+    bool visible = false;
+
+    QList<RenderPlugin *> pluginList = renderPlugins();
+    QList<RenderPlugin *>::const_iterator i = pluginList.constBegin();
+    QList<RenderPlugin *>::const_iterator const end = pluginList.constEnd();
+    for (; i != end; ++i ) {
+        if ( (*i)->nameId() == "crosshairs" ) {
+            visible = (*i)->visible();
+        }
+    }
+
+    return visible;
 }
 
 }

@@ -368,6 +368,18 @@ class MARBLE_EXPORT MarbleModel : public QObject
     int clockTimezone() const;
 
     /**
+     * @brief  Set whether the crosshairs are visible
+     * @param  visible  visibility of the crosshairs
+     */
+    void setShowCrosshairs( bool visible );
+
+    /**
+     * @brief  Return whether the crosshairs are visible.
+     * @return The crosshairs' visibility.
+     */
+    bool showCrosshairs() const;
+
+    /**
      * return instance of BookmarkManager
     */
     BookmarkManager *bookmarkManager() const;
