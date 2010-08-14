@@ -79,9 +79,6 @@ void MarbleMapPrivate::construct()
 
     m_logzoom  = 0;
 
-    // FloatItems
-    m_showFrameRate = false;
-
 
     m_parent->connect( m_model->sunLocator(), SIGNAL( updateSun() ),
                        m_parent,              SLOT( updateSun() ) );
@@ -146,39 +143,39 @@ void  MarbleMapPrivate::paintMarbleSplash( GeoPainter &painter, QRect &dirtyRect
     painter.restore();
 }
 
-void MarbleMapPrivate::paintGround( GeoPainter &painter, QRect &dirtyRect )
+void MarbleMap::paintGround( GeoPainter &painter, QRect &dirtyRect )
 {
-    if ( !m_viewParams.mapTheme() ) {
+    if ( !d->m_viewParams.mapTheme() ) {
         mDebug() << "No theme yet!";
-        paintMarbleSplash( painter, dirtyRect );
+        d->paintMarbleSplash( painter, dirtyRect );
         return;
     }
 
-    m_model->paintGlobe( &painter, &m_viewParams,
-                         m_justModified || m_viewParams.canvasImage()->isNull(),
-                         dirtyRect );
-    m_justModified = false;
+    d->m_model->paintGlobe( &painter, &d->m_viewParams,
+                            d->m_justModified || d->m_viewParams.canvasImage()->isNull(),
+                            dirtyRect );
+    d->m_justModified = false;
 }
 
-void MarbleMapPrivate::paintFps( GeoPainter &painter, QRect &dirtyRect, qreal fps )
+void MarbleMap::paintOverlay( GeoPainter &painter, QRect &dirtyRect )
 {
-    Q_UNUSED( dirtyRect );
+    Q_UNUSED( dirtyRect )
 
-    if ( m_showFrameRate ) {
-        QString fpsString = QString( "Speed: %1 fps" ).arg( fps, 5, 'f', 1, QChar(' ') );
-
-        QPoint fpsLabelPos( 10, 20 );
-
-        painter.setFont( QFont( "Sans Serif", 10 ) );
-
-        painter.setPen( Qt::black );
-        painter.setBrush( Qt::black );
-        painter.drawText( fpsLabelPos, fpsString );
-
-        painter.setPen( Qt::white );
-        painter.setBrush( Qt::white );
-        painter.drawText( fpsLabelPos.x() - 1, fpsLabelPos.y() - 1, fpsString );
+    if ( !d->m_viewParams.mapTheme() ) {
+        return;
     }
+
+    // FIXME: Add this stuff into the Layermanager as something to be 
+    // called before the float items.
+
+    bool antialiased = false;
+
+    if (   d->m_viewParams.mapQuality() == HighQuality
+        || d->m_viewParams.mapQuality() == PrintQuality ) {
+            antialiased = true;
+    }
+
+    d->m_model->measureTool()->render( &painter, d->m_viewParams.viewport() );
 }
 
 // ----------------------------------------------------------------
@@ -473,11 +470,6 @@ bool MarbleMap::showGps() const
     return d->m_viewParams.showGps();
 }
 
-bool MarbleMap::showFrameRate() const
-{
-    return d->m_showFrameRate;
-}
-
 void MarbleMap::zoomView( int newZoom )
 {
     // Check for under and overflow.
@@ -611,12 +603,11 @@ void MarbleMap::paint( GeoPainter &painter, QRect &dirtyRect )
     QTime t;
     t.start();
     
-    d->paintGround( painter, dirtyRect );
+    paintGround( painter, dirtyRect );
     customPaint( &painter );
     d->m_model->measureTool()->render( &painter, viewport() );
 
     qreal fps = 1000.0 / (qreal)( t.elapsed() );
-    d->paintFps( painter, dirtyRect, fps );
     emit framesPerSecond( fps );
 }
 
@@ -755,11 +746,6 @@ void MarbleMap::setShowLakes( bool visible )
     setPropertyValue( "lakes", visible );
     // Update texture map during the repaint that follows:
     setNeedsUpdate();
-}
-
-void MarbleMap::setShowFrameRate( bool visible )
-{
-    d->m_showFrameRate = visible;
 }
 
 void MarbleMap::setShowGps( bool visible )

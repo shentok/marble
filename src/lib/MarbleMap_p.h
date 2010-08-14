@@ -29,8 +29,6 @@ class TextureColorizer;
 
 class MarbleMapPrivate
 {
-    friend class MarbleWidget;
-
  public:
     explicit MarbleMapPrivate( MarbleMap *parent );
 
@@ -40,9 +38,6 @@ class MarbleMapPrivate
 
     void setBoundingBox();
     void doResize();
-
-    void paintGround( GeoPainter &painter, QRect &dirtyRect);
-    void paintFps( GeoPainter &painter, QRect &dirtyRect, qreal fps);
 
     MarbleMap       *m_parent;
 
@@ -60,12 +55,7 @@ class MarbleMapPrivate
 
     TextureColorizer  *m_sealegend;
 
-    // Parameters for the maps appearance.
-
-    bool             m_showFrameRate;
-
     const qreal      m_viewAngle;
-
 };
 
 }

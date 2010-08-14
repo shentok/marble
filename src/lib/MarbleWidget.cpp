@@ -36,7 +36,6 @@
 #include "MarbleDebug.h"
 #include "MarbleDirs.h"
 #include "MarbleMap.h"
-#include "MarbleMap_p.h" // FIXME: remove this
 #include "MarbleModel.h"
 #include "MarblePhysics.h"
 #include "MarblePlacemarkModel.h"
@@ -78,7 +77,8 @@ class MarbleWidgetPrivate
           m_inputhandler( 0 ),
           m_physics( new MarblePhysics( parent ) ),
           m_repaintTimer(),
-          m_routingLayer( 0 )
+          m_routingLayer( 0 ),
+          m_showFrameRate( false )
     {
     }
 
@@ -111,6 +111,8 @@ class MarbleWidgetPrivate
       */
     void flyTo( const GeoDataLookAt &lookAt );
 
+    void paintFps( GeoPainter &painter, QRect &dirtyRect, qreal fps);
+
     MarbleWidget    *m_widget;
     // The model we are showing.
     MarbleMap       *m_map;
@@ -133,6 +135,7 @@ class MarbleWidgetPrivate
     QTimer           m_repaintTimer;
 
     RoutingLayer     *m_routingLayer;
+    bool             m_showFrameRate;
 };
 
 
@@ -283,9 +286,30 @@ void MarbleWidgetPrivate::flyTo( const GeoDataLookAt &lookAt )
     if ( zoom < m_model->minimumZoom() || zoom > m_model->maximumZoom() )
         return; // avoid moving when zooming is impossible
 
-    m_map->setDistance( lookAt.range() * METER2KM );
+    m_widget->setDistance( lookAt.range() * METER2KM );
     GeoDataCoordinates::Unit deg = GeoDataCoordinates::Degree;
     m_map->centerOn( lookAt.longitude( deg ), lookAt.latitude( deg ) );
+}
+
+void MarbleWidgetPrivate::paintFps( GeoPainter &painter, QRect &dirtyRect, qreal fps )
+{
+    Q_UNUSED( dirtyRect );
+
+    if ( m_showFrameRate ) {
+        QString fpsString = QString( "Speed: %1 fps" ).arg( fps, 5, 'f', 1, QChar(' ') );
+
+        QPoint fpsLabelPos( 10, 20 );
+
+        painter.setFont( QFont( "Sans Serif", 10 ) );
+
+        painter.setPen( Qt::black );
+        painter.setBrush( Qt::black );
+        painter.drawText( fpsLabelPos, fpsString );
+
+        painter.setPen( Qt::white );
+        painter.setBrush( Qt::white );
+        painter.drawText( fpsLabelPos.x() - 1, fpsLabelPos.y() - 1, fpsString );
+    }
 }
 
 // ----------------------------------------------------------------
@@ -498,7 +522,7 @@ bool MarbleWidget::showGps() const
 
 bool MarbleWidget::showFrameRate() const
 {
-    return d->m_map->showFrameRate();
+    return d->m_showFrameRate;
 }
 
 quint64 MarbleWidget::persistentTileCacheLimit() const
@@ -784,7 +808,7 @@ void MarbleWidget::paintEvent( QPaintEvent *evt )
     QRect  dirtyRect = evt->rect();
 
     // Draws the map like MarbleMap::paint does, but adds our customPaint in between
-    d->m_map->d->paintGround( painter, dirtyRect );
+    d->m_map->paintGround( painter, dirtyRect );
     d->m_map->customPaint( &painter );
     customPaint( &painter );
     d->m_model->measureTool()->render( &painter, viewport() );
@@ -806,8 +830,8 @@ void MarbleWidget::paintEvent( QPaintEvent *evt )
     if ( showFrameRate() )
     {
         qreal fps = 1000.0 / (qreal)( t.elapsed() + 1 );
-        d->m_map->d->paintFps( painter, dirtyRect, fps );
-        emit d->m_map->framesPerSecond( fps );
+        d->paintFps( painter, dirtyRect, fps );
+        emit d->m_widget->framesPerSecond( fps );
     }
 }
 
@@ -988,7 +1012,7 @@ void MarbleWidget::setShowLakes( bool visible )
 
 void MarbleWidget::setShowFrameRate( bool visible )
 {
-    d->m_map->setShowFrameRate( visible );
+    d->m_showFrameRate = visible;
 
     repaint();
 }

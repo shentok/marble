@@ -94,8 +94,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
 
  public:
 
-    friend class MarbleWidget;
-
     /**
      * @brief Construct a new MarbleMap.
      *
@@ -334,12 +332,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
     bool showGps() const;
 
     /**
-     * @brief  Return whether the frame rate gets displayed.
-     * @return the frame rates visibility
-     */
-    bool showFrameRate() const;
-
-    /**
       * @brief Return the current camera position
       */
     GeoDataLookAt lookAt() const;
@@ -360,6 +352,9 @@ class MARBLE_EXPORT MarbleMap : public QObject
      * @param dirtyRect the rectangle that actually needs repainting.
      */
     void paint( GeoPainter &painter, QRect &dirtyRect );
+
+    void paintGround( GeoPainter &painter, QRect &dirtyRect);
+    void paintOverlay( GeoPainter &painter, QRect &dirtyRect);
 
     /**
      * @brief  Zoom the view to a certain zoomlevel
@@ -567,12 +562,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
      */
     void setShowGps( bool visible );
 
-    /**
-     * @brief Set whether the frame rate gets shown
-     * @param visible  visibility of the frame rate
-     */
-    void setShowFrameRate( bool visible );
-
      /**
      * @brief used to notify about the position of the mouse click
       */
@@ -620,8 +609,7 @@ class MARBLE_EXPORT MarbleMap : public QObject
      */
     void visibleLatLonAltBoxChanged( const GeoDataLatLonAltBox& visibleLatLonAltBox );
 
- protected:
-
+ public:
     /**
      * @brief Enables custom drawing onto the MarbleMap straight after
      * @brief the globe and before all other layers have been rendered.
