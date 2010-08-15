@@ -1020,18 +1020,6 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
      */
     void paintEvent( QPaintEvent *event );
 
-    /**
-     * @brief Enables custom drawing onto the MarbleWidget straight after
-     * @brief the globe and before all other layers has been rendered.
-     * @param painter 
-     */
-    virtual void customPaint( GeoPainter *painter );
-
-    /**
-     * @brief Reimplementation of the resizeEvent() function in QWidget.
-     */
-    void resizeEvent( QResizeEvent* );
-
     void connectNotify( const char * signal );
     void disconnectNotify( const char * signal );
 
@@ -1053,9 +1041,13 @@ private Q_SLOTS:
       */
     void updateAnimation( const GeoDataLookAt &lookAt );
 
+    void onRadiusChanged( int radius );
+
  private:
     Q_DISABLE_COPY( MarbleWidget )
     MarbleWidgetPrivate  * const d;
+    friend class MarbleWidgetPrivate;
+    class MapPrivate;
 };
 
 }

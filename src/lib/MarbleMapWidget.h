@@ -7,129 +7,149 @@
 //
 // Copyright 2006-2008 Torsten Rahn <tackat@kde.org>
 // Copyright 2007      Inge Wallin  <ingwa@kde.org>
-// Copyright 2009      Jens-Michael Hoffmann <jensmh@gmx.de>
 //
 
-#ifndef MARBLE_MARBLEMAP_H
-#define MARBLE_MARBLEMAP_H
+#ifndef MARBLE_MARBLEMAPWIDGET_H
+#define MARBLE_MARBLEMAPWIDGET_H
 
 
 /** @file
- * This file contains the headers for MarbleMap.
+ * This file contains the headers for MarbleWidget.
  *
  * @author Torsten Rahn <tackat@kde.org>
  * @author Inge Wallin  <inge@lysator.liu.se>
  */
 
-
-#include <QtCore/QSize>
-#include <QtCore/QString>
-#include <QtCore/QObject>
 #include <QtGui/QPixmap>
+#include <QtGui/QWidget>
 
-#include "marble_export.h"
-#include "GeoDataCoordinates.h"       // In geodata/data/
+#include "GeoDataCoordinates.h"
 #include "GeoDataLookAt.h"
+#include "GeoDataLatLonAltBox.h"
 #include "Quaternion.h"
 #include "global.h"             // types needed in all of marble.
-
+#include "GeoDataFolder.h"
 // Qt
 class QAbstractItemModel;
 class QModelIndex;
 class QItemSelectionModel;
+class QSettings;
 
 namespace Marble
 {
 
-// MarbleMap 
-//class MarbleWidgetInputHandler;
-//class MarbleWidgetPopupMenu;
-class MarbleMapPrivate;
-
-// Marble
-class GeoDataLatLonAltBox;
-class MarbleModel;
-class ViewportParams;
-class SunLocator;
+class AbstractFloatItem;
 class FileViewModel;
+class GeoDataLatLonBox;
 class GeoPainter;
+class GeoSceneDocument;
+class MarbleMap;
+class MarbleModel;
+class MarbleWidget;
 class RenderPlugin;
+class SunLocator;
+class TileCreator;
+class GeoDataPlacemark;
+class ViewportParams;
 
 /**
- * @short A class that can paint a view of the earth.
+ * @short A widget class that displays a view of the earth.
  *
- * FIXME: Change this description when we are done.
+ * This widget displays a view of the earth or any other globe,
+ * depending on which dataset is used.  The user can navigate the
+ * globe using either a control widget, e.g. the MarbleControlBox, or
+ * the mouse.  The mouse and keyboard control is done through a
+ * MarbleWidgetInputHandler. Only some aspects of the widget can be
+ * controlled by the mouse and/or keyboard.
  *
- * This class can paint a view of the earth or any other globe,
- * depending on which dataset is used. It can be used to show the
- * globe in a widget like MarbleWidget does, or on any other
- * QPaintDevice.
+ * By clicking on the globe and moving the mouse, the position can be
+ * changed.  The user can also zoom by using the scroll wheel of the
+ * mouse in the widget. The zoom value is not tied to any units, but
+ * is an abstract value without any physical meaning. A value around
+ * 1000 shows the full globe in a normal-sized window. Higher zoom
+ * values give a more zoomed-in view.
  *
- * The projection and other view parameters that control how MarbleMap
- * paints the map is given through the class ViewParams. If the
- * programmer wants to allow the user to control the map, he/she has
- * to provide a way for the user to interact with it.  An example of
- * this can be seen in the class MarbleWidgetInputHandler, that lets
- * the user control a MarbleWidget that uses MarbleMap internally.
+ * The MarbleWidget needs to be provided with a data model to
+ * work. This model is contained in the MarbleModel class, and it is
+ * painted by using a MarbleMap. The widget can also construct its own
+ * map and model if none is given to the constructor.  A MarbleModel
+ * contains 3 separate datatypes: <b>tiles</b> which provide the
+ * background, <b>vectors</b> which provide things like country
+ * borders and coastlines and <b>placemarks</b> which can show points
+ * of interest, such as cities, mountain tops or the poles.
  *
- * The MarbleMap needs to be provided with a data model to
- * work. This model is contained in the MarbleModel class. The widget
- * can also construct its own model if none is given to the
- * constructor.  This data model contains 3 separate datatypes:
- * <b>tiles</b> which provide the background, <b>vectors</b> which
- * provide things like country borders and coastlines and
- * <b>placemarks</b> which can show points of interest, such as
- * cities, mountain tops or the poles.
+ * In addition to navigating with the mouse, you can also use it to
+ * get information about items on the map. You can either click on a
+ * placemark with the left mouse button or with the right mouse button
+ * anywhere on the map.
  *
- * @see MarbleWidget
+ * The left mouse button opens up a menu with all the placemarks
+ * within a certain distance from the mouse pointer. When you choose
+ * one item from the menu, Marble will open up a dialog window with
+ * some information about the placemark and also try to connect to
+ * Wikipedia to retrieve an article about it. If there is such an
+ * article, you will get a mini-browser window with the article in a tab.
+ *
+ * The right mouse button controls a distance tool.  The distance tool
+ * is implemented as a menu where you can choose to either create or
+ * remove so called Measure Points. Marble will keep track of the
+ * Measure Points and show the total distance in the upper left of the
+ * widget.  Measure Points are shown on the map as a little white
+ * cross.
+ *
  * @see MarbleControlBox
+ * @see MarbleMap
  * @see MarbleModel
  */
 
-class MARBLE_EXPORT MarbleMap : public QObject
+class MarbleMapWidget : public QWidget
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "org.kde.MarbleMap")
+
+    Q_PROPERTY(bool showOverviewMap READ showOverviewMap    WRITE setShowOverviewMap)
+    Q_PROPERTY(bool showScaleBar READ showScaleBar    WRITE setShowScaleBar)
+    Q_PROPERTY(bool showCompass  READ showCompass     WRITE setShowCompass)
+    Q_PROPERTY(bool showGrid     READ showGrid        WRITE setShowGrid)
+
+    Q_PROPERTY(bool showClouds   READ showClouds      WRITE setShowClouds)
+    Q_PROPERTY(bool showAtmosphere READ showAtmosphere WRITE setShowAtmosphere)
+    Q_PROPERTY(bool showCrosshairs READ showCrosshairs WRITE setShowCrosshairs)
+
+    Q_PROPERTY(bool showPlaces   READ showPlaces      WRITE setShowPlaces)
+    Q_PROPERTY(bool showCities   READ showCities      WRITE setShowCities)
+    Q_PROPERTY(bool showTerrain  READ showTerrain     WRITE setShowTerrain)
+    Q_PROPERTY(bool showOtherPlaces READ showOtherPlaces WRITE setShowOtherPlaces)
+
+    Q_PROPERTY(bool showRelief   READ showRelief      WRITE setShowRelief)
+    Q_PROPERTY(bool showElevationModel READ showElevationModel WRITE setShowElevationModel)
+
+    Q_PROPERTY(bool showIceLayer READ showIceLayer    WRITE setShowIceLayer)
+    Q_PROPERTY(bool showBorders  READ showBorders     WRITE setShowBorders)
+    Q_PROPERTY(bool showRivers   READ showRivers      WRITE setShowRivers)
+    Q_PROPERTY(bool showLakes    READ showLakes       WRITE setShowLakes)
 
  public:
 
     /**
-     * @brief Construct a new MarbleMap.
-     *
-     * This constructor should be used when you will only use one
-     * MarbleMap.  The widget will create its own MarbleModel when
-     * created.
-     */
-    MarbleMap();
-
-    /**
-     * @brief Construct a new MarbleMap.
+     * @brief Construct a new MarbleWidget.
      * @param model  the data model for the widget.
+     * @param parent the parent widget
      *
      * This constructor should be used when you plan to use more than
-     * one MarbleMap for the same MarbleModel (not yet supported,
+     * one MarbleWidget for the same MarbleModel (not yet supported,
      * but will be soon).
      */
-    explicit MarbleMap( MarbleModel *model );
+    explicit MarbleMapWidget( MarbleMap *map, MarbleWidget *parent );
 
-    virtual ~MarbleMap();
+    virtual ~MarbleMapWidget();
 
     /**
      * @brief Return the model that this view shows.
      */
     MarbleModel *model() const;
 
-    // Accessors to internal objects;
     ViewportParams *viewport();
-
-    void setMapQuality( MapQuality quality );
-    MapQuality mapQuality() const;
-
-    void setSize( int width, int height );
-    void setSize( const QSize& size );
-    QSize size() const;
-    int width() const;
-    int height() const;
+    const ViewportParams *viewport() const;
 
     /**
      * @brief  Return the radius of the globe in pixels.
@@ -143,61 +163,9 @@ class MARBLE_EXPORT MarbleMap : public QObject
     void setRadius( int radius );
 
     /**
-     * @brief Return the current zoom level.
-     */
-    int zoom() const;
-
-    /**
-     * @brief Return the current distance. Convenience function calling distance(radius())
-     * @see distance(qreal) radius
+     * @brief Return the current distance.
      */
     qreal distance() const;
-
-    /**
-     * @brief  Set the distance of the observer to the globe in km.
-     * @param  distance  The new distance in km.
-     */
-    void setDistance( qreal distance );
-
-    /**
-     * @brief Return the current distance string.
-     */
-    QString distanceString() const;
-
-    /**
-     * @brief return the minimum zoom value for the current map theme.
-     */
-    int minimumZoom() const;
-
-    /**
-     * @brief return the minimum zoom value for the current map theme.
-     */
-    int maximumZoom() const;
-
-    /**
-     * @brief Get the screen coordinates corresponding to geographical coordinates in the map.
-     * @param lon    the lon coordinate of the requested pixel position
-     * @param lat    the lat coordinate of the requested pixel position
-     * @param x      the x coordinate of the pixel is returned through this parameter
-     * @param y      the y coordinate of the pixel is returned through this parameter
-     * @return @c true  if the geographical coordinates are visible on the screen
-     *         @c false if the geographical coordinates are not visible on the screen
-     */
-    bool screenCoordinates( qreal lon, qreal lat,
-                            qreal& x, qreal& y ) const;
-
-    /**
-     * @brief Get the earth coordinates corresponding to a pixel in the map.
-     * @param x      the x coordinate of the pixel
-     * @param y      the y coordinate of the pixel
-     * @param lon    the longitude angle is returned through this parameter
-     * @param lat    the latitude angle is returned through this parameter
-     * @return @c true  if the pixel (x, y) is within the globe
-     *         @c false if the pixel (x, y) is outside the globe, i.e. in space.
-     */
-    bool geoCoordinates( int x, int y,
-                         qreal& lon, qreal& lat,
-                         GeoDataCoordinates::Unit = GeoDataCoordinates::Degree ) const;
 
     /**
      * @brief Return the longitude of the center point.
@@ -210,23 +178,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
      * @return The latitude of the center point in degree.
      */
     qreal centerLatitude() const;
-
-    /**
-     * @brief  Return the quaternion that specifies the rotation of the globe.
-     * @return The quaternion that describes the rotation of the globe.
-     */
-    Quaternion planetAxis() const;
-
-    /**
-     * @brief  Return a QPixmap with the current contents of the map.
-     */
-    QPixmap mapScreenShot();
-
-    /**
-     * @brief  Return the property value by name.
-     * @return The property value (usually: visibility).
-     */
-    bool propertyValue( const QString& name ) const;
 
     /**
      * @brief  Return whether the overview map is visible.
@@ -257,6 +208,12 @@ class MARBLE_EXPORT MarbleMap : public QObject
      * @return The cloud cover visibility.
      */
     bool showAtmosphere() const;
+
+    /**
+     * @brief  Return whether the crosshairs are visible.
+     * @return The crosshairs' visibility.
+     */
+    bool showCrosshairs() const;
 
     /**
      * @brief  Return whether the coordinate grid is visible.
@@ -331,29 +288,28 @@ class MARBLE_EXPORT MarbleMap : public QObject
     bool showGps() const;
 
     /**
-      * @brief Return the current camera position
-      */
-    GeoDataLookAt lookAt() const;
+     * @brief  Return whether the frame rate gets displayed.
+     * @return the frame rates visibility
+     */
+    bool showFrameRate() const;
+
+    /**
+     * @brief  Get the Projection used for the map
+     * @return @c Spherical         a Globe
+     * @return @c Equirectangular   a flat map
+     * @return @c Mercator          another flat map
+     */
+    Projection projection() const;
+
+    /**
+     * @brief Retrieve the map quality depending on the view context 
+     */
+    MapQuality mapQuality();
 
  public Q_SLOTS:
 
     void updateSun();
     void centerSun();
-
-    /**
-     * @brief Mark the map as needing an update.
-     */
-    void setNeedsUpdate();
-
-    /**
-     * @brief Paint the map using a give painter.
-     * @param painter  The painter to use.
-     * @param dirtyRect the rectangle that actually needs repainting.
-     */
-    void paint( GeoPainter &painter, QRect &dirtyRect );
-
-    void paintGround( GeoPainter &painter, QRect &dirtyRect);
-    void paintOverlay( GeoPainter &painter, QRect &dirtyRect);
 
     /**
      * @brief  Zoom the view to a certain zoomlevel
@@ -366,25 +322,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
     void zoomView( int zoom );
 
     /**
-     * @brief  Zoom the view by a certain step
-     * @param  zoomStep  the difference between the old zoom and the new
-     */
-    void zoomViewBy( int zoomStep );
-
-    /**
-     * @brief  Rotate the view by the two angles phi and theta.
-     * @param  deltaLon  an angle that specifies the change in terms of longitude
-     * @param  deltaLat  an angle that specifies the change in terms of latitude
-     *
-     * This function rotates the view by two angles,
-     * deltaLon ("theta") and deltaLat ("phi").
-     * If we start at (0, 0), the result will be the exact equivalent
-     * of (lon, lat), otherwise the resulting angle will be the sum of
-     * the previous position and the two offsets.
-     */
-    void rotateBy( const qreal &deltaLon, const qreal &deltaLat );
-
-    /**
      * @brief  Rotate the view by the angle specified by a Quaternion.
      * @param  incRot a quaternion specifying the rotation
      */
@@ -392,38 +329,12 @@ class MARBLE_EXPORT MarbleMap : public QObject
 
     /**
      * @brief  Center the view on a geographical point
-     * @param  lat  an angle parallel to the latitude lines
+     * @param  lat  an angle in degrees parallel to the latitude lines
      *              +90(N) - -90(S)
-     * @param  lon  an angle parallel to the longitude lines
+     * @param  lon  an angle in degrees parallel to the longitude lines
      *              +180(W) - -180(E)
      */
     void centerOn( const qreal lon, const qreal lat );
-
-    /**
-     * @brief  Center the view on a point
-     * @param  index  an index for a QModel, indicating a city
-     */
-    void centerOn( const QModelIndex& index );
-
-    /**
-     * @brief  Set the latitude for the center point
-     * @param  lat  the new value for the latitude in degree
-     */
-    void setCenterLatitude( qreal lat );
-
-    /**
-     * @brief  Set the longitude for the center point
-     * @param  lon  the new value for the longitude in degree
-     */
-    void setCenterLongitude( qreal lon );
-
-    /**
-     * @brief  Get the Projection used for the map
-     * @return @c Spherical         a Globe
-     * @return @c Equirectangular   a flat map
-     * @return @c Mercator          another flat map
-     */
-    Projection projection() const;
 
     /**
      * @brief  Set the Projection used for the map
@@ -476,18 +387,16 @@ class MARBLE_EXPORT MarbleMap : public QObject
     void setShowClouds( bool visible );
 
     /**
-     * @brief Set whether the is tile is visible
-     * NOTE: This is part of the transitional debug API
-     *       and might be subject to changes until Marble 0.8
-     * @param visible visibility of the tile
-     */ 
-    void setShowTileId( bool visible );
-
-    /**
      * @brief  Set whether the atmospheric glow is visible
      * @param  visible  visibility of the atmospheric glow
      */
     void setShowAtmosphere( bool visible );
+
+    /**
+     * @brief  Set whether the crosshairs are visible
+     * @param  visible  visibility of the crosshairs
+     */
+    void setShowCrosshairs( bool visible );
 
     /**
      * @brief  Set whether the coordinate grid overlay is visible
@@ -561,12 +470,29 @@ class MARBLE_EXPORT MarbleMap : public QObject
      */
     void setShowGps( bool visible );
 
-     /**
-     * @brief used to notify about the position of the mouse click
-      */
-    void notifyMouseClick( int x, int y );
+    /**
+     * @brief Set whether the frame rate gets shown
+     * @param visible  visibility of the frame rate
+     */
+    void setShowFrameRate( bool visible );
 
-    bool mapCoversViewport();
+    /**
+     * @brief Set whether the is tile is visible
+     * NOTE: This is part of the transitional debug API
+     *       and might be subject to changes until Marble 0.8
+     * @param visible visibility of the tile
+     */
+    void setShowTileId( bool visible );
+
+    /**
+     * @brief Invalidate the map and update the widget.
+     */
+    void setNeedsUpdate();
+
+    /**
+     * @brief Set the map quality depending on the view context 
+     */
+    void setMapQuality( MapQuality );
 
  Q_SIGNALS:
     /**
@@ -575,19 +501,14 @@ class MARBLE_EXPORT MarbleMap : public QObject
      * @see  setRadius()
      */
     void radiusChanged( int radius );
-    /**
-     * @brief Signal that the zoom has changed, and to what.
-     * @param zoom  The new zoom value.
-     * @see  zoomView()
-     */
-    void zoomChanged( int zoom );
-    void distanceChanged( const QString& distanceString );
 
     /**
      * @brief Signal that the theme has changed
      * @param theme  Name of the new theme.
      */
     void themeChanged( const QString& theme );
+
+    void projectionChanged( Projection );
 
     void mouseMoveGeoPosition( const QString& );
 
@@ -596,29 +517,26 @@ class MARBLE_EXPORT MarbleMap : public QObject
     void framesPerSecond( qreal fps );
 
     /**
-     * This signal is emitted when the repaint of the view was requested.
-     * If available with the @p dirtyRegion which is the region the view will change in.
-     * If dirtyRegion.isEmpty() returns true, the whole viewport has to be repainted.
-     */
-    void repaintNeeded( const QRegion& dirtyRegion );
-
-    /**
      * This signal is emitted when the visible region of the map changes. This typically happens
      * when the user moves the map around or zooms.
      */
     void visibleLatLonAltBoxChanged( const GeoDataLatLonAltBox& visibleLatLonAltBox );
 
- public:
+ protected:
     /**
-     * @brief Enables custom drawing onto the MarbleMap straight after
-     * @brief the globe and before all other layers have been rendered.
-     * @param painter 
+     * @brief Reimplementation of the paintEvent() function in QWidget.
      */
-    virtual void customPaint( GeoPainter *painter );
+    void paintEvent( QPaintEvent *event );
+
+    /**
+     * @brief Reimplementation of the resizeEvent() function in QWidget.
+     */
+    void resizeEvent( QResizeEvent* );
 
  private:
-    Q_DISABLE_COPY( MarbleMap )
-    MarbleMapPrivate * const d;
+    Q_DISABLE_COPY( MarbleMapWidget )
+    class Private;
+    Private  * const d;
 };
 
 }

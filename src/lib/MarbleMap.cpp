@@ -298,6 +298,7 @@ void MarbleMap::setRadius( int radius )
     setNeedsUpdate();
 
     d->m_logzoom = qRound( MarbleModel::zoomFromRadius( radius ) );
+    emit radiusChanged( radius );
     emit zoomChanged( d->m_logzoom );
     emit distanceChanged( distanceString() );
     emit visibleLatLonAltBoxChanged( d->m_viewParams.viewport()->viewLatLonAltBox() );

@@ -64,6 +64,7 @@ set(marblewidget_SRCS
     MarbleWidget.cpp
     MarbleModel.cpp
     MarbleMap.cpp
+    MarbleMapWidget.cpp
     MarbleControlBox.cpp
     NavigationWidget.cpp
     MapViewWidget.cpp
