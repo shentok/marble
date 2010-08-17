@@ -56,6 +56,8 @@ class MercatorProjection : public AbstractProjection
 
     virtual PreservationType preservationType() const { return Conformal; }
 
+    virtual QVector3D vertexCoordinates( const qreal lon, const qreal lat ) const;
+
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.
      * @param lon    the lon coordinate of the requested pixel position

@@ -16,11 +16,13 @@
 #include <QtCore/QCache>
 #include <QtCore/QPointer>
 #include <QtCore/QTimer>
+#include <QtOpenGL/QGLContext>
 
 #include "SphericalScanlineTextureMapper.h"
 #include "EquirectScanlineTextureMapper.h"
 #include "MercatorScanlineTextureMapper.h"
 #include "TileScalingTextureMapper.h"
+#include "GLTextureMapper.h"
 #include "GeoPainter.h"
 #include "GeoSceneGroup.h"
 #include "MergedLayerDecorator.h"
@@ -283,18 +285,35 @@ void TextureLayer::setupTextureMapper( Projection projection )
   // FIXME: replace this with an approach based on the factory method pattern.
     delete d->m_texmapper;
 
+    QGLContext *glContext = const_cast<QGLContext*>( QGLContext::currentContext() );
+
     switch( projection ) {
         case Spherical:
-            d->m_texmapper = new SphericalScanlineTextureMapper( &d->m_tileLoader );
+            if ( glContext ) {
+                d->m_texmapper = new GLTextureMapper( &d->m_tileLoader );
+            }
+            else {
+                d->m_texmapper = new SphericalScanlineTextureMapper( &d->m_tileLoader );
+            }
             break;
         case Equirectangular:
-            d->m_texmapper = new EquirectScanlineTextureMapper( &d->m_tileLoader );
+            if ( glContext ) {
+                d->m_texmapper = new GLTextureMapper( &d->m_tileLoader );
+            }
+            else {
+                d->m_texmapper = new EquirectScanlineTextureMapper( &d->m_tileLoader );
+            }
             break;
         case Mercator:
-            if ( d->m_tileLoader.tileProjection() == GeoSceneTexture::Mercator ) {
-                d->m_texmapper = new TileScalingTextureMapper( &d->m_tileLoader, &d->m_pixmapCache );
+            if ( glContext ) {
+                d->m_texmapper = new GLTextureMapper( &d->m_tileLoader );
             } else {
-                d->m_texmapper = new MercatorScanlineTextureMapper( &d->m_tileLoader );
+                if ( d->m_tileLoader.tileProjection() == GeoSceneTexture::Mercator ) {
+                    d->m_texmapper = new TileScalingTextureMapper( &d->m_tileLoader, &d->m_pixmapCache );
+                }
+                else {
+                    d->m_texmapper = new MercatorScanlineTextureMapper( &d->m_tileLoader );
+                }
             }
             break;
         default:
