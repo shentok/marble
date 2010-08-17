@@ -48,12 +48,20 @@ qreal EquirectProjection::minValidLat() const
     return -90.0 * DEG2RAD;
 }
 
+void EquirectProjection::vertexCoordinates( const qreal lon, const qreal lat,
+                                            qreal &x, qreal &y, qreal &z ) const
+{
+    x = ( lon / 360.0 ) * M_PI;
+    y = ( lat / 180.0 ) * M_PI;
+    z = 1;
+}
+
 bool EquirectProjection::screenCoordinates( const qreal lon, const qreal lat,
                                             const ViewportParams *viewport,
                                             qreal& x, qreal& y ) const
 {
     // Convenience variables
-    int  radius = viewport->radius();
+    int  radius = viewport->radius( lon, lat );
     qreal  width  = (qreal)(viewport->width());
     qreal  height = (qreal)(viewport->height());
 
@@ -61,7 +69,7 @@ bool EquirectProjection::screenCoordinates( const qreal lon, const qreal lat,
     const qreal centerLon = viewport->centerLongitude();
     const qreal centerLat = viewport->centerLatitude();
 
-    qreal  rad2Pixel = 2.0 * viewport->radius() / M_PI;
+    qreal  rad2Pixel = 2.0 * viewport->radius( lon, lat ) / M_PI;
  
     // Let (x, y) be the position on the screen of the point.
     x = ( width  / 2.0 + ( lon - centerLon ) * rad2Pixel );

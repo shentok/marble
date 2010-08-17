@@ -71,6 +71,10 @@ endif(EXPERIMENTAL_PYTHON_BINDINGS)
 
 #### End Python support ####
 
+###################################################
+# Check if OpenGL is available
+find_package(OpenGL REQUIRED)
+
 ####################################################
 # build unit tests
 

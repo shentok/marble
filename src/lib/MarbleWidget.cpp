@@ -43,6 +43,7 @@
 #include "MarbleModel.h"
 #include "MarblePhysics.h"
 #include "MarbleView.h"
+#include "MarbleGLView.h"
 #include "MarbleWidgetInputHandler.h"
 #include "MarbleWidgetPopupMenu.h"
 #include "MeasureTool.h"
@@ -97,7 +98,7 @@ class MarbleWidgetPrivate
         : m_widget( parent ),
           m_model(),
           m_map( &m_model ),
-          m_view( new MarbleView( &m_map, parent ) ),
+          m_view( new MarbleGLView( &m_map, parent ) ),
           m_animationsEnabled( false ),
           m_logzoom( 0 ),
           m_zoomStep( MarbleGlobal::getInstance()->profiles() & MarbleGlobal::SmallScreen ? 60 : 40 ),
@@ -259,7 +260,7 @@ void MarbleWidgetPrivate::construct()
     m_repaintTimer.setSingleShot( true );
     m_repaintTimer.setInterval( REPAINT_SCHEDULING_INTERVAL );
     m_widget->connect( &m_repaintTimer, SIGNAL( timeout() ),
-                       m_widget, SLOT( update() ) );
+                       m_view, SLOT( update() ) );
 
     m_popupmenu = new MarbleWidgetPopupMenu( m_widget, &m_model );
 
@@ -291,8 +292,7 @@ void MarbleWidgetPrivate::repaint()
 {
     // We only have to repaint the background every time if the earth
     // doesn't cover the whole image.
-    m_view->setAttribute( Qt::WA_NoSystemBackground,
-                  m_widget->viewport()->mapCoversViewport() && !m_model.mapThemeId().isEmpty() );
+    m_view->setAttribute( Qt::WA_NoSystemBackground, true );
 
     m_view->update();
 }
@@ -698,6 +698,20 @@ void MarbleWidget::setCenterLongitude( qreal lon, FlyToMode mode )
     centerOn( lon, centerLatitude(), mode );
 }
 
+void MarbleWidget::setHeading( qreal heading )
+{
+    d->m_map.viewport()->setHeading( heading );
+
+    d->repaint();
+}
+
+void MarbleWidget::setTilt( qreal tilt )
+{
+    d->m_map.viewport()->setTilt( tilt );
+
+    d->repaint();
+}
+
 Projection MarbleWidget::projection() const
 {
     return d->m_map.projection();
@@ -777,6 +791,16 @@ qreal MarbleWidget::centerLatitude() const
 qreal MarbleWidget::centerLongitude() const
 {
     return d->m_map.centerLongitude();
+}
+
+qreal MarbleWidget::heading() const
+{
+    return viewport()->heading();
+}
+
+qreal MarbleWidget::tilt() const
+{
+    return viewport()->tilt();
 }
 
 QRegion MarbleWidget::activeRegion()
