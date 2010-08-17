@@ -12,6 +12,7 @@
 #define MARBLE_MARBLETEXTURELAYER_H
 
 #include "LayerInterface.h"
+#include "GlLayerInterface.h"
 #include <QtCore/QObject>
 
 #include "MarbleGlobal.h"
@@ -20,6 +21,7 @@
 
 #include <QtCore/QSize>
 
+class QGLContext;
 class QImage;
 class QRegion;
 class QRect;
@@ -35,7 +37,7 @@ class SunLocator;
 class VectorComposer;
 class ViewportParams;
 
-class TextureLayer : public QObject, public LayerInterface
+class TextureLayer : public QObject, public LayerInterface, public GlLayerInterface
 {
     Q_OBJECT
 
@@ -78,6 +80,8 @@ class TextureLayer : public QObject, public LayerInterface
 
     virtual bool render( GeoPainter *painter, ViewportParams *viewport,
                  const QString &renderPos = "NONE", GeoSceneLayer *layer = 0 );
+
+    void paintGL( QGLContext *glContext, const ViewportParams *viewport );
 
 public Q_SLOTS:
     void setShowRelief( bool show );
