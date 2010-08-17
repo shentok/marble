@@ -12,6 +12,7 @@
 #define MARBLE_MARBLETEXTURELAYER_H
 
 #include "LayerInterface.h"
+#include "GlLayerInterface.h"
 #include <QObject>
 
 #include "MarbleGlobal.h"
@@ -20,6 +21,7 @@
 #include <QSize>
 
 class QAbstractItemModel;
+class QGLContext;
 class QImage;
 class QRegion;
 class QRect;
@@ -35,7 +37,7 @@ class HttpDownloadManager;
 class SunLocator;
 class ViewportParams;
 
-class MARBLE_EXPORT TextureLayer : public QObject, public LayerInterface
+class MARBLE_EXPORT TextureLayer : public QObject, public LayerInterface, public GlLayerInterface
 {
     Q_OBJECT
 
@@ -80,6 +82,8 @@ class MARBLE_EXPORT TextureLayer : public QObject, public LayerInterface
     virtual bool render( GeoPainter *painter, ViewportParams *viewport,
                          const QString &renderPos = QLatin1String("NONE"),
                          GeoSceneLayer *layer = 0 );
+
+    void paintGL( QGLContext *glContext, const ViewportParams *viewport );
 
 public Q_SLOTS:
     void setShowRelief( bool show );

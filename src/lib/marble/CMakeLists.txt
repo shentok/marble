@@ -180,6 +180,7 @@ set(marblewidget_SRCS
     MercatorScanlineTextureMapper.cpp
     TileScalingTextureMapper.cpp
     GenericScanlineTextureMapper.cpp
+    GLTextureMapper.cpp
     VectorTileModel.cpp
     DiscCache.cpp
     ServerLayout.cpp
