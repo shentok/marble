@@ -36,6 +36,7 @@
 #include "GeoPainter.h"
 #include "MarbleDebug.h"
 #include "MarbleDirs.h"
+#include "MarbleGLWidget.h"
 #include "MarbleLocale.h"
 #include "MarbleMap.h"
 #include "MarbleMapWidget.h"
@@ -297,9 +298,99 @@ private:
 };
 
 
+class MarbleWidget::GLPrivate : public MarbleWidgetPrivate
+{
+public:
+    GLPrivate( MarbleModel *model, MarbleWidget *parent )
+        : MarbleWidgetPrivate( model, parent )
+        , m_widget( new MarbleGLWidget( model, parent ) )
+    {
+        parent->setLayout( new QHBoxLayout( parent ) );
+        parent->layout()->setMargin( 0 );
+        parent->layout()->addWidget( m_widget );
+
+        // Initialize the map and forward some signals.
+        m_widget->setMapQuality( m_stillQuality );
+
+        // When some fundamental things change in the map, we got to show
+        // this in the view, i.e. here.
+        parent->connect( m_widget, SIGNAL( radiusChanged( int ) ),
+                           parent, SLOT( onRadiusChanged( int ) ) );
+        parent->connect( m_widget, SIGNAL( visibleLatLonAltBoxChanged( GeoDataLatLonAltBox )),
+                           parent, SIGNAL( visibleLatLonAltBoxChanged( GeoDataLatLonAltBox )));
+    }
+
+    virtual ViewportParams *viewport() { return m_widget->viewport(); }
+    virtual const ViewportParams *viewport() const { return m_widget->viewport(); }
+
+    virtual int radius() const { return m_widget->radius(); }
+    virtual void setRadius( int radius ) { m_widget->setRadius( radius ); }
+
+    virtual void zoomView( int /*zoom*/ ) { /* not implemented */ }
+
+    virtual qreal centerLatitude() const { return m_widget->centerLatitude(); }
+    virtual qreal centerLongitude() const { return m_widget->centerLongitude(); }
+    virtual void centerOn( qreal lon, qreal lat ) { m_widget->centerOn( lon, lat ); }
+
+    virtual bool showOverviewMap() const { return m_widget->showOverviewMap(); }
+    virtual bool showScaleBar() const { return m_widget->showScaleBar(); }
+    virtual bool showCompass() const { return m_widget->showCompass(); }
+    virtual bool showClouds() const { return m_widget->showClouds(); }
+    virtual bool showAtmosphere() const { return m_widget->showAtmosphere(); }
+    virtual bool showGrid() const { return m_widget->showGrid(); }
+    virtual bool showPlaces() const { return m_widget->showPlaces(); }
+    virtual bool showCities() const { return m_widget->showCities(); }
+    virtual bool showTerrain() const { return m_widget->showTerrain(); }
+    virtual bool showOtherPlaces() const { return m_widget->showOtherPlaces(); }
+    virtual bool showRelief() const { return m_widget->showRelief(); }
+    virtual bool showElevationModel() const { return m_widget->showElevationModel(); }
+    virtual bool showIceLayer() const { return m_widget->showIceLayer(); }
+    virtual bool showBorders() const { return m_widget->showBorders(); }
+    virtual bool showRivers() const { return m_widget->showRivers(); }
+    virtual bool showLakes() const { return m_widget->showLakes(); }
+    virtual bool showGps() const { return m_widget->showGps(); }
+
+    virtual void setShowOverviewMap( bool show ) { m_widget->setShowOverviewMap( show ); }
+    virtual void setShowScaleBar( bool show ) { m_widget->setShowScaleBar( show ); }
+    virtual void setShowCompass( bool show ) { m_widget->setShowCompass( show ); }
+    virtual void setShowClouds( bool show ) { m_widget->setShowClouds( show ); }
+    virtual void setShowAtmosphere( bool show ) { m_widget->setShowAtmosphere( show ); }
+    virtual void setShowGrid( bool show ) { m_widget->setShowGrid( show ); }
+    virtual void setShowPlaces( bool show ) { m_widget->setShowPlaces( show ); }
+    virtual void setShowCities( bool show ) { m_widget->setShowCities( show ); }
+    virtual void setShowTerrain( bool show ) { m_widget->setShowTerrain( show ); }
+    virtual void setShowOtherPlaces( bool show ) { m_widget->setShowOtherPlaces( show ); }
+    virtual void setShowRelief( bool show ) { m_widget->setShowRelief( show ); }
+    virtual void setShowElevationModel( bool show ) { m_widget->setShowElevationModel( show ); }
+    virtual void setShowIceLayer( bool show ) { m_widget->setShowIceLayer( show ); }
+    virtual void setShowBorders( bool show ) { m_widget->setShowBorders( show ); }
+    virtual void setShowRivers( bool show ) { m_widget->setShowRivers( show ); }
+    virtual void setShowLakes( bool show ) { m_widget->setShowLakes( show ); }
+    virtual void setShowGps( bool show ) { m_widget->setShowGps( show ); }
+    virtual void setShowTileId( bool show ) { m_widget->setShowTileId( show ); }
+
+    virtual void setPropertyValue( const QString& name, bool value ) { m_widget->setPropertyValue( name, value ); }
+
+    virtual Projection projection() const { return m_widget->projection(); }
+    virtual void setProjection( Projection projection ) { m_widget->setProjection( projection ); }
+
+    virtual void setMapThemeId( const QString& mapThemeId ) { m_widget->setMapThemeId( mapThemeId ); }
+
+    virtual void setMapQuality( MapQuality mapQuality ) { m_widget->setMapQuality( mapQuality ); }
+    virtual MapQuality mapQuality() const { return m_widget->mapQuality(); }
+
+    virtual void setNeedsUpdate() { m_widget->setNeedsUpdate(); }
+    virtual void updateSun() { m_widget->updateSun(); }
+
+private:
+    MarbleGLWidget *const m_widget;
+};
+
+
+
 MarbleWidget::MarbleWidget(QWidget *parent)
     : QWidget( parent ),
-      d( new MapPrivate( new MarbleMap(), this ) )
+      d( new GLPrivate( new MarbleModel( this ), this ) )
 {
     setAttribute( Qt::WA_NoSystemBackground, true );
 

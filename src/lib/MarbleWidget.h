@@ -1048,6 +1048,7 @@ private Q_SLOTS:
     MarbleWidgetPrivate  * const d;
     friend class MarbleWidgetPrivate;
     class MapPrivate;
+    class GLPrivate;
 };
 
 }

@@ -610,6 +610,20 @@ HttpDownloadManager* MarbleModel::downloadManager() const
 }
 
 
+QImage MarbleModel::tileImage( const Marble::TileId& id, DownloadUsage usage )
+{
+    if ( !d->m_tileLoader )
+        return QImage();
+
+    const StackedTile *tile = d->m_tileLoader->loadTile( id, usage );
+
+    if ( !tile )
+        return QImage();
+
+    return *tile->resultTile();
+}
+
+
 void MarbleModel::paintGlobe( GeoPainter *painter,
                               ViewParams *viewParams,
                               bool redrawBackground,

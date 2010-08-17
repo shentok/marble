@@ -34,9 +34,11 @@
 #include <QtCore/QString>
 #include <QtCore/QVector>
 #include <QtGui/QRegion>
+#include <QtGui/QImage>
 
 #include "global.h"
 
+class QImage;
 class QItemSelectionModel;
 class QAbstractItemModel;
 class QPoint;
@@ -63,6 +65,7 @@ class SunLocator;
 class TileCreator;
 class ViewParams;
 class StackedTile;
+class TileId;
 class RenderPlugin;
 class PluginManager;
 class AbstractFloatItem;
@@ -215,6 +218,8 @@ class MARBLE_EXPORT MarbleModel : public QObject
      * @return the HttpDownloadManager instance.
      */
     HttpDownloadManager* downloadManager() const;
+
+    QImage tileImage( const TileId &id, DownloadUsage usage );
 
     /**
       * @deprecated Please use addGeoDataFile instead
@@ -393,6 +398,8 @@ class MARBLE_EXPORT MarbleModel : public QObject
 
     void setBackgroundVisible( bool visible );
 
+    GeoSceneTexture * textureLayer() const;
+
  public Q_SLOTS:
     void reloadMap() const;
 
@@ -465,7 +472,6 @@ class MARBLE_EXPORT MarbleModel : public QObject
     Q_PRIVATE_SLOT( d, void notifyModelChanged() )
 
     void addDownloadPolicies( GeoSceneDocument *mapTheme );
-    GeoSceneTexture * textureLayer() const;
 
     MarbleModelPrivate  * const d;
 };
