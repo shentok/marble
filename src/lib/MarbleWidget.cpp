@@ -379,12 +379,12 @@ int MarbleWidget::zoom() const
 
 int  MarbleWidget::minimumZoom() const
 {
-    return d->m_map->minimumZoom();
+    return d->m_model->minimumZoom();
 }
 
 int  MarbleWidget::maximumZoom() const
 {
-    return d->m_map->maximumZoom();
+    return d->m_model->maximumZoom();
 }
 
 void MarbleWidget::addPlacemarkFile( const QString &filename )
@@ -504,7 +504,7 @@ bool MarbleWidget::showFrameRate() const
 
 quint64 MarbleWidget::persistentTileCacheLimit() const
 {
-    return d->m_map->persistentTileCacheLimit();
+    return d->m_model->persistentTileCacheLimit();
 }
 
 quint64 MarbleWidget::volatileTileCacheLimit() const
@@ -1030,12 +1030,12 @@ FileViewModel* MarbleWidget::fileViewModel() const
 
 void MarbleWidget::clearPersistentTileCache()
 {
-    d->m_map->clearPersistentTileCache();
+    d->m_model->clearPersistentTileCache();
 }
 
 void MarbleWidget::setPersistentTileCacheLimit( quint64 kiloBytes )
 {
-    d->m_map->setPersistentTileCacheLimit( kiloBytes );
+    d->m_model->setPersistentTileCacheLimit( kiloBytes );
 }
 
 void MarbleWidget::clearVolatileTileCache()
