@@ -102,7 +102,7 @@ class MarbleGLWidget::Private
     bool       m_showFrameRate;
     bool       m_showTileId;
 
-    QList<Tile*> m_tiles;
+    QList<Tile> m_tiles;
     QList<TileId> m_tileQueue;
     QTimer      m_tileQueueTimer;
 };
@@ -111,79 +111,55 @@ class MarbleGLWidget::Private
 class MarbleGLWidget::Tile
 {
 public:
-    Tile( const TileId &id, GLuint glName, const GeoSceneTexture *texture );
-    ~Tile();
-
-    void render( qreal radius );
+    Tile( const TileId &id, GLuint glName );
 
     TileId id() const { return m_id; }
+    GLuint glName() const { return m_glName; }
+    bool operator==( const Tile &other );
 
 private:
-    const TileId m_id;
-    const GLuint m_glName;
-    const GeoSceneTexture *const m_texture;
-    QColor m_color;
+    TileId m_id;
+    GLuint m_glName;
 };
 
 
-MarbleGLWidget::Tile::Tile( const Marble::TileId &id, GLuint glName, const GeoSceneTexture *texture )
+MarbleGLWidget::Tile::Tile( const Marble::TileId &id, GLuint glName )
     : m_id( id )
     , m_glName( glName )
-    , m_texture( texture )
-    , m_color( rand() % 256, rand() % 256, rand() % 256 )
 {
 }
 
-MarbleGLWidget::Tile::~Tile()
+bool MarbleGLWidget::Tile::operator==(const Tile &other)
 {
-    glDeleteTextures( 1, &m_glName );
+    return m_id == other.id() && m_glName == other.glName();
 }
 
 
-void MarbleGLWidget::Tile::render( qreal radius )
+void MarbleGLWidget::renderTile( const Tile &tile )
 {
     static const double start_lat = M_PI*0.5;
     static const double start_lon = -M_PI;
 
     const int NumLatitudes = 10;
     const int NumLongitudes = 10;
-    const int numXTiles = TileLoaderHelper::levelToColumn( m_texture->levelZeroColumns(), m_id.zoomLevel() );
-    const int numYTiles = TileLoaderHelper::levelToRow( m_texture->levelZeroRows(), m_id.zoomLevel() );
+    const int numXTiles = TileLoaderHelper::levelToColumn( d->m_model->textureLayer()->levelZeroColumns(), tile.id().zoomLevel() );
+    const int numYTiles = TileLoaderHelper::levelToRow( d->m_model->textureLayer()->levelZeroRows(), tile.id().zoomLevel() );
 
-    glBegin(GL_LINES);
-//    glColor3ub( m_color.red(), m_color.green(), m_color.blue() );
-    for (int j = 0; j < 2; ++j)
-    {
-        for (int i = 0; i < 2; ++i)
-        {
-            double const theta1 = start_lat - ((m_id.y() + j) * (1.0/numYTiles)) * M_PI;
-            double const phi1   = start_lon + ((m_id.x() + i) * (2.0/numXTiles)) * M_PI;
-
-            double const u0 =  1.2 * radius * sin(phi1) * cos(theta1);    //x
-            double const u1 =  1.2 * radius             * sin(theta1);    //y
-            double const u2 =  1.2 * radius * cos(phi1) * cos(theta1);    //z
-
-            glVertex3f(0.0f, 0.0f, 0.0f); // origin of the line
-            glVertex3f(u0, u1, u2); // ending point of the line
-        }
-    }
-    glEnd();
-
-    glBindTexture( GL_TEXTURE_2D, m_glName );
+    glBindTexture( GL_TEXTURE_2D, tile.glName() );
 
     for (int row = 0; row < NumLatitudes; row++) {
-        double const theta1 = start_lat - ((m_id.y()*NumLatitudes + row    ) * (1.0/NumLatitudes/numYTiles)) * M_PI;
-        double const theta2 = start_lat - ((m_id.y()*NumLatitudes + row + 1) * (1.0/NumLatitudes/numYTiles)) * M_PI;
+        double const theta1 = start_lat - ((tile.id().y()*NumLatitudes + row    ) * (1.0/NumLatitudes/numYTiles)) * M_PI;
+        double const theta2 = start_lat - ((tile.id().y()*NumLatitudes + row + 1) * (1.0/NumLatitudes/numYTiles)) * M_PI;
 
-        double const phi1 = start_lon + (m_id.x()*NumLongitudes * (2.0/NumLongitudes/numXTiles)) * M_PI;
+        double const phi1 = start_lon + (tile.id().x()*NumLongitudes * (2.0/NumLongitudes/numXTiles)) * M_PI;
 
-        double const u0 =  radius * sin(phi1) * cos(theta1);    //x
-        double const u1 =  radius             * sin(theta1);    //y
-        double const u2 =  radius * cos(phi1) * cos(theta1);    //z
+        double const u0 =  radius() * sin(phi1) * cos(theta1);    //x
+        double const u1 =  radius()             * sin(theta1);    //y
+        double const u2 =  radius() * cos(phi1) * cos(theta1);    //z
 
-        double const v0 =  radius * sin(phi1) * cos(theta2);    //x
-        double const v1 =  radius             * sin(theta2);    //y
-        double const v2 =  radius * cos(phi1) * cos(theta2);    //z
+        double const v0 =  radius() * sin(phi1) * cos(theta2);    //x
+        double const v1 =  radius()             * sin(theta2);    //y
+        double const v2 =  radius() * cos(phi1) * cos(theta2);    //z
 
         glBegin( GL_TRIANGLE_STRIP );
 
@@ -193,18 +169,18 @@ void MarbleGLWidget::Tile::render( qreal radius )
         glVertex3d(v0, v1, v2);
 
         for (int col = 0; col < NumLongitudes; col++){
-            double const phi2 = start_lon + ((m_id.x()*NumLongitudes + col + 1) * (2.0/NumLongitudes/numXTiles)) * M_PI;
+            double const phi2 = start_lon + ((tile.id().x()*NumLongitudes + col + 1) * (2.0/NumLongitudes/numXTiles)) * M_PI;
 
-            double const w0 =  radius * sin(phi2) * cos(theta1);    //x
-            double const w1 =  radius             * sin(theta1);    //y
-            double const w2 =  radius * cos(phi2) * cos(theta1);    //z
+            double const w0 =  radius() * sin(phi2) * cos(theta1);    //x
+            double const w1 =  radius()             * sin(theta1);    //y
+            double const w2 =  radius() * cos(phi2) * cos(theta1);    //z
 
             glTexCoord2d((col+1)*1.0/NumLatitudes, 1-row*1.0/NumLongitudes);
             glVertex3d(w0, w1, w2);
 
-            double const x0 =  radius * sin(phi2) * cos(theta2);    //x
-            double const x1 =  radius             * sin(theta2);    //y
-            double const x2 =  radius * cos(phi2) * cos(theta2);    //z
+            double const x0 =  radius() * sin(phi2) * cos(theta2);    //x
+            double const x1 =  radius()             * sin(theta2);    //y
+            double const x2 =  radius() * cos(phi2) * cos(theta2);    //z
 
             glTexCoord2d((col+1)*1.0/NumLatitudes, 1-(row+1)*1.0/NumLongitudes);
             glVertex3d(x0, x1, x2);
@@ -221,6 +197,8 @@ MarbleGLWidget::MarbleGLWidget( MarbleModel *model, QWidget *parent )
 //    setAttribute( Qt::WA_PaintOnScreen, true );
     connect( this, SIGNAL( visibleLatLonAltBoxChanged( const GeoDataLatLonAltBox & ) ),
              this, SLOT( updateTiles() ) );
+    connect( model, SIGNAL( tileUpdateAvailable( const TileId & ) ),
+             this, SLOT( tileUpdated( const TileId & ) ) );
 
     d->m_tileQueueTimer.setSingleShot( true );
     connect( &d->m_tileQueueTimer, SIGNAL( timeout() ),
@@ -513,7 +491,7 @@ void MarbleGLWidget::updateTiles()
 
     d->m_tileQueue.clear();
 
-    QList<Tile *> unusedTiles = d->m_tiles;
+    QList<Tile> unusedTiles = d->m_tiles;
 
     const int hash = qHash( textureLayer->sourceDir() );
 
@@ -524,8 +502,8 @@ void MarbleGLWidget::updateTiles()
             const TileId id( hash, level, i % numXTiles, j % numYTiles );
 
             bool found = false;
-            foreach (Tile *tile, unusedTiles) {
-                if ( tile->id() == id ) {
+            foreach ( const Tile &tile, unusedTiles) {
+                if ( tile.id() == id ) {
                     found = true;
                     unusedTiles.removeAll( tile );
                 }
@@ -536,11 +514,24 @@ void MarbleGLWidget::updateTiles()
         }
     }
 
-    foreach (Tile *tile, unusedTiles) {
+    foreach ( const Tile &tile, unusedTiles) {
         d->m_tiles.removeAll( tile );
+        deleteTexture( tile.glName() );
     }
-    qDeleteAll( unusedTiles );
 
+    processNextTile();
+}
+
+void MarbleGLWidget::tileUpdated( const TileId &id )
+{
+    foreach ( const Tile &tile, d->m_tiles ) {
+        if ( tile.id() == id ) {
+            d->m_tiles.removeAll( tile );
+            deleteTexture( tile.glName() );
+        }
+    }
+
+    d->m_tileQueue.prepend( id );
     processNextTile();
 }
 
@@ -556,7 +547,7 @@ void MarbleGLWidget::processNextTile()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
-    d->m_tiles.append( new Tile( id, texture, d->m_model->textureLayer() ) );
+    d->m_tiles.append( Tile( id, texture ) );
 
     update();
 
@@ -577,7 +568,6 @@ void MarbleGLWidget::paintGL()
     QTime t;
     t.start();
 
-//    qglClearColor(clearColor);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     const Quaternion axis = d->m_viewParams.viewport()->planetAxis();
@@ -590,8 +580,8 @@ void MarbleGLWidget::paintGL()
     glLoadIdentity();
     glRotated( angle, ax, ay, az );
 
-    foreach ( Tile *tile, d->m_tiles ) {
-        tile->render( radius() );
+    foreach ( const Tile &tile, d->m_tiles ) {
+        renderTile( tile );
     }
 
 #if 0

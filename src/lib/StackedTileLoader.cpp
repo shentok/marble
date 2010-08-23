@@ -386,7 +386,7 @@ void StackedTileLoader::updateTile( TileId const & stackedTileId, TileId const &
     if ( displayedTile ) {
         displayedTile->initResultTile();
         mergeDecorations( displayedTile );
-        emit tileUpdateAvailable();
+        emit tileUpdateAvailable( stackedTileId );
     }
     else {
         StackedTile * const cachedTile = d->m_tileCache.object( stackedTileId );
@@ -402,7 +402,6 @@ void StackedTileLoader::update()
     mDebug() << "StackedTileLoader::update()";
     flush(); // trigger a reload of all tiles that are currently in use
     d->m_tileCache.clear(); // clear the tile cache in physical memory
-    emit tileUpdateAvailable();
 }
 
 inline GeoSceneLayer const * StackedTileLoader::findSceneLayer( TileId const & stackedTileId ) const
@@ -520,7 +519,7 @@ void StackedTileLoader::reloadCachedTile( StackedTile * const cachedTile,
     }
     cachedTile->initResultTile();
     mergeDecorations( cachedTile );
-    emit tileUpdateAvailable();
+    emit tileUpdateAvailable( cachedTile->id() );
 }
 
 }

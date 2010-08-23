@@ -154,7 +154,7 @@ class StackedTileLoader : public QObject
          * This signal is emitted whenever a requested tile has been
          * downloaded and is available now.
          */
-        void tileUpdateAvailable();
+        void tileUpdateAvailable( TileId const & );
 
     private Q_SLOTS:
         void updateTextureLayers();

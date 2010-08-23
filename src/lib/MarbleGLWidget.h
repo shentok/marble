@@ -478,9 +478,14 @@ class MarbleGLWidget : public QGLWidget
      */
     void visibleLatLonAltBoxChanged( const GeoDataLatLonAltBox &visibleLatLonAltBox );
 
- protected Q_SLOTS:
-     void updateTiles();
-     void processNextTile();
+ private:
+    class Tile;
+
+ private Q_SLOTS:
+    void renderTile( const Tile &tile );
+    void updateTiles();
+    void tileUpdated( const TileId &id );
+    void processNextTile();
 
  protected:
     virtual void initializeGL();
@@ -499,7 +504,6 @@ class MarbleGLWidget : public QGLWidget
     Q_DISABLE_COPY( MarbleGLWidget )
     class Private;
     Private  * const d;
-    class Tile;
 };
 
 }

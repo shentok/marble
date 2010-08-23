@@ -216,6 +216,8 @@ MarbleModel::MarbleModel( QObject *parent )
 
     d->m_tileLoader = new StackedTileLoader( d->m_mapThemeManager, d->textureLayerProperties(),
                                              d->m_downloadManager, this );
+    connect( d->m_tileLoader, SIGNAL( tileUpdateAvailable( const TileId & ) ),
+             this, SIGNAL( tileUpdateAvailable( const TileId & ) ) );
 
     // A new instance of FileStorageWatcher.
     // The thread will be started at setting persistent tile cache size.

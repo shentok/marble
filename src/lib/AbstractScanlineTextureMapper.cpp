@@ -50,7 +50,7 @@ AbstractScanlineTextureMapper::AbstractScanlineTextureMapper( GeoSceneTexture * 
 {
     Q_ASSERT( textureLayer );  // just for documentation
 
-    connect( m_tileLoader, SIGNAL( tileUpdateAvailable() ),
+    connect( m_tileLoader, SIGNAL( tileUpdateAvailable( const TileId & ) ),
              this,         SLOT( notifyMapChanged() ) );
 
     detectMaxTileLevel();

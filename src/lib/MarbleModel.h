@@ -450,6 +450,8 @@ class MARBLE_EXPORT MarbleModel : public QObject
 
     void projectionChanged( Projection projection );
 
+    void tileUpdateAvailable( const TileId &id );
+
     /**
      * This signal is emit when the settings of a plugin changed.
      */
