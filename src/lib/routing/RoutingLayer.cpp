@@ -655,6 +655,9 @@ QStringList RoutingLayer::renderPosition() const
 bool RoutingLayer::render( GeoPainter *painter, ViewportParams *viewport,
                            const QString& renderPos, GeoSceneLayer *layer )
 {
+    if ( !d->m_marbleWidget->mapTheme() )
+        return false;
+
     if ( d->m_marbleWidget->mapTheme()->head()->target() != "earth" ) {
         return false;
     }

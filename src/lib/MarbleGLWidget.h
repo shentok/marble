@@ -486,6 +486,7 @@ class MarbleGLWidget : public QGLWidget
     void updateTiles();
     void tileUpdated( const TileId &id );
     void processNextTile();
+    void setupViewport( int width, int height );
 
  protected:
     virtual void initializeGL();
@@ -493,7 +494,7 @@ class MarbleGLWidget : public QGLWidget
     /**
      * @brief Reimplementation of the paintEvent() function in QWidget.
      */
-    virtual void paintGL();
+    virtual void paintEvent( QPaintEvent *event );
 
     /**
      * @brief Reimplementation of the resizeEvent() function in QWidget.

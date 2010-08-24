@@ -627,6 +627,12 @@ QImage MarbleModel::tileImage( const Marble::TileId& id, DownloadUsage usage )
 }
 
 
+void MarbleModel::renderLayers( GeoPainter *painter, ViewParams *viewParams, const QStringList &renderPositions )
+{
+    d->m_layerManager->renderLayers( painter, viewParams, renderPositions );
+}
+
+
 void MarbleModel::paintGlobe( GeoPainter *painter,
                               ViewParams *viewParams,
                               bool redrawBackground,
@@ -1171,6 +1177,11 @@ GeoSceneTexture * MarbleModel::textureLayer() const
         return 0;
 
     return static_cast<GeoSceneTexture*>( layer->groundDataset() );
+}
+
+VectorComposer* MarbleModel::vectorComposer() const
+{
+    return &d->m_veccomposer;
 }
 
 RoutingManager* MarbleModel::routingManager()

@@ -73,6 +73,7 @@ class GeoDataCoordinates;
 class GeoDataDocument;
 class GeoSceneDocument;
 class GeoSceneTexture;
+class VectorComposer;
 class Planet;
 class LayerInterface;
 class RoutingManager;
@@ -118,6 +119,8 @@ class MARBLE_EXPORT MarbleModel : public QObject
      */
     explicit MarbleModel( QObject *parent );
     virtual ~MarbleModel();
+
+    void renderLayers( GeoPainter *painter, ViewParams *viewParams, const QStringList &renderPositions );
 
     /**
      * @brief   Paint the model into the view
@@ -399,6 +402,8 @@ class MARBLE_EXPORT MarbleModel : public QObject
     void setBackgroundVisible( bool visible );
 
     GeoSceneTexture * textureLayer() const;
+
+    VectorComposer *vectorComposer() const;
 
  public Q_SLOTS:
     void reloadMap() const;

@@ -20,12 +20,16 @@
 
 #include "AbstractProjection.h"
 #include "GeoPainter.h"
+#include "GeoSceneDocument.h"
+#include "GeoSceneMap.h"
 #include "GeoSceneTexture.h"
 #include "MarbleDebug.h"
 #include "MarbleModel.h"
+#include "PlacemarkLayout.h"
 #include "SunLocator.h"
 #include "TileLoaderHelper.h"
 #include "TileId.h"
+#include "VectorComposer.h"
 #include "ViewParams.h"
 #include "ViewportParams.h"
 
@@ -195,6 +199,8 @@ MarbleGLWidget::MarbleGLWidget( MarbleModel *model, QWidget *parent )
     d->m_tileQueueTimer.setSingleShot( true );
     connect( &d->m_tileQueueTimer, SIGNAL( timeout() ),
              this, SLOT( processNextTile() ) );
+
+    setAutoFillBackground( false );
 }
 
 MarbleGLWidget::~MarbleGLWidget()
@@ -462,7 +468,8 @@ void MarbleGLWidget::setProjection( Projection projection )
     d->update();
 }
 
-void MarbleGLWidget::resizeGL( int width, int height )
+
+void MarbleGLWidget::setupViewport( int width, int height )
 {
     d->m_viewParams.viewport()->setSize( QSize( width, height ) );
 
@@ -473,6 +480,12 @@ void MarbleGLWidget::resizeGL( int width, int height )
 
     glOrtho( -0.5*width, 0.5*width, -0.5*height, 0.5*height, -256000000/M_PI*80, 256/M_PI*32 );
     glMatrixMode( GL_MODELVIEW );
+}
+
+
+void MarbleGLWidget::resizeGL( int width, int height )
+{
+    setupViewport( width, height );
 
     d->update();
 }
@@ -602,11 +615,21 @@ void MarbleGLWidget::initializeGL()
     glEnable( GL_TEXTURE_2D );
 }
 
-void MarbleGLWidget::paintGL()
+void MarbleGLWidget::paintEvent( QPaintEvent *event )
 {
+    makeCurrent();
+
     // Stop repaint timer if it is already running
     QTime t;
     t.start();
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glEnable( GL_DEPTH_TEST );
+    glEnable( GL_CULL_FACE );
+    glEnable( GL_TEXTURE_2D );
+
+    setupViewport(width(), height());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -626,52 +649,87 @@ void MarbleGLWidget::paintGL()
     d->m_model->cleanupTileHash();
     d->m_model->resetTileHash();
 
-#if 0
+    glDisable( GL_DEPTH_TEST );
+    glDisable( GL_CULL_FACE );
+    glDisable( GL_TEXTURE_2D );
+
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
+
     // FIXME: Better way to get the GeoPainter
     bool  doClip = true;
-    if ( d->m_map->projection() == Spherical )
+    if ( d->m_viewParams.projection() == Spherical )
         doClip = ( radius() > width() / 2
                    || radius() > height() / 2 );
 
-    QPaintDevice *paintDevice = this;
-    QImage image;
-    if (!isEnabled())
-    {
-        // If the globe covers fully the screen then we can use the faster
-        // RGB32 as there are no translucent areas involved.
-        QImage::Format imageFormat = ( d->m_map->mapCoversViewport() )
-                                     ? QImage::Format_RGB32
-                                     : QImage::Format_ARGB32_Premultiplied;
-        // Paint to an intermediate image
-        image = QImage( rect().size(), imageFormat );
-        paintDevice = &image;
-    }
-
     // Create a painter that will do the painting.
-    GeoPainter painter( paintDevice, viewport(),
-                        d->m_map->mapQuality(), doClip );
+    GeoPainter painter( this, viewport(),
+                        d->m_viewParams.mapQuality(), doClip );
 
-    QRect  dirtyRect = evt->rect();
+    painter.beginNativePainting();
 
-    // Draws the map like MarbleMap::paint does, but adds our customPaint in between
-    d->m_map->paintGround( painter, dirtyRect );
-    d->m_map->customPaint( &painter );
-    d->m_map->paintOverlay( painter, dirtyRect );
+    QStringList renderPositions;
+    renderPositions << "SURFACE";
 
-    if ( !isEnabled() )
-    {
-        // Draw a grayscale version of the intermediate image
-        QRgb* pixel = reinterpret_cast<QRgb*>( image.scanLine( 0 ));
-        for (int i=0; i<image.width()*image.height(); ++i, ++pixel) {
-            int gray = qGray( *pixel );
-            *pixel = qRgb( gray, gray, gray );
+    // Paint the vector layer.
+    if ( d->m_model->mapTheme()->map()->hasVectorLayers() ) {
+        if ( !d->m_model->mapTheme()->map()->hasTextureLayers() ) {
+            d->m_model->vectorComposer()->paintBaseVectorMap( &painter, &d->m_viewParams );
         }
 
-        GeoPainter widgetPainter( this, viewport(),
-                            d->m_map->mapQuality(), doClip );
-        widgetPainter.drawImage( rect(), image );
+        d->m_model->renderLayers( &painter, &d->m_viewParams, renderPositions );
+        // Add further Vectors
+        d->m_model->vectorComposer()->paintVectorMap( &painter, &d->m_viewParams );
+    }
+    else {
+        d->m_model->renderLayers( &painter, &d->m_viewParams, renderPositions );
     }
 
+    // Paint the GeoDataPlacemark layer
+    bool showPlaces, showCities, showTerrain, showOtherPlaces;
+
+    d->m_viewParams.propertyValue( "places", showPlaces );
+    d->m_viewParams.propertyValue( "cities", showCities );
+    d->m_viewParams.propertyValue( "terrain", showTerrain );
+    d->m_viewParams.propertyValue( "otherplaces", showOtherPlaces );
+
+    if ( showPlaces && ( showCities || showTerrain || showOtherPlaces ) )
+    {
+        d->m_model->placemarkLayout()->paintPlaceFolder( &painter, &d->m_viewParams );
+    }
+
+#if 0
+    // Paint the Gps Layer
+    painter.save();
+    QSize canvasSize = m_viewParams.canvasImage()->size();
+    painter->restore();
+#endif
+
+    renderPositions.clear();
+    renderPositions << "HOVERS_ABOVE_SURFACE";
+    d->m_model->renderLayers( &painter, &d->m_viewParams, renderPositions );
+
+#if 0
+    // FIXME: This is really slow. That's why we defer this to
+    //        PrintQuality. Either cache on a pixmap - or maybe
+    //        better: Add to GlobeScanlineTextureMapper.
+
+    if ( m_viewParams.mapQuality() == PrintQuality )
+        drawFog( painter );
+#endif
+
+    renderPositions.clear();
+    renderPositions << "ATMOSPHERE"
+                    << "ORBIT" << "ALWAYS_ON_TOP" << "FLOAT_ITEM" << "USER_TOOLS";
+
+    d->m_model->renderLayers( &painter, &d->m_viewParams, renderPositions );
+
+#if 0
+    // Draws the map like MarbleMap::paint does, but adds our customPaint in between
+    d->m_map->paintOverlay( painter, dirtyRect );
+#endif
+
+#if 0
     if ( showFrameRate() )
     {
         qreal fps = 1000.0 / (qreal)( t.elapsed() + 1 );
@@ -679,6 +737,7 @@ void MarbleGLWidget::paintGL()
         emit d->m_widget->framesPerSecond( fps );
     }
 #endif
+    painter.endNativePainting();
 }
 
 
