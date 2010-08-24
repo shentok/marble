@@ -623,6 +623,8 @@ void MarbleGLWidget::paintGL()
     foreach ( const Tile &tile, d->m_tiles ) {
         renderTile( tile );
     }
+    d->m_model->cleanupTileHash();
+    d->m_model->resetTileHash();
 
 #if 0
     // FIXME: Better way to get the GeoPainter

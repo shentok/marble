@@ -403,6 +403,9 @@ class MARBLE_EXPORT MarbleModel : public QObject
  public Q_SLOTS:
     void reloadMap() const;
 
+    void resetTileHash();
+    void cleanupTileHash();
+
     void clearVolatileTileCache();
 
     /**

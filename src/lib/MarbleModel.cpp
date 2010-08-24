@@ -617,7 +617,8 @@ QImage MarbleModel::tileImage( const Marble::TileId& id, DownloadUsage usage )
     if ( !d->m_tileLoader )
         return QImage();
 
-    const StackedTile *tile = d->m_tileLoader->loadTile( id, usage );
+    StackedTile *tile = d->m_tileLoader->loadTile( id, usage );
+    tile->setUsed( true );
 
     if ( !tile )
         return QImage();
@@ -1068,6 +1069,16 @@ void MarbleModel::reloadMap() const
         // allows for more connections (in our model), use "DownloadBrowse"
         d->m_tileLoader->reloadTile( *pos, DownloadBrowse );
     }
+}
+
+void MarbleModel::resetTileHash()
+{
+    d->m_tileLoader->resetTilehash();
+}
+
+void MarbleModel::cleanupTileHash()
+{
+    d->m_tileLoader->cleanupTilehash();
 }
 
 void MarbleModel::downloadRegion( QString const & mapThemeId,
