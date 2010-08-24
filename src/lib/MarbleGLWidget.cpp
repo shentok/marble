@@ -95,6 +95,9 @@ class MarbleGLWidget::Private
     void setPropertyValue( const QString &name, bool value );
     bool propertyValue( const QString &name );
 
+    void geoCoordinates( const qreal x, const qreal y, qreal &lon, qreal &lat ) const;
+    void projectionCoordinates( qreal lon, qreal lat, qreal &x, qreal &y ) const;
+
     MarbleGLWidget *const m_widget;
     MarbleModel    *const m_model;
 
@@ -137,52 +140,41 @@ bool MarbleGLWidget::Tile::operator==(const Tile &other)
 
 void MarbleGLWidget::renderTile( const Tile &tile )
 {
-    static const double start_lat = M_PI*0.5;
-    static const double start_lon = -M_PI;
+    static const int NumLatitudes = 10;
+    static const int NumLongitudes = 10;
 
-    const int NumLatitudes = 10;
-    const int NumLongitudes = 10;
-    const int numXTiles = TileLoaderHelper::levelToColumn( d->m_model->textureLayer()->levelZeroColumns(), tile.id().zoomLevel() );
-    const int numYTiles = TileLoaderHelper::levelToRow( d->m_model->textureLayer()->levelZeroRows(), tile.id().zoomLevel() );
+    const GeoSceneTexture *const textureLayer = d->m_model->textureLayer();
+
+    const int numXTiles = TileLoaderHelper::levelToColumn( textureLayer->levelZeroColumns(), tile.id().zoomLevel() );
+    const int numYTiles = TileLoaderHelper::levelToRow( textureLayer->levelZeroRows(), tile.id().zoomLevel() );
 
     glBindTexture( GL_TEXTURE_2D, tile.glName() );
 
     for (int row = 0; row < NumLatitudes; row++) {
-        double const theta1 = start_lat - ((tile.id().y()*NumLatitudes + row    ) * (1.0/NumLatitudes/numYTiles)) * M_PI;
-        double const theta2 = start_lat - ((tile.id().y()*NumLatitudes + row + 1) * (1.0/NumLatitudes/numYTiles)) * M_PI;
-
-        double const phi1 = start_lon + (tile.id().x()*NumLongitudes * (2.0/NumLongitudes/numXTiles)) * M_PI;
-
-        double const u0 =  radius() * sin(phi1) * cos(theta1);    //x
-        double const u1 =  radius()             * sin(theta1);    //y
-        double const u2 =  radius() * cos(phi1) * cos(theta1);    //z
-
-        double const v0 =  radius() * sin(phi1) * cos(theta2);    //x
-        double const v1 =  radius()             * sin(theta2);    //y
-        double const v2 =  radius() * cos(phi1) * cos(theta2);    //z
-
         glBegin( GL_TRIANGLE_STRIP );
+        for (int col = 0; col <= NumLongitudes; col++){
+            const qreal x  = (tile.id().x() * NumLongitudes + col    ) * 1.0 / (NumLongitudes*numXTiles);
+            const qreal y1 = (tile.id().y() * NumLatitudes  + row    ) * 1.0 / (NumLatitudes *numYTiles);
+            const qreal y2 = (tile.id().y() * NumLatitudes  + row + 1) * 1.0 / (NumLatitudes *numYTiles);
 
-        glTexCoord2d(0, 1 -  row   *1.0/NumLatitudes);
-        glVertex3d(u0, u1, u2);
-        glTexCoord2d(0, 1 - (row+1)*1.0/NumLatitudes);
-        glVertex3d(v0, v1, v2);
+            qreal lon, lat;
 
-        for (int col = 0; col < NumLongitudes; col++){
-            double const phi2 = start_lon + ((tile.id().x()*NumLongitudes + col + 1) * (2.0/NumLongitudes/numXTiles)) * M_PI;
+            d->geoCoordinates( x, y1, lon, lat );
 
-            double const w0 =  radius() * sin(phi2) * cos(theta1);    //x
-            double const w1 =  radius()             * sin(theta1);    //y
-            double const w2 =  radius() * cos(phi2) * cos(theta1);    //z
+            double const w0 =  radius() * sin(lon) * cos(lat);    //x
+            double const w1 =  radius()            * sin(lat);    //y
+            double const w2 =  radius() * cos(lon) * cos(lat);    //z
 
-            glTexCoord2d((col+1)*1.0/NumLatitudes, 1-row*1.0/NumLongitudes);
+            glTexCoord2d(col*1.0/NumLatitudes, 1-row*1.0/NumLongitudes);
             glVertex3d(w0, w1, w2);
 
-            double const x0 =  radius() * sin(phi2) * cos(theta2);    //x
-            double const x1 =  radius()             * sin(theta2);    //y
-            double const x2 =  radius() * cos(phi2) * cos(theta2);    //z
+            d->geoCoordinates( x, y2, lon, lat );
 
-            glTexCoord2d((col+1)*1.0/NumLatitudes, 1-(row+1)*1.0/NumLongitudes);
+            double const x0 =  radius() * sin(lon) * cos(lat);    //x
+            double const x1 =  radius()            * sin(lat);    //y
+            double const x2 =  radius() * cos(lon) * cos(lat);    //z
+
+            glTexCoord2d(col*1.0/NumLatitudes, 1-(row+1)*1.0/NumLongitudes);
             glVertex3d(x0, x1, x2);
         }
         glEnd();
@@ -255,6 +247,51 @@ void MarbleGLWidget::Private::setPropertyValue( const QString &name, bool value 
     m_viewParams.setPropertyValue( name, value );
 
     update();
+}
+
+void MarbleGLWidget::Private::geoCoordinates( qreal normalizedX, qreal normalizedY,
+                                              qreal& lon, qreal& lat ) const
+{
+    Q_ASSERT( 0 <= normalizedY && normalizedY <= 1 );
+
+    const GeoSceneTexture *const textureLayer = m_model->textureLayer();
+
+    switch ( textureLayer->projection() ) {
+    case GeoSceneTexture::Mercator:
+        lat = atan( sinh( ( 0.5 - normalizedY ) * 2 * M_PI ) );
+        lon = ( normalizedX - 0.5 ) * 2 * M_PI;
+        return;
+    case GeoSceneTexture::Equirectangular:
+        lat = ( 0.5 - normalizedY ) * M_PI;
+        lon = ( normalizedX - 0.5 ) * 2 * M_PI;
+        return;
+    }
+
+    Q_ASSERT( false ); // not reached
+
+    return;
+}
+
+void MarbleGLWidget::Private::projectionCoordinates( qreal lon, qreal lat, qreal &x, qreal &y ) const
+{
+    const GeoSceneTexture *const textureLayer = m_model->textureLayer();
+
+    switch ( textureLayer->projection() ) {
+    case GeoSceneTexture::Mercator:
+        if ( lat < -85*DEG2RAD ) lat = -85*DEG2RAD;
+        if ( lat >  85*DEG2RAD ) lat =  85*DEG2RAD;
+        x = ( 0.5 + 0.5 * lon / M_PI );
+        y = ( 0.5 - 0.5 * atanh( sin( lat ) ) / M_PI );
+        return;
+    case GeoSceneTexture::Equirectangular:
+        x = ( 0.5 + 0.5 * lon / M_PI );
+        y = ( 0.5 - lat / M_PI );
+        return;
+    }
+
+    Q_ASSERT( false ); // not reached
+
+    return;
 }
 
 // ----------------------------------------------------------------
@@ -479,10 +516,13 @@ void MarbleGLWidget::updateTiles()
         numYTiles = TileLoaderHelper::levelToRow( textureLayer->levelZeroRows(), level );
     };
 
-    const int startXTile =       numXTiles * 0.5*(1 + bbox.west() / M_PI);
-          int endXTile   = 1.5 + numXTiles * 0.5*(1 + bbox.east() / M_PI);
-    const int startYTile =       numYTiles * 0.5*(1 - 2 * bbox.north() / M_PI);
-          int endYTile   = 1.5 + numYTiles * 0.5*(1 - 2 * bbox.south() / M_PI);
+    qreal topLeftX, topLeftY, botRightX, botRightY;
+    d->projectionCoordinates( bbox.west(), bbox.north(), topLeftX, topLeftY );
+    d->projectionCoordinates( bbox.east(), bbox.south(), botRightX, botRightY );
+    const int startXTile =       numXTiles * topLeftX;
+    const int startYTile =       numYTiles * topLeftY;
+          int endXTile   = 1.5 + numXTiles * botRightX;
+          int endYTile   = 1.5 + numYTiles * botRightY;
 
     if ( endXTile <= startXTile )
         endXTile += numXTiles;
