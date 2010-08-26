@@ -214,11 +214,7 @@ MarbleGLWidget::~MarbleGLWidget()
 
 void MarbleGLWidget::Private::update()
 {
-    // We only have to repaint the background every time if the earth
-    // doesn't cover the whole image.
-    m_widget->setAttribute( Qt::WA_NoSystemBackground,
-                  m_widget->viewport()->mapCoversViewport() && !m_model->mapThemeId().isEmpty() );
-
+    m_widget->setAttribute( Qt::WA_NoSystemBackground, true );
     m_widget->update();
 }
 
