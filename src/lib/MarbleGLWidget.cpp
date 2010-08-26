@@ -169,7 +169,7 @@ void MarbleGLWidget::renderTile( const Tile &tile )
             double const w1 =  radius()            * sin(lat);    //y
             double const w2 =  radius() * cos(lon) * cos(lat);    //z
 
-            glTexCoord2d(col*1.0/NumLatitudes, 1-row*1.0/NumLongitudes);
+            glTexCoord2d(col*1.0/NumLatitudes, row*1.0/NumLongitudes);
             glVertex3d(w0, w1, w2);
 
             d->geoCoordinates( x, y2, lon, lat );
@@ -178,7 +178,7 @@ void MarbleGLWidget::renderTile( const Tile &tile )
             double const x1 =  radius()            * sin(lat);    //y
             double const x2 =  radius() * cos(lon) * cos(lat);    //z
 
-            glTexCoord2d(col*1.0/NumLatitudes, 1-(row+1)*1.0/NumLongitudes);
+            glTexCoord2d(col*1.0/NumLatitudes, (row+1)*1.0/NumLongitudes);
             glVertex3d(x0, x1, x2);
         }
         glEnd();
@@ -595,11 +595,7 @@ void MarbleGLWidget::processNextTile()
 
     const TileId id = d->m_tileQueue.takeFirst();
     const QImage image = d->m_model->tileImage( id, DownloadBrowse );
-    const GLuint texture = bindTexture( image, GL_TEXTURE_2D );
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+    const GLuint texture = bindTexture( image, GL_TEXTURE_2D, GL_RGBA, QGLContext::LinearFilteringBindOption );
     d->m_tiles.append( Tile( id, texture ) );
 
     update();
