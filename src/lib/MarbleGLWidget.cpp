@@ -50,7 +50,8 @@ class MarbleGLWidget::Private
         : m_widget( widget ),
           m_model( model ),
           m_showFrameRate( false ),
-          m_showTileId( false )
+          m_showTileId( false ),
+          m_previousLevel( -1 )
     {
         // Widget settings
         m_widget->setFocusPolicy( Qt::WheelFocus );
@@ -112,6 +113,8 @@ class MarbleGLWidget::Private
     QList<Tile> m_tiles;
     QList<TileId> m_tileQueue;
     QTimer      m_tileQueueTimer;
+
+    int m_previousLevel;
 };
 
 
@@ -201,6 +204,7 @@ MarbleGLWidget::MarbleGLWidget( MarbleModel *model, QWidget *parent )
              this, SLOT( processNextTile() ) );
 
     setAutoFillBackground( false );
+    setAutoBufferSwap( true );
 }
 
 MarbleGLWidget::~MarbleGLWidget()
@@ -523,7 +527,7 @@ void MarbleGLWidget::updateTiles()
     int numXTiles = TileLoaderHelper::levelToColumn( textureLayer->levelZeroColumns(), level );
     int numYTiles = TileLoaderHelper::levelToRow( textureLayer->levelZeroRows(), level );
 
-    while ( numXTiles * textureLayer->tileSize().width() < radius() * 2 ) {
+    while ( numXTiles * textureLayer->tileSize().width() < radius() * 2 && level < textureLayer->maximumTileLevel()) {
         ++level;
         numXTiles = TileLoaderHelper::levelToColumn( textureLayer->levelZeroColumns(), level );
         numYTiles = TileLoaderHelper::levelToRow( textureLayer->levelZeroRows(), level );
@@ -572,7 +576,15 @@ void MarbleGLWidget::updateTiles()
         deleteTexture( tile.glName() );
     }
 
-    processNextTile();
+    if ( d->m_previousLevel != level ) {
+        d->m_previousLevel = level;
+        while ( !d->m_tileQueue.isEmpty() ) {
+            processNextTile();
+        }
+    }
+    else {
+        processNextTile();
+    }
 }
 
 void MarbleGLWidget::tileUpdated( const TileId &id )
