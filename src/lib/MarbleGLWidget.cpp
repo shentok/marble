@@ -769,6 +769,9 @@ void MarbleGLWidget::setMapThemeId( const QString& mapThemeId )
     // Now we want a full repaint as the atmosphere might differ
     setAttribute( Qt::WA_NoSystemBackground, false );
 
+    d->m_tileQueue.clear();
+    d->m_tiles.clear();
+    updateTiles();
     d->update();
 }
 
