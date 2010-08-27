@@ -63,9 +63,13 @@ class MarbleGLWidget::Private
         // When some fundamental things change in the model, we got to
         // show this in the view, i.e. here.
         m_widget->connect( m_model,  SIGNAL( projectionChanged( Projection ) ),
-                        m_widget, SIGNAL( projectionChanged( Projection ) ) );
+                           m_widget, SIGNAL( projectionChanged( Projection ) ) );
         m_widget->connect( m_model,  SIGNAL( themeChanged( QString ) ),
-                        m_widget, SIGNAL( themeChanged( QString ) ) );
+                           m_widget, SIGNAL( themeChanged( QString ) ) );
+        m_widget->connect( m_model, SIGNAL( repaintNeeded(QRegion) ),
+                           m_widget, SLOT( update() ));
+        m_widget->connect( m_model, SIGNAL( modelChanged() ),
+                           m_widget, SLOT( update() ));
 
         // Set background: black.
         m_widget->setPalette( QPalette ( Qt::black ) );
