@@ -603,7 +603,7 @@ void MarbleGLWidget::processNextTile()
 
     const TileId id = d->m_tileQueue.takeFirst();
     const QImage image = d->m_model->tileImage( id, DownloadBrowse );
-    const GLuint texture = bindTexture( image, GL_TEXTURE_2D, GL_RGBA, QGLContext::LinearFilteringBindOption );
+    const GLuint texture = bindTexture( image, GL_TEXTURE_2D, GL_RGBA, QGLContext::LinearFilteringBindOption | QGLContext::PremultipliedAlphaBindOption );
     d->m_tiles.append( Tile( id, texture ) );
 
     update();
