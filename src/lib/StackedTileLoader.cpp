@@ -120,12 +120,12 @@ void StackedTileLoader::setTextureLayerSettings( GeoSceneGroup * const textureLa
 {
     if ( d->m_textureLayerSettings ) {
         disconnect( d->m_textureLayerSettings, SIGNAL( valueChanged( QString, bool ) ),
-                    this,                      SLOT( reset() ) );
+                    this,                      SLOT( update() ) );
     }
     d->m_textureLayerSettings = textureLayerSettings;
     if ( d->m_textureLayerSettings ) {
         connect( d->m_textureLayerSettings, SIGNAL( valueChanged( QString, bool )),
-                 this,                      SLOT( reset() ) );
+                 this,                      SLOT( update() ) );
     }
 }
 
@@ -364,13 +364,6 @@ bool StackedTileLoader::baseTilesAvailable( GeoSceneLayer * layer )
     }
 
     return noerr;
-}
-
-void StackedTileLoader::reset()
-{
-    mDebug() << "StackedTileLoader::reset";
-    d->m_tilesOnDisplay.clear();
-    d->m_tileCache.clear();
 }
 
 void StackedTileLoader::setVolatileCacheLimit( quint64 kiloBytes )

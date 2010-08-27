@@ -131,8 +131,6 @@ class StackedTileLoader : public QObject
         static bool baseTilesAvailable( GeoSceneLayer * layer );
 
     public Q_SLOTS:
-        void reset();
-
         /**
          * @brief Set the limit of the volatile (in RAM) cache.
          * @param bytes The limit in kilobytes.
