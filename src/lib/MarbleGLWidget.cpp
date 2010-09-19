@@ -442,9 +442,27 @@ bool MarbleGLWidget::showFrameRate() const
 
 void MarbleGLWidget::centerOn( const qreal lon, const qreal lat )
 {
+    Quaternion roll;
+    roll.createFromEuler( 0, 0, heading() * DEG2RAD );
+
     Quaternion  quat;
-    quat.createFromEuler( -lat * DEG2RAD, lon * DEG2RAD, 0.0 );
-    d->m_viewParams.setPlanetAxis( quat );
+    quat.createFromEuler( -lat * DEG2RAD, lon * DEG2RAD, 0 );
+    d->m_viewParams.setPlanetAxis( quat * roll );
+
+    emit visibleLatLonAltBoxChanged( d->m_viewParams.viewport()->viewLatLonAltBox() );
+
+    d->update();
+}
+
+void MarbleGLWidget::setHeading( qreal heading )
+{
+    Quaternion roll;
+    roll.createFromEuler( 0, 0, heading * DEG2RAD );
+
+    Quaternion  quat;
+    quat.createFromEuler( -centerLatitude() * DEG2RAD, centerLongitude() * DEG2RAD, 0 );
+
+    d->m_viewParams.setPlanetAxis( quat * roll );
 
     emit visibleLatLonAltBoxChanged( d->m_viewParams.viewport()->viewLatLonAltBox() );
 
@@ -512,6 +530,11 @@ qreal MarbleGLWidget::centerLongitude() const
 
     d->m_viewParams.centerCoordinates( centerLon, centerLat );
     return centerLon * RAD2DEG;
+}
+
+qreal MarbleGLWidget::heading() const
+{
+    return d->m_viewParams.heading();
 }
 
 void MarbleGLWidget::updateTiles()

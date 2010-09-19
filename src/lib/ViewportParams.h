@@ -98,6 +98,8 @@ class MARBLE_EXPORT ViewportParams
     // Other functions
     void centerCoordinates( qreal &centerLon, qreal &centerLat ) const;
 
+    qreal heading() const;
+
     bool  mapCoversViewport() const;
 
     QRegion activeRegion() const;

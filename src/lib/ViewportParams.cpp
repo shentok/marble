@@ -314,6 +314,15 @@ void ViewportParams::centerCoordinates( qreal &centerLon, qreal &centerLat ) con
     qpos.getSpherical( centerLon, centerLat );
 }
 
+qreal ViewportParams::heading() const
+{
+    Quaternion quat( 0, 0, 1, 0 );
+    quat.rotateAroundAxis( d->m_planetAxis.inverse() );
+    const qreal angle = 90 - atan2( quat.v[Q_Y], quat.v[Q_X] ) * RAD2DEG;
+
+    return angle;
+}
+
 GeoDataLatLonAltBox ViewportParams::viewLatLonAltBox() const
 {
     if (d->m_dirtyBox) {

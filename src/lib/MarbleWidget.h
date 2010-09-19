@@ -276,6 +276,9 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
      * @return The latitude of the center point in degree.
      */
     qreal centerLatitude() const;
+
+    qreal heading() const;
+
     /**
     * @brief Return the lookAt
     */
@@ -659,6 +662,8 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
      * @param  mode the FlyToMode that will be used.
      */
     void setCenterLongitude( qreal lon, FlyToMode mode = Instant );
+
+    void setHeading( qreal heading );
 
     /**
      * @brief  Set the Projection used for the map

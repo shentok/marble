@@ -151,6 +151,8 @@ class MarbleGLWidget : public QGLWidget
      */
     qreal centerLatitude() const;
 
+    qreal heading() const;
+
     /**
      * @brief  Return whether the overview map is visible.
      * @return The overview map visibility.
@@ -291,6 +293,8 @@ class MarbleGLWidget : public QGLWidget
      *              +180(W) - -180(E)
      */
     void centerOn( const qreal lon, const qreal lat );
+
+    void setHeading( qreal heading );
 
     /**
      * @brief  Set the Projection used for the map
