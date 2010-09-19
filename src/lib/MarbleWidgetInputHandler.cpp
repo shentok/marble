@@ -40,7 +40,6 @@
 #include "MeasureTool.h"
 #include "MarbleWidgetPopupMenu.h"
 #include "AbstractProjection.h"
-#include "Planet.h"
 
 using namespace Marble;
 
@@ -543,7 +542,6 @@ bool MarbleWidgetDefaultInputHandler::eventFilter( QObject* o, QEvent* e )
 
             if ( e->type() == QEvent::MouseButtonPress
                  && event->button() == Qt::RightButton ) {
-                emit rmbRequest( event->x(), event->y() );
             }
 
             if ( e->type() == QEvent::MouseButtonPress
@@ -580,6 +578,7 @@ bool MarbleWidgetDefaultInputHandler::eventFilter( QObject* o, QEvent* e )
 
             if ( e->type() == QEvent::MouseButtonRelease
                  && event->button() == Qt::RightButton) {
+                emit rmbRequest( event->x(), event->y() );
             }
 
             if ( e->type() == QEvent::MouseButtonRelease
