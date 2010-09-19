@@ -262,6 +262,7 @@ void MarbleWidgetDefaultInputHandler::Private::ZoomAt(MarbleWidget* marbleWidget
     ViewportParams soon;
     soon.setProjection(now->projection());
     soon.centerOn(now->centerLongitude(), now->centerLatitude());
+    soon.setHeading(now->heading());
     soon.setSize(now->size());
 
     qreal newRadius = marbleWidget->radiusFromDistance(newDistance);
