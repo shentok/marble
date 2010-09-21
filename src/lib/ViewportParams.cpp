@@ -309,14 +309,9 @@ void ViewportParams::setSize(QSize newSize)
 
 void ViewportParams::centerCoordinates( qreal &centerLon, qreal &centerLat ) const
 {
-    // Calculate translation of center point
-    centerLat = - d->m_planetAxis.pitch();
-    if ( centerLat > M_PI )
-        centerLat -= 2 * M_PI;
-
-    centerLon = + d->m_planetAxis.yaw();
-    if ( centerLon > M_PI )
-        centerLon -= 2 * M_PI;
+    Quaternion  qpos( 0, 0, 0, 1 );
+    qpos.rotateAroundAxis( planetAxis() );
+    qpos.getSpherical( centerLon, centerLat );
 }
 
 GeoDataLatLonAltBox ViewportParams::viewLatLonAltBox() const
