@@ -171,6 +171,7 @@ class MarbleWidgetDefaultInputHandler::Private
     bool m_rightPressed;
     QPoint m_rightOrigin;
     qreal m_headingWhenPressed;
+    qreal m_tiltWhenPressed;
     // The center longitude in radian when the left mouse button has been pressed.
     qreal m_leftPressedLon;
     // The center latitude in radian when the left mouse button has been pressed.
@@ -526,6 +527,7 @@ bool MarbleWidgetDefaultInputHandler::eventFilter( QObject* o, QEvent* e )
                 d->m_rightPressed = true;
                 d->m_rightOrigin = event->pos();
                 d->m_headingWhenPressed = MarbleWidgetInputHandler::d->m_widget->heading();
+                d->m_tiltWhenPressed = MarbleWidgetInputHandler::d->m_widget->tilt();
             }
 
             if ( e->type() == QEvent::MouseButtonPress
@@ -609,6 +611,13 @@ bool MarbleWidgetDefaultInputHandler::eventFilter( QObject* o, QEvent* e )
             if ( d->m_rightPressed ) {
                 const int dx = event->x() - d->m_rightOrigin.x();
                 MarbleWidgetInputHandler::d->m_widget->setHeading( d->m_headingWhenPressed + dx );
+
+                int tilt = d->m_tiltWhenPressed + event->y() - d->m_rightOrigin.y();
+                if ( tilt < 0 )
+                    tilt = 0;
+                if ( tilt > 90 )
+                    tilt = 90;
+                MarbleWidgetInputHandler::d->m_widget->setTilt( tilt );
             }
 
             if ( d->m_selectionRubber->isVisible() ) 

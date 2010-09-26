@@ -469,6 +469,11 @@ void MarbleGLWidget::setHeading( qreal heading )
     d->update();
 }
 
+void MarbleGLWidget::setTilt( qreal tilt )
+{
+    d->m_viewParams.setTilt( tilt );
+}
+
 Projection MarbleGLWidget::projection() const
 {
     return d->m_viewParams.projection();
@@ -535,6 +540,11 @@ qreal MarbleGLWidget::centerLongitude() const
 qreal MarbleGLWidget::heading() const
 {
     return d->m_viewParams.heading();
+}
+
+qreal MarbleGLWidget::tilt() const
+{
+    return d->m_viewParams.tilt();
 }
 
 void MarbleGLWidget::updateTiles()
@@ -666,6 +676,9 @@ void MarbleGLWidget::paintEvent( QPaintEvent *event )
     const qreal az = axis.v[Q_Z] / scale;
 
     glLoadIdentity();
+    glTranslated( 0, 0, radius() );
+    glRotated( -tilt(), 1, 0, 0 );
+    glTranslated( 0, 0, -radius() );
     glRotated( angle, ax, ay, az );
 
     foreach ( const Tile &tile, d->m_tiles ) {

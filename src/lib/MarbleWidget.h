@@ -279,6 +279,8 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
 
     qreal heading() const;
 
+    qreal tilt() const;
+
     /**
     * @brief Return the lookAt
     */
@@ -664,6 +666,8 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
     void setCenterLongitude( qreal lon, FlyToMode mode = Instant );
 
     void setHeading( qreal heading );
+
+    void setTilt( qreal tilt );
 
     /**
      * @brief  Set the Projection used for the map

@@ -42,6 +42,7 @@ public:
     mutable matrix       m_planetAxisMatrix;
     int                  m_radius;       // Zoom level (pixels / globe radius)
     qreal                m_angularResolution;
+    qreal                m_tilt;
 
     QSize                m_size;         // width, height
 
@@ -66,6 +67,7 @@ ViewportParamsPrivate::ViewportParamsPrivate()
       m_planetAxis(),
       m_planetAxisMatrix(),
       m_radius( 2000 ),
+      m_tilt( 0 ),
       m_size( 100, 100 ),
       m_dirtyBox( true ),
       m_viewLatLonAltBox(),
@@ -321,6 +323,16 @@ qreal ViewportParams::heading() const
     const qreal angle = 90 - atan2( quat.v[Q_Y], quat.v[Q_X] ) * RAD2DEG;
 
     return angle;
+}
+
+void ViewportParams::setTilt( qreal tilt )
+{
+    d->m_tilt = tilt;
+}
+
+qreal ViewportParams::tilt() const
+{
+    return d->m_tilt;
 }
 
 GeoDataLatLonAltBox ViewportParams::viewLatLonAltBox() const

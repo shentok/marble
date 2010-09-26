@@ -100,6 +100,9 @@ class MARBLE_EXPORT ViewportParams
 
     qreal heading() const;
 
+    void setTilt( qreal tilt );
+    qreal tilt() const;
+
     bool  mapCoversViewport() const;
 
     QRegion activeRegion() const;

@@ -119,8 +119,10 @@ class MarbleWidgetPrivate
     virtual qreal centerLatitude() const = 0;
     virtual qreal centerLongitude() const = 0;
     virtual qreal heading() const = 0;
+    virtual qreal tilt() const = 0;
     virtual void centerOn( qreal lon, qreal lat ) = 0;
     virtual void setHeading( qreal heading ) = 0;
+    virtual void setTilt( qreal tilt ) = 0;
 
     virtual bool showOverviewMap() const = 0;
     virtual bool showScaleBar() const = 0;
@@ -244,8 +246,10 @@ public:
     virtual qreal centerLatitude() const { return m_widget->centerLatitude(); }
     virtual qreal centerLongitude() const { return m_widget->centerLongitude(); }
     virtual qreal heading() const { return 0.0; }
+    virtual qreal tilt() const { return 0.0; }
     virtual void centerOn( qreal lon, qreal lat ) { m_widget->centerOn( lon, lat ); }
     virtual void setHeading( qreal heading ) { /* heading always 0.0 */ }
+    virtual void setTilt( qreal /* tilt */ ) { /* tilt always 0.0 */ }
 
     virtual bool showOverviewMap() const { return m_widget->showOverviewMap(); }
     virtual bool showScaleBar() const { return m_widget->showScaleBar(); }
@@ -335,8 +339,10 @@ public:
     virtual qreal centerLatitude() const { return m_widget->centerLatitude(); }
     virtual qreal centerLongitude() const { return m_widget->centerLongitude(); }
     virtual qreal heading() const { return m_widget->heading(); }
+    virtual qreal tilt() const { return m_widget->tilt(); }
     virtual void centerOn( qreal lon, qreal lat ) { m_widget->centerOn( lon, lat ); }
     virtual void setHeading( qreal heading ) { m_widget->setHeading( heading ); }
+    virtual void setTilt( qreal tilt ) { m_widget->setTilt( tilt ); }
 
     virtual bool showOverviewMap() const { return m_widget->showOverviewMap(); }
     virtual bool showScaleBar() const { return m_widget->showScaleBar(); }
@@ -895,6 +901,11 @@ void MarbleWidget::setHeading( qreal heading )
     d->setHeading( heading );
 }
 
+void MarbleWidget::setTilt( qreal tilt )
+{
+    d->setTilt( tilt );
+}
+
 Projection MarbleWidget::projection() const
 {
     return d->projection();
@@ -994,6 +1005,11 @@ qreal MarbleWidget::centerLongitude() const
 qreal MarbleWidget::heading() const
 {
     return d->heading();
+}
+
+qreal MarbleWidget::tilt() const
+{
+    return d->tilt();
 }
 
 QRegion MarbleWidget::activeRegion()

@@ -269,6 +269,16 @@ qreal ViewParams::heading() const
     return d->m_viewport.heading();
 }
 
+void ViewParams::setTilt(const qreal tilt)
+{
+    d->m_viewport.setTilt( tilt );
+}
+
+qreal ViewParams::tilt() const
+{
+    return d->m_viewport.tilt();
+}
+
 int ViewParams::width() const
 {
     return d->m_canvasImage->width();
