@@ -654,12 +654,6 @@ void MarbleGLWidget::paintEvent( QPaintEvent *event )
     QTime t;
     t.start();
 
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glEnable( GL_DEPTH_TEST );
-    glEnable( GL_CULL_FACE );
-    glEnable( GL_TEXTURE_2D );
-
     setupViewport(width(), height());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -679,13 +673,6 @@ void MarbleGLWidget::paintEvent( QPaintEvent *event )
     }
     d->m_model->cleanupTileHash();
     d->m_model->resetTileHash();
-
-    glDisable( GL_DEPTH_TEST );
-    glDisable( GL_CULL_FACE );
-    glDisable( GL_TEXTURE_2D );
-
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
 
     // FIXME: Better way to get the GeoPainter
     bool  doClip = true;
