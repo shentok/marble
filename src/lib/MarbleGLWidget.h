@@ -133,6 +133,8 @@ class MarbleGLWidget : public QGLWidget
      */
     int radius() const;
 
+    qreal radius( qreal lon, qreal lat ) const;
+
     /**
      * @brief  Set the radius of the globe in pixels.
      * @param  radius  The new globe radius value in pixels.
