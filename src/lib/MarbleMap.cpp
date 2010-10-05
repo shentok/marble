@@ -789,36 +789,6 @@ bool MarbleMap::mapCoversViewport()
     return d->m_viewParams.viewport()->mapCoversViewport();
 }
 
-AngleUnit MarbleMap::defaultAngleUnit() const
-{
-    if ( GeoDataCoordinates::defaultNotation() == GeoDataCoordinates::Decimal ) {
-        return DecimalDegree;
-    }
-
-    return DMSDegree;
-}
-
-void MarbleMap::setDefaultAngleUnit( AngleUnit angleUnit )
-{
-    if ( angleUnit == DecimalDegree ) {
-        GeoDataCoordinates::setDefaultNotation( GeoDataCoordinates::Decimal );
-        return;
-    }
-
-    GeoDataCoordinates::setDefaultNotation( GeoDataCoordinates::DMS );
-}
-
-QFont MarbleMap::defaultFont() const
-{
-    return GeoDataFeature::defaultFont();
-}
-
-void MarbleMap::setDefaultFont( const QFont& font )
-{
-    GeoDataFeature::setDefaultFont( font );
-    d->m_model->placemarkLayout()->requestStyleReset();
-}
-
 void MarbleMap::updateSun()
 {
     // Update the sun shading.

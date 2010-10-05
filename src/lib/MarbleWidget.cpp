@@ -42,6 +42,7 @@
 #include "MarbleWidgetInputHandler.h"
 #include "MeasureTool.h"
 #include "MergedLayerDecorator.h"
+#include "PlacemarkLayout.h"
 #include "RenderPlugin.h"
 #include "SunLocator.h"
 #include "TileCreatorDialog.h"
@@ -1161,22 +1162,32 @@ void MarbleWidget::setAnimationsEnabled( bool enabled )
 
 AngleUnit MarbleWidget::defaultAngleUnit() const
 {
-    return d->m_map->defaultAngleUnit();
+    if ( GeoDataCoordinates::defaultNotation() == GeoDataCoordinates::Decimal ) {
+        return DecimalDegree;
+    }
+
+    return DMSDegree;
 }
 
 void MarbleWidget::setDefaultAngleUnit( AngleUnit angleUnit )
 {
-    d->m_map->setDefaultAngleUnit( angleUnit );
+    if ( angleUnit == DecimalDegree ) {
+        GeoDataCoordinates::setDefaultNotation( GeoDataCoordinates::Decimal );
+        return;
+    }
+
+    GeoDataCoordinates::setDefaultNotation( GeoDataCoordinates::DMS );
 }
 
 QFont MarbleWidget::defaultFont() const
 {
-    return d->m_map->defaultFont();
+    return GeoDataFeature::defaultFont();
 }
 
 void MarbleWidget::setDefaultFont( const QFont& font )
 {
-    d->m_map->setDefaultFont( font );
+    GeoDataFeature::setDefaultFont( font );
+    d->m_model->placemarkLayout()->requestStyleReset();
 }
 
 void MarbleWidget::setSelection( const QRect& region )

@@ -25,7 +25,6 @@
 #include <QtCore/QSize>
 #include <QtCore/QString>
 #include <QtCore/QObject>
-#include <QtGui/QFont>
 #include <QtGui/QPixmap>
 
 #include "marble_export.h"
@@ -569,12 +568,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
 
     bool mapCoversViewport();
 
-    AngleUnit defaultAngleUnit() const;
-    void setDefaultAngleUnit( AngleUnit angleUnit );
-
-    QFont defaultFont() const;
-    void setDefaultFont( const QFont& font );
-    
  Q_SIGNALS:
     /**
      * @brief Signal that the zoom has changed, and to what.
