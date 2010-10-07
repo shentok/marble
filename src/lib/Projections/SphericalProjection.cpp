@@ -69,8 +69,8 @@ bool SphericalProjection::screenCoordinates( const qreal lon, const qreal lat,
     Quaternion  p( lon, lat );
     p.rotateAroundAxis( viewport->planetAxis().inverse() );
  
-    x = ( viewport->width()  / 2 + (qreal)( viewport->radius() ) * p.v[Q_X] );
-    y = ( viewport->height() / 2 - (qreal)( viewport->radius() ) * p.v[Q_Y] );
+    x = ( viewport->width()  / 2 + (qreal)( viewport->radius( lon, lat ) ) * p.v[Q_X] );
+    y = ( viewport->height() / 2 - (qreal)( viewport->radius( lon, lat ) ) * p.v[Q_Y] );
  
     return (    ( 0 <= y && y < viewport->height() )
              && ( 0 <= x && x < viewport->width() ) 

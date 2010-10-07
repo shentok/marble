@@ -22,17 +22,12 @@
 #include <GeoSceneMap.h>
 #include <GeoSceneLayer.h>
 #include <GeoSceneTexture.h>
+#include "TileLoader.h"
 
 namespace Marble
 {
 
-MarbleHeight::MarbleHeight( HttpDownloadManager *downloadManager, QObject* parent )
-    : QObject( parent )
-    , m_tileLoader( downloadManager )
-    , m_textureLayer( 0 )
-    , m_level( 0 )
-    , m_numXTiles( 1 )
-    , m_numYTiles( 1 )
+const GeoSceneTexture* MarbleHeight::srtmLayer()
 {
     const GeoSceneDocument *srtmTheme = MapThemeManager::loadMapTheme( "earth/srtm/srtm.dgml" );
     Q_ASSERT( srtmTheme );
@@ -46,16 +41,37 @@ MarbleHeight::MarbleHeight( HttpDownloadManager *downloadManager, QObject* paren
     const GeoSceneLayer *sceneLayer = map->layer( head->theme() );
     Q_ASSERT( sceneLayer );
 
-    const QString mapThemeId = head->target() + '/' + head->theme();
-    m_hash = qHash( mapThemeId );
+    const GeoSceneTexture *textureLayer = dynamic_cast<GeoSceneTexture*>( sceneLayer->datasets().first() );
+    Q_ASSERT( textureLayer );
 
-    m_textureLayer = dynamic_cast<GeoSceneTexture*>( sceneLayer->datasets().first() );
-    Q_ASSERT( m_textureLayer );
+    return textureLayer;
+}
 
-    QHash<uint, const GeoSceneTexture *> layers;
-    layers.insert( m_hash, m_textureLayer );
+MarbleHeight::MarbleHeight( QObject* parent )
+    : QObject( parent )
+    , m_textureLayer( srtmLayer() )
+    , m_hash( qHash( m_textureLayer->sourceDir() ) )
+    , m_tileLoader( 0 )
+    , m_level( 0 )
+    , m_numXTiles( 1 )
+    , m_numYTiles( 1 )
+{
+}
 
-    m_tileLoader.setTextureLayers( layers );
+
+void MarbleHeight::setDownloadManager( HttpDownloadManager *downloadManager )
+{
+    delete m_tileLoader;
+    m_tileLoader = 0;
+
+    if ( downloadManager != 0 ) {
+        m_tileLoader = new TileLoader( downloadManager );
+
+        QHash<uint, const GeoSceneTexture *> layers;
+        layers.insert( m_hash, m_textureLayer );
+
+        m_tileLoader->setTextureLayers( layers );
+    }
 }
 
 
@@ -77,6 +93,9 @@ void MarbleHeight::setRadius( int radius )
 
 qreal MarbleHeight::altitude( qreal lon, qreal lat )
 {
+    if ( m_tileLoader == 0 )
+        return 0.0;
+
     const int width = m_textureLayer->tileSize().width();
     const int height = m_textureLayer->tileSize().height();
 
@@ -94,7 +113,7 @@ qreal MarbleHeight::altitude( qreal lon, qreal lat )
         const QImage *image = m_cache[id];
         if ( image == 0 )
         {
-            QSharedPointer<TextureTile> tile = m_tileLoader.loadTile( id, id, DownloadBrowse );
+            QSharedPointer<TextureTile> tile = m_tileLoader->loadTile( id, id, DownloadBrowse );
             image = new QImage( *tile->image() );
             m_cache.insert( id, image );
         }

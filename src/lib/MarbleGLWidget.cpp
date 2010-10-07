@@ -24,7 +24,6 @@
 #include "GeoSceneMap.h"
 #include "GeoSceneTexture.h"
 #include "MarbleDebug.h"
-#include "MarbleHeight.h"
 #include "MarbleModel.h"
 #include "PlacemarkLayout.h"
 #include "SunLocator.h"
@@ -50,7 +49,6 @@ class MarbleGLWidget::Private
     Private( MarbleModel *model, MarbleGLWidget *widget )
         : m_widget( widget ),
           m_model( model ),
-          m_height( model->downloadManager() ),
           m_showFrameRate( false ),
           m_showTileId( false ),
           m_previousLevel( -1 )
@@ -87,6 +85,8 @@ class MarbleGLWidget::Private
                         m_widget, SLOT( centerSun() ) );
 
         m_widget->setMouseTracking( m_widget );
+
+        m_viewParams.viewport()->activateRelief( model->downloadManager() );
     }
 
     ~Private()
@@ -111,7 +111,6 @@ class MarbleGLWidget::Private
 
     MarbleGLWidget *const m_widget;
     MarbleModel    *const m_model;
-    MarbleHeight          m_height;
 
     ViewParams m_viewParams;
     bool       m_showFrameRate;
@@ -175,18 +174,18 @@ void MarbleGLWidget::renderTile( const Tile &tile )
 
             d->geoCoordinates( x, y1, lon, lat );
 
-            double const w0 = radius( lon, lat ) * sin(lon) * cos(lat);    //x
-            double const w1 = radius( lon, lat )            * sin(lat);    //y
-            double const w2 = radius( lon, lat ) * cos(lon) * cos(lat);    //z
+            double const w0 = viewport()->radius( lon, lat ) * sin(lon) * cos(lat);    //x
+            double const w1 = viewport()->radius( lon, lat )            * sin(lat);    //y
+            double const w2 = viewport()->radius( lon, lat ) * cos(lon) * cos(lat);    //z
 
             glTexCoord2d(col*1.0/NumLatitudes, row*1.0/NumLongitudes);
             glVertex3d(w0, w1, w2);
 
             d->geoCoordinates( x, y2, lon, lat );
 
-            double const x0 = radius( lon, lat ) * sin(lon) * cos(lat);    //x
-            double const x1 = radius( lon, lat )            * sin(lat);    //y
-            double const x2 = radius( lon, lat ) * cos(lon) * cos(lat);    //z
+            double const x0 = viewport()->radius( lon, lat ) * sin(lon) * cos(lat);    //x
+            double const x1 = viewport()->radius( lon, lat )            * sin(lat);    //y
+            double const x2 = viewport()->radius( lon, lat ) * cos(lon) * cos(lat);    //z
 
             glTexCoord2d(col*1.0/NumLatitudes, (row+1)*1.0/NumLongitudes);
             glVertex3d(x0, x1, x2);
@@ -330,15 +329,7 @@ const ViewportParams* MarbleGLWidget::viewport() const
 
 int MarbleGLWidget::radius() const
 {
-    return viewport()->radius();
-}
-
-qreal MarbleGLWidget::radius( qreal lon, qreal lat ) const
-{
-    qreal centerLon, centerLat;
-    viewport()->centerCoordinates( centerLon, centerLat );
-
-    return radius() - d->m_height.altitude( centerLon, centerLat ) + d->m_height.altitude( lon, lat );
+    return d->m_viewParams.radius();
 }
 
 void MarbleGLWidget::setRadius( int newRadius )
@@ -348,8 +339,6 @@ void MarbleGLWidget::setRadius( int newRadius )
     }
 
     viewport()->setRadius( newRadius );
-
-    d->m_height.setRadius( radius() );
 
     emit radiusChanged( radius() );
     emit visibleLatLonAltBoxChanged( d->m_viewParams.viewport()->viewLatLonAltBox() );
@@ -694,9 +683,9 @@ void MarbleGLWidget::paintEvent( QPaintEvent *event )
     qreal lon, lat;
     d->m_viewParams.centerCoordinates( lon, lat );
     glLoadIdentity();
-    glTranslated( 0, 0, radius( lon, lat ) );
+    glTranslated( 0, 0, viewport()->radius( lon, lat ) );
     glRotated( -tilt(), 1, 0, 0 );
-    glTranslated( 0, 0, -radius( lon, lat ) );
+    glTranslated( 0, 0, -viewport()->radius( lon, lat ) );
     glRotated( angle, ax, ay, az );
 
     foreach ( const Tile &tile, d->m_tiles ) {

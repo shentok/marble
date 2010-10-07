@@ -11,32 +11,40 @@
 #ifndef MARBLE_MARBLEHEIGHT_H
 #define MARBLE_MARBLEHEIGHT_H
 
-#include "TileLoader.h"
 #include "TileId.h"
 
 #include <QObject>
 #include <QCache>
 
+class QImage;
+
 namespace Marble
 {
 
 class HttpDownloadManager;
+class GeoSceneTexture;
+class TileLoader;
 
 
 class MarbleHeight : public QObject
 {
     Q_OBJECT
 public:
-    explicit MarbleHeight( HttpDownloadManager *downloadManager, QObject* parent = 0 );
+    explicit MarbleHeight( QObject* parent = 0 );
+
+    void setDownloadManager( HttpDownloadManager *downloadManager );
 
     void setRadius( int radius );
 
     qreal altitude( qreal lon, qreal lat );
 
 private:
-    TileLoader m_tileLoader;
-    const GeoSceneTexture *m_textureLayer;
-    uint m_hash;
+    static const GeoSceneTexture *srtmLayer();
+
+private:
+    const GeoSceneTexture *const m_textureLayer;
+    const uint m_hash;
+    TileLoader *m_tileLoader;
     int m_radius;
     int m_level;
     int m_numXTiles;

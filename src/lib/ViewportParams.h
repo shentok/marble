@@ -31,6 +31,7 @@ namespace Marble
 {
 
 class AbstractProjection;
+class HttpDownloadManager;
 class ViewportParamsPrivate;
 
 /** 
@@ -43,6 +44,8 @@ class MARBLE_EXPORT ViewportParams
  public:
     ViewportParams( );
     ~ViewportParams();
+
+    void activateRelief( HttpDownloadManager *downloadManager );
 
     // Getters and setters
     Projection projection() const;
@@ -78,6 +81,7 @@ class MARBLE_EXPORT ViewportParams
     
     bool resolves ( const GeoDataCoordinates &coord1, const GeoDataCoordinates &coord2 ) const;
 
+    int  radius( qreal lon, qreal lat ) const;
     int  radius() const;
     void setRadius(int newRadius);
 

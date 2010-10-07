@@ -19,6 +19,7 @@
 #include <QtGui/QRegion>
 
 #include "MarbleDebug.h"
+#include "MarbleHeight.h"
 #include "SphericalProjection.h"
 #include "EquirectProjection.h"
 #include "MercatorProjection.h"
@@ -59,6 +60,7 @@ public:
     GeoDataCoordinates   m_focusPoint;
     bool                 m_hasFocusPoint;
 
+    MarbleHeight         m_height;
 };
 
 ViewportParamsPrivate::ViewportParamsPrivate()
@@ -73,7 +75,8 @@ ViewportParamsPrivate::ViewportParamsPrivate()
       m_viewLatLonAltBox(),
       m_dirtyRegion( true ),
       m_activeRegion(),
-      m_hasFocusPoint(false)
+      m_hasFocusPoint(false),
+      m_height( 0 )
 {
 } 
 
@@ -100,6 +103,11 @@ ViewportParams::~ViewportParams()
 // ================================================================
 //                    Getters and setters
 
+
+void ViewportParams::activateRelief( HttpDownloadManager *downloadManager )
+{
+    d->m_height.setDownloadManager( downloadManager );
+}
 
 Projection ViewportParams::projection() const
 {
@@ -182,6 +190,14 @@ int ViewportParams::polarity() const
     return polarity;
 }
 
+int ViewportParams::radius( qreal lon, qreal lat ) const
+{
+    qreal centerLon, centerLat;
+    centerCoordinates( centerLon, centerLat );
+
+    return d->m_radius - d->m_height.altitude( centerLon, centerLat ) + d->m_height.altitude( lon, lat );
+}
+
 int ViewportParams::radius() const
 {
     return d->m_radius;
@@ -194,6 +210,8 @@ void ViewportParams::setRadius(int newRadius)
 
     d->m_radius = newRadius;
     d->m_angularResolution = 0.25 * M_PI / fabs( (qreal)(d->m_radius) );
+
+    d->m_height.setRadius( newRadius );
 }
 
 bool ViewportParams::globeCoversViewport() const

@@ -53,7 +53,7 @@ bool EquirectProjection::screenCoordinates( const qreal lon, const qreal lat,
                                             qreal& x, qreal& y )
 {
     // Convenience variables
-    int  radius = viewport->radius();
+    int  radius = viewport->radius( lon, lat );
     qreal  width  = (qreal)(viewport->width());
     qreal  height = (qreal)(viewport->height());
 
@@ -62,7 +62,7 @@ bool EquirectProjection::screenCoordinates( const qreal lon, const qreal lat,
     qreal  centerLat;
     viewport->centerCoordinates( centerLon, centerLat );
 
-    qreal  rad2Pixel = 2.0 * viewport->radius() / M_PI;
+    qreal  rad2Pixel = 2.0 * viewport->radius( lon, lat ) / M_PI;
  
     // Let (x, y) be the position on the screen of the point.
     x = ( width  / 2.0 + ( lon - centerLon ) * rad2Pixel );

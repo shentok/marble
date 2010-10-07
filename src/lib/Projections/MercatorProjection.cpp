@@ -69,7 +69,7 @@ bool MercatorProjection::screenCoordinates( const qreal lon, const qreal _lat,
     }
 
     // Convenience variables
-    int  radius = viewport->radius();
+    int  radius = viewport->radius( lon, lat );
     qreal  width  = (qreal)(viewport->width());
     qreal  height = (qreal)(viewport->height());
 
