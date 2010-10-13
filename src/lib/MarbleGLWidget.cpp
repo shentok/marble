@@ -574,7 +574,9 @@ void MarbleGLWidget::updateTiles()
     int numXTiles = TileLoaderHelper::levelToColumn( textureLayer->levelZeroColumns(), level );
     int numYTiles = TileLoaderHelper::levelToRow( textureLayer->levelZeroRows(), level );
 
-    while ( numXTiles * textureLayer->tileSize().width() < radius() * 2 && level < textureLayer->maximumTileLevel()) {
+    const qreal averageLon = ( bbox.north() + bbox.south() ) / 2;
+
+    while ( numXTiles * textureLayer->tileSize().width() < radius() * cos( averageLon ) * M_PI && level < textureLayer->maximumTileLevel()) {
         ++level;
         numXTiles = TileLoaderHelper::levelToColumn( textureLayer->levelZeroColumns(), level );
         numYTiles = TileLoaderHelper::levelToRow( textureLayer->levelZeroRows(), level );
