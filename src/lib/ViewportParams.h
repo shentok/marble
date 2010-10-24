@@ -132,6 +132,9 @@ class MARBLE_EXPORT ViewportParams
       */
     void resetFocusPoint();
 
+    void vertexCoordinates( const qreal lon, const qreal lat,
+                            qreal &x, qreal &y, qreal &z ) const;
+
  private:
     Q_DISABLE_COPY( ViewportParams )
     ViewportParamsPrivate * const d;

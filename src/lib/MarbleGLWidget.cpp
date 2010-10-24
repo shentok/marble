@@ -171,24 +171,19 @@ void MarbleGLWidget::renderTile( const Tile &tile )
             const qreal y2 = (tile.id().y() * NumLatitudes  + row + 1) * 1.0 / (NumLatitudes *numYTiles);
 
             qreal lon, lat;
+            qreal w0, w1, w2;
 
             d->geoCoordinates( x, y1, lon, lat );
-
-            double const w0 = viewport()->radius( lon, lat ) * sin(lon) * cos(lat);    //x
-            double const w1 = viewport()->radius( lon, lat )            * sin(lat);    //y
-            double const w2 = viewport()->radius( lon, lat ) * cos(lon) * cos(lat);    //z
+            viewport()->vertexCoordinates( lon, lat, w0, w1, w2 );
 
             glTexCoord2d(col*1.0/NumLatitudes, row*1.0/NumLongitudes);
             glVertex3d(w0, w1, w2);
 
             d->geoCoordinates( x, y2, lon, lat );
-
-            double const x0 = viewport()->radius( lon, lat ) * sin(lon) * cos(lat);    //x
-            double const x1 = viewport()->radius( lon, lat )            * sin(lat);    //y
-            double const x2 = viewport()->radius( lon, lat ) * cos(lon) * cos(lat);    //z
+            viewport()->vertexCoordinates( lon, lat, w0, w1, w2 );
 
             glTexCoord2d(col*1.0/NumLatitudes, (row+1)*1.0/NumLongitudes);
-            glVertex3d(x0, x1, x2);
+            glVertex3d(w0, w1, w2);
         }
         glEnd();
     }
@@ -271,12 +266,12 @@ void MarbleGLWidget::Private::geoCoordinates( qreal normalizedX, qreal normalize
 
     switch ( textureLayer->projection() ) {
     case GeoSceneTexture::Mercator:
-        lat = atan( sinh( ( 0.5 - normalizedY ) * 2 * M_PI ) );
-        lon = ( normalizedX - 0.5 ) * 2 * M_PI;
+        lat = atan( sinh( ( 0.5 - normalizedY ) * 2 * M_PI ) ) * RAD2DEG;
+        lon = ( normalizedX - 0.5 ) * 360;
         return;
     case GeoSceneTexture::Equirectangular:
-        lat = ( 0.5 - normalizedY ) * M_PI;
-        lon = ( normalizedX - 0.5 ) * 2 * M_PI;
+        lat = ( 0.5 - normalizedY ) * 180;
+        lon = ( normalizedX - 0.5 ) * 360;
         return;
     }
 
@@ -686,19 +681,22 @@ void MarbleGLWidget::paintEvent( QPaintEvent *event )
     glTranslated( 0, 0, viewport()->radius( lon, lat ) );
     glRotated( -tilt(), 1, 0, 0 );
     glTranslated( 0, 0, -viewport()->radius( lon, lat ) );
-    glRotated( angle, ax, ay, az );
+
+    // FIXME: Better way to get the GeoPainter
+    bool  doClip = true;
+    if ( d->m_viewParams.projection() == Spherical ) {
+        doClip = ( radius() > width() / 2
+                   || radius() > height() / 2 );
+        glRotated( angle, ax, ay, az );
+    } else {
+        glTranslated( -lon * viewport()->radius( lon, lat ), -lat * viewport()->radius( lon, lat ), 0 );
+    }
 
     foreach ( const Tile &tile, d->m_tiles ) {
         renderTile( tile );
     }
     d->m_model->cleanupTileHash();
     d->m_model->resetTileHash();
-
-    // FIXME: Better way to get the GeoPainter
-    bool  doClip = true;
-    if ( d->m_viewParams.projection() == Spherical )
-        doClip = ( radius() > width() / 2
-                   || radius() > height() / 2 );
 
     // Create a painter that will do the painting.
     GeoPainter painter( this, viewport(),

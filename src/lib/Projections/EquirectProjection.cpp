@@ -48,6 +48,14 @@ qreal EquirectProjection::minValidLat() const
     return -90.0 * DEG2RAD;
 }
 
+void EquirectProjection::vertexCoordinates( const qreal lon, const qreal lat,
+                                            qreal &x, qreal &y, qreal &z ) const
+{
+    x = ( lon / 360.0 ) * M_PI;
+    y = ( lat / 180.0 ) * M_PI;
+    z = 1;
+}
+
 bool EquirectProjection::screenCoordinates( const qreal lon, const qreal lat,
                                             const ViewportParams *viewport,
                                             qreal& x, qreal& y )

@@ -62,6 +62,16 @@ qreal SphericalProjection::minValidLat() const
     return -90.0 * DEG2RAD;
 }
 
+void SphericalProjection::vertexCoordinates( const qreal lon, const qreal lat,
+                                             qreal &x, qreal &y, qreal &z ) const
+{
+    Quaternion  p( lon * DEG2RAD, lat * DEG2RAD );
+
+    x = p.v[Q_X];
+    y = p.v[Q_Y];
+    z = p.v[Q_Z];
+}
+
 bool SphericalProjection::screenCoordinates( const qreal lon, const qreal lat,
                                              const ViewportParams *viewport,
                                              qreal& x, qreal& y )

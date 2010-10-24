@@ -449,4 +449,14 @@ void ViewportParams::resetFocusPoint()
     d->m_hasFocusPoint = false;
 }
 
+void ViewportParams::vertexCoordinates( const qreal lon, const qreal lat,
+                                        qreal &x, qreal &y, qreal &z ) const
+{
+    d->m_currentProjection->vertexCoordinates( lon, lat, x, y, z );
+
+    x *= radius( lon * DEG2RAD, lat * DEG2RAD );
+    y *= radius( lon * DEG2RAD, lat * DEG2RAD );
+    z *= radius( lon * DEG2RAD, lat * DEG2RAD );
+}
+
 }
