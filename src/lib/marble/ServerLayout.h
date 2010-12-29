@@ -119,6 +119,22 @@ private:
     static QString encodeQuadTree( const Marble::TileId & );
 };
 
+class StreetviewServerLayout : public CustomServerLayout
+{
+public:
+    StreetviewServerLayout( GeoSceneTiled *texture );
+
+    /**
+     * Replaces escape sequences in the @p prototypeUrl by the values in @p id
+     * and returns the result.
+     *
+     * Escape sequences are: {zoomLevel}, {x}, and {y}.
+     */
+    virtual QUrl downloadUrl( const QUrl &prototypeUrl, const TileId &id ) const;
+
+    virtual QString name() const;
+};
+
 class TmsServerLayout : public ServerLayout
 {
 public:

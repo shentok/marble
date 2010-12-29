@@ -110,7 +110,6 @@ QString CustomServerLayout::name() const
     return "Custom";
 }
 
-
 WmsServerLayout::WmsServerLayout( GeoSceneTiled *texture )
     : ServerLayout( texture )
 {
@@ -210,6 +209,26 @@ QString QuadTreeServerLayout::encodeQuadTree( const Marble::TileId &id )
     }
 
     return tileNum;
+}
+
+StreetviewServerLayout::StreetviewServerLayout(GeoSceneTiled* texture)
+    : CustomServerLayout(texture)
+{
+}
+
+QString StreetviewServerLayout::name() const
+{
+    return "Streetview";
+}
+
+QUrl StreetviewServerLayout::downloadUrl( const QUrl &prototypeUrl, const Marble::TileId &_id ) const
+{
+    QString urlStr = prototypeUrl.toString();
+
+    urlStr.replace( "{panoId}", "0QUNJoWBmJo6Ht1ci6nz5g" );
+
+    TileId id( _id.mapThemeIdHash(), 4, _id.x(), _id.y() );
+    return CustomServerLayout::downloadUrl( QUrl( urlStr ), id );
 }
 
 TmsServerLayout::TmsServerLayout(GeoSceneTiled *textureLayer )
