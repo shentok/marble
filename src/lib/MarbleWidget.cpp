@@ -54,35 +54,6 @@
 namespace Marble
 {
 
-class MarbleWidget::CustomPaintLayer : public LayerInterface
-{
- public:
-    CustomPaintLayer( MarbleWidget *widget )
-        : m_widget( widget )
-    {
-    }
-
-    virtual QStringList renderPosition() const { return QStringList() << "USER_TOOLS"; }
-
-    virtual bool render( GeoPainter *painter, ViewportParams *viewport,
-                         const QString &renderPos, GeoSceneLayer *layer )
-    {
-        Q_UNUSED( viewport );
-        Q_UNUSED( renderPos );
-        Q_UNUSED( layer );
-
-        m_widget->customPaint( painter );
-
-        return true;
-    }
-
-    virtual qreal zValue() const { return 1.0e7; }
-
- private:
-    MarbleWidget *const m_widget;
-};
-
-
 class MarbleWidgetPrivate
 {
  public:
@@ -96,7 +67,6 @@ class MarbleWidgetPrivate
           m_inputhandler( 0 ),
           m_physics( parent ),
           m_routingLayer( 0 ),
-          m_customPaintLayer( parent ),
           m_popupmenu( 0 ),
           m_showFrameRate( false ),
           m_viewAngle( 110.0 )
@@ -105,7 +75,6 @@ class MarbleWidgetPrivate
 
     ~MarbleWidgetPrivate()
     {
-        m_map.removeLayer( &m_customPaintLayer );
     }
 
     void  construct();
@@ -147,7 +116,6 @@ class MarbleWidgetPrivate
     MarblePhysics    m_physics;
 
     RoutingLayer     *m_routingLayer;
-    MarbleWidget::CustomPaintLayer m_customPaintLayer;
 
     MarbleWidgetPopupMenu *m_popupmenu;
 
@@ -254,8 +222,6 @@ void MarbleWidgetPrivate::construct()
     m_widget->connect( m_model.routingManager()->alternativeRoutesModel(),
                        SIGNAL( currentRouteChanged( GeoDataDocument* ) ),
                        m_widget, SLOT( repaint() ) );
-
-    m_map.addLayer( &m_customPaintLayer );
 }
 
 void MarbleWidgetPrivate::moveByStep( int stepsRight, int stepsDown, FlyToMode mode )
@@ -823,13 +789,6 @@ void MarbleWidget::paintEvent( QPaintEvent *evt )
         emit framesPerSecond( fps );
     }
 }
-
-void MarbleWidget::customPaint( GeoPainter *painter )
-{
-    Q_UNUSED( painter );
-    /* This is a NOOP in the base class*/
-}
-
 
 void MarbleWidget::goHome( FlyToMode mode )
 {
