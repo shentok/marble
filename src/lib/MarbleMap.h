@@ -55,7 +55,6 @@ class SunLocator;
 class FileViewModel;
 class GeoPainter;
 class RenderPlugin;
-class AbstractFloatItem;
 
 /**
  * @short A class that can paint a view of the earth.
@@ -341,16 +340,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
     bool showFrameRate() const;
 
     /**
-     * @brief  Returns the limit in kilobytes of the volatile (in RAM) tile cache.
-     * @return the limit of volatile tile cache in kilobytes.
-     */
-    quint64 volatileTileCacheLimit() const;
-
-    QList<RenderPlugin *> renderPlugins() const;
-    QList<AbstractFloatItem *> floatItems() const;
-    AbstractFloatItem * floatItem( const QString &nameId ) const;
-
-    /**
       * @brief Return the current camera position
       */
     GeoDataLookAt lookAt() const;
@@ -448,16 +437,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
      */
     void setProjection( Projection projection );
 
-    /**
-     * @brief Get the ID of the current map theme
-     * To ensure that a unique identifier is being used the theme does NOT 
-     * get represented by its name but the by relative location of the file 
-     * that specifies the theme:
-     *
-     * Example: 
-     *    maptheme = "earth/bluemarble/bluemarble.dgml"
-     */
-    QString mapThemeId() const;
     /**
      * @brief Set a new map theme
      * @param maptheme  The ID of the new maptheme. To ensure that a unique 
@@ -599,13 +578,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
       */
     void notifyMouseClick( int x, int y );
 
-    void clearVolatileTileCache();
-    /**
-     * @brief  Set the limit of the volatile (in RAM) tile cache.
-     * @param  bytes The limit in kilobytes.
-     */
-    void setVolatileTileCacheLimit( quint64 kiloBytes );
-
     bool mapCoversViewport();
 
     AngleUnit defaultAngleUnit() const;
@@ -613,13 +585,6 @@ class MARBLE_EXPORT MarbleMap : public QObject
 
     QFont defaultFont() const;
     void setDefaultFont( const QFont& font );
-    
-    /**
-     * @brief Reload the currently displayed map by reloading texture tiles
-     *        from the Internet. In the future this should be extended to all
-     *        kinds of data which is used in the map.
-     */
-    void reload() const;
     
  Q_SIGNALS:
     /**

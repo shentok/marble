@@ -509,7 +509,7 @@ quint64 MarbleWidget::persistentTileCacheLimit() const
 
 quint64 MarbleWidget::volatileTileCacheLimit() const
 {
-    return d->m_map->volatileTileCacheLimit();
+    return d->m_model->volatileTileCacheLimit();
 }
 
 
@@ -1041,12 +1041,12 @@ void MarbleWidget::setPersistentTileCacheLimit( quint64 kiloBytes )
 void MarbleWidget::clearVolatileTileCache()
 {
     mDebug() << "About to clear VolatileTileCache";
-    d->m_map->clearVolatileTileCache();
+    d->m_model->clearVolatileTileCache();
 }
 
 void MarbleWidget::setVolatileTileCacheLimit( quint64 kiloBytes )
 {
-    d->m_map->setVolatileTileCacheLimit( kiloBytes );
+    d->m_model->setVolatileTileCacheLimit( kiloBytes );
 }
 
 // This slot will called when the Globe starts to create the tiles.
@@ -1283,7 +1283,7 @@ QList<AbstractFloatItem *> MarbleWidget::floatItems() const
 
 AbstractFloatItem * MarbleWidget::floatItem( const QString &nameId ) const
 {
-    return d->m_map->floatItem( nameId );
+    return d->m_model->floatItem( nameId );
 }
 
 void MarbleWidget::changeEvent( QEvent * event )

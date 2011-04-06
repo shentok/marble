@@ -291,6 +291,8 @@ class MARBLE_EXPORT MarbleModel : public QObject
      * @return the list of the floatItems
      */
     QList<AbstractFloatItem *> floatItems()    const;
+    AbstractFloatItem * floatItem( const QString &nameId ) const;
+
     /**
      * @brief Returns a list of all DataPlugins on the layer
      * @return the list of DataPlugins

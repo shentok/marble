@@ -43,6 +43,7 @@
 #include "GeoDataDocument.h"
 #include "GeoDataStyle.h"
 
+#include "AbstractFloatItem.h"
 #include "DgmlAuxillaryDictionary.h"
 #include "MarbleClock.h"
 #include "FileStoragePolicy.h"
@@ -944,6 +945,17 @@ QList<RenderPlugin *> MarbleModel::renderPlugins() const
 QList<AbstractFloatItem *> MarbleModel::floatItems() const
 {
     return d->m_layerManager->floatItems();
+}
+
+AbstractFloatItem * MarbleModel::floatItem( const QString &nameId ) const
+{
+    foreach ( AbstractFloatItem * floatItem, floatItems() ) {
+        if ( floatItem && floatItem->nameId() == nameId ) {
+            return floatItem;
+        }
+    }
+
+    return 0; // No item found
 }
 
 QList<AbstractDataPlugin *> MarbleModel::dataPlugins()  const

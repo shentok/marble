@@ -31,7 +31,6 @@
 #endif
 
 // Marble
-#include "AbstractFloatItem.h"
 #include "AbstractProjection.h"
 #include "AbstractScanlineTextureMapper.h"
 #include "GeoDataFeature.h"
@@ -382,11 +381,6 @@ QPixmap MarbleMap::mapScreenShot()
     return screenshotPixmap;
 }
 
-void MarbleMap::reload() const
-{
-    d->m_model->reloadMap();
-}
-
 bool MarbleMap::propertyValue( const QString& name ) const
 {
     bool value;
@@ -482,11 +476,6 @@ bool MarbleMap::showGps() const
 bool MarbleMap::showFrameRate() const
 {
     return d->m_showFrameRate;
-}
-
-quint64 MarbleMap::volatileTileCacheLimit() const
-{
-    return d->m_model->volatileTileCacheLimit();
 }
 
 void MarbleMap::zoomView( int newZoom )
@@ -642,11 +631,6 @@ void MarbleMap::customPaint( GeoPainter *painter )
     }
 }
 
-QString MarbleMap::mapThemeId() const
-{
-    return d->m_model->mapThemeId();
-}
-
 void MarbleMap::setMapThemeId( const QString& mapThemeId )
 {
     if ( !mapThemeId.isEmpty() && mapThemeId == d->m_model->mapThemeId() )
@@ -797,17 +781,6 @@ void MarbleMap::notifyMouseClick( int x, int y )
     }
 }
 
-void MarbleMap::clearVolatileTileCache()
-{
-    d->m_model->clearVolatileTileCache();
-}
-
-void MarbleMap::setVolatileTileCacheLimit( quint64 kilobytes )
-{
-    mDebug() << "kiloBytes" << kilobytes;
-    d->m_model->setVolatileTileCacheLimit( kilobytes );
-}
-
 QString MarbleMap::distanceString() const
 {
     qreal dist = distance();
@@ -884,27 +857,6 @@ void MarbleMap::centerSun()
 
         mDebug() << "Centering on Sun at " << lat << lon;
     }
-}
-
-QList<RenderPlugin *> MarbleMap::renderPlugins() const
-{
-    return d->m_model->renderPlugins();
-}
-
-QList<AbstractFloatItem *> MarbleMap::floatItems() const
-{
-    return d->m_model->floatItems();
-}
-
-AbstractFloatItem * MarbleMap::floatItem( const QString &nameId ) const
-{
-    foreach ( AbstractFloatItem * floatItem, floatItems() ) {
-        if ( floatItem && floatItem->nameId() == nameId ) {
-            return floatItem;
-        }
-    }
-
-    return 0; // No item found
 }
 
 GeoDataLookAt MarbleMap::lookAt() const
