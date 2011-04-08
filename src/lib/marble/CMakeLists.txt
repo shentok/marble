@@ -85,6 +85,7 @@ set(marblewidget_SRCS
     DownloadRegionDialog.cpp
     LatLonBoxWidget.cpp
     MarbleWidget.cpp
+    MarbleView.cpp
     MarbleAbstractPresenter.cpp
     MarbleWebView.cpp
     MarbleModel.cpp
