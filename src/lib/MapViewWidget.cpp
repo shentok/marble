@@ -346,9 +346,8 @@ MapViewWidget::MapViewWidget( QWidget *parent, Qt::WindowFlags f )
         layout->addItem( d->m_mapViewUi.verticalLayout->takeAt( 4 ), 2, 1 );
         d->m_mapViewUi.verticalLayout->insertLayout( 0, layout );
         d->m_mapViewUi.mapThemeComboBox->setModel( &d->m_mapSortProxy );
-        d->m_mapViewUi.mapThemeComboBox->setIconSize( QSize( 48, 48 ) );
-        connect( d->m_mapViewUi.mapThemeComboBox, SIGNAL( activated( int ) ),
-                 this,                            SLOT( mapThemeSelected( int ) ) );
+        connect( d->m_mapViewUi.mapThemeComboBox, SIGNAL( currentIndexChanged( QModelIndex ) ),
+                 this,                            SLOT( mapThemeSelected( QModelIndex ) ) );
         d->m_mapViewUi.marbleThemeSelectView->setVisible( false );
     }
     else {
@@ -464,7 +463,7 @@ void MapViewWidget::setMapThemeId( const QString &themeId )
 {
     const bool smallscreen = MarbleGlobal::getInstance()->profiles() & MarbleGlobal::SmallScreen;
 
-    const int currentRow = smallscreen ? d->m_mapViewUi.mapThemeComboBox->currentIndex() :
+    const int currentRow = smallscreen ? d->m_mapViewUi.mapThemeComboBox->currentIndex().row() :
                                          d->m_mapViewUi.marbleThemeSelectView->currentIndex().row();
     const QString oldThemeId = d->m_mapSortProxy.data( d->m_mapSortProxy.index( currentRow, 0 ), Qt::UserRole + 1 ).toString();
 
@@ -491,11 +490,11 @@ void MapViewWidget::setMapThemeId( const QString &themeId )
     // select themeId in GUI
     for ( int row = 0; row < d->m_mapSortProxy.rowCount(); ++row ) {
         if( d->m_mapSortProxy.data( d->m_mapSortProxy.index( row, 0 ), Qt::UserRole + 1 ).toString() == themeId ) {
+            const QModelIndex index = d->m_mapSortProxy.index( row, 0 );
             if ( smallscreen ) {
-                d->m_mapViewUi.mapThemeComboBox->setCurrentIndex( row );
+                d->m_mapViewUi.mapThemeComboBox->setCurrentIndex( index );
             }
             else {
-                const QModelIndex index = d->m_mapSortProxy.index( row, 0 );
                 d->m_mapViewUi.marbleThemeSelectView->setCurrentIndex( index );
                 d->m_mapViewUi.marbleThemeSelectView->scrollTo( index );
             }

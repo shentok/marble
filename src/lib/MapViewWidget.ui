@@ -144,10 +144,17 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="mapThemeComboBox"/>
+    <widget class="QxtFlowView" name="mapThemeComboBox"/>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QxtFlowView</class>
+   <extends>QWidget</extends>
+   <header>qxtflowview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../marble.qrc"/>
  </resources>

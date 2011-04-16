@@ -62,6 +62,8 @@ set(marblewidget_SRCS
     blendings/SunLightBlending.cpp
     DownloadRegion.cpp
     DownloadRegionDialog.cpp
+    qxtflowview.cpp
+    qxtflowview_p.cpp
     LatLonBoxWidget.cpp
     MarbleWidget.cpp
     MarbleWebView.cpp

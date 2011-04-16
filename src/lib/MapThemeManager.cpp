@@ -322,14 +322,14 @@ QList<QStandardItem *> MapThemeManager::Private::createMapThemeRow( QString cons
         }
     }
 
-    QIcon mapThemeIcon =  QIcon( themeIconPixmap );
+    QImage mapThemeImage =  themeIconPixmap.toImage();
 
     QString name = mapTheme->head()->name();
     QString description = mapTheme->head()->description();
 
     QStandardItem *item = new QStandardItem( name );
     item->setData( QObject::tr( name.toUtf8() ), Qt::DisplayRole );
-    item->setData( mapThemeIcon, Qt::DecorationRole );
+    item->setData( mapThemeImage, Qt::DecorationRole );
     item->setData( QString( "<span style=\" max-width: 150 px;\"> "
                             + QObject::tr( description.toUtf8() ) + " </span>" ), Qt::ToolTipRole );
     item->setData( mapThemeID, Qt::UserRole + 1 );
