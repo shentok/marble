@@ -41,9 +41,8 @@ using namespace Marble;
 class GLTextureMapper::Private
 {
 public:
-    Private( QGLContext *glContext, StackedTileLoader *tileLoader );
+    Private( StackedTileLoader *tileLoader );
 
-    QGLContext *const m_glContext;
     QMap<QString, Tile> m_visibleTiles;
 
     bool m_repaintNeeded;
@@ -53,9 +52,8 @@ public:
 };
 
 
-GLTextureMapper::Private::Private( QGLContext *glContext, StackedTileLoader *tileLoader )
-    : m_glContext( glContext)
-    , m_visibleTiles()
+GLTextureMapper::Private::Private( StackedTileLoader *tileLoader )
+    : m_visibleTiles()
     , m_repaintNeeded( true )
     , m_previousLevel( -1 )
     , m_tileLoader( tileLoader )
@@ -98,9 +96,9 @@ bool GLTextureMapper::Tile::operator==(const Tile &other)
 
 
 
-GLTextureMapper::GLTextureMapper( StackedTileLoader *tileLoader, QGLContext *glContext, QObject *parent )
+GLTextureMapper::GLTextureMapper( StackedTileLoader *tileLoader, QObject *parent )
     : TextureMapperInterface( parent )
-    , d( new Private( glContext, tileLoader ) )
+    , d( new Private( tileLoader ) )
 {
     connect( d->m_tileLoader, SIGNAL( tileUpdateAvailable( const TileId & ) ),
              this,            SLOT( updateTile( const TileId & ) ) );
@@ -223,6 +221,8 @@ void GLTextureMapper::setViewport( const ViewportParams *viewport )
     glOrtho( -0.5*width, 0.5*width, -0.5*height, 0.5*height, -256000000/M_PI*80, 256/M_PI*32 );
     glMatrixMode( GL_MODELVIEW );
 
+    QGLContext *const glContext = const_cast<QGLContext *>( QGLContext::currentContext() );
+
     const GeoDataLatLonAltBox bbox = viewport->viewLatLonAltBox();
 
     const int numXTiles = d->m_tileLoader->tileColumnCount( tileZoomLevel() );
@@ -255,7 +255,7 @@ void GLTextureMapper::setViewport( const ViewportParams *viewport )
             invisibleTiles.removeAll( id.toString() );
             if ( !d->m_visibleTiles.contains( id.toString() ) ) {
                 const QImage image = *stackedTile->resultTile();
-                const GLuint texture = d->m_glContext->bindTexture( image, GL_TEXTURE_2D, GL_RGBA, QGLContext::LinearFilteringBindOption | QGLContext::PremultipliedAlphaBindOption );
+                const GLuint texture = glContext->bindTexture( image, GL_TEXTURE_2D, GL_RGBA, QGLContext::LinearFilteringBindOption | QGLContext::PremultipliedAlphaBindOption );
                 d->m_visibleTiles.insert( id.toString(), Tile( id, texture ) );
             }
         }
@@ -264,7 +264,7 @@ void GLTextureMapper::setViewport( const ViewportParams *viewport )
     foreach ( const QString &id, invisibleTiles ) {
         Tile tile = d->m_visibleTiles[id];
         d->m_visibleTiles.remove( id );
-        d->m_glContext->deleteTexture( tile.glTexture() );
+        glContext->deleteTexture( tile.glTexture() );
     }
 
     // clear unused tiles
@@ -273,9 +273,11 @@ void GLTextureMapper::setViewport( const ViewportParams *viewport )
 
 void GLTextureMapper::updateTile( const TileId &id )
 {
+    QGLContext *const glContext = const_cast<QGLContext *>( QGLContext::currentContext() );
+
     if ( d->m_visibleTiles.contains( id.toString() ) ) {
         Tile tile = d->m_visibleTiles[id.toString()];
-        d->m_glContext->deleteTexture( tile.glTexture() );
+        glContext->deleteTexture( tile.glTexture() );
         d->m_visibleTiles.remove( id.toString() );
     }
 

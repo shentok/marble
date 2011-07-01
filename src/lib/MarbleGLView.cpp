@@ -88,6 +88,8 @@ void MarbleGLView::initializeGL()
     glEnable( GL_DEPTH_TEST );
     glEnable( GL_CULL_FACE );
     glEnable( GL_TEXTURE_2D );
+
+    d->m_map->setProjection( d->m_map->projection() );
 }
 
 void MarbleGLView::paintEvent( QPaintEvent *evt )

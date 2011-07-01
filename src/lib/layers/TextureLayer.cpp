@@ -241,21 +241,21 @@ void TextureLayer::setupTextureMapper( Projection projection )
     switch( projection ) {
         case Spherical:
             if ( glContext ) {
-                d->m_texmapper = new GLTextureMapper( &d->m_tileLoader, glContext, this );
+                d->m_texmapper = new GLTextureMapper( &d->m_tileLoader, this );
             } else {
                 d->m_texmapper = new SphericalScanlineTextureMapper( &d->m_tileLoader, this );
             }
             break;
         case Equirectangular:
             if ( glContext ) {
-                d->m_texmapper = new GLTextureMapper( &d->m_tileLoader, glContext, this );
+                d->m_texmapper = new GLTextureMapper( &d->m_tileLoader, this );
             } else {
                 d->m_texmapper = new EquirectScanlineTextureMapper( &d->m_tileLoader, this );
             }
             break;
         case Mercator:
             if ( glContext ) {
-                d->m_texmapper = new GLTextureMapper( &d->m_tileLoader, glContext, this );
+                d->m_texmapper = new GLTextureMapper( &d->m_tileLoader, this );
             } else if ( d->m_tileLoader.tileProjection() == GeoSceneTexture::Mercator ) {
                 d->m_texmapper = new TileScalingTextureMapper( &d->m_tileLoader, &d->m_pixmapCache, this );
             } else {
