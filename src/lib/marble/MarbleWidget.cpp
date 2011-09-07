@@ -688,6 +688,11 @@ void MarbleWidget::setCenterLongitude( qreal lon, FlyToMode mode )
     centerOn( lon, centerLatitude(), mode );
 }
 
+void MarbleWidget::setHeading( qreal heading )
+{
+    d->m_map.setHeading( heading );
+}
+
 Projection MarbleWidget::projection() const
 {
     return d->m_map.projection();
@@ -793,6 +798,11 @@ qreal MarbleWidget::centerLatitude() const
 qreal MarbleWidget::centerLongitude() const
 {
     return d->m_map.centerLongitude();
+}
+
+qreal MarbleWidget::heading() const
+{
+    return d->m_map.heading();
 }
 
 QRegion MarbleWidget::mapRegion() const

@@ -425,6 +425,11 @@ qreal MarbleMap::centerLatitude() const
     return centerLat * RAD2DEG;
 }
 
+qreal MarbleMap::heading() const
+{
+    return d->m_viewport.heading() * RAD2DEG;
+}
+
 qreal MarbleMap::centerLongitude() const
 {
     // Calculate translation of center point
@@ -669,6 +674,14 @@ void MarbleMap::setCenterLatitude( qreal lat )
 void MarbleMap::setCenterLongitude( qreal lon )
 {
     centerOn( lon, centerLatitude() );
+}
+
+void MarbleMap::setHeading( qreal heading )
+{
+    d->m_viewport.setHeading( heading * DEG2RAD );
+    d->m_textureLayer.setNeedsUpdate();
+
+    emit visibleLatLonAltBoxChanged( d->m_viewport.viewLatLonAltBox() );
 }
 
 Projection MarbleMap::projection() const
