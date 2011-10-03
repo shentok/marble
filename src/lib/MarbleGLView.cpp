@@ -19,7 +19,6 @@
 #include "AbstractProjection.h"
 #include "GeoPainter.h"
 #include "MarbleDebug.h"
-#include "MarbleHeight.h"
 #include "MarbleMap.h"
 #include "TileId.h"
 #include "ViewParams.h"

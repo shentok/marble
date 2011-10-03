@@ -31,7 +31,7 @@ namespace Marble
 {
 
 class AbstractProjection;
-class TileLoader;
+class ElevationModel;
 class ViewportParamsPrivate;
 
 /** 
@@ -45,7 +45,7 @@ class MARBLE_EXPORT ViewportParams
     ViewportParams( );
     ~ViewportParams();
 
-    void activateRelief( TileLoader *tileLoader );
+    void activateRelief( const ElevationModel *elevationModel );
 
     // Getters and setters
     Projection projection() const;
