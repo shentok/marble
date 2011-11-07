@@ -225,6 +225,53 @@ Item {
             }
         }
 
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+            property real startCenterLon: 0.0
+            property real startCenterLat: 0.0
+            property int startMouseX: 0
+            property int startMouseY: 0
+            property int startRadius: 1
+
+            onPressed: {
+                if ( mouse.button === Qt.LeftButton || mouse.button === Qt.MiddleButton ) {
+                    map.smooth = true
+                    startCenterLon = map.center.longitude
+                    startCenterLat = map.center.latitude
+                    startMouseX = mouse.x
+                    startMouseY = mouse.y
+                }
+
+                if ( mouse.button === Qt.MiddleButton ) {
+                    startRadius = map.radius
+                }
+            }
+
+            onReleased: {
+                if ( mouse.button === Qt.LeftButton || mouse.button === Qt.MiddleButton ) {
+                    map.smooth = false
+                }
+            }
+
+            onPositionChanged: {
+                if ( mouse.buttons & Qt.LeftButton ) {
+                    if ( map.smooth ) {
+                        var dx = startMouseX - mouse.x
+                        var dy = startMouseY - mouse.y
+                        map.center.longitude = startCenterLon + 90 * dx / map.radius
+                        map.center.latitude  = startCenterLat - 90 * dy / map.radius
+                    }
+                }
+                else if ( mouse.buttons & Qt.MiddleButton ) {
+                    if ( map.smooth ) {
+                        var dy = startMouseY - mouse.y
+                        map.radius = startRadius * Math.pow( 1.005, dy )
+                    }
+                }
+            }
+        }
+
         PinchArea {
             enabled: true
             anchors.fill: parent
