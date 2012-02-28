@@ -273,7 +273,7 @@ Item {
         }
 
         PinchArea {
-            enabled: true
+            enabled: false
             anchors.fill: parent
             property real startCenterLon: 0.0
             property real startCenterLat: 0.0
