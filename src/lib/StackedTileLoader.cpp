@@ -249,6 +249,8 @@ void StackedTileLoader::updateTile( TileId const &tileId, QImage const &tileImag
     if ( displayedTile ) {
         d->m_layerDecorator->createTile( *displayedTile, tileId, tileImage );
     } else {
+        qDebug() << "remove tile" << tileId.toString();
+
         d->m_tileCache.remove( stackedTileId );
     }
 }

@@ -188,7 +188,20 @@ void MergedLayerDecorator::createTile( const StackedTile &stackedTile, const Til
 {
     QMutexLocker locker( &d->m_mergeMutex );
 
-    QVector<QSharedPointer<TextureTile> > tiles = d->m_merge.value( stackedTile.id(), ( stackedTile.id() == d->m_mergeThread.currentId() ) ? d->m_mergeThread.currentTiles() : stackedTile.tiles() );
+    QVector<QSharedPointer<TextureTile> > tiles;
+
+    if ( d->m_merge.contains( stackedTile.id() ) ) {
+        qDebug() << "using merge tiles" << tileId.toString();
+        tiles = d->m_merge.value( stackedTile.id() );
+    }
+    else if ( stackedTile.id() == d->m_mergeThread.currentId() ) {
+        qDebug() << "using thread tiles" << tileId.toString();
+        tiles = d->m_mergeThread.currentTiles();
+    }
+    else {
+        qDebug() << "using tile's tiles" << tileId.toString();
+        tiles = stackedTile.tiles();
+    }
 
     for ( int i = 0; i < tiles.count(); ++ i) {
         if ( tiles[i]->id() == tileId ) {
@@ -197,7 +210,6 @@ void MergedLayerDecorator::createTile( const StackedTile &stackedTile, const Til
         }
     }
 
-    d->m_merge.remove( stackedTile.id() );
     d->m_merge.insert( stackedTile.id(), tiles );
     d->m_mergeThread.start();
 }
@@ -216,20 +228,27 @@ TileId MergedLayerDecorator::MergeThread::currentId() const
 void MergedLayerDecorator::MergeThread::run()
 {
     while ( true ) {
-        d->m_mergeMutex.lock();
-        if ( d->m_merge.isEmpty() ) {
-            d->m_mergeMutex.unlock();
-            return;
+        {
+            QMutexLocker lock( &d->m_mergeMutex );
+
+            if ( d->m_merge.isEmpty() ) {
+                return;
+            }
+
+            qDebug() << "taking" << d->m_merge.keys().first().toString();
+            m_tiles = d->m_merge.take( d->m_merge.keys().first() );
         }
 
-        m_tiles = d->m_merge.take( d->m_merge.keys().first() );
-        d->m_mergeMutex.unlock();
+        StackedTile *const tile = d->createTile( m_tiles );
 
-        emit d->q->tileCreated( d->createTile( m_tiles ) );
+        {
+            QMutexLocker lock( &d->m_mergeMutex );
 
-        d->m_mergeMutex.lock();
-        m_tiles.clear();
-        d->m_mergeMutex.unlock();
+            m_tiles.clear();
+            emit d->q->tileCreated( tile );
+
+            qDebug() << "created" << tile->id().toString();
+        }
     }
 }
 
