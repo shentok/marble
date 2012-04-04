@@ -44,8 +44,9 @@ namespace Marble
 class StackedTileLoaderPrivate
 {
 public:
-    StackedTileLoaderPrivate( MergedLayerDecorator *mergedLayerDecorator )
-        : m_layerDecorator( mergedLayerDecorator ),
+    StackedTileLoaderPrivate( MergedLayerDecorator *mergedLayerDecorator, StackedTileLoader *parent )
+        : q( parent ),
+          m_layerDecorator( mergedLayerDecorator ),
           m_maxTileLevel( 0 )
     {
         m_tileCache.setMaxCost( 20000 * 1024 ); // Cache size measured in bytes
@@ -55,6 +56,9 @@ public:
     QVector<GeoSceneTexture const *>
         findRelevantTextureLayers( TileId const & stackedTileId ) const;
 
+    void tileCreated( StackedTile *tile );
+
+    StackedTileLoader *const q;
     MergedLayerDecorator *const m_layerDecorator;
     int         m_maxTileLevel;
     QVector<GeoSceneTexture const *> m_textureLayers;
@@ -64,8 +68,9 @@ public:
 };
 
 StackedTileLoader::StackedTileLoader( MergedLayerDecorator *mergedLayerDecorator )
-    : d( new StackedTileLoaderPrivate( mergedLayerDecorator ) )
+    : d( new StackedTileLoaderPrivate( mergedLayerDecorator, this ) )
 {
+#warning FIXME    connect( d->m_layerDecorator, SIGNAL( tileCreated( StackedTile * ) ), this, SLOT( tileCreated( StackedTile * ) ) );
 }
 
 StackedTileLoader::~StackedTileLoader()
@@ -240,18 +245,21 @@ void StackedTileLoader::updateTile( TileId const &tileId, QImage const &tileImag
 
     const TileId stackedTileId( 0, tileId.zoomLevel(), tileId.x(), tileId.y() );
 
-    StackedTile * displayedTile = d->m_tilesOnDisplay.take( stackedTileId );
+    StackedTile * displayedTile = d->m_tilesOnDisplay.value( stackedTileId, 0 );
     if ( displayedTile ) {
-        Q_ASSERT( !d->m_tileCache.contains( stackedTileId ) );
-
-        StackedTile *const stackedTile = d->m_layerDecorator->createTile( *displayedTile, tileId, tileImage );
-        d->m_tilesOnDisplay.insert( stackedTileId, stackedTile );
-
-        delete displayedTile;
-        displayedTile = 0;
+        d->m_layerDecorator->createTile( *displayedTile, tileId, tileImage );
     } else {
         d->m_tileCache.remove( stackedTileId );
     }
+}
+
+void StackedTileLoaderPrivate::tileCreated( StackedTile *tile )
+{
+    delete m_tilesOnDisplay.take( tile->id() );
+
+    m_tileCache.insert( tile->id(), tile );
+
+#warning FIXME emit q->tileUpdateAvailable( tile->id() );
 }
 
 void StackedTileLoader::clear()

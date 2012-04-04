@@ -133,8 +133,11 @@ class StackedTileLoader
         void updateTile( TileId const & tileId, QImage const &tileImage );
 
     private:
+        Q_PRIVATE_SLOT( d, void tileCreated( StackedTile * ) )
+
         Q_DISABLE_COPY( StackedTileLoader )
 
+        friend class StackedTileLoaderPrivate;
         StackedTileLoaderPrivate* const d;
 };
 

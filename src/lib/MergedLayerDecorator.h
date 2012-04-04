@@ -16,6 +16,7 @@
 #ifndef MARBLE_MERGEDLAYERDECORATOR_H
 #define MARBLE_MERGEDLAYERDECORATOR_H
 
+#include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QVector>
 
@@ -31,15 +32,17 @@ class TextureTile;
 class TileId;
 class TileLoader;
 
-class MergedLayerDecorator
+class MergedLayerDecorator : public QObject
 {
+    Q_OBJECT
+
  public:
     MergedLayerDecorator( TileLoader * const tileLoader, const SunLocator* sunLocator );
     virtual ~MergedLayerDecorator();
 
     StackedTile *loadTile( const TileId &id, const QVector<const GeoSceneTexture *> &textureLayers ) const;
 
-    StackedTile *createTile( const StackedTile &stackedTile, const TileId &tileId, const QImage &tileImage ) const;
+    void createTile( const StackedTile &stackedTile, const TileId &tileId, const QImage &tileImage ) const;
 
     void downloadStackedTile( const TileId &id, const QVector<GeoSceneTexture const *> &textureLayers );
 
@@ -57,8 +60,13 @@ class MergedLayerDecorator
 
     void setShowTileId(bool show);
 
- protected:
+ Q_SIGNALS:
+    void tileCreated( StackedTile *tile );
+
+ private:
     Q_DISABLE_COPY( MergedLayerDecorator )
+
+    class MergeThread;
 
     class Private;
     Private *const d;

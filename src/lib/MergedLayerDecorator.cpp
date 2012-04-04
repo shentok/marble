@@ -39,14 +39,36 @@
 
 #include <QtCore/QMutexLocker>
 #include <QtCore/QPointer>
+#include <QtCore/QThread>
 #include <QtGui/QPainter>
 
 using namespace Marble;
 
+class MergedLayerDecorator::MergeThread : public QThread
+{
+public:
+    MergeThread( Private *parent );
+
+    TileId currentId() const;
+
+    QVector<QSharedPointer<TextureTile> > currentTiles() const { return m_tiles; }
+
+    void run();
+
+private:
+    Private *const d;
+    QVector<QSharedPointer<TextureTile> > m_tiles;
+};
+
+MergedLayerDecorator::MergeThread::MergeThread( Private *parent ) :
+    d( parent )
+{
+}
+
 class MergedLayerDecorator::Private
 {
 public:
-    Private( TileLoader *tileLoader, const SunLocator *sunLocator );
+    Private( TileLoader *tileLoader, const SunLocator *sunLocator, MergedLayerDecorator *parent );
 
     static int maxDivisor( int maximum, int fullLength );
 
@@ -55,9 +77,16 @@ public:
     void paintSunShading( QImage *tileImage, const TileId &id ) const;
     void paintTileId( QImage *tileImage, const TileId &id ) const;
 
+    MergedLayerDecorator *const q;
+
     TileLoader *const m_tileLoader;
     const SunLocator *const m_sunLocator;
     BlendingFactory m_blendingFactory;
+
+    QHash<TileId, QVector<QSharedPointer<TextureTile> > > m_merge;
+    QMutex m_mergeMutex;
+    MergedLayerDecorator::MergeThread m_mergeThread;
+
     QString m_themeId;
     int m_levelZeroColumns;
     int m_levelZeroRows;
@@ -66,10 +95,12 @@ public:
     bool m_showTileId;
 };
 
-MergedLayerDecorator::Private::Private( TileLoader *tileLoader, const SunLocator *sunLocator ) :
+MergedLayerDecorator::Private::Private( TileLoader *tileLoader, const SunLocator *sunLocator, MergedLayerDecorator *parent ) :
+    q( parent ),
     m_tileLoader( tileLoader ),
     m_sunLocator( sunLocator ),
     m_blendingFactory( sunLocator ),
+    m_mergeThread( this ),
     m_themeId(),
     m_levelZeroColumns( 0 ),
     m_levelZeroRows( 0 ),
@@ -81,7 +112,7 @@ MergedLayerDecorator::Private::Private( TileLoader *tileLoader, const SunLocator
 
 MergedLayerDecorator::MergedLayerDecorator( TileLoader * const tileLoader,
                                             const SunLocator* sunLocator )
-    : d( new Private( tileLoader, sunLocator ) )
+    : d( new Private( tileLoader, sunLocator, this ) )
 {
 }
 
@@ -153,9 +184,11 @@ StackedTile *MergedLayerDecorator::loadTile( const TileId &stackedTileId, const 
     return d->createTile( tiles );
 }
 
-StackedTile *MergedLayerDecorator::createTile( const StackedTile &stackedTile, const TileId &tileId, const QImage &tileImage ) const
+void MergedLayerDecorator::createTile( const StackedTile &stackedTile, const TileId &tileId, const QImage &tileImage ) const
 {
-    QVector<QSharedPointer<TextureTile> > tiles = stackedTile.tiles();
+    QMutexLocker locker( &d->m_mergeMutex );
+
+    QVector<QSharedPointer<TextureTile> > tiles = d->m_merge.value( stackedTile.id(), ( stackedTile.id() == d->m_mergeThread.currentId() ) ? d->m_mergeThread.currentTiles() : stackedTile.tiles() );
 
     for ( int i = 0; i < tiles.count(); ++ i) {
         if ( tiles[i]->id() == tileId ) {
@@ -164,7 +197,40 @@ StackedTile *MergedLayerDecorator::createTile( const StackedTile &stackedTile, c
         }
     }
 
-    return d->createTile( tiles );
+    d->m_merge.remove( stackedTile.id() );
+    d->m_merge.insert( stackedTile.id(), tiles );
+    d->m_mergeThread.start();
+}
+
+TileId MergedLayerDecorator::MergeThread::currentId() const
+{
+    if ( m_tiles.isEmpty() ) {
+        return TileId();
+    }
+
+    const TileId firstId = m_tiles.first()->id();
+
+    return TileId( 0, firstId.zoomLevel(), firstId.x(), firstId.y() );
+}
+
+void MergedLayerDecorator::MergeThread::run()
+{
+    while ( true ) {
+        d->m_mergeMutex.lock();
+        if ( d->m_merge.isEmpty() ) {
+            d->m_mergeMutex.unlock();
+            return;
+        }
+
+        m_tiles = d->m_merge.take( d->m_merge.keys().first() );
+        d->m_mergeMutex.unlock();
+
+        emit d->q->tileCreated( d->createTile( m_tiles ) );
+
+        d->m_mergeMutex.lock();
+        m_tiles.clear();
+        d->m_mergeMutex.unlock();
+    }
 }
 
 void MergedLayerDecorator::downloadStackedTile( const TileId &id, const QVector<GeoSceneTexture const *> &textureLayers )
@@ -389,3 +455,5 @@ int MergedLayerDecorator::Private::maxDivisor( int maximum, int fullLength )
     }
     return best;
 }
+
+#include "MergedLayerDecorator.moc"
