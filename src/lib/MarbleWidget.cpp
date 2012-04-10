@@ -27,6 +27,7 @@
 #include <QtDBus/QDBusConnection>
 #endif
 
+#include "AbstractFloatItem.h"
 #include "DataMigration.h"
 #include "FpsLayer.h"
 #include "FileManager.h"
@@ -254,6 +255,10 @@ void MarbleWidgetPrivate::construct()
     m_widget->connect( m_model.routingManager()->alternativeRoutesModel(),
                        SIGNAL( currentRouteChanged( GeoDataDocument* ) ),
                        m_widget, SLOT( repaint() ) );
+
+    foreach ( AbstractFloatItem *item, m_map.floatItems() ) {
+        m_widget->installEventFilter( item );
+    }
 
     m_map.addLayer( &m_customPaintLayer );
 }
@@ -1244,11 +1249,39 @@ void MarbleWidget::readPluginSettings( QSettings& settings )
 
         settings.endGroup();
     }
+
+    foreach( AbstractFloatItem *plugin, floatItems() ) {
+        settings.beginGroup( QString( "plugin_" ) + plugin->nameId() );
+
+        QHash<QString,QVariant> hash;
+
+        foreach ( const QString& key, settings.childKeys() ) {
+            hash.insert( key, settings.value( key ) );
+        }
+
+        plugin->setSettings( hash );
+
+        settings.endGroup();
+    }
 }
 
 void MarbleWidget::writePluginSettings( QSettings& settings ) const
 {
     foreach( RenderPlugin *plugin, renderPlugins() ) {
+        settings.beginGroup( QString( "plugin_" ) + plugin->nameId() );
+
+        QHash<QString,QVariant> hash = plugin->settings();
+
+        QHash<QString,QVariant>::iterator it = hash.begin();
+        while( it != hash.end() ) {
+            settings.setValue( it.key(), it.value() );
+            ++it;
+        }
+
+        settings.endGroup();
+    }
+
+    foreach( AbstractFloatItem *plugin, floatItems() ) {
         settings.beginGroup( QString( "plugin_" ) + plugin->nameId() );
 
         QHash<QString,QVariant> hash = plugin->settings();

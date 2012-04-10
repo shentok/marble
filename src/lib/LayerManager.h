@@ -28,7 +28,6 @@ class AbstractDataPluginItem;
 class GeoPainter;
 class ViewportParams;
 class RenderPlugin;
-class AbstractFloatItem;
 class AbstractDataPlugin;
 class MarbleModel;
 class LayerInterface;
@@ -55,11 +54,6 @@ class LayerManager : public QObject
      * @return the list of RenderPlugins
      */
     QList<RenderPlugin *>      renderPlugins() const;
-    /**
-     * @brief Returns a list of all FloatItems on the layer
-     * @return the list of the floatItems
-     */
-    QList<AbstractFloatItem *> floatItems()    const;
     /**
      * @brief Returns a list of all DataPlugins on the layer
      * @return the list of DataPlugins

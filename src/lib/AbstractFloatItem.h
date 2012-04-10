@@ -22,24 +22,25 @@
 #include <QtGui/QHelpEvent>
 #include <QtGui/QWidget>
 
-#include "RenderPlugin.h"
 #include "FrameGraphicsItem.h"
+#include "PluginInterface.h"
 #include "marble_export.h"
 
-
 class QMenu;
+class QStandardItem;
 
 namespace Marble
 {
 
 class AbstractFloatItemPrivate;
+class MarbleModel;
 
 /**
  * @short The abstract class that creates an "empty" float item.
  *
  */
 
-class MARBLE_EXPORT AbstractFloatItem : public RenderPlugin, public FrameGraphicsItem
+class MARBLE_EXPORT AbstractFloatItem : public QObject, public PluginInterface, public FrameGraphicsItem
 {
     Q_OBJECT
 
@@ -49,32 +50,70 @@ class MARBLE_EXPORT AbstractFloatItem : public RenderPlugin, public FrameGraphic
                                 const QSizeF &size = QSizeF( 150.0, 50.0 ) );
     virtual ~AbstractFloatItem();
 
+    virtual QString guiString() const = 0;
+
+    virtual AbstractFloatItem *newInstance( const MarbleModel *model ) const = 0;
+
+    virtual void initialize() = 0;
+
+    virtual bool isInitialized() const = 0;
+
+    /**
+     * @brief Returns the name(s) of the backend that the plugin can render
+     *.
+     * This method should return the name of the backend that the plugin
+     * can render. The string has to be the same one that is given
+     * for the attribute in the layer element of the DGML file that
+     * backend is able to process.
+     * Examples to replace available default backends would be "vector" or
+     * "texture". To provide a completely new kind of functionality please
+     * choose your own unique string.
+     */
+    virtual QStringList backendTypes() const = 0;
+
+    const MarbleModel *marbleModel() const;
+
+    QAction *action() const;
+
+    QStandardItem *item();
+
+    bool enabled() const;
+
     QPen pen() const;
     void setPen( const QPen &pen );
 
     QFont font() const;
     void setFont( const QFont &font );
 
-    bool render( GeoPainter *painter, ViewportParams *viewport,
-                 const QString& renderPos = "FLOAT_ITEM", GeoSceneLayer * layer = 0 );
-
     virtual QString renderPolicy() const;
 
     virtual QStringList renderPosition() const;
 
-    void setVisible( bool visible );
-
-    bool visible() const;
-
     bool positionLocked();
+
+    virtual QHash<QString,QVariant> settings() const;
+
+    virtual void setSettings( const QHash<QString, QVariant> &settings );
+
+    void applyItemState();
+    void retrieveItemState();
+
+    virtual bool eventFilter( QObject *object, QEvent *e );
 
  public Q_SLOTS:
     void setPositionLocked( bool lock );
     void show();
     void hide();
 
+    void setVisible( bool visible );
+    void setEnabled( bool enabled );
+    void restoreDefaultSettings();
+
+ Q_SIGNALS:
+    void settingsChanged( const QString &nameId );
+    void repaintNeeded( const QRegion &region = QRegion() );
+
  protected:
-    virtual bool eventFilter( QObject *object, QEvent *e );
     virtual void contextMenuEvent ( QWidget *w, QContextMenuEvent *e );
     virtual void toolTipEvent( QHelpEvent *e );
     QMenu* contextMenu();
@@ -86,7 +125,10 @@ class MARBLE_EXPORT AbstractFloatItem : public RenderPlugin, public FrameGraphic
 
 }
 
+Q_DECLARE_INTERFACE( Marble::AbstractFloatItem, "org.kde.Marble.AbstractFloatItem/1.00" )
+
 #define MARBLE_FLOATITEM_PLUGIN( T ) \
-    MARBLE_RENDER_PLUGIN( T )
+    Q_INTERFACES( Marble::AbstractFloatItem ) \
+    AbstractFloatItem *newInstance( const MarbleModel *model ) const { return new T( model ); }
 
 #endif

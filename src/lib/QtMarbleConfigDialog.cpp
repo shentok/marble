@@ -29,11 +29,12 @@
 #include <QtCore/QDateTime>
 
 // Marble
-#include "MarbleGlobal.h"
+#include "AbstractFloatItem.h"
 #include "DialogConfigurationInterface.h"
 #include "MarbleDebug.h"
 #include "MarbleDirs.h"
 #include "MarbleCacheSettingsWidget.h"
+#include "MarbleGlobal.h"
 #include "MarblePluginSettingsWidget.h"
 #include "MarbleLocale.h"
 #include "MarbleWidget.h"
@@ -62,10 +63,10 @@ class QtMarbleConfigDialogPrivate
         delete m_settings;
     }
 
-    static bool renderPluginGuiStringLessThan( RenderPlugin* one, RenderPlugin* two )
+    static bool standardItemTextLessThan( QStandardItem* one, QStandardItem* two )
     {
         // Sort by gui string ignoring keyboard accelerators
-        return one->guiString().replace( "&", "" ) < two->guiString().replace( "&", "" );
+        return one->text() < two->text();
     }
 
     void initSettings()
@@ -162,12 +163,16 @@ QtMarbleConfigDialog::QtMarbleConfigDialog( MarbleWidget *marbleWidget, QWidget 
     d->m_pluginModel = new QStandardItemModel( this );
     QStandardItem  *parentItem = d->m_pluginModel->invisibleRootItem();
 
-    QList<RenderPlugin *>  pluginList = d->m_marbleWidget->renderPlugins();
-    qSort( pluginList.begin(), pluginList.end(), QtMarbleConfigDialogPrivate::renderPluginGuiStringLessThan );
-    QList<RenderPlugin *>::const_iterator i = pluginList.constBegin();
-    QList<RenderPlugin *>::const_iterator const end = pluginList.constEnd();
-    for (; i != end; ++i ) {
-        parentItem->appendRow( (*i)->item() );
+    QList<QStandardItem *> items;
+    foreach ( RenderPlugin *plugin, d->m_marbleWidget->renderPlugins() ) {
+        items.append( plugin->item() );
+    }
+    foreach ( AbstractFloatItem *plugin, d->m_marbleWidget->floatItems() ) {
+        items.append( plugin->item() );
+    }
+    qSort( items.begin(), items.end(), QtMarbleConfigDialogPrivate::standardItemTextLessThan );
+    foreach ( QStandardItem *item, items ) {
+        parentItem->appendRow( item );
     }
 
     d->w_pluginSettings = new MarblePluginSettingsWidget( this );
@@ -402,6 +407,15 @@ void QtMarbleConfigDialog::readSettings()
         }
     }
 
+    foreach ( AbstractFloatItem *item, d->m_marbleWidget->floatItems() ) {
+        if ( pluginEnabled.contains( item->nameId() ) ) {
+            item->setEnabled( pluginEnabled[ item->nameId() ] );
+        }
+        if ( pluginVisible.contains( item->nameId() ) ) {
+            item->setVisible( pluginVisible[ item->nameId() ] );
+        }
+    }
+
     // Read the settings of the plugins
     d->m_marbleWidget->readPluginSettings( *d->m_settings );
 
@@ -496,7 +510,13 @@ void QtMarbleConfigDialog::writeSettings()
         pluginVisible << static_cast<int>( (*i)->visible() );
         pluginNameId  << (*i)->nameId();
     }
-    
+
+    foreach ( AbstractFloatItem *item, d->m_marbleWidget->floatItems() ) {
+        pluginEnabled << static_cast<int>( item->enabled() );
+        pluginVisible << static_cast<int>( item->visible() );
+        pluginNameId  << item->nameId();
+    }
+
     d->m_settings->beginGroup( "Plugins" );
         d->m_settings->setValue( "pluginNameId", pluginNameId );
         d->m_settings->setValue( "pluginEnabled", pluginEnabled );
@@ -523,6 +543,9 @@ void QtMarbleConfigDialog::retrievePluginState()
     for (; i != end; ++i ) {
         (*i)->retrieveItemState();
     }
+    foreach ( AbstractFloatItem *item, d->m_marbleWidget->floatItems() ) {
+        item->retrieveItemState();
+    }
 }
 
 void QtMarbleConfigDialog::applyPluginState()
@@ -532,6 +555,9 @@ void QtMarbleConfigDialog::applyPluginState()
     QList<RenderPlugin *>::const_iterator const end = pluginList.constEnd();
     for (; i != end; ++i ) {
         (*i)->applyItemState();
+    }
+    foreach ( AbstractFloatItem *item, d->m_marbleWidget->floatItems() ) {
+        item->applyItemState();
     }
 }
 

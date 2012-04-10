@@ -18,7 +18,6 @@
 #include "MarbleDebug.h"
 #include "AbstractDataPlugin.h"
 #include "AbstractDataPluginItem.h"
-#include "AbstractFloatItem.h"
 #include "MarbleModel.h"
 #include "PluginManager.h"
 #include "RenderPlugin.h"
@@ -50,7 +49,6 @@ class LayerManager::Private
     LayerManager *const q;
 
     QList<RenderPlugin *> m_renderPlugins;
-    QList<AbstractFloatItem *> m_floatItems;
     QList<AbstractDataPlugin *> m_dataPlugins;
     QList<LayerInterface *> m_internalLayers;
 
@@ -91,13 +89,7 @@ LayerManager::LayerManager( const MarbleModel* model, QObject *parent )
         connect( renderPlugin, SIGNAL( visibilityChanged( bool, const QString & ) ),
                  this, SLOT( updateVisibility( bool, const QString & ) ) );
 
-        // get float items ...
-        AbstractFloatItem * const floatItem =
-            qobject_cast<AbstractFloatItem *>( renderPlugin );
-        if ( floatItem )
-            d->m_floatItems.append( floatItem );
-
-        // ... and data plugins
+        // get data plugins
         AbstractDataPlugin * const dataPlugin = 
             qobject_cast<AbstractDataPlugin *>( renderPlugin );
         if( dataPlugin )
@@ -118,11 +110,6 @@ bool LayerManager::showBackground() const
 QList<RenderPlugin *> LayerManager::renderPlugins() const
 {
     return d->m_renderPlugins;
-}
-
-QList<AbstractFloatItem *> LayerManager::floatItems() const
-{
-    return d->m_floatItems;
 }
 
 QList<AbstractDataPlugin *> LayerManager::dataPlugins() const

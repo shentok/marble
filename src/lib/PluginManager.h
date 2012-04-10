@@ -59,6 +59,15 @@ class MARBLE_EXPORT PluginManager
     QList<const RenderPlugin *> renderPlugins() const;
 
     /**
+     * @brief Returns all available AbstractFloatItem plugins.
+     *
+     * Ownership of the items remains in PluginManager.
+     * In order to use the AbstractFloatItems, first create new instances using
+     * AbstractFloatItem::newInstance().
+     */
+    QList<const AbstractFloatItem *> floatItemPlugins() const;
+
+    /**
      * @brief Returns all available NetworkPlugins.
      *
      * Ownership of the items remains in PluginManager.

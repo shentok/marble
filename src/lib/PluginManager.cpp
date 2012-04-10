@@ -47,6 +47,7 @@ class PluginManagerPrivate
 
     bool m_pluginsLoaded;
     QList<const RenderPlugin *> m_renderPluginTemplates;
+    QList<const AbstractFloatItem *> m_floatItemPluginTemplates;
     QList<const NetworkPlugin *> m_networkPluginTemplates;
     QList<const PositionProviderPlugin *> m_positionProviderPluginTemplates;
     QList<const SearchRunnerPlugin *> m_searchRunnerPlugins;
@@ -74,6 +75,12 @@ QList<const RenderPlugin *> PluginManager::renderPlugins() const
 {
     d->loadPlugins();
     return d->m_renderPluginTemplates;
+}
+
+QList<const AbstractFloatItem *> PluginManager::floatItemPlugins() const
+{
+    d->loadPlugins();
+    return d->m_floatItemPluginTemplates;
 }
 
 QList<const NetworkPlugin *> PluginManager::networkPlugins() const
@@ -179,6 +186,8 @@ void PluginManagerPrivate::loadPlugins()
         if ( obj ) {
             bool isPlugin = appendPlugin<RenderPlugin, RenderPluginInterface>
                        ( obj, loader, m_renderPluginTemplates );
+            isPlugin = isPlugin || appendPlugin<AbstractFloatItem, AbstractFloatItem>
+                       ( obj, loader, m_floatItemPluginTemplates );
             isPlugin = isPlugin || appendPlugin<NetworkPlugin, NetworkPluginInterface>
                        ( obj, loader, m_networkPluginTemplates );
             isPlugin = isPlugin || appendPlugin<PositionProviderPlugin, PositionProviderPluginInterface>

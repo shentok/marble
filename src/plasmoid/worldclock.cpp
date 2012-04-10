@@ -51,6 +51,7 @@
 #include "GeoPainter.h"
 #include "LatLonEdit.h"
 #include "ViewportParams.h"
+#include "RenderPlugin.h"
 #include "AbstractProjection.h"
 
 namespace Marble
@@ -95,6 +96,8 @@ void WorldClock::init()
         m_map->setProjection(Equirectangular);
 
     foreach( RenderPlugin* item, m_map->renderPlugins() )
+        item->setVisible( false );
+    foreach( AbstractFloatItem* item, m_map->floatItems() )
         item->setVisible( false );
 
     //Set up the Sun to draw night/day shadow
