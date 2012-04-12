@@ -30,9 +30,18 @@
 #include <QtGui/QTabWidget>
 #include <QtCore/QTextStream>
 #include <QtGui/QPixmap>
+#include <QtGui/QTreeWidget>
 
 #include "MarbleGlobal.h"
 #include "MarbleDirs.h"
+#include "NetworkPlugin.h"
+#include "ParseRunnerPlugin.h"
+#include "PluginManager.h"
+#include "PositionProviderPlugin.h"
+#include "RenderPlugin.h"
+#include "ReverseGeocodingRunnerPlugin.h"
+#include "RoutingRunnerPlugin.h"
+#include "SearchRunnerPlugin.h"
 
 namespace Marble
 {
@@ -48,12 +57,14 @@ public:
 
     bool authorsLoaded;
     bool dataLoaded;
+    bool pluginsLoaded;
     bool licenseLoaded;
 };
 
 MarbleAboutDialogPrivate::MarbleAboutDialogPrivate() :
     authorsLoaded( false ),
     dataLoaded( false ),
+    pluginsLoaded( false ),
     licenseLoaded( false )
 {
 }
@@ -284,7 +295,47 @@ void MarbleAboutDialogPrivate::loadPageContents( int idx )
         browser->document()->rootFrame()->setFrameFormat( format );
     }
 
-    if ( idx == 3 && !licenseLoaded )
+    if ( idx == 3 && !pluginsLoaded ) {
+        pluginsLoaded = true;
+        PluginManager pluginManager;
+
+        foreach ( const SearchRunnerPlugin *plugin, pluginManager.searchRunnerPlugins() ) {
+            QTreeWidgetItem *item = new QTreeWidgetItem( QStringList() << plugin->name() );
+            uiWidget.pluginList->insertTopLevelItem( 0, item );
+        }
+
+        foreach ( const ReverseGeocodingRunnerPlugin *plugin, pluginManager.reverseGeocodingRunnerPlugins() ) {
+            QTreeWidgetItem *item = new QTreeWidgetItem( QStringList() << plugin->name() );
+            uiWidget.pluginList->insertTopLevelItem( 0, item );
+        }
+
+        foreach ( const RoutingRunnerPlugin *plugin, pluginManager.routingRunnerPlugins() ) {
+            QTreeWidgetItem *item = new QTreeWidgetItem( QStringList() << plugin->name() );
+            uiWidget.pluginList->insertTopLevelItem( 0, item );
+        }
+
+        foreach ( const ParseRunnerPlugin *plugin, pluginManager.parsingRunnerPlugins() ) {
+            QTreeWidgetItem *item = new QTreeWidgetItem( QStringList() << plugin->name() );
+            uiWidget.pluginList->insertTopLevelItem( 0, item );
+        }
+
+        foreach ( const PositionProviderPlugin *plugin, pluginManager.positionProviderPlugins() ) {
+            QTreeWidgetItem *item = new QTreeWidgetItem( QStringList() << plugin->name() );
+            uiWidget.pluginList->insertTopLevelItem( 0, item );
+        }
+
+        foreach ( const NetworkPlugin *plugin, pluginManager.networkPlugins() ) {
+            QTreeWidgetItem *item = new QTreeWidgetItem( QStringList() << plugin->name() );
+            uiWidget.pluginList->insertTopLevelItem( 0, item );
+        }
+
+        foreach ( const RenderPlugin *plugin, pluginManager.renderPlugins() ) {
+            QTreeWidgetItem *item = new QTreeWidgetItem( QStringList() << plugin->name() );
+            uiWidget.pluginList->insertTopLevelItem( 0, item );
+        }
+    }
+
+    if ( idx == 4 && !licenseLoaded )
     {
         licenseLoaded = true;
         QTextBrowser *const browser = uiWidget.m_pMarbleLicenseBrowser;
