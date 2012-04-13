@@ -32,7 +32,7 @@ PlacemarkPositionProviderPlugin::PlacemarkPositionProviderPlugin()
 
 QString PlacemarkPositionProviderPlugin::name() const
 {
-    return tr( "Placemark position provider Plugin" );
+    return tr( "Placemark Position Provider Plugin" );
 }
 
 QString PlacemarkPositionProviderPlugin::nameId() const
@@ -52,7 +52,7 @@ QString PlacemarkPositionProviderPlugin::version() const
 
 QString PlacemarkPositionProviderPlugin::description() const
 {
-    return tr( "Reports the position of a placemark" );
+    return tr( "Tracks the position of a placemark" );
 }
 
 QString PlacemarkPositionProviderPlugin::copyrightYears() const

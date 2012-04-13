@@ -36,7 +36,7 @@ QtMobilityPositionProviderPluginPrivate::QtMobilityPositionProviderPluginPrivate
 
 QString QtMobilityPositionProviderPlugin::name() const
 {
-    return tr( "Qt Mobility Position Provider Plugin" );
+    return tr( "QtLocation Position Provider Plugin" );
 }
 
 QString QtMobilityPositionProviderPlugin::nameId() const
@@ -46,7 +46,7 @@ QString QtMobilityPositionProviderPlugin::nameId() const
 
 QString QtMobilityPositionProviderPlugin::guiString() const
 {
-    return tr( "Qt Mobility Location" );
+    return tr( "GPS (via QtLocation)" );
 }
 
 QString QtMobilityPositionProviderPlugin::version() const
@@ -56,7 +56,7 @@ QString QtMobilityPositionProviderPlugin::version() const
 
 QString QtMobilityPositionProviderPlugin::description() const
 {
-    return tr( "Reports the GPS position of a QtMobility compatible device." );
+    return tr( "Tracks the GPS position reported by a QtLocation compatible device." );
 }
 
 QString QtMobilityPositionProviderPlugin::copyrightYears() const

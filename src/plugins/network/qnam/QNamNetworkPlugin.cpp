@@ -31,7 +31,7 @@ QNamNetworkPlugin::~QNamNetworkPlugin()
 
 QString QNamNetworkPlugin::name() const
 {
-    return tr( "QNam Network Plugin" );
+    return tr( "Qt Network Plugin" );
 }
 
 QString QNamNetworkPlugin::nameId() const

@@ -21,7 +21,7 @@ using namespace std;
 
 QString GpsdPositionProviderPlugin::name() const
 {
-    return tr( "Gpsd position provider Plugin" );
+    return tr( "GPSd Position Provider Plugin" );
 }
 
 QString GpsdPositionProviderPlugin::nameId() const
@@ -31,7 +31,7 @@ QString GpsdPositionProviderPlugin::nameId() const
 
 QString GpsdPositionProviderPlugin::guiString() const
 {
-    return tr( "gpsd" );
+    return tr( "GPS (via GPSd)" );
 }
 
 QString GpsdPositionProviderPlugin::version() const
@@ -41,7 +41,7 @@ QString GpsdPositionProviderPlugin::version() const
 
 QString GpsdPositionProviderPlugin::description() const
 {
-    return tr( "Reports the position of a GPS device." );
+    return tr( "Tracks the position reported by the GPS service daemon (GPSd)." );
 }
 
 QString GpsdPositionProviderPlugin::copyrightYears() const

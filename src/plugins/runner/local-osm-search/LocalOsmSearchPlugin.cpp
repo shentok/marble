@@ -31,12 +31,12 @@ LocalOsmSearchPlugin::LocalOsmSearchPlugin( QObject *parent ) :
 
 QString LocalOsmSearchPlugin::name() const
 {
-    return tr( "Local OSM Search" );
+    return tr( "Offline OpenStreetMap Database Search" );
 }
 
 QString LocalOsmSearchPlugin::guiString() const
 {
-    return tr( "Offline OpenStreetMap Search" );
+    return tr( "Offline OpenStreetMap Database" );
 }
 
 QString LocalOsmSearchPlugin::nameId() const
