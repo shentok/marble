@@ -67,8 +67,6 @@ StackedTile::StackedTile( const TileId &id, const QImage &resultImage, QVector<Q
       m_byteCount( calcByteCount( resultImage, tiles ) ),
       m_isUsed( false )
 {
-    Q_ASSERT( !tiles.isEmpty() );
-
     if ( jumpTable32 == 0 && jumpTable8 == 0 ) {
         qWarning() << "Color depth" << m_depth << " is not supported.";
     }

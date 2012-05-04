@@ -28,12 +28,14 @@
 #include "MarbleDebug.h"
 #include "MergedLayerDecorator.h"
 #include "StackedTile.h"
+#include "TextureTile.h"
 #include "TileLoader.h"
 #include "TileLoaderHelper.h"
 #include "MarbleGlobal.h"
 
 #include <QCache>
 #include <QHash>
+#include <QMetaType>
 #include <QReadWriteLock>
 #include <QImage>
 
@@ -44,12 +46,16 @@ namespace Marble
 class StackedTileLoaderPrivate
 {
 public:
-    StackedTileLoaderPrivate( MergedLayerDecorator *mergedLayerDecorator )
-        : m_layerDecorator( mergedLayerDecorator )
+    StackedTileLoaderPrivate( StackedTileLoader *parent, MergedLayerDecorator *mergedLayerDecorator )
+        : q( parent ),
+          m_layerDecorator( mergedLayerDecorator )
     {
         m_tileCache.setMaxCost( 20000 * 1024 ); // Cache size measured in bytes
     }
 
+    void loadTile( const TileId &id );
+
+    StackedTileLoader *const q;
     MergedLayerDecorator *const m_layerDecorator;
     QHash <TileId, StackedTile*>  m_tilesOnDisplay;
     QCache <TileId, StackedTile>  m_tileCache;
@@ -58,8 +64,11 @@ public:
 
 StackedTileLoader::StackedTileLoader( MergedLayerDecorator *mergedLayerDecorator, QObject *parent )
     : QObject( parent ),
-      d( new StackedTileLoaderPrivate( mergedLayerDecorator ) )
+      d( new StackedTileLoaderPrivate( this, mergedLayerDecorator ) )
 {
+    qRegisterMetaType<TileId>( "TileId" );
+    connect( this, SIGNAL( requestTile( TileId const & ) ),
+             this, SLOT( loadTile( TileId const & ) ), Qt::QueuedConnection );
 }
 
 StackedTileLoader::~StackedTileLoader()
@@ -160,14 +169,43 @@ const StackedTile* StackedTileLoader::loadTile( TileId const & stackedTileId )
 
     mDebug() << "load tile from disk:" << stackedTileId;
 
-    stackedTile = d->m_layerDecorator->loadTile( stackedTileId );
-    Q_ASSERT( stackedTile );
-    stackedTile->setUsed( true );
+    Q_ASSERT( stackedTileId.zoomLevel() > 0 ); // level-zero tiles should be in d->m_tilesOnDisplay;
 
-    d->m_tilesOnDisplay[ stackedTileId ] = stackedTile;
+    for ( int level = stackedTileId.zoomLevel() - 1; level >= 0; --level ) {
+        const int deltaLevel = stackedTileId.zoomLevel() - level;
+        TileId id( 0, level, stackedTileId.x() >> deltaLevel, stackedTileId.y() >> deltaLevel );
+
+        const StackedTile *toScale = 0;
+
+        if ( d->m_tileCache.object( id ) ) {
+            toScale = d->m_tileCache.object( id );
+        }
+
+        if ( toScale == 0 && d->m_tilesOnDisplay.value( id, 0 ) ) {
+            toScale = d->m_tilesOnDisplay.value( id, 0 );
+        }
+
+        if ( toScale != 0 ) {
+            // which rect to scale?
+            const int restTileX = id.x() % ( 1 << deltaLevel );
+            const int restTileY = id.y() % ( 1 << deltaLevel );
+            const int partWidth = toScale->resultImage()->width() >> deltaLevel;
+            const int partHeight = toScale->resultImage()->height() >> deltaLevel;
+            const int startX = restTileX * partWidth;
+            const int startY = restTileY * partHeight;
+            const QImage resulImage = toScale->resultImage()->copy( startX, startY, partWidth, partHeight );
+
+            stackedTile = new StackedTile( stackedTileId, resulImage.scaled( toScale->resultImage()->size() ), QVector< QSharedPointer<TextureTile> >() );
+            stackedTile->setUsed( true );
+            d->m_tilesOnDisplay[ stackedTileId ] = stackedTile;
+            break;
+        }
+    }
+
     d->m_cacheLock.unlock();
 
     emit tileLoaded( stackedTileId );
+    emit requestTile( stackedTileId );
 
     return stackedTile;
 }
@@ -231,6 +269,24 @@ void StackedTileLoader::clear()
             levelZeroTile->setUsed( true );
             d->m_tilesOnDisplay.insert( id, levelZeroTile );
         }
+    }
+}
+
+void StackedTileLoaderPrivate::loadTile( const TileId &id )
+{
+    if ( m_tilesOnDisplay.contains( id ) ) {
+        delete m_tilesOnDisplay.value( id, 0 );
+        StackedTile *const tile = m_layerDecorator->loadTile( id );
+        tile->setUsed( true );
+        m_tilesOnDisplay.insert( id, tile );
+        emit q->tileLoaded( id );
+    }
+    else if ( m_tileCache.contains( id ) ) {
+        m_tileCache.remove( id );
+        StackedTile *const tile = m_layerDecorator->loadTile( id );
+        tile->setUsed( false );
+        m_tileCache.insert( id, tile );
+        emit q->tileLoaded( id );
     }
 }
 
