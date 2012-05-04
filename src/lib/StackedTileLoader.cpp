@@ -94,7 +94,10 @@ void StackedTileLoader::resetTilehash()
     QHash<TileId, StackedTile*>::const_iterator const end = d->m_tilesOnDisplay.constEnd();
     for (; it != end; ++it ) {
         Q_ASSERT( it.value()->used() && "contained in m_tilesOnDisplay should imply used()" );
-        it.value()->setUsed( false );
+        StackedTile *const tile = it.value();
+        if ( tile->id().zoomLevel() != 0 ) { // keep level zero tiles in the hash
+            tile->setUsed( false );
+        }
     }
 }
 
@@ -107,6 +110,7 @@ void StackedTileLoader::cleanupTilehash()
     while ( it.hasNext() ) {
         it.next();
         if ( !it.value()->used() ) {
+            Q_ASSERT( it.value()->id().zoomLevel() != 0 ); // keep level zero tiles in the hash
             // If insert call result is false then the cache is too small to store the tile
             // but the item will get deleted nevertheless and the pointer we have
             // doesn't get set to zero (so don't delete it in this case or it will crash!)
@@ -137,6 +141,8 @@ const StackedTile* StackedTileLoader::loadTile( TileId const & stackedTileId )
         d->m_cacheLock.unlock();
         return stackedTile;
     }
+
+    Q_ASSERT( stackedTileId.zoomLevel() != 0 ); // level zero tiles should always be in the cache
 
     // the tile was not in the hash so check if it is in the cache
     stackedTile = d->m_tileCache.take( stackedTileId );
@@ -214,6 +220,17 @@ void StackedTileLoader::clear()
     qDeleteAll( d->m_tilesOnDisplay );
     d->m_tilesOnDisplay.clear();
     d->m_tileCache.clear(); // clear the tile cache in physical memory
+
+    if ( d->m_layerDecorator->textureLayersSize() > 0 ) {
+        for ( int row = 0; row < d->m_layerDecorator->tileRowCount( 0 ); ++row ) {
+            for ( int column = 0; column < d->m_layerDecorator->tileColumnCount( 0 ); ++column ) {
+                const TileId id = TileId( 0, 0, column, row );
+                StackedTile *const levelZeroTile = d->m_layerDecorator->loadTile( id );
+                levelZeroTile->setUsed( true );
+                d->m_tilesOnDisplay.insert( id, levelZeroTile );
+            }
+        }
+    }
 
     emit cleared();
 }
