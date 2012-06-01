@@ -15,6 +15,8 @@
 #include "TextureMapperInterface.h"
 #include "TileId.h"
 
+#include <QtOpenGL/QGLFunctions>
+
 class QRect;
 class QGLContext;
 
@@ -27,7 +29,7 @@ class TextureColorizer;
 class TileLoader;
 class ViewportParams;
 
-class GLTextureMapper : public TextureMapperInterface
+class GLTextureMapper : public TextureMapperInterface, protected QGLFunctions
 {
  public:
     GLTextureMapper( StackedTileLoader *tileLoader );

@@ -23,6 +23,7 @@
 #include <QtGui/QVector2D>
 #include <QtGui/QVector3D>
 #include <QtOpenGL/QGLContext>
+#include <QtOpenGL/QGLShaderProgram>
 
 // Marble
 #include "Projections/AbstractProjection.h"
@@ -46,6 +47,7 @@ public:
 
     StackedTileLoader *const m_tileLoader;
 
+    QGLShaderProgram m_program;
     QMap<QString, Tile> m_visibleTiles;
     QVector<QVector2D> m_texCoords;
     const int m_numLatitudes;
@@ -58,6 +60,7 @@ public:
 
 GLTextureMapper::Private::Private( StackedTileLoader *tileLoader )
     : m_tileLoader( tileLoader )
+    , m_program()
     , m_visibleTiles()
     , m_numLatitudes( 20 )
     , m_numLongitudes( 20 )
@@ -127,6 +130,19 @@ GLTextureMapper::GLTextureMapper( StackedTileLoader *tileLoader )
             }
         }
     }
+
+    initializeGLFunctions();
+
+    // Compiling vertex shader
+    if ( !d->m_program.addShaderFromSourceFile( QGLShader::Vertex, ":/vshader.glsl" ) ) {
+        qWarning() << d->m_program.log();
+    }
+
+    // Compiling fragment shader
+    d->m_program.addShaderFromSourceFile( QGLShader::Fragment, ":/fshader.glsl" );
+
+    // Linking shader pipeline
+    d->m_program.link();
 }
 
 GLTextureMapper::~GLTextureMapper()
@@ -149,11 +165,17 @@ void GLTextureMapper::mapTexture( GeoPainter *painter,
     glEnable( GL_TEXTURE_2D );
     glFrontFace( GL_CCW );
 
+    // Binding shader pipeline for use
+    d->m_program.bind();
+
     setViewport( viewport );
 
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
-    glTranslated( viewport->width() / 2, viewport->height() / 2, 0 );
+    QMatrix4x4 projection;
+    projection.ortho( 0, viewport->width(), viewport->height(), 0, -256000000/M_PI*80, 256/M_PI*32 );
+
+    // Calculate model view transformation
+    QMatrix4x4 matrix;
+    matrix.translate( viewport->width() / 2, viewport->height() / 2, 0 );
 
     if ( viewport->projection() == Spherical ) {
         const Quaternion axis = viewport->planetAxis();
@@ -163,24 +185,41 @@ void GLTextureMapper::mapTexture( GeoPainter *painter,
         const qreal ay = -axis.v[Q_Y];
         const qreal az = axis.v[Q_Z];
 
-        glRotated( angle, ax, ay, az );
+        matrix.rotate( angle, ax, ay, az );
     } else {
         // Calculate translation of center point
         const qreal centerLon = viewport->centerLongitude();
         const qreal centerLat = viewport->centerLatitude();
 
         const QVector3D center = viewport->currentProjection()->vertexCoordinates( centerLon, centerLat );
-        glTranslated( -center.x() * viewport->radius(),
+        matrix.translate( -center.x() * viewport->radius(),
                       -center.y() * viewport->radius(),
                       0 );
     }
-    glScaled( viewport->radius(), viewport->radius(), viewport->radius() );
+    matrix.scale( viewport->radius() );
+
+    // Set modelview-projection matrix
+    d->m_program.setUniformValue("mvp_matrix", projection * matrix);
 
     glEnableClientState( GL_VERTEX_ARRAY );
     glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
     foreach ( const Tile &tile, d->m_visibleTiles.values() ) {
         glBindTexture( GL_TEXTURE_2D, tile.glTexture() );
+
+        // Using texture unit 0 which contains cube.png
+        d->m_program.setUniformValue("texture", 0);
+
+        // Tell OpenGL programmable pipeline how to locate vertex position data
+        int vertexLocation = d->m_program.attributeLocation("a_position");
+        d->m_program.enableAttributeArray(vertexLocation);
+        glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
+        int texcoordLocation = d->m_program.attributeLocation("a_texcoord");
+        d->m_program.enableAttributeArray(texcoordLocation);
+        glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
         glVertexPointer( 3, GL_FLOAT, 0, tile.vertices().data() );
         glTexCoordPointer( 2, GL_FLOAT, 0, d->m_texCoords.data() );
         glDrawArrays( GL_TRIANGLE_STRIP, 0, d->m_texCoords.size() );
@@ -207,10 +246,6 @@ void GLTextureMapper::setViewport( const ViewportParams *viewport )
     const int height = viewport->size().height();
 
     glViewport( 0, 0, width, height );
-
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    glOrtho( 0, width, height, 0, -256000000/M_PI*80, 256/M_PI*32 );
 
     QGLContext *const glContext = const_cast<QGLContext *>( QGLContext::currentContext() );
 
