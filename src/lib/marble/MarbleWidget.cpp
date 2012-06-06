@@ -43,7 +43,7 @@
 #include "MarbleMap.h"
 #include "MarbleModel.h"
 #include "MarblePhysics.h"
-#include "MarbleView.h"
+#include "MarbleGLView.h"
 #include "MarbleWidgetInputHandler.h"
 #include "MarbleWidgetPopupMenu.h"
 #include "Planet.h"
@@ -150,7 +150,7 @@ MarbleWidget::MarbleWidget(QWidget *parent)
     QVBoxLayout *vlayout = new QVBoxLayout( this );
     vlayout->setMargin( 0 );
 
-    d->m_view = new MarbleView( d->map(), this );
+    d->m_view = new MarbleGLView( d->map(), this );
     vlayout->addWidget( d->m_view );
 
     d->construct();

@@ -1,5 +1,7 @@
 PROJECT(marblewidget)
 
+find_package(OpenGL REQUIRED)
+
 if (QTONLY)
    cmake_minimum_required(VERSION 2.4.0)
 endif (QTONLY)
@@ -86,6 +88,7 @@ set(marblewidget_SRCS
     LatLonBoxWidget.cpp
     MarbleWidget.cpp
     MarbleView.cpp
+    MarbleGLView.cpp
     MarbleAbstractPresenter.cpp
     MarbleWebView.cpp
     MarbleModel.cpp
@@ -368,6 +371,8 @@ if( QT4_FOUND )
     ${QT_QTMAIN_LIBRARY}
     ${QT_QTWEBKIT_LIBRARY}
     ${QT_QTDECLARATIVE_LIBRARY}
+    ${QT_QTOPENGL_LIBRARY}
+    ${OPENGL_gl_LIBRARY}
   )
 else()
   TARGET_LINK_LIBRARIES (marblewidget
