@@ -20,13 +20,17 @@
 
 #include <QtCore/QObject>
 #include "LayerInterface.h"
+#include "GlLayerInterface.h"
 
+#include <QtCore/QHash>
 #include <QtCore/QVector>
 #include <QtGui/QColor>
+#include <QtOpenGL/qgl.h>
 
 #include "PlacemarkLayout.h"
 
 class QAbstractItemModel;
+class QGLContext;
 class QItemSelectionModel;
 class QString;
 
@@ -39,7 +43,7 @@ class MarbleClock;
 class ViewportParams;
 class VisiblePlacemark;
 
-class PlacemarkLayer : public QObject, public LayerInterface
+class PlacemarkLayer : public QObject, public LayerInterface, public GlLayerInterface
 {
     Q_OBJECT
 
@@ -65,6 +69,8 @@ class PlacemarkLayer : public QObject, public LayerInterface
      */
     bool render( GeoPainter *painter, ViewportParams *viewport,
                  const QString &renderPos = "NONE", GeoSceneLayer *layer = 0 );
+
+    void paintGL( QGLContext *glContext, const ViewportParams *viewport );
 
     virtual QString runtimeTrace() const;
 
@@ -94,7 +100,20 @@ class PlacemarkLayer : public QObject, public LayerInterface
  private:
     bool testXBug();
 
+ private:
     PlacemarkLayout m_layout;
+
+    struct GlData {
+        GlData( GLuint symbolId = 0, GLuint labelId = 0 ) :
+            symbolId( symbolId ),
+            labelId( labelId )
+        {}
+
+        GLuint symbolId;
+        GLuint labelId;
+    };
+
+    QHash<const GeoDataPlacemark *, GlData> m_glMap;
 };
 
 }
