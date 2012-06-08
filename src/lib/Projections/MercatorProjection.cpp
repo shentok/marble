@@ -47,6 +47,13 @@ qreal MercatorProjection::minValidLat() const
     return -85.05113 * DEG2RAD;
 }
 
+QVector3D MercatorProjection::vertexCoordinates( const GeoDataCoordinates &coordinates ) const
+{
+    return QVector3D(  2 *             coordinates.longitude()     / M_PI,
+                      -2 * atanh( sin( coordinates.latitude()  ) ) / M_PI,
+                       1 );
+}
+
 bool MercatorProjection::screenCoordinates( const qreal lon, const qreal _lat,
                                             const ViewportParams *viewport,
                                             qreal& x, qreal& y ) const

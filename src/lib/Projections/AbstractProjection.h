@@ -25,6 +25,7 @@
 #include <QtCore/QVector>
 #include <QtGui/QPainterPath>
 #include <QtGui/QPolygonF>
+#include <QtGui/QVector3D>
 
 #include "GeoDataLatLonAltBox.h"
 #include "GeoDataCoordinates.h"
@@ -100,6 +101,8 @@ class MARBLE_EXPORT AbstractProjection
     // - oblique: somewhere in between
 
     virtual bool   isOrientedNormal() const        { return true; }
+
+    virtual QVector3D vertexCoordinates( const GeoDataCoordinates &coordinates ) const = 0;
 
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.
