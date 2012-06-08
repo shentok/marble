@@ -65,6 +65,8 @@ class EquirectProjection : public CylindricalProjection
 
     virtual PreservationType preservationType() const { return NoPreservation; }
 
+    virtual QVector3D vertexCoordinates( const GeoDataCoordinates &coordinates ) const;
+
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.
      * @param lon    the lon coordinate of the requested pixel position

@@ -64,6 +64,8 @@ class MercatorProjection : public CylindricalProjection
 
     virtual PreservationType preservationType() const { return Conformal; }
 
+    virtual QVector3D vertexCoordinates( const GeoDataCoordinates &coordinates ) const;
+
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.
      * @param lon    the lon coordinate of the requested pixel position

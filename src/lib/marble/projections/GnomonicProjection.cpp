@@ -81,6 +81,12 @@ qreal GnomonicProjection::clippingRadius() const
     return 1;
 }
 
+QVector3D GnomonicProjection::vertexCoordinates( const GeoDataCoordinates &coordinates ) const
+{
+#warning implememnt me
+    return QVector3D( 0, 0, 0 );
+}
+
 bool GnomonicProjection::screenCoordinates( const GeoDataCoordinates &coordinates,
                                              const ViewportParams *viewport,
                                              qreal &x, qreal &y, bool &globeHidesPoint ) const

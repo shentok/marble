@@ -105,6 +105,12 @@ qreal VerticalPerspectiveProjection::clippingRadius() const
     return 1;
 }
 
+QVector3D VerticalPerspectiveProjection::vertexCoordinates( const GeoDataCoordinates &coordinates ) const
+{
+#warning implement me
+    return QVector3D( 0, 0, 0 );
+}
+
 bool VerticalPerspectiveProjection::screenCoordinates( const GeoDataCoordinates &coordinates,
                                              const ViewportParams *viewport,
                                              qreal &x, qreal &y, bool &globeHidesPoint ) const

@@ -19,12 +19,17 @@
 #include "AbstractDataPlugin.h"
 #include "AbstractDataPluginItem.h"
 #include "AbstractFloatItem.h"
+#include "AbstractProjection.h"
 #include "GeoPainter.h"
+#include "GlLayerInterface.h"
 #include "RenderPlugin.h"
+#include "ViewportParams.h"
 #include "LayerInterface.h"
 #include "RenderState.h"
 
+#include <QGLContext>
 #include <QTime>
+#include <QVector3D>
 
 namespace Marble
 {
@@ -139,6 +144,8 @@ void LayerManager::renderLayers( GeoPainter *painter, ViewportParams *viewport )
     d->m_renderState = RenderState( "Marble" );
     const QTime totalTime = QTime::currentTime();
 
+    QGLContext *const glContext = const_cast<QGLContext *>( QGLContext::currentContext() );
+
     QStringList renderPositions;
 
     if ( d->m_showBackground ) {
@@ -179,7 +186,64 @@ void LayerManager::renderLayers( GeoPainter *painter, ViewportParams *viewport )
         QTime timer;
         foreach( LayerInterface *layer, layers ) {
             timer.start();
-            layer->render( painter, viewport, renderPosition, 0 );
+
+            GlLayerInterface *const glInterface = dynamic_cast<GlLayerInterface *>( layer );
+            if ( glContext && glInterface ) {
+                painter->beginNativePainting();
+                glPushAttrib( GL_ALL_ATTRIB_BITS );
+                glPushClientAttrib( GL_CLIENT_ALL_ATTRIB_BITS );
+                glViewport( 0, 0, viewport->width(), viewport->height() );
+
+                glMatrixMode( GL_PROJECTION );
+                glPushMatrix();
+                glLoadIdentity();
+                glOrtho( 0, viewport->width(), viewport->height(), 0, -256000000/M_PI*80, 256/M_PI*32 );
+
+                glMatrixMode( GL_MODELVIEW );
+                glPushMatrix();
+                glLoadIdentity();
+                glTranslated( viewport->width() / 2, viewport->height() / 2, 0 );
+
+                if ( viewport->projection() == Spherical ) {
+                    const Quaternion axis = viewport->planetAxis();
+
+                    const qreal angle = 2 * acos( axis.v[Q_W] ) * RAD2DEG;
+                    const qreal ax = axis.v[Q_X];
+                    const qreal ay = -axis.v[Q_Y];
+                    const qreal az = axis.v[Q_Z];
+
+                    glRotated( angle, ax, ay, az );
+                } else {
+                    // Calculate translation of center point
+                    const GeoDataCoordinates coordinates = viewport->viewLatLonAltBox().center();
+                    const QVector3D center = viewport->currentProjection()->vertexCoordinates( coordinates );
+                    glTranslated( -center.x() * viewport->radius(),
+                                  -center.y() * viewport->radius(),
+                                  0 );
+                }
+                glScaled( viewport->radius(), viewport->radius(), viewport->radius() );
+
+                glEnable( GL_DEPTH_TEST );
+                glEnable( GL_CULL_FACE );
+                glFrontFace( GL_CCW );
+
+                glInterface->paintGL( glContext, viewport );
+
+                glDisable( GL_CULL_FACE );
+                glDisable( GL_DEPTH_TEST );
+
+                glMatrixMode( GL_MODELVIEW );
+                glPopMatrix();
+                glMatrixMode( GL_PROJECTION );
+                glPopMatrix();
+                glPopClientAttrib();
+                glPopAttrib();
+                painter->endNativePainting();
+            }
+            else {
+                layer->render( painter, viewport, renderPosition, 0 );
+            }
+
             d->m_renderState.addChild( layer->renderState() );
             traceList.append( QString("%2 ms %3").arg( timer.elapsed(),3 ).arg( layer->runtimeTrace() ) );
         }

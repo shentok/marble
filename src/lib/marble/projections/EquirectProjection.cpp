@@ -57,6 +57,13 @@ qreal EquirectProjection::minValidLat() const
     return -90.0 * DEG2RAD;
 }
 
+QVector3D EquirectProjection::vertexCoordinates( const GeoDataCoordinates &coordinates ) const
+{
+    return QVector3D(  2 * coordinates.longitude() / M_PI,
+                      -2 * coordinates.latitude()  / M_PI,
+                       1 );
+}
+
 bool EquirectProjection::screenCoordinates( const GeoDataCoordinates &geopoint, 
                                             const ViewportParams *viewport,
                                             qreal &x, qreal &y, bool &globeHidesPoint ) const
