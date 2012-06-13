@@ -15,9 +15,11 @@
 
 #include <QtCore/QObject>
 #include "LayerInterface.h"
+#include "GlLayerInterface.h"
 
 class QAbstractItemModel;
 class QModelIndex;
+class QGLContext;
 
 namespace Marble
 {
@@ -25,7 +27,7 @@ class GeoPainter;
 class ViewportParams;
 class GeometryLayerPrivate;
 
-class GeometryLayer : public QObject, public LayerInterface
+class GeometryLayer : public QObject, public LayerInterface, public GlLayerInterface
 {
     Q_OBJECT
 public:
@@ -36,7 +38,9 @@ public:
 
     virtual bool render( GeoPainter *painter, ViewportParams *viewport,
                          const QString& renderPos = "NONE", GeoSceneLayer * layer = 0 );
-    
+
+    void paintGL( QGLContext *glContext, const ViewportParams *viewport );
+
     virtual QString runtimeTrace() const;
 
 public Q_SLOTS:
@@ -48,6 +52,7 @@ Q_SIGNALS:
     void repaintNeeded();
 
 private:
+    friend class GeometryLayerPrivate;
     GeometryLayerPrivate *d;
 };
 
