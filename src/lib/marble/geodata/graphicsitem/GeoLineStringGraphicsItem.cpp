@@ -16,17 +16,27 @@
 #include "ViewportParams.h"
 #include "GeoDataStyle.h"
 
+#include <QtOpenGL/QGLContext>
+
 namespace Marble
 {
 
 GeoLineStringGraphicsItem::GeoLineStringGraphicsItem( const GeoDataFeature *feature, const GeoDataLineString* lineString )
         : GeoGraphicsItem( feature ),
-          m_lineString( lineString )
+          m_lineString( lineString ),
+          m_glLineString()
 {
+    setLineString( lineString );
 }
 
 void GeoLineStringGraphicsItem::setLineString( const GeoDataLineString* lineString )
 {
+    m_glLineString.clear();
+    for ( int i = 0; i < lineString->size(); ++i ) {
+        const Quaternion quat = lineString->at( i ).quaternion();
+        m_glLineString << QVector3D( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
+    }
+
     m_lineString = lineString;
 }
 
@@ -103,6 +113,16 @@ void GeoLineStringGraphicsItem::paint( GeoPainter* painter, const ViewportParams
     painter->drawPolyline( *m_lineString, feature()->name(), labelPositionFlags );
 
     painter->restore();
+}
+
+void GeoLineStringGraphicsItem::paintGL( QGLContext *glContext, const ViewportParams *viewport )
+{
+    const QColor color = style()->lineStyle().color();
+
+    glPointSize( style()->lineStyle().width() );
+    glColor4f( color.redF(), color.greenF(), color.blueF(), color.alphaF() );
+    glVertexPointer( 3, GL_FLOAT, 0, m_glLineString.constData() );
+    glDrawArrays( GL_LINE_STRIP, 0, m_glLineString.size() );
 }
 
 }

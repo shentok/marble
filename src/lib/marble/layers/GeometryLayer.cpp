@@ -14,6 +14,7 @@
 #include "GeometryLayer.h"
 
 // Marble
+#include "AbstractProjection.h"
 #include "GeoDataDocument.h"
 #include "GeoDataFolder.h"
 #include "GeoDataLineStyle.h"
@@ -48,8 +49,11 @@
 // Qt
 #include <qmath.h>
 #include <QAbstractItemModel>
+#include <QGLContext>
 #include <QModelIndex>
 #include <QColor>
+#include <QVector>
+#include <QVector2D>
 
 namespace Marble
 {
@@ -272,6 +276,39 @@ bool GeometryLayer::render( GeoPainter *painter, ViewportParams *viewport,
                 .arg( painted )
                 .arg( maxZoomLevel );
     return true;
+}
+
+void GeometryLayer::paintGL( QGLContext *glContext, const ViewportParams *viewport )
+{
+    const int maxZoomLevel = qMin<int>( qLn( viewport->radius() *4 / 256 ) / qLn( 2.0 ), GeometryLayerPrivate::maximumZoomLevel() );
+    const QList<GeoGraphicsItem*> items = d->m_scene.items( viewport->viewLatLonAltBox(), maxZoomLevel );
+
+    int painted = 0;
+
+    glEnable( GL_LINE_SMOOTH );
+    glDisable( GL_BLEND );
+    glEnableClientState( GL_VERTEX_ARRAY );
+
+    foreach ( GeoGraphicsItem *item, items ) {
+        if ( !item->latLonAltBox().intersects( viewport->viewLatLonAltBox() ) )
+            continue;
+
+        if ( GeoLineStringGraphicsItem *lineString = dynamic_cast<GeoLineStringGraphicsItem *>( item ) ) {
+            lineString->paintGL( glContext, viewport );
+            ++painted;
+        }
+        else if ( GeoPolygonGraphicsItem *polygon = dynamic_cast<GeoPolygonGraphicsItem *>( item ) ) {
+            polygon->paintGL( glContext, viewport );
+            ++painted;
+        }
+    }
+
+    glDisableClientState( GL_VERTEX_ARRAY );
+
+    d->m_runtimeTrace = QString( "Items: %1 Drawn: %2 Zoom: %3")
+                .arg( items.size() )
+                .arg( painted )
+                .arg( maxZoomLevel );
 }
 
 RenderState GeometryLayer::renderState() const

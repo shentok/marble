@@ -15,9 +15,11 @@
 
 #include <QObject>
 #include "LayerInterface.h"
+#include "GlLayerInterface.h"
 #include "GeoDataCoordinates.h"
 
 class QAbstractItemModel;
+class QGLContext;
 class QModelIndex;
 class QPoint;
 class QColor;
@@ -30,7 +32,7 @@ class ViewportParams;
 class GeometryLayerPrivate;
 class GeoDataPlacemark;
 
-class GeometryLayer : public QObject, public LayerInterface
+class GeometryLayer : public QObject, public LayerInterface, public GlLayerInterface
 {
     Q_OBJECT
 public:
@@ -42,6 +44,8 @@ public:
     virtual bool render( GeoPainter *painter, ViewportParams *viewport,
                          const QString& renderPos = QLatin1String("NONE"),
                          GeoSceneLayer * layer = 0 );
+
+    void paintGL( QGLContext *glContext, const ViewportParams *viewport );
 
     RenderState renderState() const;
 
@@ -78,6 +82,7 @@ Q_SIGNALS:
     void highlightedPlacemarksChanged( const QVector<GeoDataPlacemark*>& clickedPlacemarks );
 
 private:
+    friend class GeometryLayerPrivate;
     GeometryLayerPrivate *d;
 };
 
