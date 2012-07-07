@@ -79,6 +79,7 @@ set(marblewidget_SRCS
     ${graphicsview_SRCS}
     ${layers_SRCS}
     ${marblequick_SRCS}
+    triangulate.cpp
     blendings/Blending.cpp
     blendings/BlendingAlgorithms.cpp
     blendings/BlendingFactory.cpp
