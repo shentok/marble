@@ -28,6 +28,15 @@ class PluginItemDelegate : public QAbstractItemDelegate
     Q_OBJECT
 
  public:
+    /**
+     * This enum contains the data roles for the QStandardItem.
+     */
+    enum ItemDataRole {
+        NameId = Qt::UserRole + 2,       // a QString
+        ConfigurationDialogAvailable,    // a bool
+        BackendTypes                     // a QStringList
+    };
+
     explicit PluginItemDelegate( QAbstractItemView *view, QObject * parent = 0 );
     ~PluginItemDelegate();
     

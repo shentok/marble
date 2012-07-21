@@ -41,16 +41,6 @@ class MARBLE_EXPORT RenderPlugin : public QObject, public RenderPluginInterface
     Q_OBJECT
 
  public:
-    /**
-     * This enum contains the data roles for the QStandardItem that is returned by item().
-     * TODO: This should get moved into PluginInterface.h
-     */
-    enum ItemDataRole {
-        NameId = Qt::UserRole + 2,       // a QString
-        ConfigurationDialogAvailable,    // a bool
-        BackendTypes                     // a QStringList
-    };
-
     enum RenderType {
         Unknown,
         Online
