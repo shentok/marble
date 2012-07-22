@@ -38,9 +38,10 @@ namespace Marble
 class MeasureToolPlugin : public RenderPlugin, public DialogConfigurationInterface
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
+
     Q_INTERFACES( Marble::DialogConfigurationInterface )
-    MARBLE_PLUGIN( MeasureToolPlugin )
+
+    MARBLE_RENDER_PLUGIN( MeasureToolPlugin )
 
  public:
     MeasureToolPlugin();

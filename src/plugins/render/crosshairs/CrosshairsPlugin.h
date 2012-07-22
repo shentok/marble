@@ -39,9 +39,10 @@ namespace Marble
 class CrosshairsPlugin : public RenderPlugin, public DialogConfigurationInterface
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
+
     Q_INTERFACES( Marble::DialogConfigurationInterface )
-    MARBLE_PLUGIN(CrosshairsPlugin)
+
+    MARBLE_RENDER_PLUGIN( CrosshairsPlugin )
 
  public:
     CrosshairsPlugin();

@@ -38,9 +38,10 @@ class SatellitesConfigModel;
 class SatellitesPlugin : public RenderPlugin, public DialogConfigurationInterface
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
+
     Q_INTERFACES( Marble::DialogConfigurationInterface )
-    MARBLE_PLUGIN( SatellitesPlugin )
+
+    MARBLE_RENDER_PLUGIN( SatellitesPlugin )
 
 public:
     SatellitesPlugin();

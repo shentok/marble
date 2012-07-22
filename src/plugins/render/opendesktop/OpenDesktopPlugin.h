@@ -27,11 +27,10 @@ class OpenDesktopPlugin : public AbstractDataPlugin, public DialogConfigurationI
 
     Q_OBJECT
 
-    Q_INTERFACES(Marble::RenderPluginInterface)
     Q_INTERFACES(Marble::DialogConfigurationInterface)
 
-    MARBLE_PLUGIN(OpenDesktopPlugin)
- 
+    MARBLE_ABSTRACTDATA_PLUGIN( OpenDesktopPlugin )
+
  public:
     OpenDesktopPlugin();
 

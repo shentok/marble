@@ -114,7 +114,10 @@ class MARBLE_EXPORT AbstractDataPlugin : public RenderPlugin
  private:
     AbstractDataPluginPrivate * const d;
 };
-    
+
 }
+
+#define MARBLE_ABSTRACTDATA_PLUGIN( T ) \
+    MARBLE_RENDER_PLUGIN( T )
 
 #endif

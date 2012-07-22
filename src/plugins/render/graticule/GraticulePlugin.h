@@ -54,9 +54,10 @@ class GeoDataLatLonAltBox;
 class GraticulePlugin : public RenderPlugin, public DialogConfigurationInterface
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
+
     Q_INTERFACES( Marble::DialogConfigurationInterface )
-    MARBLE_PLUGIN( GraticulePlugin )
+
+    MARBLE_RENDER_PLUGIN( GraticulePlugin )
 
  public:
     GraticulePlugin();

@@ -28,9 +28,7 @@ class ProgressFloatItem  : public AbstractFloatItem
 {
     Q_OBJECT
 
-    Q_INTERFACES( Marble::RenderPluginInterface )
-
-    MARBLE_PLUGIN( ProgressFloatItem )
+    MARBLE_FLOATITEM_PLUGIN( ProgressFloatItem )
 
  public:
     ProgressFloatItem();

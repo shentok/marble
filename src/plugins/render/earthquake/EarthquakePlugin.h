@@ -28,10 +28,9 @@ class EarthquakePlugin : public AbstractDataPlugin, public DialogConfigurationIn
 {
     Q_OBJECT
 
-    Q_INTERFACES( Marble::RenderPluginInterface )
     Q_INTERFACES( Marble::DialogConfigurationInterface )
 
-    MARBLE_PLUGIN( EarthquakePlugin )
+    MARBLE_ABSTRACTDATA_PLUGIN( EarthquakePlugin )
 
 public:
     EarthquakePlugin();

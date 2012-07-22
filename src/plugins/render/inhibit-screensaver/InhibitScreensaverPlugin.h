@@ -25,10 +25,9 @@ class InhibitScreensaverPluginPrivate;
 class InhibitScreensaverPlugin : public RenderPlugin
 {
 
-Q_OBJECT
-Q_INTERFACES( Marble::RenderPluginInterface )
+    Q_OBJECT
 
-MARBLE_PLUGIN( InhibitScreensaverPlugin )
+    MARBLE_RENDER_PLUGIN( InhibitScreensaverPlugin )
 
 public:
     InhibitScreensaverPlugin();

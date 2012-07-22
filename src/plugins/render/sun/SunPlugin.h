@@ -27,8 +27,9 @@ namespace Marble
 class SunPlugin : public RenderPlugin
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
-    MARBLE_PLUGIN( SunPlugin )
+
+    MARBLE_RENDER_PLUGIN( SunPlugin )
+
  public:
     SunPlugin();
 

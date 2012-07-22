@@ -37,9 +37,7 @@ class NavigationFloatItem: public AbstractFloatItem
 {
     Q_OBJECT
 
-    Q_INTERFACES( Marble::RenderPluginInterface )
-
-MARBLE_PLUGIN( NavigationFloatItem )
+    MARBLE_FLOATITEM_PLUGIN( NavigationFloatItem )
 
  public:
     NavigationFloatItem();

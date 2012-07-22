@@ -30,10 +30,11 @@ namespace Marble
 class WikipediaPlugin : public AbstractDataPlugin, public DialogConfigurationInterface
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
+
     Q_INTERFACES( Marble::DialogConfigurationInterface )
-    MARBLE_PLUGIN( WikipediaPlugin )
-    
+
+    MARBLE_ABSTRACTDATA_PLUGIN( WikipediaPlugin )
+
  public:
     WikipediaPlugin();
     explicit WikipediaPlugin( const MarbleModel *marbleModel );

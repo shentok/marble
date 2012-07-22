@@ -66,8 +66,9 @@ class StarPoint
 class StarsPlugin : public RenderPlugin
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
-    MARBLE_PLUGIN( StarsPlugin )
+
+    MARBLE_RENDER_PLUGIN( StarsPlugin )
+
  public:
     StarsPlugin();
 

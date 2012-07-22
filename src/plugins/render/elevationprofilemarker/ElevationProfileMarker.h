@@ -28,9 +28,7 @@ class ElevationProfileMarker : public RenderPlugin
 {
     Q_OBJECT
 
-    Q_INTERFACES( Marble::RenderPluginInterface )
-
-    MARBLE_PLUGIN( ElevationProfileMarker )
+    MARBLE_RENDER_PLUGIN( ElevationProfileMarker )
 
  public:
     ElevationProfileMarker();

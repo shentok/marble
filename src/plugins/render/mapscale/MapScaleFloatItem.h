@@ -32,9 +32,11 @@ namespace Marble
 class MapScaleFloatItem : public AbstractFloatItem, public DialogConfigurationInterface
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
+
     Q_INTERFACES( Marble::DialogConfigurationInterface )
-    MARBLE_PLUGIN( MapScaleFloatItem )
+
+    MARBLE_FLOATITEM_PLUGIN( MapScaleFloatItem )
+
  public:
     MapScaleFloatItem();
     explicit MapScaleFloatItem( const MarbleModel *marbleModel );

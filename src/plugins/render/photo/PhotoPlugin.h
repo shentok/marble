@@ -22,10 +22,8 @@ class PhotoPlugin : public AbstractDataPlugin
 {
     Q_OBJECT
 
-    Q_INTERFACES( Marble::RenderPluginInterface )
+    MARBLE_ABSTRACTDATA_PLUGIN( PhotoPlugin )
 
-    MARBLE_PLUGIN( PhotoPlugin )
-    
  public:
     PhotoPlugin();
 

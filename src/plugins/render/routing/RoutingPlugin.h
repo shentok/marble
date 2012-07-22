@@ -24,10 +24,9 @@ class RoutingPlugin : public AbstractFloatItem, public DialogConfigurationInterf
 {
     Q_OBJECT
 
-    Q_INTERFACES( Marble::RenderPluginInterface )
     Q_INTERFACES( Marble::DialogConfigurationInterface )
 
-    MARBLE_PLUGIN( RoutingPlugin )
+    MARBLE_FLOATITEM_PLUGIN( RoutingPlugin )
 
 public:
     RoutingPlugin();

@@ -37,9 +37,9 @@ class MarbleLocale;
 class GpsInfo : public AbstractFloatItem
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
-    MARBLE_PLUGIN( GpsInfo )
-    
+
+    MARBLE_FLOATITEM_PLUGIN( GpsInfo )
+
  public:
     GpsInfo();
     explicit GpsInfo( const MarbleModel *marbleModel );

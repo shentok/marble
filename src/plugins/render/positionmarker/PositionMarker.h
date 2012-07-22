@@ -35,9 +35,11 @@ namespace Marble
 class PositionMarker  : public RenderPlugin, public DialogConfigurationInterface
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
+
     Q_INTERFACES( Marble::DialogConfigurationInterface )
-    MARBLE_PLUGIN( PositionMarker )
+
+    MARBLE_RENDER_PLUGIN( PositionMarker )
+
  public:
     PositionMarker ();
     explicit PositionMarker( const MarbleModel *marbleModel );

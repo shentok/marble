@@ -86,4 +86,7 @@ class MARBLE_EXPORT AbstractFloatItem : public RenderPlugin, public FrameGraphic
 
 }
 
+#define MARBLE_FLOATITEM_PLUGIN( T ) \
+    MARBLE_RENDER_PLUGIN( T )
+
 #endif

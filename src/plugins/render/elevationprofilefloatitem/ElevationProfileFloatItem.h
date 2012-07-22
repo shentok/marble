@@ -44,10 +44,9 @@ class ElevationProfileFloatItem : public AbstractFloatItem, public DialogConfigu
 {
     Q_OBJECT
 
-    Q_INTERFACES( Marble::RenderPluginInterface )
     Q_INTERFACES( Marble::DialogConfigurationInterface )
 
-    MARBLE_PLUGIN( ElevationProfileFloatItem )
+    MARBLE_FLOATITEM_PLUGIN( ElevationProfileFloatItem )
 
  public:
     ElevationProfileFloatItem();

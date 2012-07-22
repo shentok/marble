@@ -15,12 +15,14 @@
 #include "RenderPlugin.h"
 #include "RenderPluginInterface.h"
 
-namespace Marble {
+namespace Marble
+{
 
-class PostalCodePlugin : public AbstractDataPlugin {
+class PostalCodePlugin : public AbstractDataPlugin
+{
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
-    MARBLE_PLUGIN( PostalCodePlugin )
+
+    MARBLE_ABSTRACTDATA_PLUGIN( PostalCodePlugin )
 
  public:
     PostalCodePlugin();

@@ -37,9 +37,9 @@ class MarbleLocale;
 class Speedometer : public AbstractFloatItem
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
-    MARBLE_PLUGIN( Speedometer )
-    
+
+    MARBLE_FLOATITEM_PLUGIN( Speedometer )
+
  public:
     Speedometer();
     explicit Speedometer( const MarbleModel *marbleModel );
