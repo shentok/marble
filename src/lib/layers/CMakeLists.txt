@@ -14,6 +14,7 @@ set( layers_SRCS
     layers/AtmosphereLayer.cpp
     layers/FogLayer.cpp
     layers/FpsLayer.cpp
+    layers/FloatItemsLayer.cpp
     layers/GeometryLayer.cpp
     layers/MarbleSplashLayer.cpp
     layers/PlacemarkLayer.cpp

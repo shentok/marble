@@ -36,6 +36,7 @@
 #include "layers/FogLayer.h"
 #include "layers/FpsLayer.h"
 #include "layers/GeometryLayer.h"
+#include "layers/FloatItemsLayer.h"
 #include "layers/MarbleSplashLayer.h"
 #include "layers/PlacemarkLayer.h"
 #include "layers/TextureLayer.h"
@@ -128,6 +129,7 @@ class MarbleMapPrivate
     MarbleSplashLayer m_marbleSplashLayer;
     MarbleMap::CustomPaintLayer m_customPaintLayer;
     GeometryLayer            m_geometryLayer;
+    FloatItemsLayer           m_floatItemsLayer;
     AtmosphereLayer          m_atmosphereLayer;
     FogLayer                 m_fogLayer;
     VectorMapBaseLayer       m_vectorMapBaseLayer;
@@ -145,11 +147,13 @@ MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model )
           m_layerManager( model, parent ),
           m_customPaintLayer( parent ),
           m_geometryLayer( model->treeModel() ),
+          m_floatItemsLayer( model ),
           m_vectorMapBaseLayer( &m_veccomposer ),
           m_vectorMapLayer( &m_veccomposer ),
           m_textureLayer( model->downloadManager(), model->sunLocator(), &m_veccomposer ),
           m_placemarkLayer( model->placemarkModel(), model->placemarkSelectionModel(), model->clock() )
 {
+    m_layerManager.addLayer( &m_floatItemsLayer );
     m_layerManager.addLayer( &m_fogLayer );
     m_layerManager.addLayer( &m_geometryLayer );
     m_layerManager.addLayer( &m_placemarkLayer );
@@ -175,6 +179,9 @@ MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model )
 
     QObject::connect( &m_geometryLayer, SIGNAL( repaintNeeded()),
                       parent, SIGNAL( repaintNeeded() ));
+
+    QObject::connect( &m_floatItemsLayer, SIGNAL( repaintNeeded() ),
+                      parent, SIGNAL( repaintNeeded() ) );
 
     QObject::connect( &m_textureLayer, SIGNAL( tileLevelChanged( int ) ),
                       parent, SIGNAL( tileLevelChanged( int ) ) );
@@ -226,6 +233,7 @@ void MarbleMapPrivate::updateProperty( const QString &name, bool show )
     }
 
     m_layerManager.setVisible( name, show );
+    m_floatItemsLayer.setVisible( name, show );
 }
 
 // ----------------------------------------------------------------
@@ -1128,7 +1136,7 @@ QList<RenderPlugin *> MarbleMap::renderPlugins() const
 
 QList<AbstractFloatItem *> MarbleMap::floatItems() const
 {
-    return d->m_layerManager.floatItems();
+    return d->m_floatItemsLayer.floatItems();
 }
 
 AbstractFloatItem * MarbleMap::floatItem( const QString &nameId ) const
