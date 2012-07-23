@@ -50,7 +50,6 @@ class LayerManager::Private
     LayerManager *const q;
 
     QList<RenderPlugin *> m_renderPlugins;
-    QList<AbstractFloatItem *> m_floatItems;
     QList<AbstractDataPlugin *> m_dataPlugins;
     QList<LayerInterface *> m_internalLayers;
 
@@ -105,13 +104,6 @@ void LayerManager::addRenderPlugin( RenderPlugin *renderPlugin )
     QObject::connect( renderPlugin, SIGNAL(visibilityChanged(bool,QString)),
                       this, SLOT(updateVisibility(bool,QString)) );
 
-    // get float items ...
-    AbstractFloatItem * const floatItem =
-        qobject_cast<AbstractFloatItem *>( renderPlugin );
-    if ( floatItem )
-        d->m_floatItems.append( floatItem );
-
-    // ... and data plugins
     AbstractDataPlugin * const dataPlugin =
         qobject_cast<AbstractDataPlugin *>( renderPlugin );
     if( dataPlugin )
@@ -123,21 +115,8 @@ void LayerManager::removeRenderPlugin( RenderPlugin *renderPlugin )
     if ( AbstractDataPlugin *dataPlugin = dynamic_cast<AbstractDataPlugin *>( renderPlugin ) ) {
         d->m_dataPlugins.removeAll( dataPlugin );
     }
-    if ( AbstractFloatItem *floatItem = dynamic_cast<AbstractFloatItem *>( renderPlugin ) ) {
-        d->m_floatItems.removeAll( floatItem );
-    }
 
     d->m_renderPlugins.removeAll( renderPlugin );
-}
-
-QList<RenderPlugin *> LayerManager::renderPlugins() const
-{
-    return d->m_renderPlugins;
-}
-
-QList<AbstractFloatItem *> LayerManager::floatItems() const
-{
-    return d->m_floatItems;
 }
 
 QList<AbstractDataPlugin *> LayerManager::dataPlugins() const
