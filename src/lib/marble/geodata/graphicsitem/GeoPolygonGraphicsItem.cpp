@@ -17,8 +17,6 @@
 #include "GeoDataStyle.h"
 #include "triangulate.h"
 
-#include <QtOpenGL/QGLContext>
-
 namespace Marble
 {
 
@@ -27,14 +25,6 @@ GeoPolygonGraphicsItem::GeoPolygonGraphicsItem( const GeoDataFeature *feature, c
           m_polygon( polygon ),
           m_ring( 0 )
 {
-    for ( int i = 0; i < polygon->outerBoundary().size(); ++i ) {
-        const Quaternion quat = polygon->outerBoundary().at( i ).quaternion();
-        m_glOutline << QVector3D( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
-    }
-
-    foreach ( int vertex, Triangulate::Process( polygon->outerBoundary() ) ) {
-        m_glPolygon << m_glOutline[vertex];
-    }
 }
 
 GeoPolygonGraphicsItem::GeoPolygonGraphicsItem( const GeoDataFeature *feature, const GeoDataLinearRing* ring )
@@ -42,14 +32,6 @@ GeoPolygonGraphicsItem::GeoPolygonGraphicsItem( const GeoDataFeature *feature, c
           m_polygon( 0 ),
           m_ring( ring )
 {
-    for ( int i = 0; i < ring->size(); ++i ) {
-        const Quaternion quat = ring->at( i ).quaternion();
-        m_glOutline << QVector3D( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
-    }
-
-    foreach ( int vertex, Triangulate::Process( *ring ) ) {
-        m_glPolygon << m_glOutline[vertex];
-    }
 }
 
 const GeoDataLatLonAltBox& GeoPolygonGraphicsItem::latLonAltBox() const
@@ -122,14 +104,35 @@ void GeoPolygonGraphicsItem::paint( GeoPainter* painter, const ViewportParams* v
     painter->restore();
 }
 
-void GeoPolygonGraphicsItem::paintGL( QGLContext *glContext, const ViewportParams *viewport )
+void GeoPolygonGraphicsItem::paintGL( QVector<VertexData> &vertexData, QVector<GLushort> &indices )
 {
-    const QColor color = style()->polyStyle().color();
+    const QColor qcolor = style()->polyStyle().color();
+    const QVector4D color( qcolor.redF(), qcolor.greenF(), qcolor.blueF(), qcolor.alphaF() );
+//    glPointSize( style()->lineStyle().width() );
+    const int firstIndex = vertexData.size();
 
-    glPointSize( style()->lineStyle().width() );
-    glColor4f( color.redF(), color.greenF(), color.blueF(), color.alphaF() );
-    glVertexPointer( 3, GL_FLOAT, 0, m_glPolygon.constData() );
-    glDrawArrays( GL_TRIANGLES, 0, m_glPolygon.size() );
+    if ( m_polygon != 0 ) {
+        for ( int i = 0; i < m_polygon->outerBoundary().size(); ++i ) {
+            const Quaternion quat = m_polygon->outerBoundary().at( i ).quaternion();
+            const QVector3D position( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
+            vertexData << VertexData( position, color );
+        }
+
+        foreach ( int vertex, Triangulate::Process( m_polygon->outerBoundary() ) ) {
+            indices << firstIndex + vertex;
+        }
+    }
+    else if ( m_ring != 0 ) {
+        for ( int i = 0; i < m_ring->size(); ++i ) {
+            const Quaternion quat = m_ring->at( i ).quaternion();
+            const QVector3D position( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
+            vertexData << VertexData( position, color );
+        }
+
+        foreach ( int vertex, Triangulate::Process( *m_ring ) ) {
+            indices << firstIndex + vertex;
+        }
+    }
 }
 
 }

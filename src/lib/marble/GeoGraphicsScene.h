@@ -14,6 +14,7 @@
 
 #include "marble_export.h"
 #include "MarbleGlobal.h"
+#include "TileId.h"
 
 #include <QObject>
 #include <QList>
@@ -70,6 +71,10 @@ public:
      * @return The list of items in the specified box in no specific order.
      */
     QList<GeoGraphicsItem *> items( const GeoDataLatLonBox &box, int maxZoomLevel ) const;
+
+    QList<GeoGraphicsItem *> tile( const TileId &id ) const;
+
+    QList<TileId> tiles( const GeoDataLatLonBox &box, int maxZoomLevel ) const;
 
     /**
      * @brief Get the list of items which belong to a placemark

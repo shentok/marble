@@ -16,27 +16,18 @@
 #include "ViewportParams.h"
 #include "GeoDataStyle.h"
 
-#include <QtOpenGL/QGLContext>
-
 namespace Marble
 {
 
 GeoLineStringGraphicsItem::GeoLineStringGraphicsItem( const GeoDataFeature *feature, const GeoDataLineString* lineString )
         : GeoGraphicsItem( feature ),
-          m_lineString( lineString ),
-          m_glLineString()
+          m_lineString( lineString )
 {
     setLineString( lineString );
 }
 
 void GeoLineStringGraphicsItem::setLineString( const GeoDataLineString* lineString )
 {
-    m_glLineString.clear();
-    for ( int i = 0; i < lineString->size(); ++i ) {
-        const Quaternion quat = lineString->at( i ).quaternion();
-        m_glLineString << QVector3D( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
-    }
-
     m_lineString = lineString;
 }
 
@@ -115,14 +106,22 @@ void GeoLineStringGraphicsItem::paint( GeoPainter* painter, const ViewportParams
     painter->restore();
 }
 
-void GeoLineStringGraphicsItem::paintGL( QGLContext *glContext, const ViewportParams *viewport )
+void GeoLineStringGraphicsItem::paintGL( QVector<VertexData> &vertexData, QVector<GLushort> &indices )
 {
-    const QColor color = style()->lineStyle().color();
+    const QColor qcolor = style()->polyStyle().color();
+    const QVector4D color( qcolor.redF(), qcolor.greenF(), qcolor.blueF(), qcolor.alphaF() );
+    const GLushort firstIndex = vertexData.size();
 
-    glPointSize( style()->lineStyle().width() );
-    glColor4f( color.redF(), color.greenF(), color.blueF(), color.alphaF() );
-    glVertexPointer( 3, GL_FLOAT, 0, m_glLineString.constData() );
-    glDrawArrays( GL_LINE_STRIP, 0, m_glLineString.size() );
+    for ( int i = 0; i < m_lineString->size(); ++i ) {
+        const Quaternion quat = m_lineString->at( i ).quaternion();
+        const QVector3D position( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
+        vertexData << VertexData( position, color );
+        if ( i > 0 ) {
+            indices << (firstIndex + (GLushort)i - 1) << (firstIndex + (GLushort)i);
+        }
+    }
+
+//    glPointSize( style()->lineStyle().width() );
 }
 
 }
