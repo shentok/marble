@@ -17,9 +17,9 @@
 #include "GeoDataPlacemark.h"
 #include "GeoDataTypes.h"
 #include "GeoGraphicsItem.h"
-#include "TileId.h"
 #include "TileCoordsPyramid.h"
 #include "MarbleDebug.h"
+
 #include <QtCore/QMap>
 
 namespace Marble
@@ -108,6 +108,61 @@ QList< GeoGraphicsItem* > GeoGraphicsScene::items( const GeoDataLatLonBox &box, 
         for ( int x = x1; x <= x2; ++x ) {
             for ( int y = y1; y <= y2; ++y ) {
                 d->addItems( TileId ( 0, level, x, y ), result, zoomLevel );
+            }
+        }
+    }
+    return result;
+}
+
+QList<GeoGraphicsItem *> GeoGraphicsScene::tile( const TileId &id ) const
+{
+    return d->m_items.value( id );
+}
+
+QList<TileId> GeoGraphicsScene::tiles( const Marble::GeoDataLatLonBox &box, int maxZoomLevel ) const
+{
+    if ( box.west() > box.east() ) {
+        // Handle boxes crossing the IDL by splitting it into two separate boxes
+        GeoDataLatLonAltBox left;
+        left.setWest( -M_PI );
+        left.setEast( box.east() );
+        left.setNorth( box.north() );
+        left.setSouth( box.south() );
+
+        GeoDataLatLonAltBox right;
+        right.setWest( box.west() );
+        right.setEast( M_PI );
+        right.setNorth( box.north() );
+        right.setSouth( box.south() );
+
+        return tiles( left, maxZoomLevel ) + tiles( right, maxZoomLevel );
+    }
+
+    QList<TileId> result;
+    QRect rect;
+    qreal north, south, east, west;
+    box.boundaries( north, south, east, west );
+    TileId key;
+
+    key = TileId::fromCoordinates( GeoDataCoordinates(west, north, 0), maxZoomLevel );
+    rect.setLeft( key.x() );
+    rect.setTop( key.y() );
+
+    key = TileId::fromCoordinates( GeoDataCoordinates(east, south, 0), maxZoomLevel );
+    rect.setRight( key.x() );
+    rect.setBottom( key.y() );
+
+    TileCoordsPyramid pyramid( 0, maxZoomLevel );
+    pyramid.setBottomLevelCoords( rect );
+
+    for ( int level = pyramid.topLevel(); level <= pyramid.bottomLevel(); ++level ) {
+        QRect const coords = pyramid.coords( level );
+        int x1, y1, x2, y2;
+        coords.getCoords( &x1, &y1, &x2, &y2 );
+        for ( int x = x1; x <= x2; ++x ) {
+            for ( int y = y1; y <= y2; ++y ) {
+                const TileId tileId( "", level, x, y );
+                result.append( tileId );
             }
         }
     }

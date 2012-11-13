@@ -15,6 +15,9 @@
 // Marble
 #include "marble_export.h"
 
+#include <QtGui/QVector3D>
+#include <QtGui/QVector4D>
+
 class QString;
 
 namespace Marble
@@ -30,6 +33,22 @@ class ViewportParams;
 class MARBLE_EXPORT GeoGraphicsItem
 {
  public:
+    struct VertexData
+    {
+        VertexData() :
+            position(),
+            color()
+        {}
+
+        VertexData( const QVector3D &position, const QVector4D color ) :
+            position( position ),
+            color( color )
+        {}
+
+        QVector3D position;
+        QVector4D color;
+    };
+
     explicit GeoGraphicsItem( const GeoDataFeature *feature );
     virtual ~GeoGraphicsItem();
 

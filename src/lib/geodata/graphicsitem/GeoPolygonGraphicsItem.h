@@ -16,8 +16,8 @@
 
 #include <QtCore/QVector>
 #include <QtGui/QVector3D>
-
-class QGLContext;
+#include <QtGui/QVector4D>
+#include <QtOpenGL/qgl.h>
 
 namespace Marble
 {
@@ -35,13 +35,11 @@ public:
 
     virtual void paint( GeoPainter* painter, const ViewportParams *viewport );
 
-    void paintGL( QGLContext *glContext, const ViewportParams *viewport );
+    void paintGL( QVector<VertexData> &vertexData, QVector<GLushort> &indices );
 
 protected:
     const GeoDataPolygon *const m_polygon;
     const GeoDataLinearRing *const m_ring;
-    QVector<QVector3D> m_glOutline;
-    QVector<QVector3D> m_glPolygon;
 };
 
 }

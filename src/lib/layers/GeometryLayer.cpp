@@ -51,6 +51,7 @@
 // Qt
 #include <QtCore/qmath.h>
 #include <QtCore/QAbstractItemModel>
+#include <QtCore/QMap>
 #include <QtCore/QModelIndex>
 #include <QtCore/QVector>
 #include <QtGui/QVector2D>
@@ -72,6 +73,7 @@ public:
 
     const QAbstractItemModel *const m_model;
     GeoGraphicsScene m_scene;
+    QMap<TileId, GeometryLayer::GlTile *> m_glmap;
     QString m_runtimeTrace;
     QList<ScreenOverlayGraphicsItem*> m_items;
 
@@ -102,6 +104,15 @@ int GeometryLayerPrivate::maximumZoomLevel()
     return s_maximumZoomLevel;
 }
 
+struct GeometryLayer::GlTile
+{
+    QVector<GeoGraphicsItem::VertexData> lineVertices;
+    QVector<GLushort> lineIndices;
+
+    QVector<GeoGraphicsItem::VertexData> triangleVertices;
+    QVector<GLushort> triangleIndices;
+};
+
 GeometryLayer::GeometryLayer( const QAbstractItemModel *model )
         : d( new GeometryLayerPrivate( model ) )
 {
@@ -121,6 +132,7 @@ GeometryLayer::GeometryLayer( const QAbstractItemModel *model )
 
 GeometryLayer::~GeometryLayer()
 {
+    qDeleteAll( d->m_glmap );
     delete d;
 }
 
@@ -279,33 +291,58 @@ bool GeometryLayer::render( GeoPainter *painter, ViewportParams *viewport,
 void GeometryLayer::paintGL( QGLContext *glContext, const ViewportParams *viewport )
 {
     const int maxZoomLevel = qMin<int>( qLn( viewport->radius() *4 / 256 ) / qLn( 2.0 ), GeometryLayerPrivate::maximumZoomLevel() );
-    const QList<GeoGraphicsItem*> items = d->m_scene.items( viewport->viewLatLonAltBox(), maxZoomLevel );
+    const QList<TileId> tileIds = d->m_scene.tiles( viewport->viewLatLonAltBox(), maxZoomLevel );
 
-    int painted = 0;
+    QMap<TileId, GlTile *> glMap;
+
+    int numBytes = 0;
 
     glEnable( GL_LINE_SMOOTH );
     glDisable( GL_BLEND );
     glEnableClientState( GL_VERTEX_ARRAY );
+    glEnableClientState( GL_COLOR_ARRAY );
 
-    foreach ( GeoGraphicsItem *item, items ) {
-        if ( !item->latLonAltBox().intersects( viewport->viewLatLonAltBox() ) )
-            continue;
+    foreach ( const TileId &id, tileIds ) {
+        GlTile *glTile = d->m_glmap.take( id );
 
-        if ( GeoLineStringGraphicsItem *lineString = dynamic_cast<GeoLineStringGraphicsItem *>( item ) ) {
-            lineString->paintGL( glContext, viewport );
-            ++painted;
+        if ( glTile == 0 ) {
+            glTile = new GlTile;
+            foreach ( GeoGraphicsItem *item, d->m_scene.tile( id ) ) {
+                if ( !item->visible() )
+                    continue;
+
+                if ( GeoLineStringGraphicsItem *lineString = dynamic_cast<GeoLineStringGraphicsItem *>( item ) ) {
+                    lineString->paintGL( glTile->lineVertices, glTile->lineIndices );
+                }
+                else if ( GeoPolygonGraphicsItem *polygon = dynamic_cast<GeoPolygonGraphicsItem *>( item ) ) {
+                    polygon->paintGL( glTile->triangleVertices, glTile->triangleIndices );
+                }
+            }
         }
-        else if ( GeoPolygonGraphicsItem *polygon = dynamic_cast<GeoPolygonGraphicsItem *>( item ) ) {
-            polygon->paintGL( glContext, viewport );
-            ++painted;
-        }
+
+        glVertexPointer( 3, GL_FLOAT, sizeof( GeoGraphicsItem::VertexData ), glTile->lineVertices.constData() );
+        glColorPointer( 4, GL_FLOAT, sizeof( GeoGraphicsItem::VertexData ), &glTile->lineVertices.constBegin()->color );
+        glDrawElements( GL_LINES, glTile->lineIndices.size(), GL_UNSIGNED_SHORT, glTile->lineIndices.constData() );
+
+        glVertexPointer( 3, GL_FLOAT, sizeof( GeoGraphicsItem::VertexData ), glTile->triangleVertices.constData() );
+        glColorPointer( 4, GL_FLOAT, sizeof( GeoGraphicsItem::VertexData ), &glTile->triangleVertices.constBegin()->color );
+        glDrawElements( GL_TRIANGLES, glTile->triangleIndices.size(), GL_UNSIGNED_SHORT, glTile->triangleIndices.constData() );
+
+        numBytes += ( glTile->lineVertices.size() + glTile->triangleVertices.size() ) * sizeof( GeoGraphicsItem::VertexData ) +
+                    ( glTile->lineIndices.size() + glTile->triangleIndices.size() ) * ( sizeof( GLushort ) );
+
+        glMap.insert( id, glTile );
     }
 
+    glDisableClientState( GL_COLOR_ARRAY );
     glDisableClientState( GL_VERTEX_ARRAY );
 
-    d->m_runtimeTrace = QString( "Items: %1 Drawn: %2 Zoom: %3")
-                .arg( items.size() )
-                .arg( painted )
+    qDeleteAll( d->m_glmap );
+    d->m_glmap = glMap;
+
+    d->m_runtimeTrace = QString( "Tiles: %1 Memory: %2kB Zoom: %3")
+                .arg( d->m_glmap.size() )
+                .arg( numBytes / 1024 )
                 .arg( maxZoomLevel );
 }
 
@@ -466,6 +503,8 @@ void GeometryLayer::removePlacemarks( QModelIndex parent, int first, int last )
 
 void GeometryLayer::resetCacheData()
 {
+    qDeleteAll( d->m_glmap );
+    d->m_glmap.clear();
     d->m_scene.eraseAll();
     qDeleteAll( d->m_items );
     d->m_items.clear();

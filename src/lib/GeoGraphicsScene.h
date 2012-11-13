@@ -13,9 +13,10 @@
 #define MARBLE_GEOGRAPHICSSCENE_H
 
 #include "marble_export.h"
-#include "MarbleGlobal.h"
-
 #include <QtCore/QObject>
+
+#include "TileId.h"
+
 #include <QtCore/QList>
 
 namespace Marble
@@ -76,6 +77,10 @@ public:
      * @return The list of items in the specified box in no specific order.
      */
     QList<GeoGraphicsItem *> items( const GeoDataLatLonBox &box, int maxZoomLevel ) const;
+
+    QList<GeoGraphicsItem *> tile( const TileId &id ) const;
+
+    QList<TileId> tiles( const GeoDataLatLonBox &box, int maxZoomLevel ) const;
 
 private:
     GeoGraphicsScenePrivate * const d;
