@@ -25,6 +25,10 @@ FILE (GLOB BITMAP_FILES bitmaps/*.jpg)
 install (FILES ${BITMAP_FILES}
 DESTINATION ${MARBLE_DATA_INSTALL_PATH}/bitmaps)
 
+FILE (GLOB SHADER_FILES shaders/*.glsl)
+install (FILES ${SHADER_FILES}
+DESTINATION ${MARBLE_DATA_INSTALL_PATH}/shaders)
+
 install (FILES 
 svg/marble-logo.svg
 svg/marble-logo.png

@@ -36,6 +36,7 @@ class GLTextureMapper : public QObject
     void mapTexture( QGLContext *glContext, const ViewportParams *viewport, int tileZoomLevel );
 
  private:
+    void initializeGL( QGLContext *glContext );
     void loadVisibleTiles( QGLContext *glContext, const ViewportParams *viewport, int tileZoomLevel );
     GeoDataCoordinates geoCoordinates( const qreal x, const qreal y ) const;
     void projectionCoordinates( qreal lon, qreal lat, qreal &x, qreal &y ) const;

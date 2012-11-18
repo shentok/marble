@@ -52,6 +52,9 @@ Q_SIGNALS:
     void repaintNeeded();
 
 private:
+    void initializeGL( QGLContext *glContext );
+
+private:
     friend class GeometryLayerPrivate;
     GeometryLayerPrivate *d;
 
