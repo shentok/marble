@@ -22,7 +22,9 @@
 #include "LayerInterface.h"
 #include "GlLayerInterface.h"
 
-#include <QHash>
+#include "TileId.h"
+
+#include <QMap>
 #include <QVector>
 #include <QColor>
 #include <qgl.h>
@@ -31,6 +33,7 @@
 
 class QAbstractItemModel;
 class QGLContext;
+class QGLShaderProgram;
 class QItemSelectionModel;
 class QString;
 
@@ -102,21 +105,20 @@ class PlacemarkLayer : public QObject, public LayerInterface, public GlLayerInte
 
  private:
     static bool testXBug();
+    void initializeGL( QGLContext *glContext );
+
+ private Q_SLOTS:
+    void clearTiles();
 
  private:
     PlacemarkLayout m_layout;
 
-    struct GlData {
-        GlData( GLuint symbolId = 0, GLuint labelId = 0 ) :
-            symbolId( symbolId ),
-            labelId( labelId )
-        {}
+    struct GlTile;
 
-        GLuint symbolId;
-        GLuint labelId;
-    };
-
-    QHash<const GeoDataPlacemark *, GlData> m_glMap;
+    QGLContext *m_glContext;
+    GLuint m_textureId;
+    QGLShaderProgram *m_program;
+    QMap<TileId, GlTile *> m_tileCache;
 };
 
 }

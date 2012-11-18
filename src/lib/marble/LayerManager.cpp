@@ -194,35 +194,6 @@ void LayerManager::renderLayers( GeoPainter *painter, ViewportParams *viewport )
                 glPushClientAttrib( GL_CLIENT_ALL_ATTRIB_BITS );
                 glViewport( 0, 0, viewport->width(), viewport->height() );
 
-                glMatrixMode( GL_PROJECTION );
-                glPushMatrix();
-                glLoadIdentity();
-                glOrtho( 0, viewport->width(), viewport->height(), 0, -256000000/M_PI*80, 256/M_PI*32 );
-
-                glMatrixMode( GL_MODELVIEW );
-                glPushMatrix();
-                glLoadIdentity();
-                glTranslated( viewport->width() / 2, viewport->height() / 2, 0 );
-
-                if ( viewport->projection() == Spherical ) {
-                    const Quaternion axis = viewport->planetAxis();
-
-                    const qreal angle = 2 * acos( axis.v[Q_W] ) * RAD2DEG;
-                    const qreal ax = axis.v[Q_X];
-                    const qreal ay = -axis.v[Q_Y];
-                    const qreal az = axis.v[Q_Z];
-
-                    glRotated( angle, ax, ay, az );
-                } else {
-                    // Calculate translation of center point
-                    const GeoDataCoordinates coordinates = viewport->viewLatLonAltBox().center();
-                    const QVector3D center = viewport->currentProjection()->vertexCoordinates( coordinates );
-                    glTranslated( -center.x() * viewport->radius(),
-                                  -center.y() * viewport->radius(),
-                                  0 );
-                }
-                glScaled( viewport->radius(), viewport->radius(), viewport->radius() );
-
                 glEnable( GL_DEPTH_TEST );
                 glEnable( GL_CULL_FACE );
                 glFrontFace( GL_CCW );
@@ -233,10 +204,6 @@ void LayerManager::renderLayers( GeoPainter *painter, ViewportParams *viewport )
                 glDisable( GL_CULL_FACE );
                 glDisable( GL_DEPTH_TEST );
 
-                glMatrixMode( GL_MODELVIEW );
-                glPopMatrix();
-                glMatrixMode( GL_PROJECTION );
-                glPopMatrix();
                 glPopClientAttrib();
                 glPopAttrib();
                 painter->endNativePainting();

@@ -20,6 +20,7 @@
  */
 
 #include <QSize>
+#include <QMatrix4x4>
 #include <QPainterPath>
 
 #include "GeoDataLatLonAltBox.h"
@@ -99,6 +100,10 @@ class MARBLE_EXPORT ViewportParams
 
     Quaternion planetAxis() const;
     const matrix &planetAxisMatrix() const;
+
+    QMatrix4x4 viewportMatrix() const;
+
+    QMatrix4x4 rotationMatrix() const;
 
     int width()  const;
     int height() const;

@@ -43,6 +43,8 @@ public:
 
     static const AbstractProjection *abstractProjection( Projection projection );
 
+    QMatrix4x4 createRotationMatrix() const;
+
     // These two go together.  m_currentProjection points to one of
     // the static Projection classes at the bottom.
     Projection           m_projection;
@@ -53,10 +55,13 @@ public:
     qreal                m_centerLatitude;
     Quaternion           m_planetAxis;   // Position, coded in a quaternion
     matrix               m_planetAxisMatrix;
+    QMatrix4x4           m_projectionMatrix;
     int                  m_radius;       // Zoom level (pixels / globe radius)
     qreal                m_angularResolution;
 
     QSize                m_size;         // width, height
+    QMatrix4x4           m_viewportMatrix;
+    QMatrix4x4           m_rotationMatrix;
 
 
     bool                 m_dirtyBox;
@@ -99,6 +104,33 @@ ViewportParamsPrivate::ViewportParamsPrivate( Projection projection,
       m_dirtyBox( true ),
       m_viewLatLonAltBox()
 {
+    m_viewportMatrix.setToIdentity();
+    m_viewportMatrix.ortho( 0, m_size.width(), m_size.height(), 0, -256000000/M_PI*80, 256/M_PI*32 );
+    m_viewportMatrix.translate( m_size.width() / 2, m_size.height() / 2, 0 );
+}
+
+QMatrix4x4 ViewportParamsPrivate::createRotationMatrix() const
+{
+    QMatrix4x4 matrix;
+
+    matrix.setToIdentity();
+    if ( m_projection == Spherical ) {
+        const qreal angle = 2 * acos( m_planetAxis.v[Q_W] ) * RAD2DEG;
+        const qreal ax = m_planetAxis.v[Q_X];
+        const qreal ay = -m_planetAxis.v[Q_Y];
+        const qreal az = m_planetAxis.v[Q_Z];
+
+        matrix.rotate( angle, ax, ay, az );
+    }
+    else {
+        // Calculate translation of center point
+        const GeoDataCoordinates coordinates( m_centerLongitude, m_centerLatitude );
+        const QVector3D center = m_currentProjection->vertexCoordinates( coordinates );
+        matrix.translate( -center.x() * m_radius, -center.y() * m_radius, 0 );
+    }
+    matrix.scale( m_radius );
+
+    return matrix;
 }
 
 const AbstractProjection *ViewportParamsPrivate::abstractProjection(Projection projection)
@@ -229,6 +261,7 @@ void ViewportParams::setRadius(int newRadius)
 
         d->m_radius = newRadius;
         d->m_angularResolution = 4 / fabs( (qreal)(d->m_radius) );
+        d->m_rotationMatrix = d->createRotationMatrix();
     }
 }
 
@@ -260,6 +293,7 @@ void ViewportParams::centerOn( qreal lon, qreal lat )
 
     d->m_dirtyBox = true;
     d->m_planetAxis.inverse().toMatrix( d->m_planetAxisMatrix );
+    d->m_rotationMatrix = d->createRotationMatrix();
 }
 
 Quaternion ViewportParams::planetAxis() const
@@ -270,6 +304,16 @@ Quaternion ViewportParams::planetAxis() const
 const matrix &ViewportParams::planetAxisMatrix() const
 {
     return d->m_planetAxisMatrix;
+}
+
+QMatrix4x4 ViewportParams::viewportMatrix() const
+{
+    return d->m_viewportMatrix;
+}
+
+QMatrix4x4 ViewportParams::rotationMatrix() const
+{
+    return d->m_rotationMatrix;
 }
 
 int ViewportParams::width()  const
@@ -306,6 +350,10 @@ void ViewportParams::setSize(QSize newSize)
     d->m_dirtyBox = true;
 
     d->m_size = newSize;
+
+    d->m_viewportMatrix.setToIdentity();
+    d->m_viewportMatrix.ortho( 0, newSize.width(), newSize.height(), 0, -256000000/M_PI*80, 256/M_PI*32 );
+    d->m_viewportMatrix.translate( d->m_size.width() / 2, d->m_size.height() / 2, 0 );
 }
 
 // ================================================================

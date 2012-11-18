@@ -82,6 +82,9 @@ Q_SIGNALS:
     void highlightedPlacemarksChanged( const QVector<GeoDataPlacemark*>& clickedPlacemarks );
 
 private:
+    void initializeGL( QGLContext *glContext );
+
+private:
     friend class GeometryLayerPrivate;
     GeometryLayerPrivate *d;
 

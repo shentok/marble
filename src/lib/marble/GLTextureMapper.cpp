@@ -17,16 +17,20 @@
 
 // Qt
 #include <QtCore/qmath.h>
+#include <QtCore/QLocale>
 #include <QtCore/QTimer>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
 #include <QtGui/QVector2D>
 #include <QtGui/QVector3D>
+#include <QtOpenGL/QGLBuffer>
 #include <QtOpenGL/QGLContext>
+#include <QtOpenGL/QGLShaderProgram>
 
 // Marble
 #include "projections/AbstractProjection.h"
 #include "MarbleDebug.h"
+#include "MarbleDirs.h"
 #include "MathHelper.h"
 #include "StackedTile.h"
 #include "StackedTileLoader.h"
@@ -44,9 +48,11 @@ public:
 
     StackedTileLoader *const m_tileLoader;
 
+    QGLContext *m_glContext;
+    QGLShaderProgram *m_program;
     QMap<TileId, GlTile *> m_visibleTiles;
-    QVector<QVector2D> m_texCoords;
-    QVector<GLushort> m_indices;
+    QGLBuffer m_texCoordsBuffer;
+    QGLBuffer m_indexBuffer;
     const int m_numLatitudes;
     const int m_numLongitudes;
 };
@@ -54,7 +60,11 @@ public:
 
 GLTextureMapper::Private::Private( StackedTileLoader *tileLoader )
     : m_tileLoader( tileLoader )
+    , m_glContext( 0 )
+    , m_program( 0 )
     , m_visibleTiles()
+    , m_texCoordsBuffer( QGLBuffer::VertexBuffer )
+    , m_indexBuffer( QGLBuffer::IndexBuffer )
     , m_numLatitudes( 20 )
     , m_numLongitudes( 20 )
 {
@@ -64,56 +74,40 @@ GLTextureMapper::Private::Private( StackedTileLoader *tileLoader )
 class GLTextureMapper::GlTile
 {
 public:
-    GlTile( GLuint textureId, QGLContext *glContext, const QVector<QVector3D> &vertices );
+    GlTile( GLuint textureId, QGLContext *glContext, const QVector<QVector3D> &vertices ) :
+        m_textureId( textureId ),
+        m_glContext( glContext ),
+        m_vertexBuffer( QGLBuffer::VertexBuffer )
+    {
+        m_vertexBuffer.create();
+        m_vertexBuffer.setUsagePattern( QGLBuffer::StaticDraw );
+        m_vertexBuffer.bind();
+        m_vertexBuffer.allocate( vertices.constData(), vertices.size() * sizeof( QVector3D ) );
+    }
+
     ~GlTile();
 
     GLuint textureId() const { return m_textureId; }
-    QVector<QVector3D> vertices() const { return m_vertices; }
+    QGLBuffer *vertexBuffer() { return &m_vertexBuffer; }
 
 private:
     const GLuint m_textureId;
     QGLContext *const m_glContext;
-    const QVector<QVector3D> m_vertices;
+    QGLBuffer m_vertexBuffer;
 };
 
-
-GLTextureMapper::GlTile::GlTile( GLuint textureId, QGLContext *glContext, const QVector<QVector3D> &vertices )
-    : m_textureId( textureId )
-    , m_glContext( glContext )
-    , m_vertices( vertices )
-{
-}
 
 GLTextureMapper::GlTile::~GlTile()
 {
     m_glContext->makeCurrent();
     m_glContext->deleteTexture( m_textureId );
+    m_vertexBuffer.destroy();
 }
 
 
 GLTextureMapper::GLTextureMapper( StackedTileLoader *tileLoader )
     : d( new Private( tileLoader ) )
 {
-    for (int row = 0; row < d->m_numLatitudes; row++) {
-        for (int col = 0; col < d->m_numLongitudes; col++) {
-            d->m_texCoords << QVector2D( col/qreal(d->m_numLongitudes-1), row/qreal(d->m_numLatitudes-1) );
-        }
-    }
-
-    for (int row = 1; row < d->m_numLatitudes; row++) {
-        for (int col = 0; col < d->m_numLongitudes; col++) {
-            d->m_indices << ((row-1)*d->m_numLongitudes + col);
-            if ( col == 0 && row > 1 ) {
-                d->m_indices << d->m_indices.last();
-            }
-
-            d->m_indices << ((row  )*d->m_numLongitudes + col);
-            if ( col == (d->m_numLongitudes-1) && row < (d->m_numLatitudes-1) ) {
-                d->m_indices << d->m_indices.last();
-            }
-        }
-    }
-
     connect( tileLoader, SIGNAL( tileLoaded( TileId ) ),
              this, SLOT( updateTile( TileId ) ) );
 }
@@ -121,6 +115,7 @@ GLTextureMapper::GLTextureMapper( StackedTileLoader *tileLoader )
 GLTextureMapper::~GLTextureMapper()
 {
     qDeleteAll( d->m_visibleTiles );
+    delete d->m_program;
     delete d;
 }
 
@@ -129,24 +124,108 @@ void GLTextureMapper::mapTexture( QGLContext *glContext, const ViewportParams *v
     if ( viewport->radius() <= 0 )
         return;
 
-    loadVisibleTiles( glContext, viewport, tileZoomLevel );
-
-    glEnable( GL_TEXTURE_2D );
-
-    glEnableClientState( GL_VERTEX_ARRAY );
-    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-
-    foreach ( GlTile *tile, d->m_visibleTiles.values() ) {
-        glBindTexture( GL_TEXTURE_2D, tile->textureId() );
-        glVertexPointer( 3, GL_FLOAT, 0, tile->vertices().constData() );
-        glTexCoordPointer( 2, GL_FLOAT, 0, d->m_texCoords.constData() );
-        glDrawElements( GL_TRIANGLE_STRIP, (d->m_numLatitudes-1) * 2 * (d->m_numLongitudes+1) - 2, GL_UNSIGNED_SHORT, d->m_indices.constData() );
+    if ( !d->m_glContext ) {
+        initializeGL( glContext );
     }
 
-    glDisableClientState( GL_VERTEX_ARRAY );
-    glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+    loadVisibleTiles( glContext, viewport, tileZoomLevel );
 
-    glDisable( GL_TEXTURE_2D );
+    if ( !d->m_program->bind() )
+        return;
+
+    if ( !d->m_texCoordsBuffer.isCreated() ) {
+        QVector<QVector2D> texCoords;
+
+        for (int row = 0; row < d->m_numLatitudes; row++) {
+            for (int col = 0; col < d->m_numLongitudes; col++) {
+                texCoords << QVector2D( col/qreal(d->m_numLongitudes-1), row/qreal(d->m_numLatitudes-1) );
+            }
+        }
+
+        d->m_texCoordsBuffer.create();
+        d->m_texCoordsBuffer.setUsagePattern( QGLBuffer::StaticDraw );
+        d->m_texCoordsBuffer.bind();
+        d->m_texCoordsBuffer.allocate( texCoords.constData(), texCoords.size() * sizeof( QVector2D ) );
+    }
+
+    if ( !d->m_indexBuffer.isCreated() ) {
+        QVector<GLushort> indices;
+
+        for (int row = 1; row < d->m_numLatitudes; row++) {
+            for (int col = 0; col < d->m_numLongitudes; col++) {
+                indices << ((row-1)*d->m_numLongitudes + col);
+                if ( col == 0 && row > 1 ) {
+                    indices << indices.last();
+                }
+
+                indices << ((row  )*d->m_numLongitudes + col);
+                if ( col == (d->m_numLongitudes-1) && row < (d->m_numLatitudes-1) ) {
+                    indices << indices.last();
+                }
+            }
+        }
+
+        d->m_indexBuffer.create();
+        d->m_indexBuffer.setUsagePattern( QGLBuffer::StaticDraw );
+        d->m_indexBuffer.bind();
+        d->m_indexBuffer.allocate( indices.constData(), indices.size() * sizeof( GLushort ) );
+    }
+
+
+    const QMatrix4x4 viewportMatrix = viewport->viewportMatrix();
+    const QMatrix4x4 rotationMatrix = viewport->rotationMatrix();
+
+    d->m_program->setUniformValue( "rotationMatrix", viewportMatrix * rotationMatrix );
+
+    d->m_indexBuffer.bind();
+    d->m_texCoordsBuffer.bind();
+
+    // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
+    d->m_program->enableAttributeArray( "texCoord" );
+    d->m_program->setAttributeBuffer( "texCoord", GL_FLOAT, 0, 2 );
+
+    d->m_program->setUniformValue( "texture", 0 );
+
+    foreach ( GlTile *tile, d->m_visibleTiles.values() ) {
+        glBindTexture(GL_TEXTURE_2D, tile->textureId());
+        tile->vertexBuffer()->bind();
+
+        // Tell OpenGL programmable pipeline how to locate vertex position data
+        d->m_program->enableAttributeArray( "position" );
+        d->m_program->setAttributeBuffer( "position", GL_FLOAT, 0, 3 );
+
+        glDrawElements( GL_TRIANGLE_STRIP, (d->m_numLatitudes-1) * 2 * (d->m_numLongitudes+1) - 2, GL_UNSIGNED_SHORT, 0 );
+    }
+
+    d->m_program->release();
+}
+
+void GLTextureMapper::initializeGL( QGLContext *glContext )
+{
+    Q_ASSERT( d->m_glContext == 0 );
+
+    d->m_glContext = glContext;
+
+    d->m_program = new QGLShaderProgram( this );
+
+    // Overriding system locale until shaders are compiled
+    QLocale::setDefault( QLocale::c() );
+
+    if ( !d->m_program->addShaderFromSourceFile( QGLShader::Vertex, MarbleDirs::path( "shaders/texturelayer.vertex.glsl" ) ) ) {
+        qWarning() << d->m_program->log();
+        return;
+    }
+    if ( !d->m_program->addShaderFromSourceFile( QGLShader::Fragment, MarbleDirs::path( "shaders/texturelayer.fragment.glsl" ) ) ) {
+        qWarning() << d->m_program->log();
+        return;
+    }
+    if ( !d->m_program->link() ) {
+        qWarning() << d->m_program->log();
+        return;
+    }
+
+    // Restore system locale
+    QLocale::setDefault( QLocale::system() );
 }
 
 void GLTextureMapper::loadVisibleTiles( QGLContext *glContext, const ViewportParams *viewport, int tileZoomLevel )
