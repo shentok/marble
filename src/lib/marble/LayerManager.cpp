@@ -226,6 +226,7 @@ void LayerManager::renderLayers( GeoPainter *painter, ViewportParams *viewport )
                 glEnable( GL_DEPTH_TEST );
                 glEnable( GL_CULL_FACE );
                 glFrontFace( GL_CCW );
+                glClear( GL_DEPTH_BUFFER_BIT );
 
                 glInterface->paintGL( glContext, viewport );
 
