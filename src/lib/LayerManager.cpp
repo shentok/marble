@@ -194,7 +194,9 @@ void LayerManager::renderLayers( GeoPainter *painter, ViewportParams *viewport )
                 painter->endNativePainting();
             }
             else {
+#if 0
                 layer->render( painter, viewport, renderPosition, 0 );
+#endif
             }
 
             traceList.append( QString("%2 ms %3").arg( timer.elapsed(),3 ).arg( layer->runtimeTrace() ) );
