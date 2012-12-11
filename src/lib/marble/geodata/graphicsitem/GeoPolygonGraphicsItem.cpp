@@ -13,9 +13,9 @@
 #include "GeoDataLinearRing.h"
 #include "GeoDataPolygon.h"
 #include "GeoPainter.h"
+#include "GLRenderer.h"
 #include "ViewportParams.h"
 #include "GeoDataStyle.h"
-#include "triangulate.h"
 
 namespace Marble
 {
@@ -104,34 +104,13 @@ void GeoPolygonGraphicsItem::paint( GeoPainter* painter, const ViewportParams* v
     painter->restore();
 }
 
-void GeoPolygonGraphicsItem::paintGL( QVector<VertexData> &vertexData, QVector<GLushort> &indices )
+void GeoPolygonGraphicsItem::paintGL( GLRenderer &renderer )
 {
-    const QColor qcolor = style()->polyStyle().color();
-    const QVector4D color( qcolor.redF(), qcolor.greenF(), qcolor.blueF(), qcolor.alphaF() );
-//    glPointSize( style()->lineStyle().width() );
-    const int firstIndex = vertexData.size();
-
-    if ( m_polygon != 0 ) {
-        for ( int i = 0; i < m_polygon->outerBoundary().size(); ++i ) {
-            const Quaternion quat = m_polygon->outerBoundary().at( i ).quaternion();
-            const QVector3D position( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
-            vertexData << VertexData( position, color );
-        }
-
-        foreach ( int vertex, Triangulate::Process( m_polygon->outerBoundary() ) ) {
-            indices << firstIndex + vertex;
-        }
+    if ( m_polygon ) {
+        renderer.addPolygon( *m_polygon, *style() );
     }
-    else if ( m_ring != 0 ) {
-        for ( int i = 0; i < m_ring->size(); ++i ) {
-            const Quaternion quat = m_ring->at( i ).quaternion();
-            const QVector3D position( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
-            vertexData << VertexData( position, color );
-        }
-
-        foreach ( int vertex, Triangulate::Process( *m_ring ) ) {
-            indices << firstIndex + vertex;
-        }
+    else if ( m_ring ) {
+        renderer.addPolygon( *m_ring, *style() );
     }
 }
 

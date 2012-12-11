@@ -139,6 +139,7 @@ set(marblewidget_SRCS
     ClipPainter.cpp
     DownloadPolicy.cpp
     DownloadQueueSet.cpp
+    GLRenderer.cpp
     GeoPainter.cpp
     HttpDownloadManager.cpp
     HttpJob.cpp

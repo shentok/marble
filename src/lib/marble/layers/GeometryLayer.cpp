@@ -32,6 +32,7 @@
 #include "MarbleDirs.h"
 #include "GeoDataFeature.h"
 #include "GeoPainter.h"
+#include "GLRenderer.h"
 #include "ViewportParams.h"
 #include "GeoGraphicsScene.h"
 #include "GeoGraphicsItem.h"
@@ -77,7 +78,7 @@ public:
     GeoGraphicsScene m_scene;
     QGLContext *m_glContext;
     QGLShaderProgram *m_program;
-    QMap<TileId, GeometryLayer::GlTile *> m_glmap;
+    QMap<TileId, GLRenderer *> m_glmap;
     QString m_runtimeTrace;
     QList<ScreenOverlayGraphicsItem*> m_items;
 
@@ -109,93 +110,6 @@ int GeometryLayerPrivate::maximumZoomLevel()
 {
     return s_maximumZoomLevel;
 }
-
-struct GeometryLayer::GlTile
-{
-    GlTile() :
-        lineVertices( QGLBuffer::VertexBuffer ),
-        lineIndices( QGLBuffer::IndexBuffer ),
-        triangleVertices( QGLBuffer::VertexBuffer ),
-        triangleIndices( QGLBuffer::IndexBuffer )
-    {}
-
-    void setLines( const QVector<GeoGraphicsItem::VertexData> &vertices, const QVector<GLushort> &indices )
-    {
-        lineVertices.create();
-        lineVertices.setUsagePattern( QGLBuffer::StaticDraw );
-        lineVertices.bind();
-        lineVertices.allocate( vertices.constData(), vertices.size() * sizeof( GeoGraphicsItem::VertexData ) );
-
-        lineIndices.create();
-        lineIndices.setUsagePattern( QGLBuffer::StaticDraw );
-        lineIndices.bind();
-        lineIndices.allocate( indices.constData(), indices.size() * sizeof( GLushort ) );
-
-        numLineIndices = indices.size();
-    }
-
-    void setTriangles( const QVector<GeoGraphicsItem::VertexData> &vertices, const QVector<GLushort> &indices )
-    {
-        triangleVertices.create();
-        triangleVertices.setUsagePattern( QGLBuffer::StaticDraw );
-        triangleVertices.bind();
-        triangleVertices.allocate( vertices.constData(), vertices.size() * sizeof( GeoGraphicsItem::VertexData ) );
-
-        triangleIndices.create();
-        triangleIndices.setUsagePattern( QGLBuffer::StaticDraw );
-        triangleIndices.bind();
-        triangleIndices.allocate( indices.constData(), indices.size() * sizeof( GLushort ) );
-
-        numTriangleIndices = indices.size();
-    }
-
-    void paintGL( QGLShaderProgram *program )
-    {
-        lineIndices.bind();
-        lineVertices.bind();
-
-        // Tell OpenGL programmable pipeline how to locate vertex position data
-        program->enableAttributeArray( "position" );
-        program->setAttributeBuffer( "position", GL_FLOAT, 0, 3, sizeof( GeoGraphicsItem::VertexData ) );
-
-        // Tell OpenGL programmable pipeline how to locate vertex color data
-        program->enableAttributeArray( "color" );
-        program->setAttributeBuffer( "color", GL_FLOAT, sizeof( QVector3D ), 4, sizeof( GeoGraphicsItem::VertexData ) );
-
-        glDrawElements( GL_LINES, numLineIndices, GL_UNSIGNED_SHORT, 0 );
-
-        triangleIndices.bind();
-        triangleVertices.bind();
-
-        // Tell OpenGL programmable pipeline how to locate vertex position data
-        program->enableAttributeArray( "position" );
-        program->setAttributeBuffer( "position", GL_FLOAT, 0, 3, sizeof( GeoGraphicsItem::VertexData ) );
-
-        // Tell OpenGL programmable pipeline how to locate vertex color data
-        program->enableAttributeArray( "color" );
-        program->setAttributeBuffer( "color", GL_FLOAT, sizeof( QVector3D ), 4, sizeof( GeoGraphicsItem::VertexData ) );
-
-        glDrawElements( GL_TRIANGLES, numTriangleIndices, GL_UNSIGNED_SHORT, 0 );
-    }
-
-    int numBytes() const
-    {
-        return 0;
-#if 0
-        numBytes += ( glTile->lines.size() + glTile->triangles.size() ) * ( 7 * sizeof( float ) ) +
-                    ( glTile->lineIndices.size() + glTile->triangleIndices.size() ) * ( sizeof( GLushort ) );
-#endif
-    }
-
-private:
-    QGLBuffer lineVertices;
-    QGLBuffer lineIndices;
-    int numLineIndices;
-
-    QGLBuffer triangleVertices;
-    QGLBuffer triangleIndices;
-    int numTriangleIndices;
-};
 
 GeometryLayer::GeometryLayer( const QAbstractItemModel *model )
         : d( new GeometryLayerPrivate( model ) )
@@ -424,32 +338,21 @@ void GeometryLayer::paintGL( QGLContext *glContext, const ViewportParams *viewpo
     const int maxZoomLevel = qMin<int>( qLn( viewport->radius() *4 / 256 ) / qLn( 2.0 ), GeometryLayerPrivate::maximumZoomLevel() );
     const QList<TileId> tileIds = d->m_scene.tiles( viewport->viewLatLonAltBox(), maxZoomLevel );
 
-    QMap<TileId, GlTile *> glMap;
+    QMap<TileId, GLRenderer *> glMap;
 
     int numBytes = 0;
 
     foreach ( const TileId &id, tileIds ) {
-        GlTile *glTile = d->m_glmap.take( id );
+        GLRenderer *glTile = d->m_glmap.take( id );
 
         if ( glTile == 0 ) {
-            QVector<GeoGraphicsItem::VertexData> lineVertices;
-            QVector<GLushort> lineIndices;
-            QVector<GeoGraphicsItem::VertexData> triangleVertices;
-            QVector<GLushort> triangleIndices;
+            glTile = new GLRenderer;
             foreach ( GeoGraphicsItem *item, d->m_scene.tile( id ) ) {
                 if ( !item->visible() )
                     continue;
 
-                if ( GeoLineStringGraphicsItem *lineString = dynamic_cast<GeoLineStringGraphicsItem *>( item ) ) {
-                    lineString->paintGL( lineVertices, lineIndices );
-                }
-                else if ( GeoPolygonGraphicsItem *polygon = dynamic_cast<GeoPolygonGraphicsItem *>( item ) ) {
-                    polygon->paintGL( triangleVertices, triangleIndices );
-                }
+                item->paintGL( *glTile );
             }
-            glTile = new GlTile;
-            glTile->setLines( lineVertices, lineIndices );
-            glTile->setTriangles( triangleVertices, triangleIndices );
         }
 
         glTile->paintGL( d->m_program );

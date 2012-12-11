@@ -14,11 +14,6 @@
 #include "GeoGraphicsItem.h"
 #include "marble_export.h"
 
-#include <QtCore/QVector>
-#include <QtGui/QVector3D>
-#include <QtGui/QVector4D>
-#include <QtOpenGL/qgl.h>
-
 namespace Marble
 {
 
@@ -36,7 +31,7 @@ public:
 
     virtual void paint( GeoPainter* painter, const ViewportParams *viewport );
 
-    void paintGL( QVector<VertexData> &vertexData, QVector<GLushort> &indices );
+    void paintGL( GLRenderer &renderData );
 
 protected:
     const GeoDataLineString *m_lineString;

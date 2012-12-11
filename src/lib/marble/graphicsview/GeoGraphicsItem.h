@@ -15,9 +15,6 @@
 // Marble
 #include "marble_export.h"
 
-#include <QtGui/QVector3D>
-#include <QtGui/QVector4D>
-
 class QString;
 
 namespace Marble
@@ -28,27 +25,12 @@ class GeoDataLatLonAltBox;
 class GeoGraphicsItemPrivate;
 class GeoDataStyle;
 class GeoPainter;
+class GLRenderer;
 class ViewportParams;
 
 class MARBLE_EXPORT GeoGraphicsItem
 {
  public:
-    struct VertexData
-    {
-        VertexData() :
-            position(),
-            color()
-        {}
-
-        VertexData( const QVector3D &position, const QVector4D color ) :
-            position( position ),
-            color( color )
-        {}
-
-        QVector3D position;
-        QVector4D color;
-    };
-
     explicit GeoGraphicsItem( const GeoDataFeature *feature );
     virtual ~GeoGraphicsItem();
 
@@ -144,6 +126,8 @@ class MARBLE_EXPORT GeoGraphicsItem
      * which is taken care of by GeoPainter.
      */
     virtual void paint( GeoPainter *painter, const ViewportParams *viewport ) = 0;
+
+    virtual void paintGL( GLRenderer &renderer ) = 0;
 
     void setHighlighted( bool highlight );
 

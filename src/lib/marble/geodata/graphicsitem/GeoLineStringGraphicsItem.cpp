@@ -13,6 +13,7 @@
 #include "GeoDataLineString.h"
 #include "GeoDataLineStyle.h"
 #include "GeoPainter.h"
+#include "GLRenderer.h"
 #include "ViewportParams.h"
 #include "GeoDataStyle.h"
 
@@ -106,22 +107,9 @@ void GeoLineStringGraphicsItem::paint( GeoPainter* painter, const ViewportParams
     painter->restore();
 }
 
-void GeoLineStringGraphicsItem::paintGL( QVector<VertexData> &vertexData, QVector<GLushort> &indices )
+void GeoLineStringGraphicsItem::paintGL( GLRenderer &renderer )
 {
-    const QColor qcolor = style()->polyStyle().color();
-    const QVector4D color( qcolor.redF(), qcolor.greenF(), qcolor.blueF(), qcolor.alphaF() );
-    const GLushort firstIndex = vertexData.size();
-
-    for ( int i = 0; i < m_lineString->size(); ++i ) {
-        const Quaternion quat = m_lineString->at( i ).quaternion();
-        const QVector3D position( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
-        vertexData << VertexData( position, color );
-        if ( i > 0 ) {
-            indices << (firstIndex + (GLushort)i - 1) << (firstIndex + (GLushort)i);
-        }
-    }
-
-//    glPointSize( style()->lineStyle().width() );
+    renderer.addLineString( *m_lineString, *style() );
 }
 
 }

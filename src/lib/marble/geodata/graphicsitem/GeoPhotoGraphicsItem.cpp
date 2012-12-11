@@ -12,6 +12,7 @@
 
 #include "GeoPainter.h"
 #include "GeoDataStyle.h"
+#include "GLRenderer.h"
 #include "ViewportParams.h"
 
 #include <QImageReader>
@@ -55,6 +56,11 @@ void GeoPhotoGraphicsItem::paint( GeoPainter* painter, const ViewportParams* vie
     if ( unloadImage ) {
         m_photo = QImage();
     }
+}
+
+void GeoPhotoGraphicsItem::paintGL( GLRenderer &renderer )
+{
+    renderer.addPhoto( m_photo, m_point );
 }
 
 const GeoDataLatLonAltBox& GeoPhotoGraphicsItem::latLonAltBox() const
