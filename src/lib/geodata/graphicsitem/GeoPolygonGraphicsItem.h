@@ -35,7 +35,7 @@ public:
 
     virtual void paint( GeoPainter* painter, const ViewportParams *viewport );
 
-    void paintGL( QVector<VertexData> &vertexData, QVector<GLushort> &indices );
+    void paintGL( GLRenderer &renderData );
 
 protected:
     const GeoDataPolygon *const m_polygon;

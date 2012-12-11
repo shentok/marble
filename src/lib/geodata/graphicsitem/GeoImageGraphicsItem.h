@@ -39,6 +39,8 @@ public:
 
     virtual void paint( GeoPainter* painter, const ViewportParams *viewport );
 
+    void paintGL( GLRenderer &renderer );
+
 protected:
     QImage m_image;
 

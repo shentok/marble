@@ -12,6 +12,7 @@
 
 #include "GeoGraphicsItem_p.h"
 #include "GeoPainter.h"
+#include "GLRenderer.h"
 #include "ViewportParams.h"
 
 namespace Marble
@@ -80,4 +81,10 @@ void GeoImageGraphicsItem::paint( GeoPainter* painter, const ViewportParams* vie
         m_image = QImage();
     }
 }
+
+void GeoImageGraphicsItem::paintGL( GLRenderer &renderer )
+{
+    renderer.addImage( m_image, p()->m_latLonAltBox );
+}
+
 }

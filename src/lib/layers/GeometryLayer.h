@@ -57,8 +57,6 @@ private:
 private:
     friend class GeometryLayerPrivate;
     GeometryLayerPrivate *d;
-
-    struct GlTile;
 };
 
 } // namespace Marble

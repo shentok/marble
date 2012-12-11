@@ -11,6 +11,7 @@
 #include "GeoPhotoGraphicsItem.h"
 
 #include "GeoPainter.h"
+#include "GLRenderer.h"
 #include "ViewportParams.h"
 
 #include <QtGui/QImageReader>
@@ -95,6 +96,11 @@ void GeoPhotoGraphicsItem::paint( GeoPainter* painter, const ViewportParams* vie
         // No unloading if no path is known
         m_photo = QImage();
     }
+}
+
+void GeoPhotoGraphicsItem::paintGL( GLRenderer &renderer )
+{
+    renderer.addPhoto( m_photo, m_point );
 }
 
 const GeoDataLatLonAltBox& GeoPhotoGraphicsItem::latLonAltBox() const
