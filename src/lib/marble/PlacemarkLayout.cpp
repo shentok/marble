@@ -316,8 +316,12 @@ void PlacemarkLayout::resetCacheData()
     emit repaintNeeded();
 }
 
-QSet<TileId> PlacemarkLayout::visibleTiles( const ViewportParams *viewport )
+QSet<TileId> PlacemarkLayout::visibleTiles( const ViewportParams *viewport ) const
 {
+    if ( m_styleResetRequested ) {
+        const_cast<PlacemarkLayout *>( this )->styleReset();
+    }
+
     int zoomLevel = qLn( viewport->radius() *4 / 256 ) / qLn( 2.0 );
 
     /*
@@ -364,6 +368,13 @@ QSet<TileId> PlacemarkLayout::visibleTiles( const ViewportParams *viewport )
             }
         }
     }
+
+    int numPlacemarks = 0;
+    foreach ( const TileId &id, tileIdSet ) {
+        numPlacemarks += m_placemarkCache.value( id ).size();
+    }
+
+    m_runtimeTrace = QString( "Placemarks: %1" ).arg( numPlacemarks );
 
     return tileIdSet;
 }
@@ -522,6 +533,11 @@ QVector<VisiblePlacemark *> PlacemarkLayout::generateLayout( const ViewportParam
 
     m_runtimeTrace = QString("Placemarks: %1 Drawn: %2").arg( placemarkList.count() ).arg( m_paintOrder.size() );
     return m_paintOrder;
+}
+
+QList<const GeoDataPlacemark *> PlacemarkLayout::tile(const TileId &id) const
+{
+    return m_placemarkCache.value( id );
 }
 
 QString PlacemarkLayout::runtimeTrace() const

@@ -74,6 +74,10 @@ class PlacemarkLayout : public QObject
      */
     QVector<VisiblePlacemark *> generateLayout( const ViewportParams *viewport );
 
+    QSet<TileId> visibleTiles( const ViewportParams *viewport ) const;
+
+    QList<const GeoDataPlacemark *> tile( const TileId &id ) const;
+
     /**
      * Returns a list of model indexes that are at position @p pos.
      */
@@ -113,7 +117,6 @@ class PlacemarkLayout : public QObject
 
     void styleReset();
 
-    static QSet<TileId> visibleTiles( const ViewportParams *viewport );
     bool layoutPlacemark( const GeoDataPlacemark *placemark, qreal x, qreal y, bool selected );
 
     /**
@@ -136,7 +139,7 @@ class PlacemarkLayout : public QObject
     MarbleClock *const m_clock;
 
     QVector<VisiblePlacemark*> m_paintOrder;
-    QString m_runtimeTrace;
+    mutable QString m_runtimeTrace;
     int m_labelArea;
     QHash<const GeoDataPlacemark*, VisiblePlacemark*> m_visiblePlacemarks;
     QVector< QVector< VisiblePlacemark* > >  m_rowsection;
