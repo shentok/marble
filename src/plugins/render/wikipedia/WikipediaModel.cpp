@@ -61,7 +61,8 @@ void WikipediaModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
         return;
     }
         
-    QUrl geonamesUrl( "http://ws.geonames.org/wikipediaBoundingBox" );
+    QUrl geonamesUrl( "http://www.geonames.org/servlet/geonames" );
+    geonamesUrl.addQueryItem( "srv", "121" );
     geonamesUrl.addQueryItem( "north", QString::number( box.north( GeoDataCoordinates::Degree ) ) );
     geonamesUrl.addQueryItem( "south", QString::number( box.south( GeoDataCoordinates::Degree ) ) );
     geonamesUrl.addQueryItem( "east", QString::number( box.east( GeoDataCoordinates::Degree ) ) );
