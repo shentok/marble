@@ -13,6 +13,7 @@ add_subdirectory( overviewmap )
 add_subdirectory( progress )
 add_subdirectory( routing )
 add_subdirectory( speedometer )
+add_subdirectory( themeselect )
 
 # Display geographical information on the map
 add_subdirectory( annotate )
