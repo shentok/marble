@@ -179,6 +179,7 @@ set(marblewidget_SRCS
     LatLonEdit.cpp
 
     MapThemeSortFilterProxyModel.cpp
+    CelestialBodiesSortFilterProxyModel.cpp
 
     TemplateDocument.cpp
 
