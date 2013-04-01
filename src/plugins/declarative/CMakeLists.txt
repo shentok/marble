@@ -14,6 +14,7 @@ DeclarativeDataPluginModel.cpp
 DeclarativeDataPlugin.cpp
 DeclarativeDataPluginItem.cpp
 DeclarativeMapThemeManager.cpp
+DeclarativeRoutingProfilesModel.cpp
 MarbleDeclarativeObject.cpp
 MarbleDeclarativePlugin.cpp
 MarbleDeclarativeWidget.cpp
