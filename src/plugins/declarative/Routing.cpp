@@ -102,6 +102,14 @@ bool Routing::hasRoute() const
     return d->m_marbleWidget && d->m_marbleWidget->model()->routingManager()->routingModel()->rowCount() > 0;
 }
 
+Marble::RoutingProfilesModel *Routing::routingProfilesModel()
+{
+    if ( !d->m_marbleWidget )
+        return 0;
+
+    return d->m_marbleWidget->model()->routingManager()->profilesModel();
+}
+
 void Routing::addVia( qreal lon, qreal lat )
 {
     if ( d->m_marbleWidget ) {

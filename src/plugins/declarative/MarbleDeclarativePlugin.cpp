@@ -12,6 +12,7 @@
 
 #include "Coordinate.h"
 #include "DeclarativeMapThemeManager.h"
+#include "DeclarativeRoutingProfilesModel.h"
 #include "MarbleDeclarativeObject.h"
 #include "MarbleDeclarativeWidget.h"
 #include "PositionSource.h"
@@ -49,6 +50,7 @@ void MarbleDeclarativePlugin::registerTypes( const char * )
     qmlRegisterType<Navigation>( uri, 0, 11, "Navigation" );
     qmlRegisterType<Search>( uri, 0, 11, "Search" );
     qmlRegisterType<RouteRequestModel>( uri, 0, 11, "RouteRequestModel" );
+    qmlRegisterType<DeclarativeRoutingProfilesModel>( uri, 0, 11, "RoutingProfilesModel" );
     qmlRegisterType<Settings>( uri, 0, 11, "Settings" );
 
     qmlRegisterType<MarbleWidget>( uri, 0, 11, "MarbleWidget" );

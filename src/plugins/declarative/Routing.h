@@ -19,6 +19,10 @@ class QAbstractItemModel;
 class MarbleWidget;
 class RoutingPrivate;
 
+namespace Marble {
+    class RoutingProfilesModel;
+}
+
 class Routing : public QObject
 {
     Q_OBJECT
@@ -42,6 +46,8 @@ public:
     void setRoutingProfile( const QString & profile );
 
     bool hasRoute() const;
+
+    Marble::RoutingProfilesModel *routingProfilesModel();
 
 public Q_SLOTS:
     void addVia( qreal lon, qreal lat );
