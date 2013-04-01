@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>MainPage.qml</file>
+        <file>MapSelectionDialog.qml</file>
+        <file>RoutingPage.qml</file>
+    </qresource>
+</RCC>
