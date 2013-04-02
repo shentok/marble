@@ -19,6 +19,8 @@
 #include "routing/RouteRequest.h"
 #include "routing/RoutingProfilesModel.h"
 
+#include <QtCore/QMultiMap>
+
 class RoutingPrivate
 {
 public:
@@ -26,7 +28,7 @@ public:
 
     MarbleWidget* m_marbleWidget;
 
-    QMap<QString, Marble::RoutingProfile> m_profiles;
+    QMultiMap<Marble::RoutingProfile::TransportType, Marble::RoutingProfile> m_profiles;
 
     QString m_routingProfile;
 };
@@ -60,14 +62,8 @@ void Routing::setMap( MarbleWidget* widget )
     if ( d->m_marbleWidget ) {
         connect( d->m_marbleWidget->model()->routingManager(), SIGNAL(stateChanged(RoutingManager::State)),
                  this, SIGNAL(hasRouteChanged()) );
-        QList<Marble::RoutingProfile> profiles = d->m_marbleWidget->model()->routingManager()->profilesModel()->profiles();
-        if ( profiles.size() == 4 ) {
-            /** @todo FIXME: Restrictive assumptions on available plugins and certain profile loading implementation */
-            d->m_profiles["Motorcar"] = profiles.at( 0 );
-            d->m_profiles["Bicycle"] = profiles.at( 2 );
-            d->m_profiles["Pedestrian"] = profiles.at( 3 );
-        } else {
-            qDebug() << "Unexpected size of default routing profiles: " << profiles.size();
+        foreach ( const Marble::RoutingProfile &profile, d->m_marbleWidget->model()->routingManager()->profilesModel()->profiles() ) {
+            d->m_profiles.insertMulti( profile.transportType(), profile );
         }
     }
 
@@ -91,7 +87,17 @@ void Routing::setRoutingProfile( const QString & profile )
     if ( d->m_routingProfile != profile ) {
         d->m_routingProfile = profile;
         if ( d->m_marbleWidget ) {
-            d->m_marbleWidget->model()->routingManager()->routeRequest()->setRoutingProfile( d->m_profiles[profile] );
+            const Marble::RoutingProfile::TransportType type = profile == "Motorcar" ? Marble::RoutingProfile::Motorcar :
+                                                               profile == "Bicycle"  ? Marble::RoutingProfile::Bicycle :
+                                                                                       Marble::RoutingProfile::Pedestrian;
+                /** @todo FIXME: Restrictive assumptions on available plugins and certain profile loading implementation */
+#if 0
+        } else {
+                qDebug() << "Unexpected size of default routing profiles: " << profiles.size();
+            }
+#endif
+
+            d->m_marbleWidget->model()->routingManager()->routeRequest()->setRoutingProfile( d->m_profiles.values( type ) );
         }
         emit routingProfileChanged();
     }
