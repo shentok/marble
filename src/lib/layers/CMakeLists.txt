@@ -8,8 +8,6 @@ set( layers_HDRS
     PopupLayer.h
     TextureLayer.h
     ScreenLayer.h
-    VectorMapBaseLayer.h
-    VectorMapLayer.h
     VectorTileLayer.h
 )
 
@@ -23,7 +21,5 @@ set( layers_SRCS
     layers/PopupLayer.cpp
     layers/TextureLayer.cpp
     layers/ScreenLayer.cpp
-    layers/VectorMapBaseLayer.cpp
-    layers/VectorMapLayer.cpp
     layers/VectorTileLayer.cpp
 )

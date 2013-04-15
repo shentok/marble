@@ -28,7 +28,6 @@
 #include "DgmlElementDictionary.h"
 #include "DgmlAttributeDictionary.h"
 #include "GeoParser.h"
-#include "GeoSceneVector.h"
 #include "GeoSceneGeodata.h"
 
 namespace Marble
@@ -46,7 +45,6 @@ GeoNode* DgmlPenTagHandler::parse(GeoParser& parser) const
     QString style = parser.attribute(dgmlAttr_style).toLower().trimmed();
     qreal  width = parser.attribute(dgmlAttr_width).toDouble();
 
-    GeoSceneVector *vector = 0;
     GeoSceneGeodata *geodata = 0;
     QPen pen;
 
@@ -69,10 +67,8 @@ GeoNode* DgmlPenTagHandler::parse(GeoParser& parser) const
 
     // Checking for parent item
     GeoStackItem parentItem = parser.parentElement();
-    if ( parentItem.represents( dgmlTag_Vector ) ) {
-        vector = parentItem.nodeAs<GeoSceneVector>();
-        vector->setPen( pen );
-    } else if ( parentItem.represents( dgmlTag_Geodata ) ) {
+    if ( parentItem.represents( dgmlTag_Vector )
+         || parentItem.represents( dgmlTag_Geodata ) ) {
         geodata = parentItem.nodeAs<GeoSceneGeodata>();
         geodata->setPen( pen );
     }

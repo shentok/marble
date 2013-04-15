@@ -264,7 +264,8 @@ void MarbleModel::setMapThemeId( const QString &mapThemeId )
     QList<GeoSceneGeodata> currentDatasets;
     if ( d->m_mapTheme ) {
         foreach ( GeoSceneLayer *layer, d->m_mapTheme->map()->layers() ) {
-            if ( layer->backend() != dgml::dgmlValue_geodata )
+            if ( layer->backend() != dgml::dgmlValue_geodata
+                 && layer->backend() != dgml::dgmlValue_vector )
                 continue;
 
             // look for documents
@@ -314,7 +315,8 @@ void MarbleModel::setMapThemeId( const QString &mapThemeId )
     QList<GeoDataStyle*> styleList;
 
     foreach ( GeoSceneLayer *layer, d->m_mapTheme->map()->layers() ) {
-        if ( layer->backend() != dgml::dgmlValue_geodata )
+        if ( layer->backend() != dgml::dgmlValue_geodata
+             && layer->backend() != dgml::dgmlValue_vector )
             continue;
 
         GeoSceneGeodata emptyData("empty");
