@@ -28,15 +28,13 @@
 namespace Marble
 {
 
-class VectorComposer;
 class ViewportParams;
 
 class TextureColorizer
 {
  public:
     TextureColorizer( const QString &seafile,
-                      const QString &landfile,
-                      VectorComposer *veccomposer );
+                      const QString &landfile );
 
     virtual ~TextureColorizer(){}
 
@@ -55,7 +53,6 @@ class TextureColorizer
     void setPixel( const QRgb *coastData, QRgb *writeData, int bump, uchar grey );
 
  private:
-    VectorComposer *const m_veccomposer;
     QList<const GeoDataDocument*> m_seaDocuments;
     QList<const GeoDataDocument*> m_landDocuments;
     QImage m_coastImage;

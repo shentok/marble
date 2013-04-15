@@ -93,7 +93,6 @@ set(marblewidget_SRCS
     DownloadPolicy.cpp
     DownloadQueueSet.cpp
     GeoPainter.cpp
-    GeoPolygon.cpp
     HttpDownloadManager.cpp
     HttpJob.cpp
     LayerManager.cpp
@@ -141,8 +140,6 @@ set(marblewidget_SRCS
     TileCreator.cpp
     TinyWebBrowser.cpp
     #jsonparser.cpp
-    VectorComposer.cpp
-    VectorMap.cpp
     FileLoader.cpp
     FileManager.cpp
     PositionTracking.cpp
