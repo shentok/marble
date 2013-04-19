@@ -228,20 +228,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 
 
 /*!
-    \brief Draws a given linear ring (a "polygon without holes").
-
-    The outline of the \a linearRing is drawn using the current pen. The
-    background is painted using the current brush of the painter.
-    Like in QPainter::drawPolygon() the \a fillRule specifies the
-    fill algorithm that is used to fill the polygon.
-
-    \see GeoDataLinearRing
-*/
-    void drawPolygon ( const GeoDataLinearRing & linearRing,
-                       Qt::FillRule fillRule = Qt::OddEvenFill );
-
-
-/*!
     \brief Creates a region for a given linear ring (a "polygon without holes").
 
     A QRegion object is created that represents the area covered by
@@ -265,20 +251,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
                                 Qt::FillRule fillRule, qreal strokeWidth = 3 ) const;
 
 
-/*!
-    \brief Draws a given polygon (which may contain holes).
-
-    The outline of the \a polygon is drawn using the current pen. The
-    background is painted using the current brush of the painter.
-    Like in QPainter::drawPolygon() the \a fillRule specifies the
-    fill algorithm that is used to fill the polygon.
-
-    \see GeoDataPolygon
-*/    
-    void drawPolygon ( const GeoDataPolygon & polygon,
-                       Qt::FillRule fillRule = Qt::OddEvenFill );
-
-    
 /*!
     \brief Draws a rectangle at the given position.
     The rectangle is placed with its center located at the given
@@ -346,7 +318,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     using QPainter::drawImage;
     using QPainter::drawPixmap;
     using ClipPainter::drawPolyline;
-    using ClipPainter::drawPolygon;
     using QPainter::drawRect;
     using QPainter::drawRoundedRect;
 

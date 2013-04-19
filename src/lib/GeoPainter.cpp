@@ -275,31 +275,6 @@ QRegion GeoPainter::regionFromPolyline ( const GeoDataLineString & lineString,
 }
 
 
-void GeoPainter::drawPolygon ( const GeoDataLinearRing & linearRing,
-                               Qt::FillRule fillRule )
-{
-    // Immediately leave this method now if:
-    // - the object is not visible in the viewport or if
-    // - the size of the object is below the resolution of the viewport
-    if ( ! d->m_viewport->viewLatLonAltBox().intersects( linearRing.latLonAltBox() ) ||
-         ! d->m_viewport->resolves( linearRing.latLonAltBox() )
-        )
-    {
-        // mDebug() << "Polygon doesn't get displayed on the viewport";
-        return;
-    }
-
-    QVector<QPolygonF*> polygons;
-    d->m_viewport->screenCoordinates( linearRing, polygons );
-
-    foreach( QPolygonF* itPolygon, polygons ) {
-        ClipPainter::drawPolygon( *itPolygon, fillRule );
-    }
-
-    qDeleteAll( polygons );
-}
-
-
 QRegion GeoPainter::regionFromPolygon ( const GeoDataLinearRing & linearRing,
                                         Qt::FillRule fillRule, qreal strokeWidth ) const
 {
@@ -340,78 +315,6 @@ QRegion GeoPainter::regionFromPolygon ( const GeoDataLinearRing & linearRing,
     qDeleteAll( polygons );
 
     return regions;
-}
-
-
-void GeoPainter::drawPolygon ( const GeoDataPolygon & polygon,
-                               Qt::FillRule fillRule )
-{
-    // If the object is not visible in the viewport return 
-    if ( ! d->m_viewport->viewLatLonAltBox().intersects( polygon.outerBoundary().latLonAltBox() ) ||
-    // If the size of the object is below the resolution of the viewport then return
-         ! d->m_viewport->resolves( polygon.outerBoundary().latLonAltBox() )
-        )
-    {
-        // mDebug() << "Polygon doesn't get displayed on the viewport";
-        return;
-    }
-    // mDebug() << "Drawing Polygon";
-
-    // Creating the outer screen polygons first
-    QVector<QPolygonF*> outerPolygons;
-    d->m_viewport->screenCoordinates( polygon.outerBoundary(), outerPolygons );
-
-    // Now creating the "holes" by cutting away the inner boundaries:
-
-    // In QPathClipper We Trust ...
-    // ... and in the speed of a threesome of nested foreachs!
-
-    QVector<QPolygonF> outline;
-    QPen const oldPen = pen();
-    // When inner boundaries exist, the outline of the polygon must be painted
-    // separately to avoid connections between the outer and inner boundaries
-    // To avoid performance penalties the separate painting is only done when
-    // it's really needed. See review 105019 for details.
-    bool const needOutlineWorkaround = !polygon.innerBoundaries().isEmpty();
-    if ( needOutlineWorkaround ) {
-        foreach( QPolygonF* polygon, outerPolygons ) {
-            outline << *polygon;
-        }
-        setPen( QPen( Qt::NoPen ) );
-    }
-
-
-    QVector<GeoDataLinearRing> innerBoundaries = polygon.innerBoundaries(); 
-    foreach( const GeoDataLinearRing& itInnerBoundary, innerBoundaries ) {
-        QVector<QPolygonF*> innerPolygons;
-        d->m_viewport->screenCoordinates( itInnerBoundary, innerPolygons );
-
-        if ( needOutlineWorkaround ) {
-            foreach( QPolygonF* polygon, innerPolygons ) {
-                outline << *polygon;
-            }
-        }
-
-        foreach( QPolygonF* itOuterPolygon, outerPolygons ) {
-            foreach( QPolygonF* itInnerPolygon, innerPolygons ) {
-                *itOuterPolygon = itOuterPolygon->subtracted( *itInnerPolygon );
-            }
-        }
-        qDeleteAll( innerPolygons );    
-    }
-
-    foreach( QPolygonF* itOuterPolygon, outerPolygons ) {
-        ClipPainter::drawPolygon( *itOuterPolygon, fillRule );
-    }
-
-    if ( needOutlineWorkaround ) {
-        setPen( oldPen );
-        foreach( const QPolygonF &polygon, outline ) {
-            ClipPainter::drawPolyline( polygon );
-        }
-    }
-
-    qDeleteAll( outerPolygons );    
 }
 
 

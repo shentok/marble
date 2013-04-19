@@ -33,6 +33,7 @@
 #include "GeoDataTypes.h"
 #include "GeoDataPlacemark.h"
 #include "GeoDataDocument.h"
+#include "GeoPolygonGraphicsItem.h"
 
 namespace Marble
 {
@@ -191,17 +192,17 @@ void TextureColorizer::drawIndividualDocument( GeoPainter *painter, const GeoDat
             if ( placemark->geometry()->nodeType() == GeoDataTypes::GeoDataLineStringType ) {
                 const GeoDataLineString *child = static_cast<const GeoDataLineString*>( placemark->geometry() );
                 const GeoDataLinearRing ring( *child );
-                painter->drawPolygon( ring );
+                GeoPolygonGraphicsItem( *i, &ring ).paint( painter, 0 );
             }
 
             if ( placemark->geometry()->nodeType() == GeoDataTypes::GeoDataPolygonType ) {
                 const GeoDataPolygon *child = static_cast<const GeoDataPolygon*>( placemark->geometry() );
-                painter->drawPolygon( *child );
+                GeoPolygonGraphicsItem( *i, child ).paint( painter, 0 );
             }
 
             if ( placemark->geometry()->nodeType() == GeoDataTypes::GeoDataLinearRingType ) {
                 const GeoDataLinearRing *child = static_cast<const GeoDataLinearRing*>( placemark->geometry() );
-                painter->drawPolygon( *child );
+                GeoPolygonGraphicsItem( *i, child ).paint( painter, 0 );
             }
         }
     }
