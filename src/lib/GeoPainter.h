@@ -231,17 +231,13 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     For the outline it uses the painter's pen and for the background the
     painter's brush.
 
-    If \a isGeoProjected is true then the outline of the ellipse is drawn
-    in geographic coordinates. In this case the \a width and the \a height
-    are interpreted to be degrees.
-    If \a isGeoProjected is false then the outline of the ellipse is drawn
-    in screen coordinates. In this case the \a width and the \a height
-    are interpreted to be pixels.
+    \param width Width of the ellipse in pixels
+    \param height Height of the ellipse in pixels
 
     \see GeoDataCoordinates
 */
     void drawEllipse ( const GeoDataCoordinates & centerPosition,
-                       qreal width, qreal height, bool isGeoProjected = false );
+                       qreal width, qreal height );
 
 
 /*!
@@ -258,7 +254,7 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     \see GeoDataCoordinates
 */
     QRegion regionFromEllipse ( const GeoDataCoordinates & centerPosition,
-                                qreal width, qreal height, bool isGeoProjected = false,
+                                qreal width, qreal height,
                                 qreal strokeWidth = 3 ) const;
 
 
