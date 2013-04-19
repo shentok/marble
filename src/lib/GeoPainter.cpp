@@ -73,43 +73,6 @@ MapQuality GeoPainter::mapQuality() const
 }
 
 
-void GeoPainter::drawPoint (  const GeoDataCoordinates & position )
-{
-    int pointRepeatNum;
-    qreal y;
-    bool globeHidesPoint;
-
-    bool visible = d->m_viewport->screenCoordinates( position, d->m_x, y, pointRepeatNum, globeHidesPoint );
-
-    if ( visible ) {
-        // Draw all the x-repeat-instances of the point on the screen
-        for( int it = 0; it < pointRepeatNum; ++it ) {
-            QPainter::drawPoint( d->m_x[it], y );
-        }
-    }
-}
-
-
-QRegion GeoPainter::regionFromPoint ( const GeoDataCoordinates & position,
-                                      qreal width ) const
-{
-    return regionFromRect( position, width, width, 3 );
-}
-
-
-void GeoPainter::drawPoint( const GeoDataPoint & point )
-{
-    drawPoint( point.coordinates() );
-}
-
-
-QRegion GeoPainter::regionFromPoint ( const GeoDataPoint & point,
-                                      qreal width ) const
-{
-    return regionFromRect( point.coordinates(), width, width, 3 );
-}
-
-
 void GeoPainter::drawText ( const GeoDataCoordinates & position,
                             const QString & text )
 {

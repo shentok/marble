@@ -13,6 +13,7 @@
 #include "GeoDataIconStyle.h"
 
 #include "GeoPainter.h"
+#include "ViewportParams.h"
 
 namespace Marble
 {
@@ -36,12 +37,22 @@ GeoDataPoint GeoPointGraphicsItem::point() const
 
 void GeoPointGraphicsItem::paint( GeoPainter* painter, const ViewportParams* viewport )
 {
-    Q_UNUSED( viewport );
+    int pointRepeatNum;
+    qreal x[100];
+    qreal y;
+    bool globeHidesPoint;
 
-    if ( style() && !style()->iconStyle().icon().isNull() ) {
-        painter->drawImage( m_point.coordinates(), style()->iconStyle().icon() );
-    } else {
-        painter->drawPoint( m_point );
+    bool visible = viewport->screenCoordinates( m_point.coordinates(), x, y, pointRepeatNum, globeHidesPoint );
+
+    if ( visible ) {
+        // Draw all the x-repeat-instances of the point on the screen
+        for( int it = 0; it < pointRepeatNum; ++it ) {
+            if ( style() && !style()->iconStyle().icon().isNull() ) {
+                painter->drawImage( x[it], y, style()->iconStyle().icon() );
+            } else {
+                painter->drawPoint( x[it], y );
+            }
+        }
     }
 }
 

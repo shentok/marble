@@ -125,58 +125,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 
 
 /*!
-    \brief Draws a single point at a given geographic position.
-    The point is drawn using the painter's pen color.
-
-    \see GeoDataCoordinates
-*/
-    void drawPoint ( const GeoDataCoordinates & position );
-
-    
-/*!
-    \brief Creates a region for a given geographic position.
-
-    A QRegion object is created that represents the area covered by
-    GeoPainter::drawPoint( GeoDataCoordinates ). It can be used e.g. for
-    input event handling of objects that have been painted using
-    GeoPainter::drawPoint( GeoDataCoordinates ).
-
-    The width allows to set the "stroke width" for the region. For input
-    event handling it's always advisable to use a width that is slightly
-    bigger than the width of the painter's pen.
-
-    \see GeoDataCoordinates
-*/
-    QRegion regionFromPoint ( const GeoDataCoordinates & position,
-                              qreal strokeWidth = 3) const;
-
-    
-/*!
-    \brief Draws a single point at a given geographic position.
-    The point is drawn using the painter's pen color.
-
-    \see GeoDataPoint
-*/
-    void drawPoint ( const GeoDataPoint & point );
-
-
-/*!
-    \brief Create a region for a given geographic position.
-
-    A QRegion object is created that represents the area covered by
-    GeoPainter::drawPoint( GeoDataPoint ). It can be used e.g. for
-    input event handling of objects that have been painted using
-    GeoPainter::drawPoint( GeoDataPoint ).
-
-    The width allows to set the "stroke width" for the region. For input
-    event handling it's always advisable to use a width that is slightly
-    bigger than the width of the painter's pen.
-*/
-    QRegion regionFromPoint ( const GeoDataPoint & point,
-                              qreal strokeWidth = 3) const;
-
-
-/*!
     \brief Draws the given text at a given geographic position.
     The \a text is drawn starting at the given \a position using the painter's
     font property. The text rendering is performed in screen coordinates and is
@@ -397,7 +345,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     using QPainter::drawEllipse;
     using QPainter::drawImage;
     using QPainter::drawPixmap;
-    using QPainter::drawPoint;
     using ClipPainter::drawPolyline;
     using ClipPainter::drawPolygon;
     using QPainter::drawRect;
