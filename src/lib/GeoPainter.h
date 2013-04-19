@@ -168,19 +168,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 
 
 /*!
-    \brief Draws an image at the given position.
-    The image is placed with its center located at the given \a centerPosition.
-
-    The image rendering is performed in screen coordinates and is
-    not subject to the current projection.
-
-    \see GeoDataCoordinates
-*/
-    void drawImage ( const GeoDataCoordinates & centerPosition,
-                     const QImage & image /* , bool isGeoProjected = false */ );
-
-
-/*!
     \brief Draws a pixmap at the given position.
     The pixmap is placed with its center located at the given \a centerPosition.
 
@@ -315,7 +302,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     // Reenabling QPainter+ClipPainter methods.
     using QPainter::drawText;
     using QPainter::drawEllipse;
-    using QPainter::drawImage;
     using QPainter::drawPixmap;
     using ClipPainter::drawPolyline;
     using QPainter::drawRect;

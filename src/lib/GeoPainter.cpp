@@ -143,30 +143,6 @@ QRegion GeoPainter::regionFromEllipse ( const GeoDataCoordinates & centerPositio
 }
 
 
-void GeoPainter::drawImage ( const GeoDataCoordinates & centerPosition,
-                             const QImage & image /*, bool isGeoProjected */ )
-{
-    // isGeoProjected = true would project the image/pixmap onto the globe. This
-    // requires to deal with the TextureMapping classes -> should get
-    // implemented later on
-
-    int pointRepeatNum;
-    qreal y;
-    bool globeHidesPoint;
-
-//    if ( !isGeoProjected ) {
-        bool visible = d->m_viewport->screenCoordinates( centerPosition, d->m_x, y, pointRepeatNum, image.size(), globeHidesPoint );
-
-        if ( visible ) {
-            // Draw all the x-repeat-instances of the point on the screen
-            for( int it = 0; it < pointRepeatNum; ++it ) {
-                QPainter::drawImage( d->m_x[it] - ( image.width() / 2 ), y - ( image.height() / 2 ), image );
-            }
-        }
-//    }
-}
-
-
 void GeoPainter::drawPixmap ( const GeoDataCoordinates & centerPosition,
                               const QPixmap & pixmap /* , bool isGeoProjected */ )
 {
