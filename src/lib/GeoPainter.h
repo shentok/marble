@@ -273,30 +273,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
                              qreal width, qreal height,
                              qreal strokeWidth = 3 ) const;
 
-   
-/*!
-    \brief Draws a rectangle with rounded corners at the given position.
-    The rectangle is placed with its center located at the given
-    \a centerPosition.
-
-    For the outline it uses the painter's pen and for the background the
-    painter's brush.
-    Unlike in QPainter::drawRoundedRect() the rounded corners are not specified
-    in percentage but in pixels to provide for optimal aesthetics.
-
-    \param width Width of the rectangle in pixels
-    \param height Height of the rectangle in pixels
-    \param xRnd Specifies the geometry of the rounded corners in pixels along
-                the x-axis.
-    \param yRnd Specifies the geometry of the rounded corners in pixels along
-                the y-axis.
-
-    \see GeoDataCoordinates
-*/
-    void drawRoundRect ( const GeoDataCoordinates & centerPosition,
-                         int width, int height,
-                         int xRnd = 25, int yRnd = 25 );
-
 
 
     // Reenabling QPainter+ClipPainter methods.
@@ -305,7 +281,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     using QPainter::drawPixmap;
     using ClipPainter::drawPolyline;
     using QPainter::drawRect;
-    using QPainter::drawRoundedRect;
 
  private:
     Q_DISABLE_COPY( GeoPainter )

@@ -42,12 +42,6 @@ public:
 
     qreal height() const;
 
-    void setRoundness( int xRoundness, int yRoundness );
-
-    int xRoundness() const;
-
-    int yRoundness() const;
-
     void paint( GeoPainter* painter, const ViewportParams *viewport );
 
 protected:
@@ -55,8 +49,6 @@ protected:
     GeoDataCoordinates m_origin;
     qreal m_width;
     qreal m_height;
-    int m_xRoundness;
-    int m_yRoundness;
 };
 
 }

@@ -26,9 +26,7 @@ GeoRectGraphicsItem::GeoRectGraphicsItem( const GeoDataFeature *feature,
           m_latLonAltBox( origin ),
           m_origin( origin ),
           m_width( width ),
-          m_height( height ),
-          m_xRoundness( 0 ),
-          m_yRoundness( 0 )
+          m_height( height )
 {
 }
 
@@ -66,22 +64,6 @@ void GeoRectGraphicsItem::setHeight( qreal height )
 qreal GeoRectGraphicsItem::height() const
 {
     return m_height;
-}
-
-void GeoRectGraphicsItem::setRoundness( int xRoundness, int yRoundness )
-{
-    m_xRoundness = xRoundness;
-    m_yRoundness = yRoundness;
-}
-
-int GeoRectGraphicsItem::xRoundness() const
-{
-    return m_xRoundness;
-}
-
-int GeoRectGraphicsItem::yRoundness() const
-{
-    return m_yRoundness;
 }
 
 void GeoRectGraphicsItem::paint( GeoPainter* painter, const ViewportParams *viewport )
@@ -129,13 +111,7 @@ void GeoRectGraphicsItem::paint( GeoPainter* painter, const ViewportParams *view
         }
     }
 
-    if ( m_xRoundness > 0 || m_yRoundness > 0) {
-        // FIXME convert to pixels from width/height
-        painter->drawRoundRect( m_origin, (int)m_width, (int)m_height,
-                                m_xRoundness, m_yRoundness );
-    } else {
-        painter->drawRect( m_origin, m_width, m_height );
-    }
+    painter->drawRect( m_origin, m_width, m_height );
 
     painter->restore();
 }

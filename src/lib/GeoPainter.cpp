@@ -337,23 +337,3 @@ QRegion GeoPainter::regionFromRect ( const GeoDataCoordinates & centerCoordinate
         }
         return regions;
 }
-
-
-void GeoPainter::drawRoundRect ( const GeoDataCoordinates &centerPosition,
-                                 int width, int height,
-                                 int xRnd, int yRnd )
-{
-        int pointRepeatNum;
-        qreal y;
-        bool globeHidesPoint;
-
-        // FIXME: Better visibility detection that takes the circle geometry into account
-        bool visible = d->m_viewport->screenCoordinates( centerPosition, d->m_x, y, pointRepeatNum, QSizeF( width, height ), globeHidesPoint );
-
-        if ( visible ) {
-            // Draw all the x-repeat-instances of the point on the screen
-            for( int it = 0; it < pointRepeatNum; ++it ) {
-                QPainter::drawRoundRect( d->m_x[it] - ( width / 2 ), y - ( height / 2 ), width, height, xRnd, yRnd );
-            }
-        }
-}
