@@ -130,7 +130,7 @@ bool MapScaleFloatItem::isInitialized () const
     return true;
 }
 
-void MapScaleFloatItem::changeViewport( ViewportParams *viewport )
+void MapScaleFloatItem::changeViewport( const ViewportParams *viewport )
 {
     int viewportWidth = viewport->width();
 

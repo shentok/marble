@@ -71,7 +71,7 @@ class OverviewMap : public AbstractFloatItem, public DialogConfigurationInterfac
 
     bool isInitialized () const;
 
-    void changeViewport( ViewportParams *viewport );
+    void changeViewport( const ViewportParams *viewport );
 
     void paintContent( QPainter *painter ) const;
 

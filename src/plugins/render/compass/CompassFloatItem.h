@@ -65,7 +65,7 @@ class CompassFloatItem  : public AbstractFloatItem, public DialogConfigurationIn
 
     QPainterPath backgroundShape() const;
 
-    void changeViewport( ViewportParams *viewport );
+    void changeViewport( const ViewportParams *viewport );
 
     void paintContent( QPainter *painter ) const;
 
