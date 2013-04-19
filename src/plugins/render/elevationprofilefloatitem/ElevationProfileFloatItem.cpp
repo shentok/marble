@@ -157,7 +157,7 @@ bool ElevationProfileFloatItem::isInitialized () const
     return m_isInitialized;
 }
 
-void ElevationProfileFloatItem::changeViewport( ViewportParams *viewport )
+void ElevationProfileFloatItem::changeViewport( const ViewportParams *viewport )
 {
     if ( !( viewport->width() == m_viewportWidth && m_isInitialized ) ) {
         bool const highRes = MarbleGlobal::getInstance()->profiles() & MarbleGlobal::HighResolution;

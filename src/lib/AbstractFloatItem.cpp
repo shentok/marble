@@ -199,7 +199,7 @@ void AbstractFloatItem::toolTipEvent ( QHelpEvent *e )
     Q_UNUSED( e );
 }
 
-void AbstractFloatItem::changeViewport( ViewportParams *viewport )
+void AbstractFloatItem::changeViewport( const ViewportParams *viewport )
 {
     Q_UNUSED( viewport );
 }

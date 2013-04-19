@@ -162,7 +162,7 @@ bool OverviewMap::isInitialized () const
     return true;
 }
 
-void OverviewMap::changeViewport( ViewportParams *viewport )
+void OverviewMap::changeViewport( const ViewportParams *viewport )
 {
     GeoDataLatLonAltBox latLonAltBox = viewport->latLonAltBox( QRect( QPoint( 0, 0 ), viewport->size() ) );
     const qreal centerLon = viewport->centerLongitude();
