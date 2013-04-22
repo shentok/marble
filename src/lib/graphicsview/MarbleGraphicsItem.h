@@ -48,7 +48,7 @@ class MARBLE_EXPORT MarbleGraphicsItem
      * Paints the item on the screen in view coordinates.
      * It is not safe to call this function from a thread other than the gui thread.
      */
-    bool paintEvent( QPainter *painter, const ViewportParams *viewport );
+    bool paintEvent( QPainter *painter ) const;
 
     /**
      * Returns true if the Item contains @p point in parent coordinates.

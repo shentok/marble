@@ -177,7 +177,8 @@ bool ScreenLayer::render( GeoPainter *painter, ViewportParams *viewport,
     painter->save();
 
     foreach( ScreenOverlayGraphicsItem *item, d->m_items ) {
-        item->paintEvent( painter, viewport );
+        item->setProjection( viewport );
+        item->paintEvent( painter );
     }
 
     painter->restore();

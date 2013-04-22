@@ -180,7 +180,8 @@ bool ElevationProfileMarker::render( GeoPainter* painter, ViewportParams* viewpo
 
         painter->save();
 
-        m_markerItem.paintEvent( painter, viewport );
+        m_markerItem.setProjection( viewport );
+        m_markerItem.paintEvent( painter );
 
         painter->restore();
     }

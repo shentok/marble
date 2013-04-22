@@ -36,13 +36,11 @@ MarbleGraphicsItem::~MarbleGraphicsItem()
     delete d;
 }
 
-bool MarbleGraphicsItem::paintEvent( QPainter *painter, const ViewportParams *viewport )
+bool MarbleGraphicsItem::paintEvent( QPainter *painter ) const
 {
     if ( !p()->m_visibility ) {
         return true;
     }
-
-    setProjection( viewport );
 
     if ( p()->positions().size() == 0 ) {
         return true;
@@ -85,7 +83,7 @@ bool MarbleGraphicsItem::paintEvent( QPainter *painter, const ViewportParams *vi
 
             // Paint children
             foreach ( MarbleGraphicsItem *item, p()->m_children ) {
-                item->paintEvent( &pixmapPainter, viewport );
+                item->paintEvent( &pixmapPainter );
             }
             // Update the pixmap in cache
             p()->m_cacheKey = QPixmapCache::insert( cachePixmap );
@@ -104,7 +102,7 @@ bool MarbleGraphicsItem::paintEvent( QPainter *painter, const ViewportParams *vi
 
             // Paint children
             foreach ( MarbleGraphicsItem *item, p()->m_children ) {
-                item->paintEvent( painter, viewport );
+                item->paintEvent( painter );
             }
 
             painter->restore();
@@ -274,4 +272,8 @@ MarbleGraphicsItemPrivate *MarbleGraphicsItem::p() const
 void MarbleGraphicsItem::setProjection( const ViewportParams *viewport )
 {
     p()->setProjection( viewport );
+
+    foreach ( MarbleGraphicsItem *item, p()->m_children ) {
+        item->setProjection( viewport );
+    }
 }
