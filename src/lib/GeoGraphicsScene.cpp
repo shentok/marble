@@ -34,7 +34,7 @@ class GeoGraphicsScenePrivate
 {
 public:
 
-    void addItems(const TileId &tileId, QList<GeoGraphicsItem*> &result, int maxZoomLevel ) const;
+    void addItems( const TileId &tileId, QList<GeoGraphicsItem*> &result, const GeoDataLatLonBox &bbox, int maxZoomLevel ) const;
 
     QMap<TileId, QList<GeoGraphicsItem*> > m_items;
     QMultiHash<const GeoDataFeature*, TileId> m_features;
@@ -109,7 +109,7 @@ QList< GeoGraphicsItem* > GeoGraphicsScene::items( const GeoDataLatLonBox &box, 
         coords.getCoords( &x1, &y1, &x2, &y2 );
         for ( int x = x1; x <= x2; ++x ) {
             for ( int y = y1; y <= y2; ++y ) {
-                d->addItems( TileId ( 0, level, x, y ), result, zoomLevel );
+                d->addItems( TileId ( 0, level, x, y ), result, box, zoomLevel );
             }
         }
     }
@@ -157,7 +157,7 @@ void GeoGraphicsScene::addItem( GeoGraphicsItem* item )
     d->m_features.insert( item->feature(), key );
 }
 
-void GeoGraphicsScenePrivate::addItems( const TileId &tileId, QList<GeoGraphicsItem *> &result, int maxZoomLevel ) const
+void GeoGraphicsScenePrivate::addItems( const TileId &tileId, QList<GeoGraphicsItem *> &result, const GeoDataLatLonBox &bbox, int maxZoomLevel ) const
 {
     const QList< GeoGraphicsItem* > &objects = m_items.value(tileId);
     QList< GeoGraphicsItem* >::iterator before = result.begin();
@@ -165,7 +165,7 @@ void GeoGraphicsScenePrivate::addItems( const TileId &tileId, QList<GeoGraphicsI
     while( currentItem != objects.end() ) {
         while( ( currentItem != objects.end() )
           && ( ( before == result.end() ) || ( (*currentItem)->zValue() < (*before)->zValue() ) ) ) {
-            if( (*currentItem)->minZoomLevel() <= maxZoomLevel && (*currentItem)->visible() ) {
+            if ( (*currentItem)->minZoomLevel() <= maxZoomLevel && (*currentItem)->visible() && (*currentItem)->latLonAltBox().intersects( bbox ) ) {
                 before = result.insert( before, *currentItem );
             }
             ++currentItem;

@@ -244,19 +244,13 @@ bool GeometryLayer::render( GeoPainter *painter, ViewportParams *viewport,
     int maxZoomLevel = qMin<int>( qLn( viewport->radius() *4 / 256 ) / qLn( 2.0 ), GeometryLayerPrivate::maximumZoomLevel() );
 
     QList<GeoGraphicsItem*> items = d->m_scene.items( viewport->viewLatLonAltBox(), maxZoomLevel );
-    int painted = 0;
-    foreach( GeoGraphicsItem* item, items )
-    {
-        if ( item->latLonAltBox().intersects( viewport->viewLatLonAltBox() ) ) {
-            item->paint( painter, viewport );
-            ++painted;
-        }
+    foreach( GeoGraphicsItem* item, items ) {
+        item->paint( painter, viewport );
     }
 
     painter->restore();
-    d->m_runtimeTrace = QString( "Items: %1 Drawn: %2 Zoom: %3")
+    d->m_runtimeTrace = QString( "Drawn: %1 Zoom: %2")
                 .arg( items.size() )
-                .arg( painted )
                 .arg( maxZoomLevel );
     return true;
 }
