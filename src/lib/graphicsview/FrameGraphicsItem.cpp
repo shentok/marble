@@ -220,7 +220,7 @@ QPainterPath FrameGraphicsItem::backgroundShape() const
     return path;
 }
 
-void FrameGraphicsItem::paintBackground( QPainter *painter )
+void FrameGraphicsItem::paintBackground( QPainter *painter ) const
 {
     painter->save();
     painter->setPen( QPen( d->m_borderBrush, d->m_borderWidth, d->m_borderStyle ) );
@@ -230,7 +230,7 @@ void FrameGraphicsItem::paintBackground( QPainter *painter )
     painter->restore();
 }
 
-void FrameGraphicsItem::paint( QPainter *painter )
+void FrameGraphicsItem::paint( QPainter *painter ) const
 {
     painter->save();
 
@@ -253,7 +253,7 @@ void FrameGraphicsItem::paint( QPainter *painter )
     painter->restore();
 }
 
-void FrameGraphicsItem::paintContent( QPainter *painter )
+void FrameGraphicsItem::paintContent( QPainter *painter ) const
 {
     Q_UNUSED( painter )
 }

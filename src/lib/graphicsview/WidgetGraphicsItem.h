@@ -39,7 +39,7 @@ class MARBLE_EXPORT WidgetGraphicsItem : public ScreenGraphicsItem
     /**
      * Paints the item in item coordinates.
      */
-    virtual void paint( QPainter *painter );
+    virtual void paint( QPainter *painter ) const;
 
     virtual bool eventFilter( QObject *, QEvent * );
 

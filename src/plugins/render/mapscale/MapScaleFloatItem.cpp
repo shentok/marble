@@ -184,7 +184,7 @@ void MapScaleFloatItem::changeViewport( ViewportParams *viewport )
     }
 }
 
-void MapScaleFloatItem::paintContent( QPainter *painter )
+void MapScaleFloatItem::paintContent( QPainter *painter ) const
 {
     painter->save();
 

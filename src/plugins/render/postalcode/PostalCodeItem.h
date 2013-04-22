@@ -31,7 +31,7 @@ class PostalCodeItem : public AbstractDataPluginItem
 
     bool initialized() const;
 
-    void paint( QPainter *painter );
+    void paint( QPainter *painter ) const;
 
     bool operator<( const AbstractDataPluginItem *other ) const;
 

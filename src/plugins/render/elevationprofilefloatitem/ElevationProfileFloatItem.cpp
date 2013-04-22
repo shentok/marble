@@ -179,7 +179,7 @@ void ElevationProfileFloatItem::changeViewport( ViewportParams *viewport )
     update();
 }
 
-void ElevationProfileFloatItem::paintContent( QPainter *painter )
+void ElevationProfileFloatItem::paintContent( QPainter *painter ) const
 {
     painter->save();
     painter->setRenderHint( QPainter::Antialiasing, true );

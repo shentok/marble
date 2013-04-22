@@ -67,7 +67,7 @@ void OpenDesktopItem::addDownloadedFile( const QString& url, const QString& type
     }
 }
 
-void OpenDesktopItem::paint( QPainter *painter )
+void OpenDesktopItem::paint( QPainter *painter ) const
 {
     painter->drawPixmap(0, 0, m_pixmap);  
 }

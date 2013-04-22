@@ -42,7 +42,7 @@ public:
 
     bool initialized() const;
 
-    void paint( QPainter *painter );
+    void paint( QPainter *painter ) const;
 
     QAction *action();
 

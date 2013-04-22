@@ -91,7 +91,7 @@ bool WikipediaItem::operator<( const AbstractDataPluginItem *other ) const
     return otherItem ? m_rank > otherItem->m_rank : id() < other->id();
 }
    
-void WikipediaItem::paint( QPainter *painter )
+void WikipediaItem::paint( QPainter *painter ) const
 {
     if ( !showThumbnail() ) {
         m_wikiIcon.paint( painter, wikiIconRect );

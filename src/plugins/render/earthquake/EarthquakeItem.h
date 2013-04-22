@@ -36,7 +36,7 @@ public:
     bool initialized() const;
 
     // Here the item gets painted
-    void paint( QPainter *painter );
+    void paint( QPainter *painter ) const;
 
     bool operator<( const AbstractDataPluginItem *other ) const;
 

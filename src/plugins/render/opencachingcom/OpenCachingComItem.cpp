@@ -221,7 +221,7 @@ void OpenCachingComItem::showInfoDialog()
     dialog.exec();
 }
 
-void OpenCachingComItem::paint( QPainter *painter )
+void OpenCachingComItem::paint( QPainter *painter ) const
 {
     QPixmap pm(":/" + iconName() + "-m.png");
     painter->drawPixmap( 0, 0, pm );

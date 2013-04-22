@@ -51,7 +51,7 @@ class MARBLE_EXPORT LabelGraphicsItem : public FrameGraphicsItem
     void clear();
 
  protected:
-    void paintContent( QPainter *painter );
+    void paintContent( QPainter *painter ) const;
 
  private:
     Q_DISABLE_COPY( LabelGraphicsItem )

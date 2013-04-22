@@ -168,17 +168,17 @@ class MARBLE_EXPORT FrameGraphicsItem : public ScreenGraphicsItem
     /**
      * This function won't be reimplemented in most cases.
      */
-    virtual void paint( QPainter *painter );
+    virtual void paint( QPainter *painter ) const;
 
     /**
      * Here the items paint their content.
      */
-    virtual void paintContent( QPainter *painter );
+    virtual void paintContent( QPainter *painter ) const;
 
     /**
      * Paints the background. This function won't be reimplemented in most cases.
      */
-    virtual void paintBackground( QPainter *painter );
+    virtual void paintBackground( QPainter *painter ) const;
 
  private:
     Q_DISABLE_COPY( FrameGraphicsItem )

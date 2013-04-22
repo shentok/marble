@@ -186,7 +186,7 @@ void OverviewMap::changeViewport( ViewportParams *viewport )
     }
 }
 
-void OverviewMap::paintContent( QPainter *painter )
+void OverviewMap::paintContent( QPainter *painter ) const
 {
     painter->save();
 

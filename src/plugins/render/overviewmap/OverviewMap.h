@@ -73,7 +73,7 @@ class OverviewMap : public AbstractFloatItem, public DialogConfigurationInterfac
 
     void changeViewport( ViewportParams *viewport );
 
-    void paintContent( QPainter *painter );
+    void paintContent( QPainter *painter ) const;
 
     /**
      * @return: The settings of the item.
@@ -101,11 +101,11 @@ class OverviewMap : public AbstractFloatItem, public DialogConfigurationInterfac
     void loadMapSuggestions();
 
     QString m_target;
-    QSvgRenderer   m_svgobj;
+    mutable QSvgRenderer   m_svgobj;
     QHash<QString, QSvgWidget *> m_svgWidgets;
     QHash<QString, QString> m_svgPaths;
     QStringList    m_planetID;
-    QPixmap        m_worldmap;
+    mutable QPixmap        m_worldmap;
     QHash<QString,QVariant> m_settings;
     QColor m_posColor;
     QSizeF m_defaultSize;
@@ -116,7 +116,7 @@ class OverviewMap : public AbstractFloatItem, public DialogConfigurationInterfac
     GeoDataLatLonAltBox m_latLonAltBox;
     qreal m_centerLat;
     qreal m_centerLon;
-    bool m_mapChanged;
+    mutable bool m_mapChanged;
 
  private slots:
     void chooseCustomMap();

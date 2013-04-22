@@ -63,7 +63,7 @@ qreal ScreenOverlayGraphicsItem::pixelValue( GeoDataVec2::Unit unit, qreal scree
     return 0.0;
 }
 
-void ScreenOverlayGraphicsItem::paint( QPainter *painter )
+void ScreenOverlayGraphicsItem::paint( QPainter *painter ) const
 {
     if ( m_image.isNull() ) {
         painter->setBrush( m_screenOverlay->color() );

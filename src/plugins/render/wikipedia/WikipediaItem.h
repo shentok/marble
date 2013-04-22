@@ -45,7 +45,7 @@ class WikipediaItem : public AbstractDataPluginItem
     
     void addDownloadedFile( const QString& url, const QString& type );
     
-    void paint( QPainter *painter );
+    void paint( QPainter *painter ) const;
                  
     bool operator<( const AbstractDataPluginItem *other ) const;
     

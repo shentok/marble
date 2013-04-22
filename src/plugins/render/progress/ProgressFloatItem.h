@@ -61,7 +61,7 @@ class ProgressFloatItem  : public AbstractFloatItem
 
     QPainterPath backgroundShape() const;
 
-    void paintContent( QPainter *painter );
+    void paintContent( QPainter *painter ) const;
 
     bool eventFilter(QObject *object, QEvent *e);
 
@@ -103,7 +103,7 @@ private Q_SLOTS:
 
     int m_fontSize;
 
-    QTimer m_repaintTimer;
+    mutable QTimer m_repaintTimer;
 };
 
 }

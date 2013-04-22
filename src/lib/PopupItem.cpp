@@ -144,7 +144,7 @@ void PopupItem::colorize( QImage &img, const QColor &col ) const
     }
 }
 
-void PopupItem::paint( QPainter *painter )
+void PopupItem::paint( QPainter *painter ) const
 {
     QRect popupRect;
     QPixmap image = pixmap("marble/webpopup/arrow2_vertical_topright");

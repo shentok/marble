@@ -170,7 +170,7 @@ QPainterPath ProgressFloatItem::backgroundShape() const
     return path;
 }
 
-void ProgressFloatItem::paintContent( QPainter *painter )
+void ProgressFloatItem::paintContent( QPainter *painter ) const
 {
     // Stop repaint timer if it is already running
     m_repaintTimer.stop();

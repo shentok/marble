@@ -59,7 +59,7 @@ QWidget *WidgetGraphicsItem::widget() const {
     return d->m_widget;
 }
 
-void WidgetGraphicsItem::paint( QPainter *painter )
+void WidgetGraphicsItem::paint( QPainter *painter ) const
 {
     if( d->m_widget == 0 )
         return;

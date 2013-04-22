@@ -64,7 +64,7 @@ class MapScaleFloatItem : public AbstractFloatItem, public DialogConfigurationIn
 
     void changeViewport( ViewportParams *viewport );
 
-    void paintContent( QPainter *painter );
+    void paintContent( QPainter *painter ) const;
 
 
     QDialog *configDialog();
@@ -102,7 +102,7 @@ private:
     int      m_pixelInterval;
     int      m_valueInterval;
 
-    QString m_ratioString;
+    mutable QString m_ratioString;
 
     bool     m_scaleInitDone;
 

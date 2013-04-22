@@ -61,7 +61,7 @@ void PostalCodeItem::setText( const QString& text )
     m_text = text;
 }
 
-void PostalCodeItem::paint( QPainter *painter )
+void PostalCodeItem::paint( QPainter *painter ) const
 {
     painter->save();
 

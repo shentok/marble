@@ -32,7 +32,7 @@ public:
     void setProjection( const ViewportParams *viewport );
 
 protected:
-    virtual void paint( QPainter* painter );
+    virtual void paint( QPainter* painter ) const;
 
 private:
     qreal pixelValue( GeoDataVec2::Unit unit, qreal screenSize, qreal imageSize, qreal value ) const;
