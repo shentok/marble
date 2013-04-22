@@ -229,7 +229,7 @@ QPixmap NavigationFloatItem::pixmap( const QString &id ) const
     return result;
 }
 
-void NavigationFloatItem::paintContent( QPainter *painter )
+void NavigationFloatItem::paintContent( QPainter *painter ) const
 {
     painter->drawPixmap( 0, 0, pixmap( "marble/navigation/navigational_backdrop_top" ) );
     painter->drawPixmap( 0, 70, pixmap( "marble/navigation/navigational_backdrop_center" ) );

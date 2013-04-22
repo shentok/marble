@@ -153,7 +153,7 @@ void FoursquareItem::setCategoryLargeIconUrl(const QString& url)
     }
 }
 
-void FoursquareItem::paint( QPainter* painter )
+void FoursquareItem::paint( QPainter* painter ) const
 {   
     // Save the old painter state.
     painter->save();

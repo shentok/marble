@@ -129,7 +129,7 @@ void CompassFloatItem::changeViewport( ViewportParams *viewport )
     }
 }
 
-void CompassFloatItem::paintContent( QPainter *painter )
+void CompassFloatItem::paintContent( QPainter *painter ) const
 {
     painter->save();
 

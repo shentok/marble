@@ -67,7 +67,7 @@ class CompassFloatItem  : public AbstractFloatItem, public DialogConfigurationIn
 
     void changeViewport( ViewportParams *viewport );
 
-    void paintContent( QPainter *painter );
+    void paintContent( QPainter *painter ) const;
 
     QDialog *configDialog();
 
@@ -86,7 +86,7 @@ private Q_SLOTS:
     bool           m_isInitialized;
 
     QSvgRenderer  *m_svgobj;
-    QPixmap        m_compass;
+    mutable QPixmap        m_compass;
 
     /// allowed values: -1, 0, 1; default here: 0. FIXME: Declare enum
     int            m_polarity;

@@ -80,7 +80,7 @@ class ElevationProfileFloatItem : public AbstractFloatItem, public DialogConfigu
 
     virtual void changeViewport( ViewportParams *viewport );
 
-    virtual void paintContent( QPainter *painter );
+    virtual void paintContent( QPainter *painter ) const;
 
     QDialog *configDialog();
 

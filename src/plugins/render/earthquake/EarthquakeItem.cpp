@@ -65,7 +65,7 @@ void EarthquakeItem::setMagnitude( double magnitude )
     updateTooltip();
 }
 
-void EarthquakeItem::paint( QPainter *painter )
+void EarthquakeItem::paint( QPainter *painter ) const
 {
     // Save the old painter state.
     painter->save();

@@ -160,7 +160,7 @@ private Q_SLOTS:
     void goBack();
 
 protected:
-    void paint( QPainter *painter );
+    void paint( QPainter *painter ) const;
 
 Q_SIGNALS:
     void repaintNeeded();

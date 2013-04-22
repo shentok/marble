@@ -126,7 +126,7 @@ void LabelGraphicsItem::clear()
     setContentSize( QSizeF( 0.0, 0.0 ) );
 }
 
-void LabelGraphicsItem::paintContent( QPainter *painter )
+void LabelGraphicsItem::paintContent( QPainter *painter ) const
 {
     painter->save();
 

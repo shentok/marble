@@ -224,7 +224,7 @@ QRectF MarbleGraphicsItem::contentRect() const
     return QRectF( QPointF( 0, 0 ), contentSize() );
 }
 
-void MarbleGraphicsItem::paint( QPainter *painter )
+void MarbleGraphicsItem::paint( QPainter *painter ) const
 {
     Q_UNUSED( painter );
 }
