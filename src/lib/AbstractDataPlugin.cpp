@@ -102,7 +102,8 @@ bool AbstractDataPlugin::render( GeoPainter *painter, ViewportParams *viewport,
 
         // Paint the most important item at last
         for( int i = items.size() - 1; i >= 0; --i ) {
-            items.at( i )->paintEvent( painter, viewport );
+            items.at( i )->setProjection( viewport );
+            items.at( i )->paintEvent( painter );
         }
 
         painter->restore();

@@ -212,7 +212,8 @@ bool AbstractFloatItem::render( GeoPainter *painter, ViewportParams *viewport,
 
     changeViewport( viewport ); // may invalidate graphics item's cache
 
-    paintEvent( painter, viewport );
+    setProjection( viewport );
+    paintEvent( painter );
 
     return true;
 }

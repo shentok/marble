@@ -70,7 +70,8 @@ void BillboardGraphicsItemTest::paintEvent()
 
     const ViewportParams viewport( Mercator, 0, 0, 20, paintDevice.size() );
 
-    item.paintEvent( &painter, &viewport );
+    item.setProjection( &viewport );
+    item.paintEvent( &painter );
 
     QCOMPARE( item.size(), frameItem.size() );
     QCOMPARE( item.positions().size(), 1 );

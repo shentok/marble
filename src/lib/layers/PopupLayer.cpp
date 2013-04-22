@@ -54,7 +54,8 @@ bool PopupLayer::render( GeoPainter *painter, ViewportParams *viewport,
             m_widget->centerOn( m_popupItem->coordinate(), true );
             m_adjustMap = false;
         }
-        m_popupItem->paintEvent( painter, viewport );
+        m_popupItem->setProjection( viewport );
+        m_popupItem->paintEvent( painter );
     }
 
     return true;

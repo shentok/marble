@@ -258,7 +258,8 @@ bool MeasureToolPlugin::render( GeoPainter *painter,
         painter->setPen( Qt::black );
         painter->setBrush( QColor( 192, 192, 192, 192 ) );
 
-        m_totalLabel.paintEvent( painter, viewport );
+        m_totalLabel.setProjection( viewport );
+        m_totalLabel.paintEvent( painter );
 
         painter->restore();
     }
