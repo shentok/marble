@@ -204,15 +204,19 @@ void AbstractFloatItem::changeViewport( const ViewportParams *viewport )
     Q_UNUSED( viewport );
 }
 
-bool AbstractFloatItem::render( GeoPainter *painter, ViewportParams *viewport,
-             const QString& renderPos, GeoSceneLayer * layer )
+bool AbstractFloatItem::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
-
     changeViewport( viewport ); // may invalidate graphics item's cache
 
     setProjection( viewport );
+
+    return true;
+}
+
+bool AbstractFloatItem::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
+
     paintEvent( painter );
 
     return true;

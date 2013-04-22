@@ -30,8 +30,9 @@ class ScreenLayer : public QObject, public LayerInterface
 
     QStringList renderPosition() const;
 
-    bool render( GeoPainter *painter, ViewportParams *viewport,
-                 const QString &renderPos, GeoSceneLayer *layer );
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
 
     QString runtimeTrace() const;
 

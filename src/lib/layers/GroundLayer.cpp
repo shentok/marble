@@ -16,8 +16,9 @@
 namespace Marble
 {
 
-GroundLayer::GroundLayer()
-        : m_color( QColor( 153, 179, 204 ) )
+GroundLayer::GroundLayer() :
+    m_color( QColor( 153, 179, 204 ) ),
+    m_mapShape()
 {
 }
 
@@ -30,20 +31,23 @@ QStringList GroundLayer::renderPosition() const
     return QStringList() << "SURFACE";
 }
 
-bool GroundLayer::render( GeoPainter *painter,
-                              ViewportParams *viewParams,
-                              const QString &renderPos,
-                              GeoSceneLayer *layer )
+bool GroundLayer::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
+    m_mapShape = viewport->mapShape();
+
+    return true;
+}
+
+bool GroundLayer::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
 
     QBrush backgroundBrush( m_color );
     QPen backgroundPen( Qt::NoPen );
 
     painter->setBrush( backgroundBrush );
     painter->setPen( backgroundPen );
-    painter->drawPath( viewParams->mapShape() );
+    painter->drawPath( m_mapShape );
 
     return true;
 }

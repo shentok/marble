@@ -126,14 +126,8 @@ void AtmospherePlugin::updateTheme()
     setVisible( hasAtmosphere );
 }
 
-bool AtmospherePlugin::render( GeoPainter *painter,
-                              ViewportParams *viewParams,
-                              const QString &renderPos,
-                              GeoSceneLayer *layer )
+bool AtmospherePlugin::setViewport( const ViewportParams *viewParams )
 {
-    Q_UNUSED(renderPos)
-    Q_UNUSED(layer)
-
     if ( !visible()  || !marbleModel()->planet()->hasAtmosphere() )
         return true;
 
@@ -151,11 +145,18 @@ bool AtmospherePlugin::render( GeoPainter *painter,
         m_renderColor = marbleModel()->planet()->atmosphereColor();
         repaintPixmap(viewParams);
     }
-    int  imageHalfWidth  = viewParams->width() / 2;
-    int  imageHalfHeight = viewParams->height() / 2;
-    painter->drawPixmap(imageHalfWidth  - (int) ( (qreal) ( viewParams->radius() ) * 1.05 ),
-                        imageHalfHeight - (int) ( (qreal) ( viewParams->radius() ) * 1.05 ),
-                        m_renderPixmap);
+
+    m_screenPosition = QPoint( viewParams->width() / 2, viewParams->height() / 2 ) - QPointF( m_renderRadius * 1.05, m_renderRadius * 1.05 ).toPoint();
+
+    return true;
+}
+
+bool AtmospherePlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
+
+    painter->drawPixmap( m_screenPosition, m_renderPixmap );
+
     return true;
 }
 

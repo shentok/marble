@@ -115,16 +115,19 @@ QStringList VectorTileLayer::renderPosition() const
     return QStringList() << "SURFACE";
 }
 
-bool VectorTileLayer::render( GeoPainter *painter, ViewportParams *viewport,
-                              const QString &renderPos, GeoSceneLayer *layer )
+bool VectorTileLayer::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( painter );
-    Q_UNUSED( renderPos );
-    Q_UNUSED( layer );
-
     foreach ( VectorTileModel *mapper, d->m_activeTexmappers ) {
         mapper->setViewport( viewport->viewLatLonAltBox(), viewport->radius() );
     }
+
+    return true;
+}
+
+bool VectorTileLayer::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( painter )
+    Q_UNUSED( viewportSize )
 
     return true;
 }

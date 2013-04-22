@@ -63,6 +63,7 @@ public:
 
     const QAbstractItemModel *const m_model;
     GeoGraphicsScene m_scene;
+    QList<GeoGraphicsItem*> m_items;
     QString m_runtimeTrace;
 
 private:
@@ -233,32 +234,35 @@ void GeometryLayerPrivate::initializeDefaultValues()
 }
 
 
-bool GeometryLayer::render( GeoPainter *painter, ViewportParams *viewport,
-                            const QString& renderPos, GeoSceneLayer * layer )
+bool GeometryLayer::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
+    int maxZoomLevel = qMin<int>( qMax<int>( qLn( viewport->radius() *4 / 256 ) / qLn( 2.0 ), 1), GeometryLayerPrivate::maximumZoomLevel() );
+
+    d->m_items = d->m_scene.items( viewport->viewLatLonAltBox(), maxZoomLevel );
+
+    foreach( GeoGraphicsItem* item, d->m_items ) {
+        item->setViewport( viewport );
+    }
+
+    d->m_runtimeTrace = QString( "Drawn: %1 Zoom: %2")
+                .arg( d->m_items.size() )
+                .arg( maxZoomLevel );
+
+    return true;
+}
+
+bool GeometryLayer::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
 
     painter->save();
 
-    int maxZoomLevel = qMin<int>( qMax<int>( qLn( viewport->radius() *4 / 256 ) / qLn( 2.0 ), 1), GeometryLayerPrivate::maximumZoomLevel() );
-    QList<GeoGraphicsItem*> items = d->m_scene.items( viewport->viewLatLonAltBox(), maxZoomLevel );
-
-    int painted = 0;
-    foreach( GeoGraphicsItem* item, items )
-    {
-        if ( item->latLonAltBox().intersects( viewport->viewLatLonAltBox() ) ) {
-            item->setViewport( viewport );
-            item->paint( painter );
-            ++painted;
-        }
+    foreach( GeoGraphicsItem *item, d->m_items ) {
+        item->paint( painter );
     }
 
     painter->restore();
-    d->m_runtimeTrace = QString( "Items: %1 Drawn: %2 Zoom: %3")
-                .arg( items.size() )
-                .arg( painted )
-                .arg( maxZoomLevel );
+
     return true;
 }
 

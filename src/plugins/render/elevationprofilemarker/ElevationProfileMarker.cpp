@@ -131,11 +131,8 @@ bool ElevationProfileMarker::isInitialized() const
     return !m_markerIcon.image().isNull();
 }
 
-bool ElevationProfileMarker::render( GeoPainter* painter, ViewportParams* viewport, const QString& renderPos, GeoSceneLayer* layer )
+bool ElevationProfileMarker::setViewport( const ViewportParams* viewport )
 {
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
-
     if ( !m_markerPlacemark )
         return true;
 
@@ -178,9 +175,19 @@ bool ElevationProfileMarker::render( GeoPainter* painter, ViewportParams* viewpo
         m_markerItem.setCoordinate( GeoDataCoordinates( lon, lat, m_currentPosition.altitude(),
                                                             GeoDataCoordinates::Radian ) );
 
+        m_markerItem.setProjection( viewport );
+    }
+
+    return true;
+}
+
+bool ElevationProfileMarker::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
+
+    if ( m_currentPosition.isValid() ) {
         painter->save();
 
-        m_markerItem.setProjection( viewport );
         m_markerItem.paintEvent( painter );
 
         painter->restore();

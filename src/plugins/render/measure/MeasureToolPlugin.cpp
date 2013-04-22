@@ -236,34 +236,38 @@ void MeasureToolPlugin::writeSettings()
     emit repaintNeeded();
 }
 
-bool MeasureToolPlugin::render( GeoPainter *painter,
-                          ViewportParams *viewport,
-                          const QString& renderPos,
-                          GeoSceneLayer * layer )
+bool MeasureToolPlugin::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED(renderPos)
-    Q_UNUSED(layer)
-
     for( int i = 0; i < m_items.size(); ++i ) {
         m_items.at( i )->graphicsItem->setViewport( viewport );
+    }
+
+    m_totalLabel.setProjection( viewport );
+
+    return true;
+}
+
+bool MeasureToolPlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
+
+    painter->save();
+
+    for( int i = 0; i < m_items.size(); ++i ) {
         m_items.at( i )->graphicsItem->paint( painter );
     }
 
     if ( m_items.size() > 1 ) {
-
         // FIXME: we have to paint the label this way, since there is
         //        no GeoDataGraphicsItem for 2d stuff like that
-
-        painter->save();
 
         painter->setPen( Qt::black );
         painter->setBrush( QColor( 192, 192, 192, 192 ) );
 
-        m_totalLabel.setProjection( viewport );
         m_totalLabel.paintEvent( painter );
-
-        painter->restore();
     }
+
+    painter->restore();
 
     return true;
 }

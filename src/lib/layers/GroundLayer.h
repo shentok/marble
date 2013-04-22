@@ -14,6 +14,7 @@
 #include "LayerInterface.h"
 
 #include <QtGui/QColor>
+#include <QtGui/QPainterPath>
 
 namespace Marble
 {
@@ -28,8 +29,9 @@ class GroundLayer : public LayerInterface
 
     virtual QStringList renderPosition() const;
 
-    virtual bool render( GeoPainter *painter, ViewportParams *viewport,
-    const QString& renderPos = "NONE", GeoSceneLayer * layer = 0 );
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
 
     virtual qreal zValue() const;
 
@@ -39,7 +41,7 @@ class GroundLayer : public LayerInterface
 
  private:
     QColor m_color;  // Gets the color specified via DGML's <map bgcolor="">
-    
+    QPainterPath m_mapShape;
 };
 
 }

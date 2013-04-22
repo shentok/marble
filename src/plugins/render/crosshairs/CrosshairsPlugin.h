@@ -78,7 +78,9 @@ class CrosshairsPlugin : public RenderPlugin, public DialogConfigurationInterfac
 
     bool isInitialized () const;
 
-    bool render( GeoPainter *painter, ViewportParams *viewport, const QString& renderPos, GeoSceneLayer * layer = 0 );
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
 
     QDialog *configDialog();
 
@@ -97,7 +99,8 @@ private Q_SLOTS:
     bool m_isInitialized;
 
     QSvgRenderer *m_svgobj;
-    QPixmap m_crosshairs;
+    QPoint m_center;
+    mutable QPixmap m_crosshairs;
     int m_themeIndex;
 
     QDialog * m_configDialog;

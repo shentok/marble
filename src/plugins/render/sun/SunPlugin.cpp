@@ -101,12 +101,16 @@ bool SunPlugin::isInitialized () const
     return !m_pixmap.isNull();
 }
 
-bool SunPlugin::render( GeoPainter *painter, ViewportParams *viewport,
-                        const QString& renderPos, GeoSceneLayer * layer )
+bool SunPlugin::setViewport( const ViewportParams *viewport )
 {
     Q_UNUSED( viewport )
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
+
+    return true;
+}
+
+bool SunPlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
 
     if( visible() )
     {

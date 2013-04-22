@@ -480,11 +480,8 @@ bool AprsPlugin::isInitialized () const
     return m_initialized;
 }
 
-bool AprsPlugin::render( GeoPainter *painter, ViewportParams *viewport, const QString& renderPos, GeoSceneLayer * layer )
+bool AprsPlugin::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
-
     int fadetime = m_fadeTime * 60000;
     int hidetime = m_hideTime * 60000;
 
@@ -550,6 +547,16 @@ bool AprsPlugin::render( GeoPainter *painter, ViewportParams *viewport, const QS
 
     for ( int i = m_items.size() - 1; i >= 0; --i ) {
         m_items.at( i )->graphicsItem->setViewport( viewport );
+    }
+
+    return true;
+}
+
+bool AprsPlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
+
+    for ( int i = m_items.size() - 1; i >= 0; --i ) {
         m_items.at( i )->graphicsItem->paint( painter );
     }
 

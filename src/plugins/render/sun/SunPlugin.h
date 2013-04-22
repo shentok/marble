@@ -60,7 +60,9 @@ class SunPlugin : public RenderPlugin
 
     bool isInitialized () const;
 
-    bool render( GeoPainter *painter, ViewportParams *viewport, const QString& renderPos, GeoSceneLayer * layer = 0 );
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
 
 private:
     QPixmap m_pixmap;

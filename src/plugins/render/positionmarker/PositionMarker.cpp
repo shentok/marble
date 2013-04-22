@@ -173,14 +173,8 @@ bool PositionMarker::isInitialized() const
     return m_isInitialized;
 }
 
-bool PositionMarker::render( GeoPainter *painter,
-                           ViewportParams *viewport,
-                           const QString& renderPos,
-                           GeoSceneLayer * layer )
+bool PositionMarker::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
-
     bool const gpsActive = marbleModel()->positionTracking()->positionProviderPlugin() != 0;
     if ( gpsActive ) {
         m_lastBoundingBox = viewport->viewLatLonAltBox();
@@ -281,6 +275,11 @@ bool PositionMarker::render( GeoPainter *painter,
         painter->restore();
         m_previousArrow = m_arrow;
     }
+    return true;
+}
+
+bool PositionMarker::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
     return true;
 }
 
