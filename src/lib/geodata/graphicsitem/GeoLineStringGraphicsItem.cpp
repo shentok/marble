@@ -96,7 +96,52 @@ void GeoLineStringGraphicsItem::paint( GeoPainter* painter, const ViewportParams
             label_position_flags |= LineCenter;
     }
 
-    painter->drawPolyline( *m_lineString, feature()->name(), label_position_flags );
+    // Immediately leave this method now if:
+    // - the object is not visible in the viewport or if
+    // - the size of the object is below the resolution of the viewport
+    if ( ! viewport->viewLatLonAltBox().intersects( m_lineString->latLonAltBox() ) ||
+         ! viewport->resolves( m_lineString->latLonAltBox() )
+        )
+    {
+        // mDebug() << "LineString doesn't get displayed on the viewport";
+        return;
+    }
+
+    QVector<QPolygonF*> polygons;
+    viewport->screenCoordinates( *m_lineString, polygons );
+
+    if ( feature()->name().isEmpty() ) {
+        foreach( QPolygonF* itPolygon, polygons ) {
+            painter->drawPolyline( *itPolygon );
+        }
+    }
+    else {
+        int labelWidth = painter->fontMetrics().width( feature()->name() );
+        int labelAscent = painter->fontMetrics().ascent();
+
+        foreach( QPolygonF* itPolygon, polygons ) {
+            QVector<QPointF> labelNodes;
+            painter->drawPolyline( *itPolygon, labelNodes, label_position_flags );
+            foreach ( const QPointF& labelNode, labelNodes ) {
+                QPointF labelPosition = labelNode + QPointF( 3.0, -2.0 );
+
+                // FIXME: This is a Q&D fix.
+                qreal xmax = viewport->width() - 10.0 - labelWidth;
+                if ( labelPosition.x() > xmax )
+                    labelPosition.setX( xmax );
+                qreal ymin = 10.0 + labelAscent;
+                if ( labelPosition.y() < ymin )
+                    labelPosition.setY( ymin );
+                qreal ymax = viewport->height() - 10.0 - labelAscent;
+                if ( labelPosition.y() > ymax )
+                    labelPosition.setY( ymax );
+
+                painter->drawText( labelPosition, feature()->name() );
+            }
+        }
+    }
+
+    qDeleteAll( polygons );
 
     painter->restore();
 }

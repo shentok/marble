@@ -13,6 +13,7 @@
 #include "AnnotationGraphicsItem.h"
 #include "GeoDataCoordinates.h"
 #include "GeoDataLineString.h"
+#include "GeoLineStringGraphicsItem.h"
 #include "GeoPainter.h"
 #include "GeoSceneDocument.h"
 #include "GeoSceneHead.h"
@@ -130,13 +131,13 @@ public:
     inline void renderPlacemarks( GeoPainter *painter );
 
     /** Paint waypoint polygon */
-    inline void renderRoute( GeoPainter *painter );
+    inline void renderRoute( GeoPainter *painter, const ViewportParams *viewport );
 
     /** Paint turn instruction for selected items */
     inline void renderAnnotations( GeoPainter *painter, const ViewportParams *viewport );
 
     /** Paint alternative routes in gray */
-    inline void renderAlternativeRoutes( GeoPainter *painter );
+    inline void renderAlternativeRoutes( GeoPainter *painter, const ViewportParams *viewport );
 
     /** Paint icons for trip points etc */
     inline void renderRequest( GeoPainter *painter );
@@ -228,7 +229,7 @@ void RoutingLayerPrivate::renderPlacemarks( GeoPainter *painter )
     }
 }
 
-void RoutingLayerPrivate::renderAlternativeRoutes( GeoPainter *painter )
+void RoutingLayerPrivate::renderAlternativeRoutes( GeoPainter *painter, const ViewportParams *viewport )
 {
     QPen alternativeRoutePen( m_marbleWidget->model()->routingManager()->routeColorAlternative() );
     alternativeRoutePen.setWidth( 5 );
@@ -239,7 +240,7 @@ void RoutingLayerPrivate::renderAlternativeRoutes( GeoPainter *painter )
         if ( route && route != m_alternativeRoutesModel->currentRoute() ) {
             GeoDataLineString* points = AlternativeRoutesModel::waypoints( route );
             if ( points ) {
-                painter->drawPolyline( *points );
+                GeoLineStringGraphicsItem( 0, points ).paint( painter, viewport );
                 if ( m_viewportChanged && m_viewContext == Still ) {
                     QRegion region = painter->regionFromPolyline( *points, 8 );
                     m_alternativeRouteRegions.push_back( RequestRegion( i, region ) );
@@ -249,7 +250,7 @@ void RoutingLayerPrivate::renderAlternativeRoutes( GeoPainter *painter )
     }
 }
 
-void RoutingLayerPrivate::renderRoute( GeoPainter *painter )
+void RoutingLayerPrivate::renderRoute( GeoPainter *painter, const ViewportParams *viewport )
 {
     GeoDataLineString waypoints = m_routingModel->route().path();
 
@@ -260,7 +261,7 @@ void RoutingLayerPrivate::renderRoute( GeoPainter *painter )
     }
     painter->setPen( standardRoutePen );
 
-    painter->drawPolyline( waypoints );
+    GeoLineStringGraphicsItem( 0, &waypoints ).paint( painter, viewport );
     if ( m_viewportChanged && m_viewContext == Still ) {
         int const offset = MarbleGlobal::getInstance()->profiles() & MarbleGlobal::SmallScreen ? 24 : 8;
         m_routeRegion = painter->regionFromPolyline( waypoints, offset );
@@ -299,7 +300,7 @@ void RoutingLayerPrivate::renderRoute( GeoPainter *painter )
                     if ( m_dragStopOverRightIndex < m_routeRequest->size() ) {
                         lineString << m_routeRequest->at( m_dragStopOverRightIndex );
                     }
-                    painter->drawPolyline( lineString );
+                    GeoLineStringGraphicsItem( 0, &lineString ).paint( painter, viewport );
                     standardRoutePen.setStyle( Qt::SolidLine );
                     painter->setPen( standardRoutePen );
                 }
@@ -330,7 +331,7 @@ void RoutingLayerPrivate::renderRoute( GeoPainter *painter )
                         activeRouteSegmentPen.setStyle( Qt::DotLine );
                     }
                     painter->setPen( activeRouteSegmentPen );
-                    painter->drawPolyline( currentRoutePoints );
+                    GeoLineStringGraphicsItem( 0, &currentRoutePoints ).paint( painter, viewport );
 
                     painter->setPen( standardRoutePen );
                     painter->setBrush( QBrush( alphaAdjusted( Oxygen::hotOrange4, 200 ) ) );
@@ -654,10 +655,10 @@ bool RoutingLayer::render( GeoPainter *painter, ViewportParams *viewport,
     }
 
     if ( d->m_alternativeRoutesModel ) {
-        d->renderAlternativeRoutes( painter );
+        d->renderAlternativeRoutes( painter, viewport );
     }
 
-    d->renderRoute( painter );
+    d->renderRoute( painter, viewport );
 
     if ( d->m_routeRequest) {
         d->renderRequest( painter );

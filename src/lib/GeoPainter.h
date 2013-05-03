@@ -172,22 +172,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 
 
 /*!
-    \brief Draws a given line string (a "polyline").
-
-    The \a lineString is drawn using the current pen. It's possible to
-    provide a \a labelText for the \a lineString. The text is rendered using
-    the painter's font property.
-    The position of the \a labelText can be specified using the
-    \a labelPositionFlags.
-
-    \see GeoDataLineString
-*/
-    void drawPolyline ( const GeoDataLineString & lineString,
-                        const QString& labelText = QString(),
-                        LabelPositionFlags labelPositionFlags = LineCenter );
-
-
-/*!
     \brief Creates a region for a given line string (a "polyline").
 
     A QRegion object is created that represents the area covered by
@@ -269,7 +253,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     // Reenabling QPainter+ClipPainter methods.
     using QPainter::drawEllipse;
     using QPainter::drawPixmap;
-    using ClipPainter::drawPolyline;
     using QPainter::drawRect;
 
  private:
