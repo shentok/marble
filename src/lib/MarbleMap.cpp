@@ -38,6 +38,7 @@
 #include "layers/GroundLayer.h"
 #include "layers/MarbleSplashLayer.h"
 #include "layers/PlacemarkLayer.h"
+#include "layers/ScreenLayer.h"
 #include "layers/TextureLayer.h"
 #include "layers/VectorMapBaseLayer.h"
 #include "layers/VectorMapLayer.h"
@@ -138,6 +139,7 @@ public:
     MarbleSplashLayer m_marbleSplashLayer;
     MarbleMap::CustomPaintLayer m_customPaintLayer;
     GeometryLayer            m_geometryLayer;
+    ScreenLayer              m_screenLayer;
     FogLayer                 m_fogLayer;
     GroundLayer              m_groundLayer;
     VectorMapBaseLayer       m_vectorMapBaseLayer;
@@ -159,6 +161,7 @@ MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model ) :
     m_layerManager( model, parent ),
     m_customPaintLayer( parent ),
     m_geometryLayer( model->treeModel() ),
+    m_screenLayer( model->treeModel() ),
     m_vectorMapBaseLayer( &m_veccomposer ),
     m_vectorMapLayer( &m_veccomposer ),
     m_textureLayer( model->downloadManager(), model->sunLocator(), &m_veccomposer, model->pluginManager() ),
@@ -170,6 +173,7 @@ MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model ) :
     m_layerManager.addLayer( &m_fogLayer );
     m_layerManager.addLayer( &m_groundLayer );
     m_layerManager.addLayer( &m_geometryLayer );
+    m_layerManager.addLayer( &m_screenLayer );
     m_layerManager.addLayer( &m_placemarkLayer );
     m_layerManager.addLayer( &m_customPaintLayer );
 
@@ -194,6 +198,9 @@ MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model ) :
                        parent,        SLOT(setPropertyValue(QString,bool)) );
 
     QObject::connect( &m_geometryLayer, SIGNAL(repaintNeeded()),
+                      parent, SIGNAL(repaintNeeded()));
+
+    QObject::connect( &m_screenLayer, SIGNAL(repaintNeeded()),
                       parent, SIGNAL(repaintNeeded()));
 
     QObject::connect( &m_textureLayer, SIGNAL(tileLevelChanged(int)),
@@ -280,6 +287,7 @@ MarbleMap::~MarbleMap()
     MarbleModel *model = d->m_modelIsOwned ? d->m_model : 0;
 
     d->m_layerManager.removeLayer( &d->m_customPaintLayer );
+    d->m_layerManager.removeLayer( &d->m_screenLayer );
     d->m_layerManager.removeLayer( &d->m_geometryLayer );
     d->m_layerManager.removeLayer( &d->m_fogLayer );
     d->m_layerManager.removeLayer( &d->m_placemarkLayer );
