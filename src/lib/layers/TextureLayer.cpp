@@ -47,6 +47,9 @@ public:
              const PluginManager *pluginManager,
              TextureLayer *parent );
 
+    QList<QRect> tiles( const GeoDataLatLonBox &bbox, int level ) const;
+    QPointF normalizedTextureCoordinates( qreal lon, qreal lat ) const;
+
     void requestDelayedRepaint();
     void updateTextureLayers();
     void updateTile( const TileId &tileId, const QImage &tileImage );
@@ -88,6 +91,54 @@ TextureLayer::Private::Private( HttpDownloadManager *downloadManager,
     , m_textureLayerSettings( 0 )
     , m_repaintTimer()
 {
+}
+
+QList<QRect> TextureLayer::Private::tiles( const GeoDataLatLonBox &bbox, int level ) const
+{
+    if ( bbox.west() > bbox.east() ) {
+        // bbox crosses IDL
+        const GeoDataLatLonBox left( bbox.north(), bbox.south(), 180 * DEG2RAD, bbox.west() );
+        const GeoDataLatLonBox right( bbox.north(), bbox.south(), bbox.east(), -180 * DEG2RAD );
+
+        return tiles( left, level ) + tiles( right, level );
+    }
+
+    const QPointF topLeftF = normalizedTextureCoordinates( bbox.west(), bbox.north() );
+    const QPointF botRightF = normalizedTextureCoordinates( bbox.east(), bbox.south() );
+
+    const QPoint topLeft( topLeftF.x() * m_layerDecorator.tileColumnCount( level ), topLeftF.y() * m_layerDecorator.tileRowCount( level ) );
+    const QPoint botRight( botRightF.x() * m_layerDecorator.tileColumnCount( level ) + 1, botRightF.y() * m_layerDecorator.tileRowCount( level ) + 1 );
+
+    Q_ASSERT( topLeft.x() <= botRight.x() );
+    Q_ASSERT( topLeft.y() <= botRight.y() );
+    Q_ASSERT( topLeft.x() >= 0 );
+    Q_ASSERT( topLeft.x() < m_layerDecorator.tileRowCount( level ) );
+    Q_ASSERT( topLeft.y() >= 0 );
+    Q_ASSERT( topLeft.y() < m_layerDecorator.tileColumnCount( level ) );
+    Q_ASSERT( botRight.x() >= 0 );
+    Q_ASSERT( botRight.x() < m_layerDecorator.tileRowCount( level ) );
+    Q_ASSERT( botRight.y() >= 0 );
+    Q_ASSERT( botRight.y() < m_layerDecorator.tileColumnCount( level ) );
+
+    return QList<QRect>() << QRect( topLeft, botRight );
+}
+
+QPointF TextureLayer::Private::normalizedTextureCoordinates( qreal lon, qreal lat ) const
+{
+    const qreal x = 0.5 + 0.5 * lon / M_PI;
+
+    switch ( m_layerDecorator.tileProjection() ) {
+    case GeoSceneTiled::Mercator:
+        if ( lat < -85*DEG2RAD ) lat = -85*DEG2RAD;
+        if ( lat >  85*DEG2RAD ) lat =  85*DEG2RAD;
+        return QPointF( x, 0.5 - 0.5 * atanh( sin( lat ) ) / M_PI );
+    case GeoSceneTiled::Equirectangular:
+        return QPointF( x, 0.5 - lat / M_PI );
+    }
+
+    Q_ASSERT( false ); // not reached
+
+    return QPointF();
 }
 
 void TextureLayer::Private::requestDelayedRepaint()
@@ -239,6 +290,18 @@ bool TextureLayer::render( GeoPainter *painter, ViewportParams *viewport,
     if ( tileLevel != d->m_tileZoomLevel ) {
         d->m_tileZoomLevel = tileLevel;
         emit tileLevelChanged( d->m_tileZoomLevel );
+    }
+
+    foreach ( const QRect &rect, d->tiles( viewport->viewLatLonAltBox(), d->m_tileZoomLevel ) ) {
+        Q_ASSERT( rect.top() <= rect.bottom() );
+        Q_ASSERT( rect.left() <= rect.right() );
+
+        for ( int y = rect.top(); y <= rect.bottom(); ++y ) {
+            for ( int x = rect.left(); x <= rect.right(); ++x ) {
+                const TileId id = TileId( 0, d->m_tileZoomLevel, x, y );
+                d->m_tileLoader.loadTile( id );
+            }
+        }
     }
 
     const QRect dirtyRect = QRect( QPoint( 0, 0), viewport->size() );
