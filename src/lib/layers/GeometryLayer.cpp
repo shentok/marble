@@ -18,7 +18,6 @@
 #include "ViewportParams.h"
 #include "GeoGraphicsScene.h"
 #include "GeoGraphicsItem.h"
-#include "ScreenOverlayGraphicsItem.h"
 #include "TileId.h"
 #include "MarbleGraphicsItem.h"
 
@@ -76,10 +75,6 @@ bool GeometryLayer::render( GeoPainter *painter, ViewportParams *viewport,
             item->paint( painter, viewport );
             ++painted;
         }
-    }
-
-    foreach( ScreenOverlayGraphicsItem* item, d->m_scene->screenItems() ) {
-        item->paintEvent( painter, viewport );
     }
 
     painter->restore();
