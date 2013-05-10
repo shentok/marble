@@ -109,6 +109,8 @@ QList<QRect> TextureLayer::Private::tiles( const GeoDataLatLonBox &bbox, int lev
     const QPoint topLeft( topLeftF.x() * m_layerDecorator.tileColumnCount( level ), topLeftF.y() * m_layerDecorator.tileRowCount( level ) );
     const QPoint botRight( botRightF.x() * m_layerDecorator.tileColumnCount( level ) + 1, botRightF.y() * m_layerDecorator.tileRowCount( level ) + 1 );
 
+    qDebug() << topLeft << botRight;
+
     Q_ASSERT( topLeft.x() <= botRight.x() );
     Q_ASSERT( topLeft.y() <= botRight.y() );
     Q_ASSERT( topLeft.x() >= 0 );
@@ -292,7 +294,9 @@ bool TextureLayer::render( GeoPainter *painter, ViewportParams *viewport,
         emit tileLevelChanged( d->m_tileZoomLevel );
     }
 
-    foreach ( const QRect &rect, d->tiles( viewport->viewLatLonAltBox(), d->m_tileZoomLevel ) ) {
+    const QList<QRect> tiles = d->tiles( viewport->viewLatLonAltBox(), d->m_tileZoomLevel );
+    qDebug() << tiles;
+    foreach ( const QRect &rect, tiles ) {
         Q_ASSERT( rect.top() <= rect.bottom() );
         Q_ASSERT( rect.left() <= rect.right() );
 
