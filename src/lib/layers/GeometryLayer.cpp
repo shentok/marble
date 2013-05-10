@@ -36,10 +36,8 @@
 #include "GeoTrackGraphicsItem.h"
 #include "GeoDataGroundOverlay.h"
 #include "GeoDataPhotoOverlay.h"
-#include "GeoDataScreenOverlay.h"
 #include "GeoImageGraphicsItem.h"
 #include "GeoPhotoGraphicsItem.h"
-#include "ScreenOverlayGraphicsItem.h"
 #include "TileId.h"
 #include "MarbleGraphicsItem.h"
 #include "MarblePlacemarkModel.h"
@@ -66,7 +64,6 @@ public:
     const QAbstractItemModel *const m_model;
     GeoGraphicsScene m_scene;
     QString m_runtimeTrace;
-    QList<ScreenOverlayGraphicsItem*> m_items;
 
 private:
     static void initializeDefaultValues();
@@ -256,10 +253,6 @@ bool GeometryLayer::render( GeoPainter *painter, ViewportParams *viewport,
         }
     }
 
-    foreach( ScreenOverlayGraphicsItem* item, d->m_items ) {
-        item->paintEvent( painter, viewport );
-    }
-
     painter->restore();
     d->m_runtimeTrace = QString( "Items: %1 Drawn: %2 Zoom: %3")
                 .arg( items.size() )
@@ -358,10 +351,6 @@ void GeometryLayerPrivate::createGraphicsItemFromOverlay( const GeoDataOverlay *
         photoItem->setPhotoFile( photoOverlay->absoluteIconFile() );
         photoItem->setPoint( photoOverlay->point() );
         item = photoItem;
-    } else if ( overlay->nodeType() == GeoDataTypes::GeoDataScreenOverlayType ) {
-        GeoDataScreenOverlay const * screenOverlay = static_cast<GeoDataScreenOverlay const *>( overlay );
-        ScreenOverlayGraphicsItem *screenItem = new ScreenOverlayGraphicsItem ( screenOverlay );
-        m_items.push_back( screenItem );
     }
 
     if ( item ) {
@@ -382,13 +371,6 @@ void GeometryLayerPrivate::removeGraphicsItems( const GeoDataFeature *feature )
         const GeoDataContainer *container = static_cast<const GeoDataContainer*>( feature );
         foreach( const GeoDataFeature *child, container->featureList() ) {
             removeGraphicsItems( child );
-        }
-    }
-    else if( feature->nodeType() == GeoDataTypes::GeoDataScreenOverlayType ) {
-        foreach( ScreenOverlayGraphicsItem  *item, m_items ) {
-            if( item->screenOverlay() == feature ) {
-                m_items.removeAll( item );
-            }
         }
     }
 }
@@ -426,8 +408,6 @@ void GeometryLayer::removePlacemarks( QModelIndex parent, int first, int last )
 void GeometryLayer::resetCacheData()
 {
     d->m_scene.eraseAll();
-    qDeleteAll( d->m_items );
-    d->m_items.clear();
     const GeoDataObject *object = static_cast<GeoDataObject*>( d->m_model->index( 0, 0, QModelIndex() ).internalPointer() );
     if ( object && object->parent() )
         d->createGraphicsItems( object->parent() );
