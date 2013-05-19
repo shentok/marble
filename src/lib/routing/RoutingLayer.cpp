@@ -10,6 +10,7 @@
 
 #include "RoutingLayer.h"
 
+#include "AnnotationGraphicsItem.h"
 #include "GeoDataCoordinates.h"
 #include "GeoDataLineString.h"
 #include "GeoPainter.h"
@@ -132,7 +133,7 @@ public:
     inline void renderRoute( GeoPainter *painter );
 
     /** Paint turn instruction for selected items */
-    inline void renderAnnotations( GeoPainter *painter );
+    inline void renderAnnotations( GeoPainter *painter, const ViewportParams *viewport );
 
     /** Paint alternative routes in gray */
     inline void renderAlternativeRoutes( GeoPainter *painter );
@@ -352,7 +353,7 @@ void RoutingLayerPrivate::renderRoute( GeoPainter *painter )
     }
 }
 
-void RoutingLayerPrivate::renderAnnotations( GeoPainter *painter )
+void RoutingLayerPrivate::renderAnnotations( GeoPainter *painter, const ViewportParams *viewport )
 {
     if ( !m_selectionModel || m_selectionModel->selection().isEmpty() ) {
         // nothing to do
@@ -365,9 +366,10 @@ void RoutingLayerPrivate::renderAnnotations( GeoPainter *painter )
         if ( m_selectionModel->selection().contains( index ) ) {
             bool const smallScreen = MarbleGlobal::getInstance()->profiles() & MarbleGlobal::SmallScreen;
             GeoDataCoordinates pos = qVariantValue<GeoDataCoordinates>( index.data( MarblePlacemarkModel::CoordinateRole ) );
+            AnnotationGraphicsItem item( pos, index.data().toString(), QSizeF( smallScreen ? 240 : 120, 0 ), QPointF( 10, 30 ), 5, 5 );
             painter->setPen( QColor( Qt::black ) );
             painter->setBrush( QBrush( Oxygen::sunYellow6 ) );
-            painter->drawAnnotation( pos, index.data().toString(), QSize( smallScreen ? 240 : 120, 0 ), 10, 30, 5, 5 );
+            item.paintEvent( painter, viewport );
         }
     }
 }
@@ -661,7 +663,7 @@ bool RoutingLayer::render( GeoPainter *painter, ViewportParams *viewport,
         d->renderRequest( painter );
     }
 
-    d->renderAnnotations( painter );
+    d->renderAnnotations( painter, viewport );
 
     painter->restore();
     if ( d->m_viewportChanged && d->m_viewContext == Still ) {

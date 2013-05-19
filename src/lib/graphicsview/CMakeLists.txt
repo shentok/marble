@@ -8,6 +8,7 @@ SET( graphicsview_HDRS
         graphicsview/MarbleGraphicsItem.h
         graphicsview/GeoGraphicsItem.h
         graphicsview/BillboardGraphicsItem.h
+        graphicsview/AnnotationGraphicsItem.h
         graphicsview/ScreenGraphicsItem.h
         graphicsview/FrameGraphicsItem.h
         graphicsview/LabelGraphicsItem.h
@@ -20,6 +21,7 @@ SET( graphicsview_SRCS
         graphicsview/MarbleGraphicsItem.cpp
         graphicsview/GeoGraphicsItem.cpp
         graphicsview/BillboardGraphicsItem.cpp
+        graphicsview/AnnotationGraphicsItem.cpp
         graphicsview/ScreenGraphicsItem.cpp
         graphicsview/FrameGraphicsItem.cpp
         graphicsview/LabelGraphicsItem.cpp
