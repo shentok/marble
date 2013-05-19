@@ -74,37 +74,28 @@ void AnnotationGraphicsItem::Private::createAnnotationLayout( const QSizeF &bubb
     qreal y6 =  bubbleOffset.y() - dy * ( height - yRnd );
     qreal y7 =  bubbleOffset.y() - dy * height;
 
-    QPointF p1 ( 0, 0 ); // pointing point
-    QPointF p2 ( x4, y0 );
-    QPointF p3 ( x6, y0 );
-    QPointF p5 ( x7, y6 );
-    QPointF p7 ( x1, y7 );
-    QPointF p9 ( x0, y1 );
-    QPointF p10( x1, y0 );
-    QPointF p11( x3, y0 );
+    path.moveTo( 0, 0 );
+    path.lineTo( x4, y0 );
 
-    path.moveTo( p1 );
-    path.lineTo( p2 );
-
-    path.lineTo( p3 );
+    path.lineTo( x6, y0 );
     QRectF bottomRight( QPointF( x5, y2 ), QPointF( x7, y0 ) );
     path.arcTo( bottomRight, 270.0, 90.0 );
 
-    path.lineTo( p5 );
+    path.lineTo( x7, y6 );
     QRectF topRight( QPointF( x5, y7 ), QPointF( x7, y5 ) );
     path.arcTo( topRight, 0.0, 90.0 );
 
-    path.lineTo( p7 );
+    path.lineTo( x1, y7 );
     QRectF topLeft( QPointF( x0, y7 ), QPointF( x2, y5 ) );
     path.arcTo( topLeft, 90.0, 90.0 );
 
-    path.lineTo( p9 );
+    path.lineTo( x0, y1 );
     QRectF bottomLeft( QPointF( x0, y2 ), QPointF( x2, y0 ) );
     path.arcTo( bottomLeft, 180.0, 90.0 );
 
-    path.lineTo( p10 );
-    path.lineTo( p11 );
-    path.lineTo( p1 );
+    path.lineTo( x1, y0 );
+    path.lineTo( x3, y0 );
+    path.lineTo( 0, 0 );
 
     qreal left   = ( dx > 0 ) ? x1 : x6;
     qreal right  = ( dx > 0 ) ? x6 : x1;
