@@ -120,49 +120,6 @@ void GeoPainterPrivate::createAnnotationLayout (  qreal x, qreal y,
     rect.setBottomRight( QPointF( right, bottom ) );
 }
 
-GeoDataLinearRing GeoPainterPrivate::createLinearRingFromGeoRect( const GeoDataCoordinates & centerCoordinates,
-                                                                  qreal width, qreal height )
-{
-    qreal lon = 0.0;
-    qreal lat = 0.0;
-    qreal altitude = centerCoordinates.altitude();
-    centerCoordinates.geoCoordinates( lon, lat, GeoDataCoordinates::Degree );
-
-    lon = GeoDataCoordinates::normalizeLon( lon, GeoDataCoordinates::Degree );
-    lat = GeoDataCoordinates::normalizeLat( lat, GeoDataCoordinates::Degree );
-
-    qreal west = GeoDataCoordinates::normalizeLon( lon - width * 0.5, GeoDataCoordinates::Degree );
-    qreal east =  GeoDataCoordinates::normalizeLon( lon + width * 0.5, GeoDataCoordinates::Degree );
-
-    qreal north = GeoDataCoordinates::normalizeLat( lat + height * 0.5, GeoDataCoordinates::Degree );
-    qreal south = GeoDataCoordinates::normalizeLat( lat - height * 0.5, GeoDataCoordinates::Degree );
-
-    GeoDataCoordinates southWest( west, south,
-                                  altitude, GeoDataCoordinates::Degree );
-    GeoDataCoordinates southEast( east, south,
-                                  altitude, GeoDataCoordinates::Degree );
-    GeoDataCoordinates northEast( east, north,
-                                  altitude, GeoDataCoordinates::Degree );
-    GeoDataCoordinates northWest( west, north,
-                                  altitude, GeoDataCoordinates::Degree );
-
-    GeoDataLinearRing rectangle( Tessellate | RespectLatitudeCircle );
-
-    // If the width of the rect is larger as 180 degree, we have to enforce the long way.
-    if ( width >= 180 ) {
-        qreal center = lon;
-        GeoDataCoordinates southCenter( center, south, altitude, GeoDataCoordinates::Degree );
-        GeoDataCoordinates northCenter( center, north, altitude, GeoDataCoordinates::Degree );
-
-        rectangle << southWest << southCenter << southEast << northEast << northCenter << northWest;
-    }
-    else {
-        rectangle << southWest << southEast << northEast << northWest;
-    }
-
-    return rectangle;
-}
-
 bool GeoPainterPrivate::doClip( const ViewportParams *viewport )
 {
     if ( viewport->projection() != Spherical )
@@ -244,7 +201,7 @@ void GeoPainter::drawPoint (  const GeoDataCoordinates & position )
 QRegion GeoPainter::regionFromPoint ( const GeoDataCoordinates & position,
                                       qreal width ) const
 {
-    return regionFromRect( position, width, width, false, 3 );
+    return regionFromRect( position, width, width, 3 );
 }
 
 
@@ -257,7 +214,7 @@ void GeoPainter::drawPoint( const GeoDataPoint & point )
 QRegion GeoPainter::regionFromPoint ( const GeoDataPoint & point,
                                       qreal width ) const
 {
-    return regionFromRect( point.coordinates(), width, width, false, 3 );
+    return regionFromRect( point.coordinates(), width, width, 3 );
 }
 
 
@@ -698,10 +655,8 @@ void GeoPainter::drawPolygon ( const GeoDataPolygon & polygon,
 
 
 void GeoPainter::drawRect ( const GeoDataCoordinates & centerCoordinates,
-                            qreal width, qreal height,
-                            bool isGeoProjected )
+                            qreal width, qreal height )
 {
-    if ( !isGeoProjected ) {
         int pointRepeatNum;
         qreal y;
         bool globeHidesPoint;
@@ -715,20 +670,13 @@ void GeoPainter::drawRect ( const GeoDataCoordinates & centerCoordinates,
                 QPainter::drawRect( d->m_x[it] - ( width / 2.0 ), y - ( height / 2.0 ), width, height );
             }
         }
-    }
-    else {
-        drawPolygon( d->createLinearRingFromGeoRect( centerCoordinates, width, height ),
-                     Qt::OddEvenFill );
-    }
 }
 
 
 QRegion GeoPainter::regionFromRect ( const GeoDataCoordinates & centerCoordinates,
                                      qreal width, qreal height,
-                                     bool isGeoProjected,
                                      qreal strokeWidth ) const
 {
-    if ( !isGeoProjected ) {
         int pointRepeatNum;
         qreal y;
         bool globeHidesPoint;
@@ -748,11 +696,6 @@ QRegion GeoPainter::regionFromRect ( const GeoDataCoordinates & centerCoordinate
             }
         }
         return regions;
-    }
-    else {
-        return regionFromPolygon( d->createLinearRingFromGeoRect( centerCoordinates, width, height ),
-                                  Qt::OddEvenFill, strokeWidth );
-    }
 }
 
 

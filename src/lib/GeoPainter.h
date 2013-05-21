@@ -382,18 +382,13 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     For the outline it uses the painter's pen and for the background the
     painter's brush.
 
-    If \a isGeoProjected is true then the outline of the rectangle is drawn
-    in geographic coordinates. In this case the \a width and the \a height
-    are interpreted to be degrees.
-    If \a isGeoProjected is false then the outline of the rectangle is drawn
-    in screen coordinates. In this case the \a width and the \a height
-    are interpreted to be pixels.
+    \param width Width of the rectangle in pixels
+    \param height Height of the rectangle in pixels
 
     \see GeoDataCoordinates
 */
     void drawRect ( const GeoDataCoordinates & centerPosition,
-                    qreal width, qreal height,
-                    bool isGeoProjected = false );
+                    qreal width, qreal height );
 
 
 /*!
@@ -402,9 +397,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     A QRegion object is created that represents the area covered by
     GeoPainter::drawRect(). This can be used e.g. for input event handling
     for objects that have been painted using GeoPainter::drawRect().
-
-    The isGeoProjected parameter is used the same way as for
-    GeoPainter::drawRect().
 
     The \a strokeWidth allows to extrude the QRegion by half the amount of
     "stroke width" pixels. For input event handling it's always advisable to use
@@ -415,7 +407,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 */
     QRegion regionFromRect ( const GeoDataCoordinates & centerPosition,
                              qreal width, qreal height,
-                             bool isGeoProjected = false,
                              qreal strokeWidth = 3 ) const;
 
    

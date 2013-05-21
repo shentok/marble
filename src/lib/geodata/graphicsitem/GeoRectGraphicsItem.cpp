@@ -27,7 +27,6 @@ GeoRectGraphicsItem::GeoRectGraphicsItem( const GeoDataFeature *feature,
           m_origin( origin ),
           m_width( width ),
           m_height( height ),
-          m_isGeoProjected( false ),
           m_xRoundness( 0 ),
           m_yRoundness( 0 )
 {
@@ -85,16 +84,6 @@ int GeoRectGraphicsItem::yRoundness() const
     return m_yRoundness;
 }
 
-void GeoRectGraphicsItem::setIsGeoProjected( bool isGeoProjected )
-{
-    m_isGeoProjected = isGeoProjected;
-}
-
-bool GeoRectGraphicsItem::isGeoProjected() const
-{
-    return m_isGeoProjected;
-}
-
 void GeoRectGraphicsItem::paint( GeoPainter* painter, const ViewportParams *viewport )
 {
     Q_UNUSED( viewport );
@@ -145,7 +134,7 @@ void GeoRectGraphicsItem::paint( GeoPainter* painter, const ViewportParams *view
         painter->drawRoundRect( m_origin, (int)m_width, (int)m_height,
                                 m_xRoundness, m_yRoundness );
     } else {
-        painter->drawRect( m_origin, m_width, m_height, m_isGeoProjected );
+        painter->drawRect( m_origin, m_width, m_height );
     }
 
     painter->restore();

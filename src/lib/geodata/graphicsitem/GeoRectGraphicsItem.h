@@ -48,10 +48,6 @@ public:
 
     int yRoundness() const;
 
-    void setIsGeoProjected( bool isGeoProjected );
-
-    bool isGeoProjected() const;
-
     void paint( GeoPainter* painter, const ViewportParams *viewport );
 
 protected:
@@ -59,7 +55,6 @@ protected:
     GeoDataCoordinates m_origin;
     qreal m_width;
     qreal m_height;
-    bool m_isGeoProjected;
     int m_xRoundness;
     int m_yRoundness;
 };
