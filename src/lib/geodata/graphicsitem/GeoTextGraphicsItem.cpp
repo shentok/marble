@@ -16,6 +16,8 @@
 #include "ViewportParams.h"
 #include "GeoDataStyle.h"
 
+#include <QtGui/QFontMetrics>
+
 namespace Marble
 {
 
@@ -67,7 +69,26 @@ void GeoTextGraphicsItem::paint( GeoPainter* painter, const ViewportParams *view
         painter->setPen( style()->labelStyle().color() );
     }
 
-    painter->drawText( m_location, m_text );
+    // Of course in theory we could have the "isGeoProjected" parameter used
+    // for drawText as well. However this would require us to convert all
+    // glyphs to PainterPaths / QPolygons. From QPolygons we could create
+    // GeoDataPolygons which could get painted on screen. Any patches appreciated ;-)
+
+    int pointRepeatNum;
+    qreal x[100];
+    qreal y;
+    bool globeHidesPoint;
+
+    const QSizeF textSize( painter->fontMetrics().width( m_text ), painter->fontMetrics().height() );
+
+    bool visible = viewport->screenCoordinates( m_location, x, y, pointRepeatNum, textSize, globeHidesPoint );
+
+    if ( visible ) {
+        // Draw all the x-repeat-instances of the point on the screen
+        for( int it = 0; it < pointRepeatNum; ++it ) {
+            painter->drawText( x[it], y, m_text );
+        }
+    }
 
     painter->restore();
 }

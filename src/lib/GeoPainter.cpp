@@ -73,31 +73,6 @@ MapQuality GeoPainter::mapQuality() const
 }
 
 
-void GeoPainter::drawText ( const GeoDataCoordinates & position,
-                            const QString & text )
-{
-    // Of course in theory we could have the "isGeoProjected" parameter used
-    // for drawText as well. However this would require us to convert all
-    // glyphs to PainterPaths / QPolygons. From QPolygons we could create
-    // GeoDataPolygons which could get painted on screen. Any patches appreciated ;-)
-
-    int pointRepeatNum;
-    qreal y;
-    bool globeHidesPoint;
-
-    QSizeF textSize( fontMetrics().width( text ), fontMetrics().height() );  
-
-    bool visible = d->m_viewport->screenCoordinates( position, d->m_x, y, pointRepeatNum, textSize, globeHidesPoint );
-
-    if ( visible ) {
-        // Draw all the x-repeat-instances of the point on the screen
-        for( int it = 0; it < pointRepeatNum; ++it ) {
-            QPainter::drawText( d->m_x[it], y, text );
-        }
-    }
-}
-
-
 void GeoPainter::drawEllipse ( const GeoDataCoordinates & centerPosition,
                                qreal width, qreal height )
 {

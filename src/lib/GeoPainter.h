@@ -125,15 +125,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 
 
 /*!
-    \brief Draws the given text at a given geographic position.
-    The \a text is drawn starting at the given \a position using the painter's
-    font property. The text rendering is performed in screen coordinates and is
-    not subject to the current projection.
-*/
-    void drawText ( const GeoDataCoordinates & position, const QString & text );
-
-    
-/*!
     \brief Draws an ellipse at the given position.
     The ellipse is placed with its center located at the given \a centerPosition.
 
@@ -276,7 +267,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 
 
     // Reenabling QPainter+ClipPainter methods.
-    using QPainter::drawText;
     using QPainter::drawEllipse;
     using QPainter::drawPixmap;
     using ClipPainter::drawPolyline;
