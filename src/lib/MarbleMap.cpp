@@ -658,8 +658,6 @@ void MarbleMap::setProjection( Projection projection )
 
     d->m_viewport.setProjection( projection );
 
-    d->m_textureLayer.setProjection( projection );
-
     emit visibleLatLonAltBoxChanged( d->m_viewport.viewLatLonAltBox() );
 }
 
@@ -915,7 +913,6 @@ void MarbleMapPrivate::updateMapTheme()
         }
 
         m_textureLayer.setMapTheme( textures, textureLayerSettings, seafile, landfile );
-        m_textureLayer.setProjection( m_viewport.projection() );
         m_textureLayer.setShowRelief( q->showRelief() );
 
         m_vectorTileLayer.setMapTheme( vectorTiles, vectorTileLayerSettings );

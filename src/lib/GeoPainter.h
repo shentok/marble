@@ -40,6 +40,8 @@ class GeoDataLineString;
 class GeoDataLinearRing;
 class GeoDataPoint;
 class GeoDataPolygon;
+class StackedTileLoader;
+class TextureColorizer;
 
 
 /*!
@@ -441,6 +443,9 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     void drawRoundRect ( const GeoDataCoordinates & centerPosition,
                          int width, int height,
                          int xRnd = 25, int yRnd = 25 );
+
+
+    void mapTexture( StackedTileLoader *loader, int tileLevel, const QRect &dirtyRect, TextureColorizer *texColorizer );
 
 
 

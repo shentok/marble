@@ -58,38 +58,15 @@ EquirectScanlineTextureMapper::RenderJob::RenderJob( StackedTileLoader *tileLoad
 }
 
 
-EquirectScanlineTextureMapper::EquirectScanlineTextureMapper( StackedTileLoader *tileLoader )
-    : TextureMapperInterface(),
-      m_tileLoader( tileLoader )
+QRect EquirectScanlineTextureMapper::rect( const ViewportParams *viewport ) const
 {
+    return QRect( QPoint( 0, 0 ), viewport->size() );
 }
 
-void EquirectScanlineTextureMapper::mapTexture( GeoPainter *painter,
-                                                const ViewportParams *viewport,
-                                                int tileZoomLevel,
-                                                const QRect &dirtyRect,
-                                                TextureColorizer *texColorizer )
-{
-    const QImage::Format optimalFormat = ScanlineTextureMapperContext::optimalCanvasImageFormat( viewport );
-    QImage canvasImage = QImage( viewport->size(), optimalFormat );
-
-    if ( !viewport->mapCoversViewport() ) {
-        canvasImage.fill( 0 );
-    }
-
-    mapTexture( &canvasImage, viewport, tileZoomLevel, painter->mapQuality() );
-
-    if ( texColorizer ) {
-        texColorizer->colorize( &canvasImage, viewport, painter->mapQuality() );
-    }
-
-    painter->drawImage( dirtyRect, canvasImage, dirtyRect );
-}
-
-void EquirectScanlineTextureMapper::mapTexture( QImage *canvasImage, const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality )
+void EquirectScanlineTextureMapper::mapTexture( QImage *canvasImage, StackedTileLoader *tileLoader, const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality )
 {
     // Reset backend
-    m_tileLoader->resetTilehash();
+    tileLoader->resetTilehash();
 
     // Initialize needed constants:
 
@@ -118,13 +95,13 @@ void EquirectScanlineTextureMapper::mapTexture( QImage *canvasImage, const Viewp
     for ( int i = 0; i < numThreads; ++i ) {
         const int yStart = yPaintedTop +  i      * yStep;
         const int yEnd   = yPaintedTop + (i + 1) * yStep;
-        QRunnable *const job = new RenderJob( m_tileLoader, tileZoomLevel, canvasImage, viewport, mapQuality, yStart, yEnd );
+        QRunnable *const job = new RenderJob( tileLoader, tileZoomLevel, canvasImage, viewport, mapQuality, yStart, yEnd );
         m_threadPool.start( job );
     }
 
     m_threadPool.waitForDone();
 
-    m_tileLoader->cleanupTilehash();
+    tileLoader->cleanupTilehash();
 }
 
 void EquirectScanlineTextureMapper::RenderJob::run()

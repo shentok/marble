@@ -15,6 +15,10 @@
 
 #include "MarbleGlobal.h"
 
+#include "EquirectScanlineTextureMapper.h"
+#include "MercatorScanlineTextureMapper.h"
+#include "SphericalScanlineTextureMapper.h"
+
 class QPolygonF;
 class QSizeF;
 class QPainterPath;
@@ -33,6 +37,8 @@ class GeoPainterPrivate
 
     ~GeoPainterPrivate();
 
+    static TextureMapperInterface *textureMapper( Projection projection );
+
 
     void createAnnotationLayout ( qreal x, qreal y,
                                   QSizeF bubbleSize,
@@ -46,6 +52,7 @@ class GeoPainterPrivate
     static bool doClip( const ViewportParams *viewport );
 
     const ViewportParams *const m_viewport;
+    TextureMapperInterface *const m_textureMapper;
     const MapQuality       m_mapQuality;
     qreal             *const m_x;
 };

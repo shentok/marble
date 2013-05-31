@@ -56,7 +56,6 @@ public:
     MergedLayerDecorator m_layerDecorator;
     StackedTileLoader    m_tileLoader;
     int m_tileZoomLevel;
-    TextureMapperInterface *m_texmapper;
     TextureColorizer *m_texcolorizer;
     QVector<const GeoSceneTextureTile *> m_textures;
     const GeoSceneGroup *m_textureLayerSettings;
@@ -76,7 +75,6 @@ TextureLayer::Private::Private( HttpDownloadManager *downloadManager,
     , m_layerDecorator( &m_loader, sunLocator )
     , m_tileLoader( &m_layerDecorator )
     , m_tileZoomLevel( -1 )
-    , m_texmapper( 0 )
     , m_texcolorizer( 0 )
     , m_textureLayerSettings( 0 )
     , m_repaintTimer()
@@ -144,7 +142,6 @@ TextureLayer::TextureLayer( HttpDownloadManager *downloadManager,
 
 TextureLayer::~TextureLayer()
 {
-    delete d->m_texmapper;
     delete d->m_texcolorizer;
     delete d;
 }
@@ -195,9 +192,6 @@ bool TextureLayer::render( GeoPainter *painter, ViewportParams *viewport,
     if ( d->m_layerDecorator.textureLayersSize() == 0 )
         return false;
 
-    if ( !d->m_texmapper )
-        return false;
-
     // choose the smaller dimension for selecting the tile level, leading to higher-resolution results
     const int levelZeroWidth = d->m_layerDecorator.tileSize().width() * d->m_layerDecorator.tileColumnCount( 0 );
     const int levelZeroHight = d->m_layerDecorator.tileSize().height() * d->m_layerDecorator.tileRowCount( 0 );
@@ -220,7 +214,7 @@ bool TextureLayer::render( GeoPainter *painter, ViewportParams *viewport,
     }
 
     const QRect dirtyRect = QRect( QPoint( 0, 0), viewport->size() );
-    d->m_texmapper->mapTexture( painter, viewport, d->m_tileZoomLevel, dirtyRect, d->m_texcolorizer );
+    painter->mapTexture( &d->m_tileLoader, d->m_tileZoomLevel, dirtyRect, d->m_texcolorizer );
     d->m_runtimeTrace = QString("Cache: %1 ").arg(d->m_tileLoader.tileCount());
     return true;
 }
@@ -264,35 +258,6 @@ void TextureLayer::setShowTileId( bool show )
     d->m_layerDecorator.setShowTileId( show );
 
     reset();
-}
-
-void TextureLayer::setProjection( Projection projection )
-{
-    if ( d->m_textures.isEmpty() ) {
-        return;
-    }
-
-    // FIXME: replace this with an approach based on the factory method pattern.
-    delete d->m_texmapper;
-
-    switch( projection ) {
-        case Spherical:
-            d->m_texmapper = new SphericalScanlineTextureMapper( &d->m_tileLoader );
-            break;
-        case Equirectangular:
-            d->m_texmapper = new EquirectScanlineTextureMapper( &d->m_tileLoader );
-            break;
-        case Mercator:
-            if ( d->m_tileLoader.tileProjection() == GeoSceneTiled::Mercator ) {
-                d->m_texmapper = new TileScalingTextureMapper( &d->m_tileLoader );
-            } else {
-                d->m_texmapper = new MercatorScanlineTextureMapper( &d->m_tileLoader );
-            }
-            break;
-        default:
-            d->m_texmapper = 0;
-    }
-    Q_ASSERT( d->m_texmapper );
 }
 
 void TextureLayer::setVolatileCacheLimit( quint64 kilobytes )
