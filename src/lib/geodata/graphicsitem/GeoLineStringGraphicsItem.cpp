@@ -21,7 +21,8 @@ namespace Marble
 
 GeoLineStringGraphicsItem::GeoLineStringGraphicsItem( const GeoDataFeature *feature, const GeoDataLineString* lineString )
         : GeoGraphicsItem( feature ),
-          m_lineString( lineString )
+          m_lineString( lineString ),
+          m_penWidth( 1 )
 {
 }
 
@@ -35,7 +36,22 @@ const GeoDataLatLonAltBox& GeoLineStringGraphicsItem::latLonAltBox() const
     return m_lineString->latLonAltBox();
 }
 
-void GeoLineStringGraphicsItem::paint( GeoPainter* painter, const ViewportParams* viewport )
+void GeoLineStringGraphicsItem::setViewport( const ViewportParams *viewport )
+{
+    if ( style() ) {
+        if ( style()->lineStyle().physicalWidth() != 0.0 ) {
+            if ( float( viewport->radius() ) / EARTH_RADIUS * style()->lineStyle().physicalWidth() < style()->lineStyle().width() )
+                m_penWidth = style()->lineStyle().width();
+            else
+                m_penWidth = float( viewport->radius() ) / EARTH_RADIUS * style()->lineStyle().physicalWidth();
+        }
+        else if ( style()->lineStyle().width() != 0.0 ) {
+            m_penWidth = style()->lineStyle().width();
+        }
+    }
+}
+
+void GeoLineStringGraphicsItem::paint( GeoPainter* painter ) const
 {
     LabelPositionFlags label_position_flags = NoLabel;
 
@@ -50,16 +66,7 @@ void GeoLineStringGraphicsItem::paint( GeoPainter* painter, const ViewportParams
         if ( currentPen.color() != style()->lineStyle().paintedColor() )
             currentPen.setColor( style()->lineStyle().paintedColor() );
 
-        if ( currentPen.widthF() != style()->lineStyle().width() ||
-                style()->lineStyle().physicalWidth() != 0.0 ) {
-            if ( float( viewport->radius() ) / EARTH_RADIUS * style()->lineStyle().physicalWidth() < style()->lineStyle().width() )
-                currentPen.setWidthF( style()->lineStyle().width() );
-            else
-                currentPen.setWidthF( float( viewport->radius() ) / EARTH_RADIUS * style()->lineStyle().physicalWidth() );
-        }
-        else if ( style()->lineStyle().width() != 0.0 ) {
-            currentPen.setWidthF( style()->lineStyle().width() );
-        }
+        currentPen.setWidthF( m_penWidth );
 
         if ( currentPen.capStyle() != style()->lineStyle().capStyle() )
             currentPen.setCapStyle( style()->lineStyle().capStyle() );

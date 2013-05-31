@@ -38,6 +38,8 @@ public:
     bool sceneEvent( QEvent* event );
 
     GeoDataPlacemark *placemark();
+    const GeoDataPlacemark *placemark() const;
+
 protected:
     void setRegions( const QList<QRegion>& regions );
 

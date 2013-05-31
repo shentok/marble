@@ -28,7 +28,9 @@ public:
 
     virtual const GeoDataLatLonAltBox& latLonAltBox() const;
 
-    virtual void paint( GeoPainter* painter, const ViewportParams *viewport );
+    void setViewport( const ViewportParams *viewport );
+
+    void paint( GeoPainter* painter ) const;
 
 protected:
     const GeoDataPolygon *const m_polygon;

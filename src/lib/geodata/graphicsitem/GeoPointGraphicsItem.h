@@ -27,7 +27,7 @@ public:
     void setPoint( const GeoDataPoint& point );
     GeoDataPoint point() const;
     
-    virtual void paint( GeoPainter* painter, const ViewportParams *viewport );
+    virtual void paint( GeoPainter* painter ) const;
 
     virtual const GeoDataLatLonAltBox& latLonAltBox() const;
 

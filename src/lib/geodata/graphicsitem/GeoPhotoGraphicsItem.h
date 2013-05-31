@@ -15,6 +15,7 @@
 #include "GeoGraphicsItem.h"
 #include "marble_export.h"
 
+#include <QtCore/QRectF>
 #include <QtGui/QImage>
 
 namespace Marble
@@ -37,16 +38,20 @@ public:
 
     QString photoPath() const;
 
-    virtual void paint( GeoPainter* painter, const ViewportParams *viewport );
+    void setViewport( const ViewportParams *viewport );
+
+    void paint( GeoPainter* painter ) const;
 
     virtual const GeoDataLatLonAltBox& latLonAltBox() const;
 
 protected:
     GeoDataPoint m_point;
 
-    QImage m_photo;
+    mutable QImage m_photo;
 
     QString m_photoPath;
+
+    QRectF m_positionRect;
 };
 
 }

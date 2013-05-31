@@ -38,6 +38,11 @@ GeoDataPlacemark *SceneGraphicsItem::placemark()
     return m_placemark;
 }
 
+const GeoDataPlacemark *SceneGraphicsItem::placemark() const
+{
+    return m_placemark;
+}
+
 bool SceneGraphicsItem::sceneEvent( QEvent* event )
 {
     if( event->type() == QEvent::MouseButtonPress ) {

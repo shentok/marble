@@ -44,10 +44,13 @@ const GeoDataLatLonAltBox& GeoPolygonGraphicsItem::latLonAltBox() const
     }
 }
 
-void GeoPolygonGraphicsItem::paint( GeoPainter* painter, const ViewportParams* viewport )
+void GeoPolygonGraphicsItem::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( viewport );
+    Q_UNUSED( viewport )
+}
 
+void GeoPolygonGraphicsItem::paint( GeoPainter* painter ) const
+{
     painter->save();
 
     if ( !style() ) {

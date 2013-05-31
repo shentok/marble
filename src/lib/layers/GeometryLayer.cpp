@@ -245,7 +245,8 @@ bool GeometryLayer::render( GeoPainter *painter, ViewportParams *viewport,
 
     QList<GeoGraphicsItem*> items = d->m_scene.items( viewport->viewLatLonAltBox(), maxZoomLevel );
     foreach( GeoGraphicsItem* item, items ) {
-        item->paint( painter, viewport );
+        item->setViewport( viewport );
+        item->paint( painter );
     }
 
     painter->restore();

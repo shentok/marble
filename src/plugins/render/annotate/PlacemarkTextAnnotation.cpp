@@ -37,25 +37,29 @@ PlacemarkTextAnnotation::~PlacemarkTextAnnotation()
     delete bubble;
 }
 
-void PlacemarkTextAnnotation::paint( GeoPainter *painter,
-                            const ViewportParams *viewport )
+void PlacemarkTextAnnotation::setViewport( const ViewportParams *viewport )
 {
-
-    painter->drawPixmap( placemark()->coordinate(), QPixmap( MarbleDirs::path( "bitmaps/annotation.png" ) )  );
-
     qreal x, y;
     bool hidden;
     bool visible = viewport->currentProjection()->screenCoordinates( placemark()->coordinate(), viewport, x, y, hidden );
 
+    if( visible && !hidden ) {
+        bubble->moveTo( QPoint( x, y ) );
+    } else {
+        bubble->setHidden(true );
+    }
+
     QList<QRegion> list;
     list.append( QRegion( x -10 , y-10 , 20 , 20 ) );
     setRegions( list );
+}
 
-    if( visible && !hidden ) {
-        bubble->moveTo( QPoint( x, y ) );
+void PlacemarkTextAnnotation::paint( GeoPainter *painter ) const
+{
+    painter->drawPixmap( placemark()->coordinate(), QPixmap( MarbleDirs::path( "bitmaps/annotation.png" ) )  );
+
+    if( !bubble->isHidden() ) {
         bubble->paint( painter );
-    } else {
-        bubble->setHidden(true );
     }
 }
 

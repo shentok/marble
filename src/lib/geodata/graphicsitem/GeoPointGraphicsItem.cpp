@@ -30,9 +30,8 @@ GeoDataPoint GeoPointGraphicsItem::point() const
     return m_point;
 }
 
-void GeoPointGraphicsItem::paint( GeoPainter* painter, const ViewportParams* viewport )
+void GeoPointGraphicsItem::paint( GeoPainter* painter ) const
 {
-    Q_UNUSED( viewport );
     painter->drawPoint( m_point );
 }
 
