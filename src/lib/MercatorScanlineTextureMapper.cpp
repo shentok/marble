@@ -61,9 +61,7 @@ MercatorScanlineTextureMapper::RenderJob::RenderJob( StackedTileLoader *tileLoad
 
 MercatorScanlineTextureMapper::MercatorScanlineTextureMapper( StackedTileLoader *tileLoader )
     : TextureMapperInterface(),
-      m_tileLoader( tileLoader ),
-      m_radius( 0 ),
-      m_oldYPaintedTop( 0 )
+      m_tileLoader( tileLoader )
 {
 }
 
@@ -73,42 +71,34 @@ void MercatorScanlineTextureMapper::mapTexture( GeoPainter *painter,
                                                 const QRect &dirtyRect,
                                                 TextureColorizer *texColorizer )
 {
-    if ( m_canvasImage.size() != viewport->size() || m_radius != viewport->radius() ) {
-        const QImage::Format optimalFormat = ScanlineTextureMapperContext::optimalCanvasImageFormat( viewport );
+    QImage canvasImage;
+    const QImage::Format optimalFormat = ScanlineTextureMapperContext::optimalCanvasImageFormat( viewport );
 
-        if ( m_canvasImage.size() != viewport->size() || m_canvasImage.format() != optimalFormat ) {
-            m_canvasImage = QImage( viewport->size(), optimalFormat );
-        }
-
-        if ( !viewport->mapCoversViewport() ) {
-            m_canvasImage.fill( 0 );
-        }
-
-        m_radius = viewport->radius();
-        m_repaintNeeded = true;
+    if ( canvasImage.size() != viewport->size() || canvasImage.format() != optimalFormat ) {
+        canvasImage = QImage( viewport->size(), optimalFormat );
     }
 
-    if ( m_repaintNeeded ) {
-        mapTexture( viewport, tileZoomLevel, painter->mapQuality() );
-
-        if ( texColorizer ) {
-            texColorizer->colorize( &m_canvasImage, viewport, painter->mapQuality() );
-        }
-
-        m_repaintNeeded = false;
+    if ( !viewport->mapCoversViewport() ) {
+        canvasImage.fill( 0 );
     }
 
-    painter->drawImage( dirtyRect, m_canvasImage, dirtyRect );
+    mapTexture( &canvasImage, viewport, tileZoomLevel, painter->mapQuality() );
+
+    if ( texColorizer ) {
+        texColorizer->colorize( &canvasImage, viewport, painter->mapQuality() );
+    }
+
+    painter->drawImage( dirtyRect, canvasImage, dirtyRect );
 }
 
-void MercatorScanlineTextureMapper::mapTexture( const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality )
+void MercatorScanlineTextureMapper::mapTexture( QImage *canvasImage, const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality )
 {
     // Reset backend
     m_tileLoader->resetTilehash();
 
     // Initialize needed constants:
 
-    const int imageHeight = m_canvasImage.height();
+    const int imageHeight = canvasImage->height();
     const qint64  radius      = viewport->radius();
     // Calculate how many degrees are being represented per pixel.
     const float rad2Pixel = (float)( 2 * radius ) / M_PI;
@@ -123,7 +113,6 @@ void MercatorScanlineTextureMapper::mapTexture( const ViewportParams *viewport, 
 
     // Calculate y-range the represented by the center point, yTop and
     // what actually can be painted
-    const int yTop     = imageHeight / 2 - 2 * radius + yCenterOffset;
     int yPaintedTop    = imageHeight / 2 - 2 * radius + yCenterOffset;
     int yPaintedBottom = imageHeight / 2 + 2 * radius + yCenterOffset;
  
@@ -137,24 +126,11 @@ void MercatorScanlineTextureMapper::mapTexture( const ViewportParams *viewport, 
     for ( int i = 0; i < numThreads; ++i ) {
         const int yStart = yPaintedTop +  i      * yStep;
         const int yEnd   = yPaintedTop + (i + 1) * yStep;
-        QRunnable *const job = new RenderJob( m_tileLoader, tileZoomLevel, &m_canvasImage, viewport, mapQuality, yStart, yEnd );
+        QRunnable *const job = new RenderJob( m_tileLoader, tileZoomLevel, canvasImage, viewport, mapQuality, yStart, yEnd );
         m_threadPool.start( job );
     }
 
-    // Remove unused lines
-    const int clearStart = ( yPaintedTop - m_oldYPaintedTop <= 0 ) ? yPaintedBottom : 0;
-    const int clearStop  = ( yPaintedTop - m_oldYPaintedTop <= 0 ) ? imageHeight  : yTop;
-
-    QRgb * const itClearBegin = (QRgb*)( m_canvasImage.scanLine( clearStart ) );
-    QRgb * const itClearEnd   = (QRgb*)( m_canvasImage.scanLine( clearStop ) );
-
-    for ( QRgb * it = itClearBegin; it < itClearEnd; ++it ) {
-        *(it) = 0;
-    }
-
     m_threadPool.waitForDone();
-
-    m_oldYPaintedTop = yPaintedTop;
 
     m_tileLoader->cleanupTilehash();
 }

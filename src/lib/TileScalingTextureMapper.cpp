@@ -54,33 +54,24 @@ void TileScalingTextureMapper::mapTexture( GeoPainter *painter,
         return;
 
     if ( texColorizer || m_radius != viewport->radius() ) {
-        if ( m_canvasImage.size() != viewport->size() || m_radius != viewport->radius() ) {
-            const QImage::Format optimalFormat = ScanlineTextureMapperContext::optimalCanvasImageFormat( viewport );
+        const QImage::Format optimalFormat = ScanlineTextureMapperContext::optimalCanvasImageFormat( viewport );
 
-            if ( m_canvasImage.size() != viewport->size() || m_canvasImage.format() != optimalFormat ) {
-                m_canvasImage = QImage( viewport->size(), optimalFormat );
-            }
-
-            if ( !viewport->mapCoversViewport() ) {
-                m_canvasImage.fill( 0 );
-            }
-
-            m_repaintNeeded = true;
+        if ( m_canvasImage.size() != viewport->size() || m_canvasImage.format() != optimalFormat ) {
+            m_canvasImage = QImage( viewport->size(), optimalFormat );
         }
 
-        if ( m_repaintNeeded ) {
-            mapTexture( painter, viewport, tileZoomLevel, texColorizer );
-
-            m_radius = viewport->radius();
-            m_repaintNeeded = false;
+        if ( !viewport->mapCoversViewport() ) {
+            m_canvasImage.fill( 0 );
         }
+        mapTexture( painter, viewport, tileZoomLevel, texColorizer );
 
         painter->drawImage( dirtyRect, m_canvasImage, dirtyRect );
     } else {
         mapTexture( painter, viewport, tileZoomLevel, texColorizer );
 
-        m_radius = viewport->radius();
     }
+
+    m_radius = viewport->radius();
 }
 
 void TileScalingTextureMapper::mapTexture( GeoPainter *painter, const ViewportParams *viewport, int tileZoomLevel, TextureColorizer *texColorizer )
