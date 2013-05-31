@@ -110,13 +110,15 @@ class MARBLE_EXPORT GeoGraphicsItem
      */
     void setZValue( qreal z );
 
+    virtual void setViewport( const ViewportParams *viewport ) = 0;
+
     /**
      * Paints the item using the given GeoPainter.
      *
      * Note that depending on the projection and zoom level, the item may be visible more than once,
      * which is taken care of by GeoPainter.
      */
-    virtual void paint( GeoPainter *painter, const ViewportParams *viewport ) = 0;
+    virtual void paint( GeoPainter *painter ) const = 0;
 
  protected:
     GeoGraphicsItemPrivate *p() const;

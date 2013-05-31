@@ -36,12 +36,14 @@ GeoWidgetBubble::~GeoWidgetBubble()
     delete m_widget;
 }
 
-void GeoWidgetBubble::paint( QPainter* painter )
+void GeoWidgetBubble::paint( QPainter *painter ) const
 {
     if( !m_widgetInitialized && ( m_widget!=0)  ) {
         QWidget *widget = dynamic_cast<QWidget*>( painter->device() );
         if ( widget ) {
-            setParentWidget( widget );
+            m_widget->setParent( widget );
+            m_widget->setVisible( true );
+            m_widgetInitialized = true;
         }
     }
 
@@ -75,13 +77,6 @@ void GeoWidgetBubble::paint( QPainter* painter )
         m_widget->hide();
     }
 
-}
-
-void GeoWidgetBubble::setParentWidget( QWidget* parent )
-{
-    m_widget->setParent( parent );
-    m_widget->setVisible( true );
-    m_widgetInitialized = true;
 }
 
 void GeoWidgetBubble::moveTo( const QPoint &pos )

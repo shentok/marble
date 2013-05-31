@@ -40,7 +40,9 @@ public:
 
     const QString text() const;
 
-    void paint( GeoPainter* painter, const ViewportParams *viewport );
+    void setViewport( const ViewportParams *viewport );
+
+    void paint( GeoPainter* painter ) const;
 
 protected:
     GeoDataCoordinates  m_location;

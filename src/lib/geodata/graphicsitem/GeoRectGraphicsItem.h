@@ -52,7 +52,9 @@ public:
 
     bool isGeoProjected() const;
 
-    void paint( GeoPainter* painter, const ViewportParams *viewport );
+    void setViewport( const ViewportParams *viewport );
+
+    void paint( GeoPainter* painter ) const;
 
 protected:
     GeoDataLatLonAltBox m_latLonAltBox;

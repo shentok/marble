@@ -52,7 +52,7 @@ QString GeoImageGraphicsItem::imageFile() const
     return m_imageFile;
 }
 
-void GeoImageGraphicsItem::paint( GeoPainter* painter, const ViewportParams* viewport )
+void GeoImageGraphicsItem::setViewport( const ViewportParams *viewport )
 {
     bool unloadImage = true;
     if ( viewport->projection() != Spherical ) {
@@ -65,19 +65,30 @@ void GeoImageGraphicsItem::paint( GeoPainter* painter, const ViewportParams* vie
             if ( m_image.isNull() && !m_imageFile.isEmpty() ) {
                 /** @todo: Load in a thread */
                 m_image = QImage( m_imageFile );
+                m_position = position;
             }
             unloadImage = false;
-            painter->drawImage( position, m_image );
         }
     } else {
         /** @todo: Implement for spherical projection, possibly reusing code
                    from SphericalScanlineTextureMapper */
     }
-    /** @todo: Respect x-repeat */
 
     if ( unloadImage && !m_imageFile.isEmpty() ) {
         // No unloading if no path is known
         m_image = QImage();
+        m_position = QRectF();
     }
 }
+
+void GeoImageGraphicsItem::paint( GeoPainter* painter ) const
+{
+    if ( m_image.isNull() || !m_position.isValid() )
+        return;
+
+    /** @todo: Respect x-repeat */
+
+    painter->drawImage( m_position, m_image );
+}
+
 }

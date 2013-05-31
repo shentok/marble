@@ -28,11 +28,26 @@ AreaAnnotation::AreaAnnotation( GeoDataPlacemark *placemark )
 {
 }
 
-void AreaAnnotation::paint(GeoPainter *painter, const ViewportParams *viewport )
+void AreaAnnotation::setViewport( const ViewportParams *viewport )
 {
     m_viewport = viewport;
-    QList<QRegion> regionList;
 
+    GeoPainter painter( 0, viewport );
+
+    QList<QRegion> regionList;
+    if( placemark()->geometry()->nodeType() == GeoDataTypes::GeoDataPolygonType ) {
+        GeoDataPolygon *polygon = static_cast<GeoDataPolygon*>( placemark()->geometry() );
+        GeoDataLinearRing &ring = polygon->outerBoundary();
+        for( int i=0; i< ring.size(); ++i ) {
+            regionList.append( painter.regionFromEllipse( ring.at(i), 10, 10 ));
+        }
+        regionList.append( painter.regionFromPolygon( ring, Qt::OddEvenFill ) );
+    }
+    setRegions( regionList );
+}
+
+void AreaAnnotation::paint( GeoPainter *painter ) const
+{
     painter->save();
     painter->setBrush( Oxygen::aluminumGray4 );
     if( placemark()->geometry()->nodeType() == GeoDataTypes::GeoDataPolygonType ) {
@@ -40,12 +55,9 @@ void AreaAnnotation::paint(GeoPainter *painter, const ViewportParams *viewport )
         GeoDataLinearRing &ring = polygon->outerBoundary();
         for( int i=0; i< ring.size(); ++i ) {
             painter->drawEllipse( ring.at(i) , 10, 10 );
-            regionList.append( painter->regionFromEllipse( ring.at(i), 10, 10 ));
         }
-        regionList.append( painter->regionFromPolygon( ring, Qt::OddEvenFill ) );
     }
     painter->restore();
-    setRegions( regionList );
 }
 
 bool AreaAnnotation::mousePressEvent( QMouseEvent *event )

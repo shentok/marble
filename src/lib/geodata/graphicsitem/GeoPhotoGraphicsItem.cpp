@@ -45,23 +45,16 @@ QString GeoPhotoGraphicsItem::photoPath() const
     return m_photoPath;
 }
 
-void GeoPhotoGraphicsItem::paint( GeoPainter* painter, const ViewportParams* viewport )
+void GeoPhotoGraphicsItem::setViewport( const ViewportParams *viewport )
 {
     /** @todo FIXME: need access to MarbleModel here ideally */
     qreal const planetRadius = EARTH_RADIUS;
     /** @todo: Taken from MarbleWidgetPrivate */
     qreal const viewAngle = 110.0;
-    qreal const cameraDistance = 1000 * planetRadius * 0.4 / viewport->radius() / tan( 0.5 * viewAngle * DEG2RAD );
     /** @todo: Extract the distance between camera and photo from kml */
     qreal const near = 200.0;
 
-    /* The code below loads the image lazily (only
-     * when it will actually be displayed). Once it was
-     * loaded but moves out of the viewport, it is unloaded
-     * again. Otherwise memory consumption gets quite high
-     * for a large set of photos
-     */
-    bool unloadImage = true;
+    qreal const cameraDistance = 1000 * planetRadius * 0.4 / viewport->radius() / tan( 0.5 * viewAngle * DEG2RAD );
 
     if ( cameraDistance > m_point.coordinates().altitude() ) {
         QSizeF size;
@@ -76,19 +69,34 @@ void GeoPhotoGraphicsItem::paint( GeoPainter* painter, const ViewportParams* vie
             // The image gets displayed if the observer is above it and if it covers a certain minimum area
             qreal x(0.0), y( 0.0 );
             viewport->screenCoordinates( m_point.coordinates(), x, y );
-            QRectF position( QPointF( x, y ), size );
-            position.moveCenter( QPointF( x, y ) );
+            QRectF positionRect = QRectF( QPointF( x, y ), size );
+            positionRect.moveCenter( QPointF( x, y ) );
 
-            QRectF displayed = position & QRectF( QPointF( 0, 0 ), viewport->size() );
-            if( !displayed.isEmpty() ) {
-                if ( m_photo.isNull() ) {
-                    /** @todo: Load in a thread */
-                    m_photo = QImage( m_photoPath );
-                }
-                unloadImage = false;
-                painter->drawImage( position, m_photo );
-            }
+            const QRectF visibleRect = positionRect & QRectF( QPointF( 0, 0 ), viewport->size() );
+            m_positionRect = visibleRect.isEmpty() ? QRectF() : positionRect;
         }
+    }
+    else
+        m_positionRect = QRectF();
+}
+
+void GeoPhotoGraphicsItem::paint( GeoPainter* painter ) const
+{
+    /* The code below loads the image lazily (only
+     * when it will actually be displayed). Once it was
+     * loaded but moves out of the viewport, it is unloaded
+     * again. Otherwise memory consumption gets quite high
+     * for a large set of photos
+     */
+    bool unloadImage = true;
+
+    if( !m_positionRect.isEmpty() ) {
+        if ( m_photo.isNull() ) {
+            /** @todo: Load in a thread */
+            m_photo = QImage( m_photoPath );
+        }
+        unloadImage = false;
+        painter->drawImage( m_positionRect, m_photo );
     }
 
     if ( unloadImage && !m_photoPath.isEmpty() ) {

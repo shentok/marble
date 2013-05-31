@@ -29,7 +29,9 @@ public:
 
     const QPixmap* pixmap() const;
 
-    void paint( GeoPainter* painter, const ViewportParams *viewport );
+    void setViewport( const ViewportParams *viewport );
+
+    void paint( GeoPainter* painter ) const;
 
 protected:
     const QPixmap *m_pixmap;

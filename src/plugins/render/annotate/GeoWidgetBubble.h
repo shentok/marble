@@ -27,7 +27,7 @@ public:
     explicit GeoWidgetBubble( GeoDataPlacemark *placemark );
     ~GeoWidgetBubble();
 
-    void paint(QPainter* p);
+    void paint( QPainter *p ) const;
 
     void setParentWidget( QWidget* parent );
 
@@ -38,7 +38,7 @@ public:
 private:
     QWidget* m_widget;
     bool m_hidden;
-    bool m_widgetInitialized;
+    mutable bool m_widgetInitialized;
     QPoint m_offset;
     QPoint m_screenPosition;
 

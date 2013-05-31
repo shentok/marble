@@ -34,10 +34,13 @@ GeoDataPoint GeoPointGraphicsItem::point() const
     return m_point;
 }
 
-void GeoPointGraphicsItem::paint( GeoPainter* painter, const ViewportParams* viewport )
+void GeoPointGraphicsItem::setViewport( const ViewportParams *viewport )
 {
     Q_UNUSED( viewport );
+}
 
+void GeoPointGraphicsItem::paint( GeoPainter* painter ) const
+{
     if ( style() && !style()->iconStyle().icon().isNull() ) {
         painter->drawImage( m_point.coordinates(), style()->iconStyle().icon() );
     } else {

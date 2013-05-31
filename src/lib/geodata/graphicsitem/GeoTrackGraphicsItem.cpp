@@ -28,11 +28,11 @@ void GeoTrackGraphicsItem::setTrack( const GeoDataTrack* track )
     update();
 }
 
-void GeoTrackGraphicsItem::paint( GeoPainter *painter, const ViewportParams *viewport )
+void GeoTrackGraphicsItem::paint( GeoPainter *painter ) const
 {
-    update();
+    const_cast<GeoTrackGraphicsItem *>( this )->update();
 
-    GeoLineStringGraphicsItem::paint( painter, viewport );
+    GeoLineStringGraphicsItem::paint( painter );
 }
 
 void GeoTrackGraphicsItem::update()

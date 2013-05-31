@@ -29,10 +29,13 @@ public:
 
     virtual const GeoDataLatLonAltBox& latLonAltBox() const;
 
-    virtual void paint( GeoPainter* painter, const ViewportParams *viewport );
+    void setViewport( const ViewportParams *viewport );
+
+    void paint( GeoPainter* painter ) const;
 
 protected:
     const GeoDataLineString *m_lineString;
+    qreal m_penWidth;
 };
 
 }

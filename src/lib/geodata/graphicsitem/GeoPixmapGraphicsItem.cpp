@@ -36,10 +36,13 @@ const QPixmap* GeoPixmapGraphicsItem::pixmap() const
     return m_pixmap;
 }
 
-void GeoPixmapGraphicsItem::paint( GeoPainter* painter, const ViewportParams *viewport )
+void GeoPixmapGraphicsItem::setViewport( const ViewportParams *viewport )
 {
     Q_UNUSED( viewport )
+}
 
+void GeoPixmapGraphicsItem::paint( GeoPainter* painter ) const
+{
     if ( !m_pixmap || m_pixmap->isNull() || !m_centerPosition.isValid() )
         return;
 

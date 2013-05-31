@@ -549,7 +549,8 @@ bool AprsPlugin::render( GeoPainter *painter, ViewportParams *viewport, const QS
     }
 
     for ( int i = m_items.size() - 1; i >= 0; --i ) {
-        m_items.at( i )->graphicsItem->paint( painter, viewport );
+        m_items.at( i )->graphicsItem->setViewport( viewport );
+        m_items.at( i )->graphicsItem->paint( painter );
     }
 
     return true;

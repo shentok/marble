@@ -95,10 +95,13 @@ bool GeoRectGraphicsItem::isGeoProjected() const
     return m_isGeoProjected;
 }
 
-void GeoRectGraphicsItem::paint( GeoPainter* painter, const ViewportParams *viewport )
+void GeoRectGraphicsItem::setViewport( const ViewportParams *viewport )
 {
     Q_UNUSED( viewport );
+}
 
+void GeoRectGraphicsItem::paint( GeoPainter* painter ) const
+{
     painter->save();
 
     if ( !style() ) {

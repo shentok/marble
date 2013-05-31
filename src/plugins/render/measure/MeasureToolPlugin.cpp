@@ -245,7 +245,8 @@ bool MeasureToolPlugin::render( GeoPainter *painter,
     Q_UNUSED(layer)
 
     for( int i = 0; i < m_items.size(); ++i ) {
-        m_items.at( i )->graphicsItem->paint( painter, viewport );
+        m_items.at( i )->graphicsItem->setViewport( viewport );
+        m_items.at( i )->graphicsItem->paint( painter );
     }
 
     if ( m_items.size() > 1 ) {

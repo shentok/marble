@@ -55,10 +55,13 @@ const QString GeoTextGraphicsItem::text() const
     return m_text;
 }
 
-void GeoTextGraphicsItem::paint( GeoPainter* painter, const ViewportParams *viewport )
+void GeoTextGraphicsItem::setViewport( const ViewportParams *viewport )
 {
     Q_UNUSED( viewport );
+}
 
+void GeoTextGraphicsItem::paint( GeoPainter* painter ) const
+{
     painter->save();
 
     if (style()) {
