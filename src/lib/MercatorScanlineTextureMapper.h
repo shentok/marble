@@ -28,21 +28,13 @@ namespace Marble
 class MercatorScanlineTextureMapper : public TextureMapperInterface
 {
  public:
-    explicit MercatorScanlineTextureMapper( StackedTileLoader *tileLoader );
+    QRect rect( const ViewportParams *viewport ) const;
 
-    virtual void mapTexture( GeoPainter *painter,
-                             const ViewportParams *viewport,
-                             int tileZoomLevel,
-                             const QRect &dirtyRect,
-                             TextureColorizer *texColorizer );
-
- private:
-    void mapTexture( QImage *canvasImage, const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality );
+    void mapTexture( QImage *canvasImage, StackedTileLoader *tileLoader, const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality );
 
  private:
     class RenderJob;
 
-    StackedTileLoader *const m_tileLoader;
     QThreadPool m_threadPool;
 };
 

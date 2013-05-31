@@ -12,6 +12,9 @@
 #ifndef MARBLE_TEXTUREMAPPERINTERFACE_H
 #define MARBLE_TEXTUREMAPPERINTERFACE_H
 
+#include "MarbleGlobal.h"
+
+class QImage;
 class QRect;
 
 namespace Marble
@@ -30,11 +33,9 @@ public:
     TextureMapperInterface();
     virtual ~TextureMapperInterface();
 
-    virtual void mapTexture( GeoPainter *painter,
-                             const ViewportParams *viewport,
-                             int tileZoomLevel,
-                             const QRect &dirtyRect,
-                             TextureColorizer *texColorizer ) = 0;
+    virtual QRect rect( const ViewportParams *viewport ) const = 0;
+
+    virtual void mapTexture( QImage *canvasImage, StackedTileLoader *tileLoader, const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality ) = 0;
 };
 
 }

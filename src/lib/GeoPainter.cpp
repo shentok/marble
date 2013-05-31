@@ -24,6 +24,9 @@
 #include "GeoDataPolygon.h"
 
 #include "MarbleGlobal.h"
+#include "ScanlineTextureMapperContext.h"
+#include "StackedTileLoader.h"
+#include "TextureColorizer.h"
 #include "ViewportParams.h"
 
 // #define MARBLE_DEBUG
@@ -32,6 +35,7 @@ using namespace Marble;
 
 GeoPainterPrivate::GeoPainterPrivate( const ViewportParams *viewport, MapQuality mapQuality )
         : m_viewport( viewport ),
+          m_textureMapper( textureMapper( viewport->projection() ) ),
         m_mapQuality( mapQuality ),
         m_x( new qreal[100] )
 {
@@ -40,6 +44,26 @@ GeoPainterPrivate::GeoPainterPrivate( const ViewportParams *viewport, MapQuality
 GeoPainterPrivate::~GeoPainterPrivate()
 {
     delete[] m_x;
+}
+
+TextureMapperInterface *GeoPainterPrivate::textureMapper( Projection projection )
+{
+    static EquirectScanlineTextureMapper equirectMapper;
+    static MercatorScanlineTextureMapper mercatorMapper;
+    static SphericalScanlineTextureMapper sphericalMapper;
+
+    switch( projection ) {
+        case Spherical:
+            return &sphericalMapper;
+        case Equirectangular:
+            return &equirectMapper;
+        case Mercator:
+            return &mercatorMapper;
+            break;
+    }
+
+    Q_ASSERT( false );
+    return 0;
 }
 
 void GeoPainterPrivate::createAnnotationLayout (  qreal x, qreal y,
@@ -802,4 +826,24 @@ void GeoPainter::drawRoundRect ( const GeoDataCoordinates &centerPosition,
                 QPainter::drawRoundRect( d->m_x[it] - ( width / 2 ), y - ( height / 2 ), width, height, xRnd, yRnd );
             }
         }
+}
+
+void GeoPainter::mapTexture( StackedTileLoader *loader, int tileLevel, const QRect &dirtyRect, TextureColorizer *texColorizer )
+{
+    const QImage::Format optimalFormat = ScanlineTextureMapperContext::optimalCanvasImageFormat( d->m_viewport );
+    QImage canvasImage = QImage( d->m_viewport->size(), optimalFormat );
+
+    if ( !d->m_viewport->mapCoversViewport() ) {
+        canvasImage.fill( 0 );
+    }
+
+    d->m_textureMapper->mapTexture( &canvasImage, loader, d->m_viewport, tileLevel, d->m_mapQuality );
+
+    if ( texColorizer ) {
+        texColorizer->colorize( &canvasImage, d->m_viewport, d->m_mapQuality );
+    }
+
+    QRect rect = d->m_textureMapper->rect( d->m_viewport );
+    rect = rect.intersect( dirtyRect );
+    QPainter::drawImage( rect, canvasImage, rect );
 }

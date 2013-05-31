@@ -60,44 +60,18 @@ SphericalScanlineTextureMapper::RenderJob::RenderJob( StackedTileLoader *tileLoa
 {
 }
 
-SphericalScanlineTextureMapper::SphericalScanlineTextureMapper( StackedTileLoader *tileLoader )
-    : TextureMapperInterface()
-    , m_tileLoader( tileLoader )
-    , m_threadPool()
+QRect SphericalScanlineTextureMapper::rect( const ViewportParams *viewport ) const
 {
-}
-
-void SphericalScanlineTextureMapper::mapTexture( GeoPainter *painter,
-                                                 const ViewportParams *viewport,
-                                                 int tileZoomLevel,
-                                                 const QRect &dirtyRect,
-                                                 TextureColorizer *texColorizer )
-{
-    const QImage::Format optimalFormat = ScanlineTextureMapperContext::optimalCanvasImageFormat( viewport );
-    QImage canvasImage = QImage( viewport->size(), optimalFormat );
-
-    if ( !viewport->mapCoversViewport() ) {
-        canvasImage.fill( 0 );
-    }
-
-    mapTexture( &canvasImage, viewport, tileZoomLevel, painter->mapQuality() );
-
-    if ( texColorizer ) {
-        texColorizer->colorize( &canvasImage, viewport, painter->mapQuality() );
-    }
-
     const int radius = viewport->radius();
 
-    QRect rect( viewport->width() / 2 - radius, viewport->height() / 2 - radius,
+    return QRect( viewport->width() / 2 - radius, viewport->height() / 2 - radius,
                 2 * radius, 2 * radius);
-    rect = rect.intersect( dirtyRect );
-    painter->drawImage( rect, canvasImage, rect );
 }
 
-void SphericalScanlineTextureMapper::mapTexture( QImage *canvasImage, const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality )
+void SphericalScanlineTextureMapper::mapTexture( QImage *canvasImage, StackedTileLoader *tileLoader, const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality )
 {
     // Reset backend
-    m_tileLoader->resetTilehash();
+    tileLoader->resetTilehash();
 
     // Initialize needed constants:
 
@@ -117,13 +91,13 @@ void SphericalScanlineTextureMapper::mapTexture( QImage *canvasImage, const View
     for ( int i = 0; i < numThreads; ++i ) {
         const int yStart = yTop +  i      * yStep;
         const int yEnd   = yTop + (i + 1) * yStep;
-        QRunnable *const job = new RenderJob( m_tileLoader, tileZoomLevel, canvasImage, viewport, mapQuality, yStart, yEnd );
+        QRunnable *const job = new RenderJob( tileLoader, tileZoomLevel, canvasImage, viewport, mapQuality, yStart, yEnd );
         m_threadPool.start( job );
     }
 
     m_threadPool.waitForDone();
 
-    m_tileLoader->cleanupTilehash();
+    tileLoader->cleanupTilehash();
 }
 
 void SphericalScanlineTextureMapper::RenderJob::run()
