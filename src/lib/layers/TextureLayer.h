@@ -92,8 +92,6 @@ public Q_SLOTS:
      */
     void setProjection( Projection projection );
 
-    void setNeedsUpdate();
-
     void setMapTheme( const QVector<const GeoSceneTextureTile *> &textures, const GeoSceneGroup *textureLayerSettings, const QString &seaFile, const QString &landFile );
 
     void setVolatileCacheLimit( quint64 kilobytes );

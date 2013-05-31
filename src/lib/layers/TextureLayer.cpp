@@ -55,7 +55,6 @@ public:
     TileLoader m_loader;
     MergedLayerDecorator m_layerDecorator;
     StackedTileLoader    m_tileLoader;
-    GeoDataCoordinates m_centerCoordinates;
     int m_tileZoomLevel;
     TextureMapperInterface *m_texmapper;
     TextureColorizer *m_texcolorizer;
@@ -76,7 +75,6 @@ TextureLayer::Private::Private( HttpDownloadManager *downloadManager,
     , m_loader( downloadManager, pluginManager )
     , m_layerDecorator( &m_loader, sunLocator )
     , m_tileLoader( &m_layerDecorator )
-    , m_centerCoordinates()
     , m_tileZoomLevel( -1 )
     , m_texmapper( 0 )
     , m_texcolorizer( 0 )
@@ -87,10 +85,6 @@ TextureLayer::Private::Private( HttpDownloadManager *downloadManager,
 
 void TextureLayer::Private::requestDelayedRepaint()
 {
-    if ( m_texmapper ) {
-        m_texmapper->setRepaintNeeded();
-    }
-
     if ( !m_repaintTimer.isActive() ) {
         m_repaintTimer.start();
     }
@@ -117,7 +111,7 @@ void TextureLayer::Private::updateTextureLayers()
     m_layerDecorator.setTextureLayers( result );
     m_tileLoader.clear();
 
-    m_parent->setNeedsUpdate();
+    emit m_parent->repaintNeeded();
 }
 
 void TextureLayer::Private::updateTile( const TileId &tileId, const QImage &tileImage )
@@ -203,13 +197,6 @@ bool TextureLayer::render( GeoPainter *painter, ViewportParams *viewport,
 
     if ( !d->m_texmapper )
         return false;
-
-    if ( d->m_centerCoordinates.longitude() != viewport->centerLongitude() ||
-         d->m_centerCoordinates.latitude() != viewport->centerLatitude() ) {
-        d->m_centerCoordinates.setLongitude( viewport->centerLongitude() );
-        d->m_centerCoordinates.setLatitude( viewport->centerLatitude() );
-        d->m_texmapper->setRepaintNeeded();
-    }
 
     // choose the smaller dimension for selecting the tile level, leading to higher-resolution results
     const int levelZeroWidth = d->m_layerDecorator.tileSize().width() * d->m_layerDecorator.tileColumnCount( 0 );
@@ -308,15 +295,6 @@ void TextureLayer::setProjection( Projection projection )
     Q_ASSERT( d->m_texmapper );
 }
 
-void TextureLayer::setNeedsUpdate()
-{
-    if ( d->m_texmapper ) {
-        d->m_texmapper->setRepaintNeeded();
-    }
-
-    emit repaintNeeded();
-}
-
 void TextureLayer::setVolatileCacheLimit( quint64 kilobytes )
 {
     d->m_tileLoader.setVolatileCacheLimit( kilobytes );
@@ -327,7 +305,7 @@ void TextureLayer::reset()
     mDebug() << Q_FUNC_INFO;
 
     d->m_tileLoader.clear();
-    setNeedsUpdate();
+    emit repaintNeeded();
 }
 
 void TextureLayer::reload()

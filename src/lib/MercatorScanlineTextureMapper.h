@@ -37,15 +37,12 @@ class MercatorScanlineTextureMapper : public TextureMapperInterface
                              TextureColorizer *texColorizer );
 
  private:
-    void mapTexture( const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality );
+    void mapTexture( QImage *canvasImage, const ViewportParams *viewport, int tileZoomLevel, MapQuality mapQuality );
 
  private:
     class RenderJob;
 
     StackedTileLoader *const m_tileLoader;
-    int m_radius;
-    QImage m_canvasImage;
-    int    m_oldYPaintedTop;
     QThreadPool m_threadPool;
 };
 
