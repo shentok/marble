@@ -63,8 +63,9 @@ class PlacemarkLayer : public QObject, public LayerInterface
     /**
      * @reimp
      */
-    bool render( GeoPainter *painter, ViewportParams *viewport,
-                 const QString &renderPos = "NONE", GeoSceneLayer *layer = 0 );
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
 
     virtual QString runtimeTrace() const;
 
@@ -95,6 +96,10 @@ class PlacemarkLayer : public QObject, public LayerInterface
     bool testXBug();
 
     PlacemarkLayout m_layout;
+    QVector<VisiblePlacemark *> m_visiblePlacemarks;
+    bool m_repeatX;
+    int m_radius;
+    int m_viewportWidth;
 };
 
 }

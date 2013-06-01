@@ -24,13 +24,18 @@ QStringList FogLayer::renderPosition() const
     return QStringList() << "ATMOSPHERE";
 }
 
-bool FogLayer::render( GeoPainter *painter,
-                       ViewportParams *viewParams,
-                       const QString &renderPos,
-                       GeoSceneLayer *layer )
+bool FogLayer::setViewport( const ViewportParams *viewParams )
 {
-    Q_UNUSED(renderPos)
-    Q_UNUSED(layer)
+    m_canvasSize = ( viewParams->projection() != Spherical || viewParams->mapCoversViewport() ) ? QSize() :
+                                                                                                  viewParams->size();
+    m_radius = viewParams->radius();
+
+    return true;
+}
+
+bool FogLayer::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
 
     // FIXME: The fog layer is really slow. That's why we defer it to
     //        PrintQuality. Either cache on a pixmap - or maybe
@@ -38,20 +43,14 @@ bool FogLayer::render( GeoPainter *painter,
     if ( painter->mapQuality() != PrintQuality )
         return true;
 
-    if ( viewParams->projection() != Spherical)
+    if ( !m_canvasSize.isValid() )
         return true;
 
-    // No use to draw the fog if it's not visible in the area.
-    if ( viewParams->mapCoversViewport() )
-        return true;
-
-    int imgWidth2  = viewParams->width() / 2;
-    int imgHeight2 = viewParams->height() / 2;
-
-    int radius = viewParams->radius();
+    const int imgWidth2  = m_canvasSize.width() / 2;
+    const int imgHeight2 = m_canvasSize.height() / 2;
 
     // Recalculate the atmosphere effect and paint it to canvasImage.
-    QRadialGradient grad1( QPointF( imgWidth2, imgHeight2 ), radius );
+    QRadialGradient grad1( QPointF( imgWidth2, imgHeight2 ), m_radius );
 
     // FIXME: Add a cosine relationship
     grad1.setColorAt( 0.85, QColor( 255, 255, 255, 0 ) );
@@ -67,10 +66,10 @@ bool FogLayer::render( GeoPainter *painter,
     painter->setRenderHint( QPainter::Antialiasing, false );
 
     // FIXME: Cut out what's really needed
-    painter->drawEllipse( imgWidth2  - radius,
-                         imgHeight2 - radius,
-                         2 * radius,
-                         2 * radius );
+    painter->drawEllipse( imgWidth2  - m_radius,
+                         imgHeight2 - m_radius,
+                         2 * m_radius,
+                         2 * m_radius );
 
     painter->restore();
 

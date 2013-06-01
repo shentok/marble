@@ -694,7 +694,8 @@ void MarbleMap::paint( GeoPainter &painter, const QRect &dirtyRect )
 
     if ( !d->m_model->mapTheme() ) {
         mDebug() << "No theme yet!";
-        d->m_marbleSplashLayer.render( &painter, &d->m_viewport );
+        d->m_marbleSplashLayer.setViewport( &d->m_viewport );
+        d->m_marbleSplashLayer.render( &painter, d->m_viewport.size() );
         return;
     }
 

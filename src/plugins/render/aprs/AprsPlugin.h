@@ -65,7 +65,8 @@ namespace Marble
 
         void initialize ();
         bool isInitialized () const;
-        bool render( GeoPainter *painter, ViewportParams *viewport, const QString& renderPos, GeoSceneLayer * layer = 0 );
+        bool setViewport( const ViewportParams *viewport );
+        bool render( GeoPainter *painter, const QSize &viewportSize ) const;
 
         QDialog *configDialog();
         QAction       *action() const;

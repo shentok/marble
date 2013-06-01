@@ -171,14 +171,22 @@ const QList<QActionGroup*>* AnnotatePlugin::toolbarActionGroups() const
     return &m_toolbarActions;
 }
 
-bool AnnotatePlugin::render( GeoPainter *painter, ViewportParams *viewport, const QString& renderPos, GeoSceneLayer * layer )
+bool AnnotatePlugin::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED(renderPos);
-    Q_UNUSED(layer);
-
     QListIterator<SceneGraphicsItem*> iter( m_graphicsItems );
     while( iter.hasNext() ) {
         iter.next()->setViewport( viewport );
+    }
+
+    return true;
+}
+
+bool AnnotatePlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
+
+    QListIterator<SceneGraphicsItem*> iter( m_graphicsItems );
+    while( iter.hasNext() ) {
         iter.next()->paint( painter );
     }
 

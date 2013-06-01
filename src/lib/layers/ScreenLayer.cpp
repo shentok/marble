@@ -168,23 +168,31 @@ QStringList ScreenLayer::renderPosition() const
     return QStringList( "FLOAT_ITEM" );
 }
 
-bool ScreenLayer::render( GeoPainter *painter, ViewportParams *viewport,
-                            const QString &renderPos, GeoSceneLayer *layer )
+bool ScreenLayer::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
+    Q_UNUSED( viewport )
+
+    foreach( ScreenOverlayGraphicsItem *item, d->m_items ) {
+        item->setProjection( viewport );
+    }
+
+    d->m_runtimeTrace = QString( "Items: %1")
+                .arg( d->m_items.size() );
+
+    return true;
+}
+
+bool ScreenLayer::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
 
     painter->save();
 
     foreach( ScreenOverlayGraphicsItem *item, d->m_items ) {
-        item->setProjection( viewport );
         item->paintEvent( painter );
     }
 
     painter->restore();
-
-    d->m_runtimeTrace = QString( "Items: %1")
-                .arg( d->m_items.size() );
 
     return true;
 }

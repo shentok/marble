@@ -16,6 +16,8 @@
 
 #include <QtCore/QStringList>
 
+class QSize;
+
 namespace Marble {
 
 class GeoPainter;
@@ -57,8 +59,9 @@ public:
      * @param layer  deprecated, always zero (NULL)
      * @return @c true  Returns whether the rendering has been successful
      */
-    virtual bool render( GeoPainter *painter, ViewportParams *viewport,
-       const QString &renderPos, GeoSceneLayer *layer ) = 0;
+    virtual bool setViewport( const ViewportParams *viewport ) = 0;
+
+    virtual bool render( GeoPainter *painter, const QSize &viewportSize ) const = 0;
 
     /**
       * @brief Returns the z value of the layer (default: 0.0). If two layers are painted

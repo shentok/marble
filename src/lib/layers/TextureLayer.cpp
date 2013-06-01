@@ -177,18 +177,8 @@ bool TextureLayer::showCityLights() const
     return d->m_layerDecorator.showCityLights();
 }
 
-bool TextureLayer::render( GeoPainter *painter, ViewportParams *viewport,
-                           const QString &renderPos, GeoSceneLayer *layer )
+bool TextureLayer::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos );
-    Q_UNUSED( layer );
-
-    // Stop repaint timer if it is already running
-    d->m_repaintTimer.stop();
-
-    if ( d->m_textures.isEmpty() )
-        return false;
-
     if ( d->m_layerDecorator.textureLayersSize() == 0 )
         return false;
 
@@ -213,9 +203,21 @@ bool TextureLayer::render( GeoPainter *painter, ViewportParams *viewport,
         emit tileLevelChanged( d->m_tileZoomLevel );
     }
 
-    const QRect dirtyRect = QRect( QPoint( 0, 0), viewport->size() );
-    painter->mapTexture( &d->m_tileLoader, d->m_tileZoomLevel, dirtyRect, d->m_texcolorizer );
     d->m_runtimeTrace = QString("Cache: %1 ").arg(d->m_tileLoader.tileCount());
+    return true;
+}
+
+bool TextureLayer::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    // Stop repaint timer if it is already running
+    d->m_repaintTimer.stop();
+
+    if ( d->m_layerDecorator.textureLayersSize() == 0 )
+        return false;
+
+    const QRect rect( QPoint( 0, 0 ), viewportSize );
+    painter->mapTexture( &d->m_tileLoader, d->m_tileZoomLevel, rect, d->m_texcolorizer );
+
     return true;
 }
 

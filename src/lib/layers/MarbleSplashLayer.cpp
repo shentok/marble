@@ -22,7 +22,8 @@
 namespace Marble
 {
 
-MarbleSplashLayer::MarbleSplashLayer()
+MarbleSplashLayer::MarbleSplashLayer() :
+    m_viewportSize()
 {
 }
 
@@ -31,25 +32,30 @@ QStringList MarbleSplashLayer::renderPosition() const
     return QStringList() << "SURFACE";
 }
 
-bool MarbleSplashLayer::render( GeoPainter *painter, ViewportParams *viewport,
-                                const QString &renderPos, GeoSceneLayer *layer )
+bool MarbleSplashLayer::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos );
-    Q_UNUSED( layer );
+    m_viewportSize = viewport->size();
+
+    return true;
+}
+
+bool MarbleSplashLayer::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
 
     painter->save();
 
     QPixmap logoPixmap( MarbleDirs::path( "svg/marble-logo-inverted-72dpi.png" ) );
 
-    if ( logoPixmap.width() > viewport->width() * 0.7
-         || logoPixmap.height() > viewport->height() * 0.7 )
+    if ( logoPixmap.width() > m_viewportSize.width() * 0.7
+         || logoPixmap.height() > m_viewportSize.height() * 0.7 )
     {
-        logoPixmap = logoPixmap.scaled( QSize( viewport->width(), viewport->height() ) * 0.7,
+        logoPixmap = logoPixmap.scaled( m_viewportSize * 0.7,
                                         Qt::KeepAspectRatio, Qt::SmoothTransformation );
     }
 
-    QPoint logoPosition( ( viewport->width()  - logoPixmap.width() ) / 2,
-                         ( viewport->height() - logoPixmap.height() ) / 2 );
+    QPoint logoPosition( ( m_viewportSize.width()  - logoPixmap.width() ) / 2,
+                         ( m_viewportSize.height() - logoPixmap.height() ) / 2 );
     painter->drawPixmap( logoPosition, logoPixmap );
 
     QString message; // "Please assign a map theme!";
@@ -58,7 +64,7 @@ bool MarbleSplashLayer::render( GeoPainter *painter, ViewportParams *viewport,
 
     int yTop = logoPosition.y() + logoPixmap.height() + 10;
     QRect textRect( 0, yTop,
-                    viewport->width(), viewport->height() - yTop );
+                    m_viewportSize.width(), m_viewportSize.height() - yTop );
     painter->drawText( textRect, Qt::AlignHCenter | Qt::AlignTop, message );
 
     painter->restore();

@@ -171,15 +171,15 @@ void MeasureToolPlugin::writeSettings()
     emit repaintNeeded();
 }
 
-bool MeasureToolPlugin::render( GeoPainter *painter,
-                          ViewportParams *viewport,
-                          const QString& renderPos,
-                          GeoSceneLayer * layer )
+bool MeasureToolPlugin::setViewport( const ViewportParams *viewport )
 {
     Q_UNUSED(viewport)
-    Q_UNUSED(renderPos)
-    Q_UNUSED(layer)
 
+    return true;
+}
+
+bool MeasureToolPlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
     // No way to paint anything if the list is empty.
     if ( m_measureLineString.isEmpty() )
         return true;
@@ -209,7 +209,7 @@ bool MeasureToolPlugin::render( GeoPainter *painter,
     return true;
 }
 
-void MeasureToolPlugin::drawSegments( GeoPainter* painter )
+void MeasureToolPlugin::drawSegments( GeoPainter* painter ) const
 {
     for ( int segmentIndex = 0; segmentIndex < m_measureLineString.size() - 1; ++segmentIndex ) {
         GeoDataLineString segment( Tessellate );
@@ -260,7 +260,7 @@ void MeasureToolPlugin::drawSegments( GeoPainter* painter )
     }
 }
 
-void MeasureToolPlugin::drawMeasurePoints( GeoPainter *painter )
+void MeasureToolPlugin::drawMeasurePoints( GeoPainter *painter ) const
 {
     // Paint the marks.
     GeoDataLineString::const_iterator itpoint = m_measureLineString.constBegin();
@@ -272,7 +272,7 @@ void MeasureToolPlugin::drawMeasurePoints( GeoPainter *painter )
 }
 
 void MeasureToolPlugin::drawTotalDistanceLabel( GeoPainter *painter,
-                                          qreal totalDistance )
+                                          qreal totalDistance ) const
 {
     QString  distanceString;
 

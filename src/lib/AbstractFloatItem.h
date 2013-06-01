@@ -84,8 +84,8 @@ class MARBLE_EXPORT AbstractFloatItem : public RenderPlugin, public FrameGraphic
      */
     void setFont( const QFont &font );
 
-    bool render( GeoPainter *painter, ViewportParams *viewport,
-                 const QString& renderPos = "FLOAT_ITEM", GeoSceneLayer * layer = 0 );
+    bool setViewport( const ViewportParams *viewport );
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
     virtual QString renderPolicy() const;
 
     virtual QStringList renderPosition() const;

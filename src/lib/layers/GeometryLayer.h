@@ -34,9 +34,10 @@ public:
 
     virtual QStringList renderPosition() const;
 
-    virtual bool render( GeoPainter *painter, ViewportParams *viewport,
-                         const QString& renderPos = "NONE", GeoSceneLayer * layer = 0 );
-    
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
+
     virtual QString runtimeTrace() const;
 
 public Q_SLOTS:

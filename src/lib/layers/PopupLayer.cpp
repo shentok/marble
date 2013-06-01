@@ -45,8 +45,7 @@ QString PopupLayer::renderPolicy() const
     return "ALWAYS";
 }
 
-bool PopupLayer::render( GeoPainter *painter, ViewportParams *viewport,
-                                const QString&, GeoSceneLayer* )
+bool PopupLayer::setViewport( const ViewportParams *viewport )
 {
     if ( visible() ) {
         setAppropriateSize( viewport );
@@ -55,6 +54,16 @@ bool PopupLayer::render( GeoPainter *painter, ViewportParams *viewport,
             m_adjustMap = false;
         }
         m_popupItem->setProjection( viewport );
+    }
+
+    return true;
+}
+
+bool PopupLayer::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
+
+    if ( visible() ) {
         m_popupItem->paintEvent( painter );
     }
 

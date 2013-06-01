@@ -57,10 +57,9 @@ public:
     void initialize();
     bool isInitialized() const;
 
-    bool render( GeoPainter *painter,
-                 ViewportParams *viewport,
-                 const QString &renderPos,
-                 GeoSceneLayer *layer );
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
 
     QHash<QString, QVariant> settings() const;
     void setSettings( const QHash<QString, QVariant> &settings );

@@ -74,8 +74,9 @@ class TextureLayer : public QObject, public LayerInterface
 
     virtual QString runtimeTrace() const;
 
-    virtual bool render( GeoPainter *painter, ViewportParams *viewport,
-                 const QString &renderPos = "NONE", GeoSceneLayer *layer = 0 );
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
 
 public Q_SLOTS:
     void setShowRelief( bool show );

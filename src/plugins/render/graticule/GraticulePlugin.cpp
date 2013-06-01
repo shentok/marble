@@ -313,13 +313,8 @@ void GraticulePlugin::writeSettings()
     emit settingsChanged( nameId() );
 }
 
-bool GraticulePlugin::render( GeoPainter *painter, ViewportParams *viewport,
-				const QString& renderPos,
-				GeoSceneLayer * layer )
+bool GraticulePlugin::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( layer )
-    Q_UNUSED( renderPos )
-
     if ( m_currentNotation != GeoDataCoordinates::defaultNotation() ) {
         initLineMaps( GeoDataCoordinates::defaultNotation() );
     }
@@ -331,6 +326,14 @@ bool GraticulePlugin::render( GeoPainter *painter, ViewportParams *viewport,
 
     for( int i = m_items.size() - 1; i >= 0; --i ) {
         m_items.at( i )->graphicsItem.setViewport( viewport );
+    }
+
+    return true;
+}
+
+bool GraticulePlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    for( int i = m_items.size() - 1; i >= 0; --i ) {
         m_items.at( i )->graphicsItem.paint( painter );
     }
 

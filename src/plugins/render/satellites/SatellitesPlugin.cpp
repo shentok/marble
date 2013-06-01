@@ -175,15 +175,19 @@ bool SatellitesPlugin::isInitialized() const
     return m_isInitialized;
 }
 
-bool SatellitesPlugin::render( GeoPainter *painter, ViewportParams *viewport,
-    const QString &renderPos, GeoSceneLayer *layer )
+bool SatellitesPlugin::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( painter );
     Q_UNUSED( viewport );
-    Q_UNUSED( renderPos );
-    Q_UNUSED( layer );
 
     enableModel( enabled() );
+
+    return true;
+}
+
+bool SatellitesPlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( painter )
+    Q_UNUSED( viewportSize )
 
     return true;
 }

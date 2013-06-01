@@ -992,12 +992,8 @@ void StarsPlugin::loadDsos()
     m_dsosLoaded = true;
 }
 
-bool StarsPlugin::render( GeoPainter *painter, ViewportParams *viewport,
-                          const QString& renderPos, GeoSceneLayer * layer )
+bool StarsPlugin::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
-
     const bool renderStars = !viewport->mapCoversViewport() &&
                              viewport->projection() == Spherical &&
                              marbleModel()->planetId() == "earth"; // So far displaying stars is only supported on earth.
@@ -1359,6 +1355,11 @@ bool StarsPlugin::render( GeoPainter *painter, ViewportParams *viewport,
 
     painter->restore();
 
+    return true;
+}
+
+bool StarsPlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
     return true;
 }
 

@@ -32,7 +32,10 @@ PlacemarkLayer::PlacemarkLayer( QAbstractItemModel *placemarkModel,
                                 MarbleClock *clock,
                                 QObject *parent ) :
     QObject( parent ),
-    m_layout( placemarkModel, selectionModel, clock )
+    m_layout( placemarkModel, selectionModel, clock ),
+    m_repeatX( false ),
+    m_radius( 1 ),
+    m_viewportWidth( 0 )
 {
     m_useXWorkaround = testXBug();
     mDebug() << "Use workaround: " << ( m_useXWorkaround ? "1" : "0" );
@@ -54,16 +57,23 @@ qreal PlacemarkLayer::zValue() const
     return 2.0;
 }
 
-bool PlacemarkLayer::render( GeoPainter *geoPainter, ViewportParams *viewport,
-                               const QString &renderPos, GeoSceneLayer *layer )
+bool PlacemarkLayer::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
+    m_visiblePlacemarks = m_layout.generateLayout( viewport );
+    m_repeatX = viewport->currentProjection()->repeatX();
+    m_radius = viewport->radius();
+    m_viewportWidth = viewport->width();
 
-    QVector<VisiblePlacemark*> visiblePlacemarks = m_layout.generateLayout( viewport );
+    return true;
+}
+
+bool PlacemarkLayer::render( GeoPainter *geoPainter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
+
     // draw placemarks less important first
-    QVector<VisiblePlacemark*>::const_iterator visit = visiblePlacemarks.constEnd();
-    QVector<VisiblePlacemark*>::const_iterator itEnd = visiblePlacemarks.constBegin();
+    QVector<VisiblePlacemark*>::const_iterator visit = m_visiblePlacemarks.constEnd();
+    QVector<VisiblePlacemark*>::const_iterator itEnd = m_visiblePlacemarks.constBegin();
 
     QPainter *const painter = geoPainter;
 
@@ -77,14 +87,11 @@ bool PlacemarkLayer::render( GeoPainter *geoPainter, ViewportParams *viewport,
 
         // when the map is such zoomed out that a given place
         // appears many times, we draw one placemark at each
-        if (viewport->currentProjection()->repeatX() ) {
+        if ( m_repeatX ) {
             const int symbolX = mark->symbolPosition().x();
             const int textX =   mark->labelRect().x();
 
-            for ( int i = symbolX % (4 * viewport->radius());
-                 i <= viewport->width();
-                 i += 4 * viewport->radius() )
-            {
+            for ( int i = symbolX % (4 * m_radius); i <= m_viewportWidth; i += 4 * m_radius ) {
                 labelRect.moveLeft(i - symbolX + textX );
                 symbolPos.setX( i );
 

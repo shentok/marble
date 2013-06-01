@@ -638,12 +638,16 @@ qreal RoutingLayer::zValue() const
     return 1.0;
 }
 
-bool RoutingLayer::render( GeoPainter *painter, ViewportParams *viewport,
-                           const QString& renderPos, GeoSceneLayer *layer )
+bool RoutingLayer::setViewport( const ViewportParams *viewport )
 {
     Q_UNUSED( viewport )
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
+
+    return true;
+}
+
+bool RoutingLayer::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
 
     painter->save();
 
@@ -664,9 +668,11 @@ bool RoutingLayer::render( GeoPainter *painter, ViewportParams *viewport,
     d->renderAnnotations( painter );
 
     painter->restore();
+
     if ( d->m_viewportChanged && d->m_viewContext == Still ) {
         d->m_viewportChanged = false;
     }
+
     return true;
 }
 

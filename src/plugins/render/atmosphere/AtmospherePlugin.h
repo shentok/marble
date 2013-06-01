@@ -58,7 +58,10 @@ public:
 
     bool isInitialized() const;
 
-    bool render( GeoPainter *painter, ViewportParams *viewport, const QString& renderPos, GeoSceneLayer * layer = 0 );
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
+
     void repaintPixmap(const ViewportParams *viewParams);
 
 public slots:
@@ -68,6 +71,7 @@ private:
     QPixmap m_renderPixmap;
     QColor m_renderColor;
     int m_renderRadius;
+    QPoint m_screenPosition;
 };
 
 }

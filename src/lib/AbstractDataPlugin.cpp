@@ -50,6 +50,7 @@ class AbstractDataPluginPrivate
     
     AbstractDataPluginModel *m_model;
     quint32 m_numberOfItems;
+    QList<AbstractDataPluginItem *> m_items;
     QDeclarativeComponent* m_delegate;
     QGraphicsItem* m_delegateParent;
     QMap<AbstractDataPluginItem*,QDeclarativeItem*> m_delegateInstances;
@@ -88,27 +89,36 @@ QStringList AbstractDataPlugin::renderPosition() const
     return QStringList( "ALWAYS_ON_TOP" );
 }
 
-bool AbstractDataPlugin::render( GeoPainter *painter, ViewportParams *viewport,
-             const QString& renderPos, GeoSceneLayer * layer)
+bool AbstractDataPlugin::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos );
-    Q_UNUSED( layer );
-
     if ( d->m_delegate ) {
         handleViewportChange( viewport );
-    } else {
-        QList<AbstractDataPluginItem*> items = d->m_model->items( viewport, numberOfItems() );
+    }
+    else {
+        d->m_items = d->m_model->items( viewport, numberOfItems() );
+        for( int i = d->m_items.size() - 1; i >= 0; --i ) {
+            d->m_items.at( i )->setProjection( viewport );
+        }
+    }
+
+    return true;
+}
+
+bool AbstractDataPlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
+
+    if ( !d->m_delegate ) {
         painter->save();
 
         // Paint the most important item at last
-        for( int i = items.size() - 1; i >= 0; --i ) {
-            items.at( i )->setProjection( viewport );
-            items.at( i )->paintEvent( painter );
+        for( int i = d->m_items.size() - 1; i >= 0; --i ) {
+            d->m_items.at( i )->paintEvent( painter );
         }
 
         painter->restore();
     }
-    
+
     return true;
 }
 

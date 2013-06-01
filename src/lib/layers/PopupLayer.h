@@ -45,8 +45,8 @@ public:
 
     QStringList renderPosition() const;
     QString renderPolicy() const;
-    bool render( GeoPainter *painter, ViewportParams *viewport,
-                 const QString &, GeoSceneLayer * );
+    bool setViewport( const ViewportParams *viewport );
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
     virtual bool eventFilter( QObject *, QEvent * );
     qreal zValue() const;
 

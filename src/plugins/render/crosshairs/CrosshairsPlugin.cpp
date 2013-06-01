@@ -197,12 +197,31 @@ void CrosshairsPlugin::writeSettings()
     emit settingsChanged( nameId() );
 }
 
-bool CrosshairsPlugin::render( GeoPainter *painter, ViewportParams *viewport,
-                               const QString& renderPos,
-                               GeoSceneLayer * layer )
+bool CrosshairsPlugin::setViewport( const ViewportParams *viewport )
 {
-    Q_UNUSED( renderPos )
-    Q_UNUSED( layer )
+    const int width = 21;
+    const int height = 21;
+
+    GeoDataCoordinates const focusPoint = viewport->focusPoint();
+    GeoDataCoordinates const centerPoint = GeoDataCoordinates( viewport->centerLongitude(), viewport->centerLatitude() );
+    if ( focusPoint == centerPoint ) {
+        // Focus point is in the middle of the screen. Special casing this avoids jittering.
+        int centerX = viewport->size().width() / 2;
+        int centerY = viewport->size().height() / 2;
+        m_center = QPoint( centerX - width / 2, centerY - height / 2 );
+    } else {
+        qreal centerX = 0.0;
+        qreal centerY = 0.0;
+        viewport->screenCoordinates( focusPoint, centerX, centerY );
+        m_center = QPoint( centerX - width / 2, centerY - height / 2 );
+    }
+
+    return true;
+}
+
+bool CrosshairsPlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
+{
+    Q_UNUSED( viewportSize )
 
     const int width = 21;
     const int height = 21;
@@ -215,19 +234,7 @@ bool CrosshairsPlugin::render( GeoPainter *painter, ViewportParams *viewport,
         m_svgobj->render( &mapPainter );
     }
 
-    GeoDataCoordinates const focusPoint = viewport->focusPoint();
-    GeoDataCoordinates const centerPoint = GeoDataCoordinates( viewport->centerLongitude(), viewport->centerLatitude() );
-    if ( focusPoint == centerPoint ) {
-        // Focus point is in the middle of the screen. Special casing this avoids jittering.
-        int centerX = viewport->size().width() / 2;
-        int centerY = viewport->size().height() / 2;
-        painter->drawPixmap( QPoint ( centerX - width / 2, centerY - height / 2 ), m_crosshairs );
-    } else {
-        qreal centerX = 0.0;
-        qreal centerY = 0.0;
-        viewport->screenCoordinates( focusPoint, centerX, centerY );
-        painter->drawPixmap( QPoint ( centerX - width / 2, centerY - height / 2 ), m_crosshairs );
-    }
+    painter->drawPixmap( m_center, m_crosshairs );
 
     return true;
 }

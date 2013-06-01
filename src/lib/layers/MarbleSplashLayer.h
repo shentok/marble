@@ -13,6 +13,8 @@
 
 #include "LayerInterface.h"
 
+#include <QtCore/QSize>
+
 
 namespace Marble
 {
@@ -24,8 +26,12 @@ public:
 
     virtual QStringList renderPosition() const;
 
-    virtual bool render( GeoPainter *painter, ViewportParams *viewport,
-                         const QString &renderPos = "SURFACE", GeoSceneLayer *layer = 0 );
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
+
+private:
+    QSize m_viewportSize;
 };
 
 }

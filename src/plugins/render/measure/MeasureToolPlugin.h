@@ -67,7 +67,9 @@ class MeasureToolPlugin : public RenderPlugin, public DialogConfigurationInterfa
 
     bool isInitialized () const;
 
-    bool render( GeoPainter *painter, ViewportParams *viewport, const QString& renderPos, GeoSceneLayer * layer = 0 );
+    bool setViewport( const ViewportParams *viewport );
+
+    bool render( GeoPainter *painter, const QSize &viewportSize ) const;
 
     QDialog *configDialog();
     QHash<QString,QVariant> settings() const;
@@ -80,10 +82,10 @@ class MeasureToolPlugin : public RenderPlugin, public DialogConfigurationInterfa
     bool  eventFilter( QObject *object, QEvent *event );
 
  private:
-    void  drawMeasurePoints( GeoPainter *painter );
+    void  drawMeasurePoints( GeoPainter *painter ) const;
     void  drawTotalDistanceLabel( GeoPainter *painter,
-                                  qreal totalDistance );
-    void  drawSegments( GeoPainter *painter );
+                                  qreal totalDistance ) const;
+    void  drawSegments( GeoPainter *painter ) const;
     void  addContextItems();
     void  removeContextItems();
 
