@@ -1057,15 +1057,6 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
       */
     virtual void changeEvent( QEvent * event );
 
-    /**
-     * @brief Enables custom drawing onto the MarbleWidget straight after
-     * @brief the globe and before all other layers has been rendered.
-     * @param painter
-     *
-     * @deprecated implement LayerInterface and add it using @p addLayer()
-     */
-    virtual void customPaint( GeoPainter *painter );
-
  private:
     Q_PRIVATE_SLOT( d, void updateMapTheme() )
     Q_PRIVATE_SLOT( d, void updateSystemBackgroundAttribute() )
@@ -1074,9 +1065,6 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
     Q_DISABLE_COPY( MarbleWidget )
     MarbleWidgetPrivate  * const d;
     friend class MarbleWidgetPrivate;
-
-    class CustomPaintLayer;
-    friend class CustomPaintLayer;
 
     friend class MarbleWidgetDefaultInputHandler;
 };
