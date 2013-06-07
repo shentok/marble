@@ -54,34 +54,6 @@
 namespace Marble
 {
 
-class MarbleWidget::CustomPaintLayer : public LayerInterface
-{
- public:
-    CustomPaintLayer( MarbleWidget *widget )
-        : m_widget( widget )
-    {
-    }
-
-    virtual QStringList renderPosition() const { return QStringList() << "USER_TOOLS"; }
-
-    virtual bool render( GeoPainter *painter, ViewportParams *viewport,
-                         const QString &renderPos, GeoSceneLayer *layer )
-    {
-        Q_UNUSED( viewport );
-        Q_UNUSED( renderPos );
-        Q_UNUSED( layer );
-
-        m_widget->customPaint( painter );
-
-        return true;
-    }
-
-    virtual qreal zValue() const { return 1.0e7; }
-
- private:
-    MarbleWidget *const m_widget;
-};
-
 
 class MarbleWidgetPrivate
 {
@@ -97,7 +69,6 @@ class MarbleWidgetPrivate
           m_physics( parent ),
           m_routingLayer( 0 ),
           m_mapInfoDialog( 0 ),
-          m_customPaintLayer( parent ),
           m_popupmenu( 0 ),
           m_showFrameRate( false ),
           m_viewAngle( 110.0 )
@@ -106,7 +77,6 @@ class MarbleWidgetPrivate
 
     ~MarbleWidgetPrivate()
     {
-        m_map.removeLayer( &m_customPaintLayer );
     }
 
     void  construct();
@@ -149,7 +119,6 @@ class MarbleWidgetPrivate
 
     RoutingLayer     *m_routingLayer;
     PopupLayer    *m_mapInfoDialog;
-    MarbleWidget::CustomPaintLayer m_customPaintLayer;
 
     MarbleWidgetPopupMenu *m_popupmenu;
 
@@ -257,8 +226,6 @@ void MarbleWidgetPrivate::construct()
 
     m_widget->setInputHandler( new MarbleWidgetDefaultInputHandler( m_widget ) );
     m_widget->setMouseTracking( true );
-
-    m_map.addLayer( &m_customPaintLayer );
 }
 
 void MarbleWidgetPrivate::moveByStep( int stepsRight, int stepsDown, FlyToMode mode )
@@ -829,12 +796,6 @@ void MarbleWidget::paintEvent( QPaintEvent *evt )
         const qreal fps = 1000.0 / (qreal)( t.elapsed() + 1 );
         emit framesPerSecond( fps );
     }
-}
-
-void MarbleWidget::customPaint( GeoPainter *painter )
-{
-    Q_UNUSED( painter );
-    /* This is a NOOP in the base class*/
 }
 
 
