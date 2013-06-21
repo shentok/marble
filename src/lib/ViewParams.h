@@ -19,8 +19,6 @@
  * @author Inge Wallin  <inge@lysator.liu.se>
  */
 
-#include <QtCore/QString>
-
 #include "MarbleGlobal.h"
 
 
@@ -46,12 +44,6 @@ class ViewParams
 
     ViewContext viewContext() const;
     void setViewContext( ViewContext viewContext );
-
-    bool showAtmosphere() const;
-    void setShowAtmosphere( bool );
-
-    bool showClouds() const;
-    void setShowClouds( bool const );
 
  private:
     Q_DISABLE_COPY( ViewParams )

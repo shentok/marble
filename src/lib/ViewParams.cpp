@@ -30,23 +30,13 @@ public:
     // The quality that we are painting right now.
     MapQuality           m_mapQuality;
 
-
-    // Parameters that determine the painting
-    // Show/don't show options
-
-    bool        m_showAtmosphere;
-
-    bool        m_showClouds;
 };
 
 ViewParamsPrivate::ViewParamsPrivate()
     : m_stillQuality( HighQuality ),
       m_animationQuality( LowQuality ),
       m_viewContext( Still ),
-      m_mapQuality( m_stillQuality ),
-      // Show / don't show parameters
-      m_showAtmosphere( true ),
-      m_showClouds( false )
+      m_mapQuality( m_stillQuality )
 {
 }
 
@@ -106,26 +96,6 @@ void ViewParams::setViewContext( ViewContext viewContext )
         d->m_mapQuality = d->m_stillQuality;
     if ( viewContext == Animation )
         d->m_mapQuality = d->m_animationQuality;
-}
-
-bool ViewParams::showAtmosphere() const
-{
-    return d->m_showAtmosphere;
-}
-
-void ViewParams::setShowAtmosphere( bool showAtmosphere )
-{
-    d->m_showAtmosphere = showAtmosphere;
-}
-
-bool ViewParams::showClouds() const
-{
-    return d->m_showClouds;
-}
-
-void ViewParams::setShowClouds( bool const showClouds )
-{
-    d->m_showClouds = showClouds;
 }
 
 }

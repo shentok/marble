@@ -146,6 +146,8 @@ public:
     PlacemarkLayer   m_placemarkLayer;
     VectorTileLayer  m_vectorTileLayer;
 
+    bool m_showAtmosphere;
+    bool m_showClouds;
     bool m_isLockedToSubSolarPoint;
     bool m_isSubSolarPointIconVisible;
 };
@@ -164,6 +166,8 @@ MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model ) :
     m_textureLayer( model->downloadManager(), model->sunLocator(), &m_veccomposer, model->pluginManager() ),
     m_placemarkLayer( model->placemarkModel(), model->placemarkSelectionModel(), model->clock() ),
     m_vectorTileLayer( model->downloadManager(), model->pluginManager(), model->treeModel() ),
+    m_showAtmosphere( true ),
+    m_showClouds( false ),
     m_isLockedToSubSolarPoint( false ),
     m_isSubSolarPointIconVisible( false )
 {
@@ -508,7 +512,13 @@ void MarbleMap::downloadRegion( QVector<TileCoordsPyramid> const & pyramid )
 bool MarbleMap::propertyValue( const QString& name ) const
 {
     bool value;
-    if ( d->m_model->mapTheme() ) {
+    if ( name == "atmosphere" ) {
+        value = d->m_showAtmosphere;
+    }
+    else if ( name == "clouds_data" ) {
+        value = d->m_showClouds;
+    }
+    else if ( d->m_model->mapTheme() ) {
         d->m_model->mapTheme()->settings()->propertyValue( name, value );
     }
     else {
@@ -540,7 +550,7 @@ bool MarbleMap::showGrid() const
 
 bool MarbleMap::showClouds() const
 {
-    return d->m_viewParams.showClouds();
+    return propertyValue( "clouds_data" );
 }
 
 bool MarbleMap::showSunShading() const
@@ -565,7 +575,7 @@ bool MarbleMap::isSubSolarPointIconVisible() const
 
 bool MarbleMap::showAtmosphere() const
 {
-    return d->m_viewParams.showAtmosphere();
+    return propertyValue( "atmosphere" );
 }
 
 bool MarbleMap::showCrosshairs() const
@@ -801,7 +811,7 @@ void MarbleMapPrivate::updateMapTheme()
     QObject::connect( m_model->mapTheme()->settings(), SIGNAL(valueChanged(QString,bool)),
                       m_model, SLOT(updateProperty(QString,bool)) );
 
-    q->setPropertyValue( "clouds_data", m_viewParams.showClouds() );
+    q->setPropertyValue( "clouds_data", m_showClouds );
 
     if ( !m_model->mapTheme()->map()->hasTextureLayers() ) {
         m_groundLayer.setColor( m_model->mapTheme()->map()->backgroundColor() );
@@ -1036,6 +1046,13 @@ void MarbleMapPrivate::updateMapTheme()
 void MarbleMap::setPropertyValue( const QString& name, bool value )
 {
     mDebug() << "In MarbleMap the property " << name << "was set to " << value;
+    if ( name == "clouds_data" ) {
+        d->m_showClouds = value;
+    }
+    else if ( name == "atmosphere" ) {
+        d->m_showAtmosphere = value;
+    }
+
     if ( d->m_model->mapTheme() ) {
         d->m_model->mapTheme()->settings()->setPropertyValue( name, value );
     }
@@ -1067,7 +1084,7 @@ void MarbleMap::setShowAtmosphere( bool visible )
         }
     }
 
-    d->m_viewParams.setShowAtmosphere( visible );
+    setPropertyValue( "atmosphere", visible );
 }
 
 void MarbleMap::setShowCrosshairs( bool visible )
@@ -1084,8 +1101,6 @@ void MarbleMap::setShowCrosshairs( bool visible )
 
 void MarbleMap::setShowClouds( bool visible )
 {
-    d->m_viewParams.setShowClouds( visible );
-
     setPropertyValue( "clouds_data", visible );
 }
 
