@@ -12,6 +12,8 @@
 #ifndef MARBLE_LAYERMANAGER_H
 #define MARBLE_LAYERMANAGER_H
 
+#include "MarbleGlobal.h"
+
 // Qt
 #include <QtCore/QList>
 #include <QtCore/QObject>
@@ -26,6 +28,7 @@ namespace Marble
 class AbstractDataPlugin;
 class AbstractDataPluginItem;
 class GeoPainter;
+class ViewParams;
 class ViewportParams;
 class RenderPlugin;
 class AbstractFloatItem;
@@ -45,6 +48,13 @@ class LayerManager : public QObject
  public:
     explicit LayerManager( const MarbleModel *model, QObject *parent = 0);
     ~LayerManager();
+
+    void setMapQualityForViewContext( MapQuality mapQuality, ViewContext viewContext );
+    MapQuality mapQuality( ViewContext viewContext ) const;
+    MapQuality mapQuality() const;
+
+    void setViewContext( ViewContext viewContext );
+    ViewContext viewContext() const;
 
     void renderLayers( GeoPainter *painter, ViewportParams *viewport );
 

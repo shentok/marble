@@ -72,9 +72,9 @@ public:
     void setPlacemarkModel ( MarblePlacemarkModel *model );
 
     /**
-      * Set the view context to determine whether the map is used interactively
+      * Set the view params to determine whether the map is used interactively
       */
-    void setViewContext( ViewContext viewContext );
+    void setViewParams( const ViewParams &viewParams );
 
 Q_SIGNALS:
     /**

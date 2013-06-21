@@ -20,7 +20,7 @@
  */
 
 #include "MarbleGlobal.h"
-
+#include "marble_export.h"
 
 namespace Marble
 {
@@ -32,7 +32,7 @@ class ViewParamsPrivate;
  *
  */
 
-class ViewParams
+class MARBLE_EXPORT ViewParams
 {
  public:
     ViewParams();

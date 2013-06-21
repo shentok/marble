@@ -31,6 +31,7 @@
 #include "TextureColorizer.h"
 #include "TileLoader.h"
 #include "VectorComposer.h"
+#include "ViewParams.h"
 #include "ViewportParams.h"
 
 namespace Marble
@@ -60,6 +61,7 @@ public:
     StackedTileLoader    m_tileLoader;
     GeoDataLatLonBox m_latLonBox;
     int m_tileZoomLevel;
+    MapQuality m_mapQuality;
     TextureMapperInterface *m_texmapper;
     TextureColorizer *m_texcolorizer;
     QVector<const GeoSceneTextureTile *> m_textures;
@@ -83,6 +85,7 @@ TextureLayer::Private::Private( HttpDownloadManager *downloadManager,
     , m_tileLoader( &m_layerDecorator )
     , m_latLonBox()
     , m_tileZoomLevel( -1 )
+    , m_mapQuality( HighQuality )
     , m_texmapper( 0 )
     , m_texcolorizer( 0 )
     , m_textureLayerSettings( 0 )
@@ -256,6 +259,20 @@ QString TextureLayer::runtimeTrace() const
     return d->m_runtimeTrace;
 }
 
+void TextureLayer::setViewParams( const ViewParams &viewParams )
+{
+    if ( d->m_mapQuality == viewParams.mapQuality() )
+        return;
+
+    d->m_mapQuality = viewParams.mapQuality();
+
+    if ( d->m_texmapper ) {
+        d->m_texmapper->setRepaintNeeded();
+    }
+
+    emit repaintNeeded();
+}
+
 void TextureLayer::setShowRelief( bool show )
 {
     if ( d->m_texcolorizer ) {
@@ -319,13 +336,6 @@ void TextureLayer::setProjection( Projection projection )
             d->m_texmapper = 0;
     }
     Q_ASSERT( d->m_texmapper );
-}
-
-void TextureLayer::setNeedsUpdate()
-{
-    if ( d->m_texmapper ) {
-        d->m_texmapper->setRepaintNeeded();
-    }
 }
 
 void TextureLayer::setVolatileCacheLimit( quint64 kilobytes )

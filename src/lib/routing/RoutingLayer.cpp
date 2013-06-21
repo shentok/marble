@@ -24,6 +24,7 @@
 #include "AlternativeRoutesModel.h"
 #include "RoutingManager.h"
 #include "Maneuver.h"
+#include "ViewParams.h"
 
 #include <QtCore/QMap>
 #include <QtCore/QAbstractItemModel>
@@ -764,9 +765,9 @@ void RoutingLayer::setViewportChanged()
     d->m_alternativeRouteRegions.clear();
 }
 
-void RoutingLayer::setViewContext( ViewContext viewContext )
+void RoutingLayer::setViewParams( const ViewParams &viewParams )
 {
-    d->m_viewContext = viewContext;
+    d->m_viewContext = viewParams.viewContext();
 }
 
 } // namespace Marble

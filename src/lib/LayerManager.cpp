@@ -23,6 +23,7 @@
 #include "MarbleModel.h"
 #include "PluginManager.h"
 #include "RenderPlugin.h"
+#include "ViewParams.h"
 #include "LayerInterface.h"
 
 namespace Marble
@@ -48,8 +49,11 @@ class LayerManager::Private
 
     void addPlugins();
 
+    void setViewParams( const ViewParams &viewParams );
+
     LayerManager *const q;
 
+    ViewParams m_viewParams;
     QList<RenderPlugin *> m_renderPlugins;
     QList<AbstractFloatItem *> m_floatItems;
     QList<AbstractDataPlugin *> m_dataPlugins;
@@ -63,6 +67,7 @@ class LayerManager::Private
 
 LayerManager::Private::Private( const MarbleModel* model, LayerManager *parent )
     : q( parent ),
+      m_viewParams(),
       m_renderPlugins(),
       m_model( model ),
       m_showBackground( true ),
@@ -122,6 +127,41 @@ QList<AbstractDataPluginItem *> LayerManager::whichItemAt( const QPoint& curpos 
         itemList.append( plugin->whichItemAt( curpos ) );
     }
     return itemList;
+}
+
+void LayerManager::setMapQualityForViewContext( MapQuality mapQuality, ViewContext viewContext )
+{
+    const MapQuality oldQuality = d->m_viewParams.mapQuality();
+
+    d->m_viewParams.setMapQualityForViewContext( mapQuality, viewContext );
+
+    if ( oldQuality != d->m_viewParams.mapQuality() ) {
+        d->setViewParams( d->m_viewParams );
+    }
+}
+
+MapQuality LayerManager::mapQuality( ViewContext viewContext ) const
+{
+    return d->m_viewParams.mapQuality( viewContext );
+}
+
+MapQuality LayerManager::mapQuality() const
+{
+    return d->m_viewParams.mapQuality();
+}
+
+void LayerManager::setViewContext( ViewContext viewContext )
+{
+    if ( d->m_viewParams.viewContext() == viewContext )
+        return;
+
+    d->m_viewParams.setViewContext( viewContext );
+    d->setViewParams( d->m_viewParams );
+}
+
+ViewContext LayerManager::viewContext() const
+{
+    return d->m_viewParams.viewContext();
 }
 
 void LayerManager::renderLayers( GeoPainter *painter, ViewportParams *viewport )
@@ -233,6 +273,26 @@ void LayerManager::Private::addPlugins()
             qobject_cast<AbstractDataPlugin *>( renderPlugin );
         if( dataPlugin )
             m_dataPlugins.append( dataPlugin );
+    }
+}
+
+void LayerManager::Private::setViewParams( const ViewParams &viewParams )
+{
+    foreach ( RenderPlugin *plugin, m_renderPlugins ) {
+        if ( !plugin->enabled() )
+            continue;
+
+        if ( !plugin->visible() )
+            continue;
+
+        if ( !plugin->isInitialized() )
+            continue;
+
+        plugin->setViewParams( viewParams );
+    }
+
+    foreach ( LayerInterface *layer, m_internalLayers ) {
+        layer->setViewParams( viewParams );
     }
 }
 

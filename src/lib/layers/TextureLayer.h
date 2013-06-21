@@ -76,6 +76,8 @@ class TextureLayer : public QObject, public LayerInterface
 
     virtual QString runtimeTrace() const;
 
+    void setViewParams( const ViewParams &viewParams );
+
     virtual bool render( GeoPainter *painter, ViewportParams *viewport,
                  const QString &renderPos = "NONE", GeoSceneLayer *layer = 0 );
 
@@ -93,8 +95,6 @@ public Q_SLOTS:
      * @param  projection projection type (e.g. Spherical, Equirectangular, Mercator)
      */
     void setProjection( Projection projection );
-
-    void setNeedsUpdate();
 
     void setMapTheme( const QVector<const GeoSceneTextureTile *> &textures, const GeoSceneGroup *textureLayerSettings, const QString &seaFile, const QString &landFile );
 

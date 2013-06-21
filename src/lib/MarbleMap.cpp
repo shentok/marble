@@ -71,7 +71,6 @@
 #include "TileCreatorDialog.h"
 #include "TileLoader.h"
 #include "VectorComposer.h"
-#include "ViewParams.h"
 #include "ViewportParams.h"
 
 
@@ -128,7 +127,6 @@ public:
     bool             m_modelIsOwned;
 
     // Parameters for the maps appearance.
-    ViewParams       m_viewParams;
     ViewportParams   m_viewport;
     bool             m_showFrameRate;
 
@@ -155,7 +153,6 @@ public:
 MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model ) :
     q( parent ),
     m_model( model ),
-    m_viewParams(),
     m_showFrameRate( false ),
     m_veccomposer(),
     m_layerManager( model, parent ),
@@ -314,39 +311,27 @@ const ViewportParams *MarbleMap::viewport() const
 
 void MarbleMap::setMapQualityForViewContext( MapQuality quality, ViewContext viewContext )
 {
-    d->m_viewParams.setMapQualityForViewContext( quality, viewContext );
-
-    // Update texture map during the repaint that follows:
-    d->m_textureLayer.setNeedsUpdate();
+    d->m_layerManager.setMapQualityForViewContext( quality, viewContext );
 }
 
 MapQuality MarbleMap::mapQuality( ViewContext viewContext ) const
 {
-    return d->m_viewParams.mapQuality( viewContext );
+    return d->m_layerManager.mapQuality( viewContext );
 }
 
 MapQuality MarbleMap::mapQuality() const
 {
-    return d->m_viewParams.mapQuality();
+    return d->m_layerManager.mapQuality();
 }
 
 void MarbleMap::setViewContext( ViewContext viewContext )
 {
-    const MapQuality oldQuality = d->m_viewParams.mapQuality();
-
-    d->m_viewParams.setViewContext( viewContext );
-
-    if ( d->m_viewParams.mapQuality() != oldQuality ) {
-        // Update texture map during the repaint that follows:
-        d->m_textureLayer.setNeedsUpdate();
-
-        emit repaintNeeded();
-    }
+    d->m_layerManager.setViewContext( viewContext );
 }
 
 ViewContext MarbleMap::viewContext() const
 {
-    return d->m_viewParams.viewContext();
+    return d->m_layerManager.viewContext();
 }
 
 

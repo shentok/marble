@@ -1127,7 +1127,6 @@ void MarbleWidget::setViewContext( ViewContext viewContext )
     if ( d->m_map.viewContext() != viewContext ) {
         const MapQuality oldQuality = d->m_map.mapQuality();
         d->m_map.setViewContext( viewContext );
-        d->m_routingLayer->setViewContext( viewContext );
 
         if ( d->m_map.mapQuality() != oldQuality )
             update();

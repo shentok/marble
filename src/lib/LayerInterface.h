@@ -20,6 +20,7 @@ namespace Marble {
 
 class GeoPainter;
 class GeoSceneLayer;
+class ViewParams;
 class ViewportParams;
 
 class MARBLE_EXPORT LayerInterface
@@ -48,6 +49,8 @@ public:
      * "USER_TOOLS"
      */
     virtual QStringList renderPosition() const = 0;
+
+    virtual void setViewParams( const ViewParams &viewParams );
 
     /**
      * @brief Renders the content provided by the layer on the viewport.

@@ -18,6 +18,10 @@ LayerInterface::~LayerInterface()
     // nothing to do
 }
 
+void LayerInterface::setViewParams( const ViewParams &viewParams )
+{
+    Q_UNUSED( viewParams )
+}
 
 qreal LayerInterface::zValue() const
 {
