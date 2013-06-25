@@ -20,9 +20,9 @@ add_subdirectory( crosshairs )
 add_subdirectory( elevationprofilemarker )
 add_subdirectory( graticule )
 add_subdirectory( measure )
-add_subdirectory( positionmarker )
+#add_subdirectory( positionmarker )
 add_subdirectory( atmosphere )
-add_subdirectory( stars )
+#add_subdirectory( stars )
 add_subdirectory( sun )
 
 # Display online information
