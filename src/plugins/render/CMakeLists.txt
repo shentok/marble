@@ -20,9 +20,9 @@ add_subdirectory( crosshairs )
 add_subdirectory( elevationprofilemarker )
 add_subdirectory( graticule )
 add_subdirectory( measure )
-add_subdirectory( positionmarker )
+#add_subdirectory( positionmarker )
 add_subdirectory( atmosphere )
-add_subdirectory( stars )
+#add_subdirectory( stars )
 add_subdirectory( sun )
 
 # Display online information
@@ -45,4 +45,4 @@ add_subdirectory( weather )
 # It should be moved to a new plugin type later.
 add_subdirectory( inhibit-screensaver )
 
-add_subdirectory( aprs )
+#add_subdirectory( aprs )
