@@ -462,7 +462,7 @@ void ScanlineTextureMapperContext::nextTile( int &posX, int &posY )
     const int tileRow = lat / m_tileSize.height();
 
     m_deltaLevel = 0;
-    m_tile = m_tileLoader->loadTile( TileId( 0, m_tileLevel - m_deltaLevel, tileCol >> m_deltaLevel, tileRow >> m_deltaLevel ) );
+    m_tile = m_tileLoader->object( TileId( 0, m_tileLevel - m_deltaLevel, tileCol >> m_deltaLevel, tileRow >> m_deltaLevel ) );
 
     // Update position variables:
     // m_tilePosX/Y stores the position of the tiles in 
@@ -504,7 +504,7 @@ void ScanlineTextureMapperContext::nextTile( qreal &posX, qreal &posY )
     const int tileRow = lat / m_tileSize.height();
 
     m_deltaLevel = 0;
-    m_tile = m_tileLoader->loadTile( TileId( 0, m_tileLevel - m_deltaLevel, tileCol >> m_deltaLevel, tileRow >> m_deltaLevel ) );
+    m_tile = m_tileLoader->object( TileId( 0, m_tileLevel - m_deltaLevel, tileCol >> m_deltaLevel, tileRow >> m_deltaLevel ) );
 
     // Update position variables:
     // m_tilePosX/Y stores the position of the tiles in 

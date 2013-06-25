@@ -173,7 +173,7 @@ void TextureLayer::Private::updateTextureLayers()
     }
 
     m_layerDecorator.setTextureLayers( result );
-    m_tileLoader.clear();
+    m_tileLoader.clear( &m_layerDecorator );
 
     m_parent->setNeedsUpdate();
 }
@@ -183,7 +183,16 @@ void TextureLayer::Private::updateTile( const TileId &tileId, const QImage &tile
     if ( tileImage.isNull() )
         return; // keep tiles in cache to improve performance
 
-    m_tileLoader.updateTile( tileId, tileImage );
+    const TileId stackedTileId( 0, tileId.zoomLevel(), tileId.x(), tileId.y() );
+
+    if ( m_tileLoader.visibleTiles().contains( stackedTileId ) ) {
+        const StackedTile *const displayedTile = m_tileLoader.object( stackedTileId );
+        Q_ASSERT( displayedTile );
+        StackedTile *const stackedTile = m_layerDecorator.updateTile( *displayedTile, tileId, tileImage );
+        m_tileLoader.insert( stackedTileId, stackedTile );
+    } else {
+        m_tileLoader.remove( stackedTileId );
+    }
 
     requestDelayedRepaint();
 }
@@ -303,7 +312,10 @@ bool TextureLayer::render( GeoPainter *painter, ViewportParams *viewport,
         for ( int y = rect.top(); y <= rect.bottom(); ++y ) {
             for ( int x = rect.left(); x <= rect.right(); ++x ) {
                 const TileId id = TileId( 0, d->m_tileZoomLevel, x, y );
-                d->m_tileLoader.loadTile( id );
+                if ( !d->m_tileLoader.contains( id ) ) {
+                    StackedTile *tile = d->m_layerDecorator.loadTile( id );
+                    d->m_tileLoader.insert( id, tile );
+                }
             }
         }
     }
@@ -402,7 +414,7 @@ void TextureLayer::reset()
 {
     mDebug() << Q_FUNC_INFO;
 
-    d->m_tileLoader.clear();
+    d->m_tileLoader.clear( &d->m_layerDecorator );
     setNeedsUpdate();
 }
 

@@ -44,19 +44,19 @@ namespace Marble
 class StackedTileLoaderPrivate
 {
 public:
-    StackedTileLoaderPrivate( MergedLayerDecorator *mergedLayerDecorator )
+    StackedTileLoaderPrivate( const MergedLayerDecorator *mergedLayerDecorator )
         : m_layerDecorator( mergedLayerDecorator )
     {
         m_tileCache.setMaxCost( 20000 * 1024 ); // Cache size measured in bytes
     }
 
-    MergedLayerDecorator *const m_layerDecorator;
+    const MergedLayerDecorator *const m_layerDecorator;
     QHash <TileId, StackedTile*>  m_tilesOnDisplay;
     QCache <TileId, StackedTile>  m_tileCache;
     QReadWriteLock m_cacheLock;
 };
 
-StackedTileLoader::StackedTileLoader( MergedLayerDecorator *mergedLayerDecorator, QObject *parent )
+StackedTileLoader::StackedTileLoader( const MergedLayerDecorator *mergedLayerDecorator, QObject *parent )
     : QObject( parent ),
       d( new StackedTileLoaderPrivate( mergedLayerDecorator ) )
 {
@@ -120,7 +120,7 @@ void StackedTileLoader::cleanupTilehash()
     }
 }
 
-const StackedTile* StackedTileLoader::loadTile( TileId const & stackedTileId )
+const StackedTile* StackedTileLoader::object( TileId const & stackedTileId )
 {
     // check if the tile is in the hash
     d->m_cacheLock.lockForRead();
@@ -130,6 +130,7 @@ const StackedTile* StackedTileLoader::loadTile( TileId const & stackedTileId )
         stackedTile->setUsed( true );
         return stackedTile;
     }
+
     // here ends the performance critical section of this method
 
     d->m_cacheLock.lockForWrite();
@@ -146,29 +147,36 @@ const StackedTile* StackedTileLoader::loadTile( TileId const & stackedTileId )
 
     // the tile was not in the hash so check if it is in the cache
     stackedTile = d->m_tileCache.take( stackedTileId );
-    if ( stackedTile ) {
-        Q_ASSERT( !stackedTile->used() && "tiles in m_tileCache are invisible and should thus be marked as unused" );
-        stackedTile->setUsed( true );
-        d->m_tilesOnDisplay[ stackedTileId ] = stackedTile;
-        d->m_cacheLock.unlock();
-        return stackedTile;
-    }
-
-    // tile (valid) has not been found in hash or cache, so load it from disk
-    // and place it in the hash from where it will get transferred to the cache
-
-    mDebug() << "load tile from disk:" << stackedTileId;
-
-    stackedTile = d->m_layerDecorator->loadTile( stackedTileId );
-    Q_ASSERT( stackedTile );
+    Q_ASSERT( stackedTile && "tile should be loaded into cache prior to using it" );
+    Q_ASSERT( !stackedTile->used() && "tiles in m_tileCache are invisible and should thus be marked as unused" );
     stackedTile->setUsed( true );
-
     d->m_tilesOnDisplay[ stackedTileId ] = stackedTile;
     d->m_cacheLock.unlock();
 
-    emit tileLoaded( stackedTileId );
-
     return stackedTile;
+}
+
+bool StackedTileLoader::contains( const TileId &id ) const
+{
+    return d->m_tilesOnDisplay.contains( id ) || d->m_tileCache.contains( id );
+}
+
+void StackedTileLoader::insert( const TileId &stackedTileId, StackedTile *stackedTile )
+{
+    mDebug() << Q_FUNC_INFO << stackedTileId;
+
+    Q_ASSERT( stackedTile );
+    stackedTile->setUsed( false );
+
+    d->m_tileCache.insert( stackedTileId, stackedTile );
+
+    emit tileLoaded( stackedTileId );
+}
+
+void StackedTileLoader::remove( const TileId &stackedTileId )
+{
+    delete d->m_tilesOnDisplay.take( stackedTileId );
+    d->m_tileCache.remove( stackedTileId );
 }
 
 quint64 StackedTileLoader::volatileCacheLimit() const
@@ -192,28 +200,7 @@ void StackedTileLoader::setVolatileCacheLimit( quint64 kiloBytes )
     d->m_tileCache.setMaxCost( kiloBytes * 1024 );
 }
 
-void StackedTileLoader::updateTile( TileId const &tileId, QImage const &tileImage )
-{
-    const TileId stackedTileId( 0, tileId.zoomLevel(), tileId.x(), tileId.y() );
-
-    StackedTile * displayedTile = d->m_tilesOnDisplay.take( stackedTileId );
-    if ( displayedTile ) {
-        Q_ASSERT( !d->m_tileCache.contains( stackedTileId ) );
-
-        StackedTile *const stackedTile = d->m_layerDecorator->updateTile( *displayedTile, tileId, tileImage );
-        stackedTile->setUsed( true );
-        d->m_tilesOnDisplay.insert( stackedTileId, stackedTile );
-
-        delete displayedTile;
-        displayedTile = 0;
-
-        emit tileLoaded( stackedTileId );
-    } else {
-        d->m_tileCache.remove( stackedTileId );
-    }
-}
-
-void StackedTileLoader::clear()
+void StackedTileLoader::clear( MergedLayerDecorator *layerDecorator )
 {
     mDebug() << Q_FUNC_INFO;
 
@@ -222,10 +209,10 @@ void StackedTileLoader::clear()
     d->m_tileCache.clear(); // clear the tile cache in physical memory
 
     if ( d->m_layerDecorator->textureLayersSize() > 0 ) {
-        for ( int row = 0; row < d->m_layerDecorator->tileRowCount( 0 ); ++row ) {
-            for ( int column = 0; column < d->m_layerDecorator->tileColumnCount( 0 ); ++column ) {
+        for ( int row = 0; row < layerDecorator->tileRowCount( 0 ); ++row ) {
+            for ( int column = 0; column < layerDecorator->tileColumnCount( 0 ); ++column ) {
                 const TileId id = TileId( 0, 0, column, row );
-                StackedTile *const levelZeroTile = d->m_layerDecorator->loadTile( id );
+                StackedTile *const levelZeroTile = layerDecorator->loadTile( id );
                 levelZeroTile->setUsed( true );
                 d->m_tilesOnDisplay.insert( id, levelZeroTile );
             }

@@ -67,7 +67,7 @@ class StackedTileLoader : public QObject
          * @param downloadManager The download manager that shall be used to fetch
          *                        the tiles from a remote resource.
          */
-        explicit StackedTileLoader( MergedLayerDecorator *mergedLayerDecorator, QObject *parent = 0 );
+        explicit StackedTileLoader( const MergedLayerDecorator *mergedLayerDecorator, QObject *parent = 0 );
         virtual ~StackedTileLoader();
 
         int tileColumnCount( int level ) const;
@@ -78,13 +78,19 @@ class StackedTileLoader : public QObject
 
         QSize tileSize() const;
 
+        void insert( TileId const &stackedTileId, StackedTile *stackedTile );
+
+        void remove( TileId const &stackedTileId );
+
         /**
          * Loads a tile and returns it.
          *
          * @param stackedTileId The Id of the requested tile, containing the x and y coordinate
          *                      and the zoom level.
          */
-        const StackedTile* loadTile( TileId const &stackedTileId );
+        const StackedTile* object( TileId const &stackedTileId );
+
+        bool contains( TileId const &stackedTileId ) const;
 
         /**
          * Resets the internal tile hash.
@@ -125,11 +131,7 @@ class StackedTileLoader : public QObject
          * Effectively triggers a reload of all tiles that are currently in use
          * and clears the tile cache in physical memory.
          */
-        void clear();
-
-        /**
-         */
-        void updateTile(TileId const & tileId, QImage const &tileImage );
+        void clear( MergedLayerDecorator *layerDecorator );
 
     Q_SIGNALS:
         void tileLoaded( TileId const &tileId );
