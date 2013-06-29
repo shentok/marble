@@ -8,8 +8,8 @@
 // Copyright 2011      Konstantin Oblaukhov <oblaukhov.konstantin@gmail.com>
 //
 
-#ifndef MARBLE_GEOPOLYGONGRAPHICSITEM_H
-#define MARBLE_GEOPOLYGONGRAPHICSITEM_H
+#ifndef MARBLE_GEOLINEARRINGGRAPHICSITEM_H
+#define MARBLE_GEOLINEARRINGGRAPHICSITEM_H
 
 #include "GeoGraphicsItem.h"
 #include "marble_export.h"
@@ -17,19 +17,19 @@
 namespace Marble
 {
 
-class GeoDataPolygon;
+class GeoDataLinearRing;
 
-class MARBLE_EXPORT GeoPolygonGraphicsItem : public GeoGraphicsItem
+class MARBLE_EXPORT GeoLinearRingGraphicsItem : public GeoGraphicsItem
 {
 public:
-    explicit GeoPolygonGraphicsItem( const GeoDataFeature *feature, const GeoDataPolygon* polygon );
+    explicit GeoLinearRingGraphicsItem( const GeoDataFeature *feature, const GeoDataLinearRing* ring );
 
     virtual const GeoDataLatLonAltBox& latLonAltBox() const;
 
     virtual void paint( GeoPainter* painter, const ViewportParams *viewport );
 
 protected:
-    const GeoDataPolygon *const m_polygon;
+    const GeoDataLinearRing *const m_ring;
 };
 
 }

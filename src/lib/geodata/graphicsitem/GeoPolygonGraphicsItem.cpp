@@ -10,7 +10,6 @@
 
 #include "GeoPolygonGraphicsItem.h"
 
-#include "GeoDataLinearRing.h"
 #include "GeoDataPolygon.h"
 #include "GeoPainter.h"
 #include "ViewportParams.h"
@@ -21,27 +20,13 @@ namespace Marble
 
 GeoPolygonGraphicsItem::GeoPolygonGraphicsItem( const GeoDataFeature *feature, const GeoDataPolygon* polygon )
         : GeoGraphicsItem( feature ),
-          m_polygon( polygon ),
-          m_ring( 0 )
-{
-}
-
-GeoPolygonGraphicsItem::GeoPolygonGraphicsItem( const GeoDataFeature *feature, const GeoDataLinearRing* ring )
-        : GeoGraphicsItem( feature ),
-          m_polygon( 0 ),
-          m_ring( ring )
+          m_polygon( polygon )
 {
 }
 
 const GeoDataLatLonAltBox& GeoPolygonGraphicsItem::latLonAltBox() const
 {
-    if( m_polygon ) {
-        return m_polygon->latLonAltBox();
-    } else if ( m_ring ) {
-        return m_ring->latLonAltBox();
-    } else {
-        return GeoGraphicsItem::latLonAltBox();
-    }
+    return m_polygon->latLonAltBox();
 }
 
 void GeoPolygonGraphicsItem::paint( GeoPainter* painter, const ViewportParams* viewport )
@@ -60,18 +45,6 @@ void GeoPolygonGraphicsItem::paint( GeoPainter* painter, const ViewportParams* v
             currentPen.setColor( Qt::transparent );
         }
         else {
-            if ( currentPen.color() != style()->lineStyle().paintedColor() ||
-                    currentPen.widthF() != style()->lineStyle().width() ) {
-                currentPen.setColor( style()->lineStyle().paintedColor() );
-                currentPen.setWidthF( style()->lineStyle().width() );
-            }
-
-            if ( currentPen.capStyle() != style()->lineStyle().capStyle() )
-                currentPen.setCapStyle( style()->lineStyle().capStyle() );
-
-            if ( currentPen.style() != style()->lineStyle().penStyle() )
-                currentPen.setStyle( style()->lineStyle().penStyle() );
-
             if ( painter->mapQuality() != Marble::HighQuality
                     && painter->mapQuality() != Marble::PrintQuality ) {
                 QColor penColor = currentPen.color();
@@ -94,11 +67,7 @@ void GeoPolygonGraphicsItem::paint( GeoPainter* painter, const ViewportParams* v
         }
     }
 
-    if ( m_polygon ) {
-        painter->drawPolygon( *m_polygon );
-    } else if ( m_ring ) {
-        painter->drawPolygon( *m_ring );
-    }
+    painter->drawPolygon( *m_polygon );
 
     painter->restore();
 }

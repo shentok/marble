@@ -31,6 +31,7 @@
 #include "ViewportParams.h"
 #include "GeoGraphicsScene.h"
 #include "GeoGraphicsItem.h"
+#include "GeoLinearRingGraphicsItem.h"
 #include "GeoLineStringGraphicsItem.h"
 #include "GeoPolygonGraphicsItem.h"
 #include "GeoTrackGraphicsItem.h"
@@ -302,7 +303,7 @@ void GeometryLayerPrivate::createGraphicsItemFromGeometry( const GeoDataGeometry
     else if ( object->nodeType() == GeoDataTypes::GeoDataLinearRingType )
     {
         const GeoDataLinearRing *ring = static_cast<const GeoDataLinearRing*>( object );
-        item = new GeoPolygonGraphicsItem( placemark, ring );
+        item = new GeoLinearRingGraphicsItem( placemark, ring );
     }
     else if ( object->nodeType() == GeoDataTypes::GeoDataPolygonType )
     {
