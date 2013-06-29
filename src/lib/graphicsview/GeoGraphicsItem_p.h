@@ -27,7 +27,6 @@ class GeoGraphicsItemPrivate
         : m_zValue( 0 ),
           m_minZoomLevel( 0 ),
           m_feature( feature ),
-          m_latLonAltBox(),
           m_style( 0 )
     {
     }
@@ -41,7 +40,6 @@ class GeoGraphicsItemPrivate
 
     int m_minZoomLevel;
     const GeoDataFeature *m_feature;
-    GeoDataLatLonAltBox m_latLonAltBox;
     const GeoDataStyle *m_style;
 };
 

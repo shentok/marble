@@ -28,6 +28,11 @@ SceneGraphicsItem::~SceneGraphicsItem()
 {
 }
 
+const GeoDataLatLonAltBox &SceneGraphicsItem::latLonAltBox() const
+{
+    return m_placemark->geometry()->latLonAltBox();
+}
+
 QList<QRegion> SceneGraphicsItem::regions() const
 {
     return m_regions;

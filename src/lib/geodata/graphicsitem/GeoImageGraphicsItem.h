@@ -11,7 +11,7 @@
 #ifndef MARBLE_GEOIMAGEGRAPHICSITEM_H
 #define MARBLE_GEOIMAGEGRAPHICSITEM_H
 
-#include "GeoDataLatLonBox.h"
+#include "GeoDataLatLonAltBox.h"
 #include "GeoGraphicsItem.h"
 #include "marble_export.h"
 
@@ -24,6 +24,8 @@ class MARBLE_EXPORT GeoImageGraphicsItem : public GeoGraphicsItem
 {
 public:
     explicit GeoImageGraphicsItem( const GeoDataFeature *feature );
+
+    const GeoDataLatLonAltBox& latLonAltBox() const;
 
     void setLatLonBox( const GeoDataLatLonBox& box );
 
@@ -41,8 +43,8 @@ public:
 
 protected:
     QImage m_image;
-
     QString m_imageFile;
+    GeoDataLatLonAltBox m_latLonAltBox;
 };
 
 }

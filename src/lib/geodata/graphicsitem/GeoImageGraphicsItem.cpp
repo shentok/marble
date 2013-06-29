@@ -22,14 +22,19 @@ GeoImageGraphicsItem::GeoImageGraphicsItem( const GeoDataFeature *feature )
 {
 }
 
+const GeoDataLatLonAltBox &GeoImageGraphicsItem::latLonAltBox() const
+{
+    return m_latLonAltBox;
+}
+
 void GeoImageGraphicsItem::setLatLonBox( const GeoDataLatLonBox &box )
 {
-    p()->m_latLonAltBox = GeoDataLatLonAltBox( box, 0, 0 );
+    m_latLonAltBox = GeoDataLatLonAltBox( box, 0, 0 );
 }
 
 const GeoDataLatLonBox& GeoImageGraphicsItem::latLonBox() const
 {
-    return p()->m_latLonAltBox;
+    return m_latLonAltBox;
 }
 
 void GeoImageGraphicsItem::setImage( const QImage &image )
@@ -57,8 +62,8 @@ void GeoImageGraphicsItem::paint( GeoPainter* painter, const ViewportParams* vie
     bool unloadImage = true;
     if ( viewport->projection() != Spherical ) {
         qreal x1(0.0), x2(0.0), y1( 0.0 ), y2( 0.0 );
-        viewport->screenCoordinates( p()->m_latLonAltBox.west(), p()->m_latLonAltBox.north(), x1, y1 );
-        viewport->screenCoordinates( p()->m_latLonAltBox.east(), p()->m_latLonAltBox.south(), x2, y2 );
+        viewport->screenCoordinates( m_latLonAltBox.west(), m_latLonAltBox.north(), x1, y1 );
+        viewport->screenCoordinates( m_latLonAltBox.east(), m_latLonAltBox.south(), x2, y2 );
         QRectF const screen( QPointF( 0, 0), viewport->size() );
         QRectF const position( x1, y1, x2-x1, y2-y1 );
         if ( !(screen & position).isEmpty() ) {

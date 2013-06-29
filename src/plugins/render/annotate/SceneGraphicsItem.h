@@ -31,6 +31,8 @@ public:
     explicit SceneGraphicsItem( GeoDataPlacemark *placemark );
     ~SceneGraphicsItem();
 
+    const GeoDataLatLonAltBox &latLonAltBox() const;
+
     QList<QRegion> regions() const;
 
     //Start dealing with the event stuff
