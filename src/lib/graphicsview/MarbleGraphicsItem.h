@@ -18,6 +18,7 @@
 #include <QtCore/QSizeF>
 #include <QtCore/QRectF>
 #include <QtCore/QString>
+#include <QFont>
 
 class QEvent;
 class QObject;
@@ -105,6 +106,16 @@ class MARBLE_EXPORT MarbleGraphicsItem
      * Set the size of the item
      */
     void setSize( const QSizeF& size );
+
+    /**
+     * Returns the font of the item
+     */
+    QFont font() const;
+
+    /**
+     * Sets the font of the item
+     */
+    void setFont( const QFont& font );
 
     /**
      * Returns the size of the content of the MarbleGraphicsItem.
