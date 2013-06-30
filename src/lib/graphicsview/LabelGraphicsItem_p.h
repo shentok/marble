@@ -28,9 +28,6 @@ class LabelGraphicsItemPrivate
  public:
     explicit LabelGraphicsItemPrivate( LabelGraphicsItem *parent );
 
-    // TODO: This has to go up to MarbleGraphicsItem
-    QFont font() const;
-
     QString m_text;
     QImage m_image;
     QIcon m_icon;
