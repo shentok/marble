@@ -22,10 +22,13 @@ namespace Marble
 class MARBLE_EXPORT GeoPointGraphicsItem : public GeoGraphicsItem
 {
 public:
-    explicit GeoPointGraphicsItem( const GeoDataFeature *feature );
+    explicit GeoPointGraphicsItem( const GeoDataFeature *feature,
+                                   const GeoDataPoint &point );
 
     void setPoint( const GeoDataPoint& point );
     GeoDataPoint point() const;
+
+    virtual void setViewport( const ViewportParams *viewport );
     
     virtual void paint( GeoPainter* painter ) const;
 
