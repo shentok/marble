@@ -9,14 +9,18 @@
 //
 
 #include "GeoPointGraphicsItem.h"
+#include "GeoDataStyle.h"
+#include "GeoDataIconStyle.h"
 
 #include "GeoPainter.h"
 
 namespace Marble
 {
 
-GeoPointGraphicsItem::GeoPointGraphicsItem( const GeoDataFeature *feature )
-        : GeoGraphicsItem( feature )
+GeoPointGraphicsItem::GeoPointGraphicsItem( const GeoDataFeature *feature,
+                                            const GeoDataPoint &point )
+        : GeoGraphicsItem( feature ),
+          m_point( point )
 {
 }
 
@@ -33,7 +37,12 @@ GeoDataPoint GeoPointGraphicsItem::point() const
 void GeoPointGraphicsItem::paint( GeoPainter* painter, const ViewportParams* viewport )
 {
     Q_UNUSED( viewport );
-    painter->drawPoint( m_point );
+
+    if ( style() && !style()->iconStyle().icon().isNull() ) {
+        painter->drawImage( m_point.coordinates(), style()->iconStyle().icon() );
+    } else {
+        painter->drawPoint( m_point );
+    }
 }
 
 const GeoDataLatLonAltBox& GeoPointGraphicsItem::latLonAltBox() const
