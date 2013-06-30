@@ -78,7 +78,7 @@ GraticulePlugin::GraticulePlugin( const MarbleModel *marbleModel )
 
     m_tropicsStyle.lineStyle().setPenStyle( Qt::DotLine );
 
-    m_gridStyle.labelStyle().setAlignment( GeoDataLabelStyle::Center );
+    m_gridStyle.labelStyle().setAlignment( GeoDataLabelStyle::Corner );
     m_boldGridStyle.labelStyle().setAlignment( GeoDataLabelStyle::Center );
     m_tropicsStyle.labelStyle().setAlignment( GeoDataLabelStyle::Center );
     m_equatorStyle.labelStyle().setAlignment( GeoDataLabelStyle::Center );
