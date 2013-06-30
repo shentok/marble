@@ -19,6 +19,8 @@
 
 #include "DialogConfigurationInterface.h"
 #include "GeoDataLineString.h"
+#include "GeoDataStyle.h"
+#include "LabelGraphicsItem.h"
 #include "RenderPlugin.h"
 #include "MarbleWidget.h"
 #include "MarbleWidgetPopupMenu.h"
@@ -45,6 +47,7 @@ class MeasureToolPlugin : public RenderPlugin, public DialogConfigurationInterfa
  public:
     MeasureToolPlugin();
     explicit MeasureToolPlugin( const MarbleModel *marbleModel );
+    ~MeasureToolPlugin();
 
     QStringList backendTypes() const;
     QString renderPolicy() const;
@@ -80,10 +83,10 @@ class MeasureToolPlugin : public RenderPlugin, public DialogConfigurationInterfa
     bool  eventFilter( QObject *object, QEvent *event );
 
  private:
-    void  drawMeasurePoints( GeoPainter *painter );
-    void  drawTotalDistanceLabel( GeoPainter *painter,
-                                  qreal totalDistance );
-    void  drawSegments( GeoPainter *painter );
+    void  updateScene();
+    void  generateMeasurePoints();
+    void  generateTotalDistanceLabel( qreal totalDistance );
+    void  generateSegments();
     void  addContextItems();
     void  removeContextItems();
 
@@ -102,12 +105,18 @@ class MeasureToolPlugin : public RenderPlugin, public DialogConfigurationInterfa
 
     // The line strings in the distance path.
     GeoDataLineString m_measureLineString;
+    QList<GeoDataLineString*> m_segments;
+
+    LabelGraphicsItem m_totalLabel;
+
+    GeoDataStyle m_segmentStyles[3];
+    GeoDataStyle m_shadowStyle;
+    GeoDataStyle m_totalRectStyle;
+    GeoDataStyle m_pointStyle;
+
+    int m_fontascent;
 
     const QPixmap m_mark;
-    QFont   m_font_regular;
-    int     m_fontascent;
-
-    QPen    m_pen;
 
     QAction *m_addMeasurePointAction;
     QAction *m_removeLastMeasurePointAction;
@@ -119,6 +128,9 @@ class MeasureToolPlugin : public RenderPlugin, public DialogConfigurationInterfa
     QDialog * m_configDialog;
     Ui::MeasureConfigWidget * m_uiConfigWidget;
     bool m_showSegmentLabels;
+
+    class ItemHelper;
+    QList<ItemHelper*> m_items;
 };
 
 }
