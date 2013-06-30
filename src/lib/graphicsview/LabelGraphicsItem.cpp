@@ -26,11 +26,6 @@ LabelGraphicsItemPrivate::LabelGraphicsItemPrivate( LabelGraphicsItem *parent )
 {
 }
 
-QFont LabelGraphicsItemPrivate::font() const
-{
-    return QApplication::font();
-}
-
 void LabelGraphicsItem::setContentSize( const QSizeF &contentSize )
 {
     QSizeF updatedSize = contentSize;
@@ -72,7 +67,7 @@ void LabelGraphicsItem::setText( const QString& text )
 {
     clear();
     d->m_text = text;
-    QFontMetrics metrics( d->font() );
+    QFontMetrics metrics( font() );
     QSizeF size = metrics.boundingRect( text ).size() + QSizeF( 14, 2 );
     setContentSize( size );
 }
@@ -131,7 +126,7 @@ void LabelGraphicsItem::paintContent( QPainter *painter ) const
     painter->save();
 
     if ( !d->m_text.isNull() ) {
-        painter->setFont( d->font() );
+        painter->setFont( font() );
         painter->setPen( QColor( Qt::black ) );
         painter->drawText( QRect( QPoint( 0, 0 ), contentSize().toSize() ),
                            Qt::AlignVCenter | Qt::AlignLeft,

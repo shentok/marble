@@ -143,6 +143,11 @@ QSizeF MarbleGraphicsItem::size() const
     return p()->m_size;
 }
 
+QFont MarbleGraphicsItem::font() const
+{
+    return p()->m_font;
+}
+
 AbstractMarbleGraphicsLayout *MarbleGraphicsItem::layout() const
 {
     return p()->m_layout;
@@ -203,6 +208,14 @@ void MarbleGraphicsItem::setSize( const QSizeF& size )
 {
     if ( p()->m_size != size ) {
         p()->m_size = size;
+        update();
+    }
+}
+
+void MarbleGraphicsItem::setFont( const QFont& font )
+{
+    if ( p()->m_font != font ) {
+        p()->m_font = font;
         update();
     }
 }

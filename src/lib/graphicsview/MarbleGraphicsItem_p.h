@@ -23,6 +23,7 @@
 #include<QtCore/QSizeF>
 #include<QtCore/QRect>
 #include<QtGui/QPixmapCache>
+#include<QApplication>
 
 namespace Marble
 {
@@ -32,7 +33,8 @@ class MarbleGraphicsItemPrivate
  public:
     explicit MarbleGraphicsItemPrivate( MarbleGraphicsItem *marbleGraphicsItem,
                                         MarbleGraphicsItem *parent = 0 )
-        : m_repaintNeeded( true ),
+        : m_font( QApplication::font() ),
+          m_repaintNeeded( true ),
           m_cacheMode( MarbleGraphicsItem::NoCache ),
           m_visibility( true ),
           m_parent( parent ),
@@ -94,6 +96,8 @@ class MarbleGraphicsItemPrivate
     }
 
     QSizeF m_size;
+
+    QFont m_font;
 
     bool m_repaintNeeded;
 
