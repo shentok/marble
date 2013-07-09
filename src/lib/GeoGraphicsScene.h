@@ -18,12 +18,16 @@
 #include <QtCore/QObject>
 #include <QtCore/QList>
 
+class QAbstractItemModel;
+class QModelIndex;
+
 namespace Marble
 {
 
 class GeoGraphicsItem;
-class GeoDataFeature;
 class GeoDataLatLonBox;
+class ScreenOverlayGraphicsItem;
+
 class GeoGraphicsScenePrivate;
 
 /**
@@ -38,35 +42,16 @@ public:
      * Creates a new instance of GeoGraphicsScene
      * @param parent the QObject parent of the Scene
      */
-    explicit GeoGraphicsScene( QObject *parent = 0 );
+    explicit GeoGraphicsScene( const QAbstractItemModel *model, QObject *parent = 0 );
     ~GeoGraphicsScene();
 
-    /**
-     * @brief Add an item to the GeoGraphicsScene
-     * Adds the item @p item to the GeoGraphicsScene
-     */
-    void addItem( GeoGraphicsItem *item );
-
-    /**
-     * @brief Remove all concerned items from the GeoGraphicsScene
-     * Removes all items which are associated with @p object from the GeoGraphicsScene
-     */
-    void removeItem( const GeoDataFeature *feature );
+    int maximumZoomLevel() const;
 
     /**
      * @brief Remove all items from the GeoGraphicsScene
      * Removes all items from the GeoGraphicsScene
      */
     void clear();
-
-    /**
-     * @brief Get all items in the GeoGraphicsScene
-     * Returns all items in the GeoGraphicsScene.
-     * The items will be returned in no specific order.
-     *
-     * @return The list of all GeoGraphicsItems
-     */
-    void eraseAll();
 
     /**
      * @brief Get the list of items in the specified Box
@@ -76,6 +61,16 @@ public:
      * @return The list of items in the specified box in no specific order.
      */
     QList<GeoGraphicsItem *> items( const GeoDataLatLonBox &box, int maxZoomLevel ) const;
+
+    QList<ScreenOverlayGraphicsItem *> screenItems() const;
+
+Q_SIGNALS:
+    void repaintNeeded();
+
+private Q_SLOTS:
+    void addPlacemarks( const QModelIndex &index, int first, int last );
+    void removePlacemarks( const QModelIndex &index, int first, int last );
+    void resetCacheData();
 
 private:
     GeoGraphicsScenePrivate * const d;
