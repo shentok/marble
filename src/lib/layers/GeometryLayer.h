@@ -16,11 +16,9 @@
 #include <QtCore/QObject>
 #include "LayerInterface.h"
 
-class QAbstractItemModel;
-class QModelIndex;
-
 namespace Marble
 {
+class GeoGraphicsScene;
 class GeoPainter;
 class ViewportParams;
 class GeometryLayerPrivate;
@@ -29,7 +27,7 @@ class GeometryLayer : public QObject, public LayerInterface
 {
     Q_OBJECT
 public:
-    explicit GeometryLayer( const QAbstractItemModel *model );
+    explicit GeometryLayer( GeoGraphicsScene *scene );
     ~GeometryLayer();
 
     virtual QStringList renderPosition() const;

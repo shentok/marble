@@ -46,6 +46,7 @@
 #include "DgmlAuxillaryDictionary.h"
 #include "FileManager.h"
 #include "GeoDataTreeModel.h"
+#include "GeoGraphicsScene.h"
 #include "GeoPainter.h"
 #include "GeoSceneDocument.h"
 #include "GeoSceneFilter.h"
@@ -134,6 +135,7 @@ public:
 
     VectorComposer   m_veccomposer;
 
+    GeoGraphicsScene m_graphicsScene;
     LayerManager     m_layerManager;
     MarbleSplashLayer m_marbleSplashLayer;
     MarbleMap::CustomPaintLayer m_customPaintLayer;
@@ -156,9 +158,10 @@ MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model ) :
     m_viewParams(),
     m_showFrameRate( false ),
     m_veccomposer(),
+    m_graphicsScene( model->treeModel() ),
     m_layerManager( model, parent ),
     m_customPaintLayer( parent ),
-    m_geometryLayer( model->treeModel() ),
+    m_geometryLayer( &m_graphicsScene ),
     m_vectorMapBaseLayer( &m_veccomposer ),
     m_vectorMapLayer( &m_veccomposer ),
     m_textureLayer( model->downloadManager(), model->sunLocator(), &m_veccomposer, model->pluginManager() ),

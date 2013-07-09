@@ -31,21 +31,21 @@ namespace Marble
 class GeometryLayerPrivate
 {
 public:
-    GeometryLayerPrivate( const QAbstractItemModel *model );
+    GeometryLayerPrivate( GeoGraphicsScene *scene );
 
-    GeoGraphicsScene m_scene;
+    GeoGraphicsScene *const m_scene;
     QString m_runtimeTrace;
 };
 
-GeometryLayerPrivate::GeometryLayerPrivate( const QAbstractItemModel *model )
-    : m_scene( model )
+GeometryLayerPrivate::GeometryLayerPrivate( GeoGraphicsScene *scene )
+    : m_scene( scene )
 {
 }
 
-GeometryLayer::GeometryLayer( const QAbstractItemModel *model )
-        : d( new GeometryLayerPrivate( model ) )
+GeometryLayer::GeometryLayer( GeoGraphicsScene *scene ) :
+    d( new GeometryLayerPrivate( scene ) )
 {
-    connect( &d->m_scene, SIGNAL(repaintNeeded()), this, SIGNAL(repaintNeeded()) );
+    connect( d->m_scene, SIGNAL(repaintNeeded()), this, SIGNAL(repaintNeeded()) );
 }
 
 GeometryLayer::~GeometryLayer()
@@ -66,9 +66,9 @@ bool GeometryLayer::render( GeoPainter *painter, ViewportParams *viewport,
 
     painter->save();
 
-    int maxZoomLevel = qMin<int>( qLn( viewport->radius() *4 / 256 ) / qLn( 2.0 ), d->m_scene.maximumZoomLevel() );
+    int maxZoomLevel = qMin<int>( qLn( viewport->radius() *4 / 256 ) / qLn( 2.0 ), d->m_scene->maximumZoomLevel() );
 
-    QList<GeoGraphicsItem*> items = d->m_scene.items( viewport->viewLatLonAltBox(), maxZoomLevel );
+    QList<GeoGraphicsItem*> items = d->m_scene->items( viewport->viewLatLonAltBox(), maxZoomLevel );
     int painted = 0;
     foreach( GeoGraphicsItem* item, items )
     {
@@ -78,7 +78,7 @@ bool GeometryLayer::render( GeoPainter *painter, ViewportParams *viewport,
         }
     }
 
-    foreach( ScreenOverlayGraphicsItem* item, d->m_scene.screenItems() ) {
+    foreach( ScreenOverlayGraphicsItem* item, d->m_scene->screenItems() ) {
         item->paintEvent( painter, viewport );
     }
 
