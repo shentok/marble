@@ -11,6 +11,8 @@ SET( geodata_graphicsitem_SRCS
     geodata/graphicsitem/GeoPhotoGraphicsItem.cpp
     geodata/graphicsitem/GeoPointGraphicsItem.cpp
     geodata/graphicsitem/GeoPolygonGraphicsItem.cpp
+    geodata/graphicsitem/GeoRectGraphicsItem.cpp
+    geodata/graphicsitem/GeoTextGraphicsItem.cpp
     geodata/graphicsitem/GeoTrackGraphicsItem.cpp
     geodata/graphicsitem/ScreenOverlayGraphicsItem.cpp
 )
