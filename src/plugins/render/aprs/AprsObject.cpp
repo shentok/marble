@@ -14,8 +14,8 @@
 
 #include "MarbleDebug.h"
 #include "MarbleDirs.h"
+#include "GeoDataStyle.h"
 #include "GeoDataLineString.h"
-#include "GeoPainter.h"
 #include "GeoAprsCoordinates.h"
 
 using namespace Marble;
@@ -25,7 +25,8 @@ AprsObject::AprsObject( const GeoAprsCoordinates &at, const QString &name )
       m_seenFrom( at.seenFrom() ),
       m_havePixmap ( false ),
       m_pixmapFilename( ),
-      m_pixmap( 0 )
+      m_pixmap( 0 ),
+      m_trackLine( 0 )
 {
     m_history.push_back( at );
 }
@@ -33,6 +34,19 @@ AprsObject::AprsObject( const GeoAprsCoordinates &at, const QString &name )
 AprsObject::~AprsObject()
 {
     delete m_pixmap;
+    delete m_trackLine;
+}
+
+const QString
+AprsObject::name() const
+{
+    return m_myName;
+}
+
+const GeoDataLineString*
+AprsObject::trackLine() const
+{
+    return m_trackLine;
 }
 
 GeoAprsCoordinates
@@ -72,89 +86,62 @@ AprsObject::setPixmapId( QString &pixmap )
     }
 }
 
-QColor
-AprsObject::calculatePaintColor( int from, const QTime &time, int fadeTime ) const
+QString
+AprsObject::pixmapId() const
 {
-    QColor color;
-    if ( from & GeoAprsCoordinates::Directly ) {
-        color = Oxygen::emeraldGreen4; // oxygen green if direct
-    } else if ( (from & ( GeoAprsCoordinates::FromTCPIP | GeoAprsCoordinates::FromTTY ) ) == ( GeoAprsCoordinates::FromTCPIP | GeoAprsCoordinates::FromTTY ) ) {
-        color = Oxygen::burgundyPurple4; // oxygen purple if both
-    } else if  ( from & GeoAprsCoordinates::FromTCPIP ) {
-        color = Oxygen::brickRed4; // oxygen red if net
-    } else if  ( from & GeoAprsCoordinates::FromTTY ) {
-        color = Oxygen::seaBlue4; // oxygen blue if TNC TTY relay
-    } else if ( from & ( GeoAprsCoordinates::FromFile ) ) {
-        color = Oxygen::sunYellow3; // oxygen yellow if file only
-    } else {
-        mDebug() << "**************************************** unknown from: "
-                 << from;
-        color = Oxygen::aluminumGray5;  // shouldn't happen but a user
-                                        // could mess up I suppose we
-                                        // should at least draw it in
-                                        // something.
+    return m_pixmapFilename;
+}
+
+QPixmap*
+AprsObject::pixmap() const
+{
+    if ( m_havePixmap ) {
+        return m_pixmap;
     }
 
-    if ( fadeTime > 0 && time.elapsed() > fadeTime ) { // 5 min ( 600000 ms )
-        color.setAlpha( 160 );
-    }
+    return 0;
+}
 
-    return color;
+int
+AprsObject::seenFrom() const
+{
+    return m_seenFrom;
 }
 
 void
-AprsObject::render( GeoPainter *painter, ViewportParams *viewport,
-                    int fadeTime, int hideTime )
+AprsObject::update( int fadeTime, int hideTime )
 {
-    Q_UNUSED( viewport );
+    Q_UNUSED( fadeTime );
 
-    if ( hideTime > 0 && m_history.last().timestamp().elapsed() > hideTime )
-        return;
-
-    QColor baseColor = calculatePaintColor( m_seenFrom,
-                                      m_history.last().timestamp(),
-                                      fadeTime );
+    //QColor baseColor = calculatePaintColor( m_seenFrom,
+    //                                  m_history.last().timestamp(),
+    //                                  fadeTime );
 
     if ( m_history.count() > 1 ) {
     
         QList<GeoAprsCoordinates>::iterator spot = m_history.begin();
         QList<GeoAprsCoordinates>::iterator endSpot = m_history.end();
-        
-        GeoDataLineString lineString;
-        lineString.setTessellate( true );
-        lineString << *spot; // *spot exists because m_history.count() > 1
+
+        if ( !m_trackLine ) {
+            m_trackLine = new GeoDataLineString();
+        } else {
+            m_trackLine->clear();
+        }
+
+        *m_trackLine << *spot;
 
         for( ++spot; spot != endSpot; ++spot ) {
 
             if ( hideTime > 0 && ( *spot ).timestamp().elapsed() > hideTime )
+                // FIXME remove old points
                 break;
 
-            lineString << *spot;
-
-            // draw the new circle in whatever is appropriate for that point
-            const QColor penColor = calculatePaintColor( spot->seenFrom(), spot->timestamp(), fadeTime );
-            painter->setPen( penColor );
-            painter->drawRect( *spot, 5, 5 );
+            *m_trackLine << *spot;
         }
-
-        // draw the line in the base color
-        painter->setPen( baseColor );
-        painter->drawPolyline( lineString );
+    } else {
+        if ( m_trackLine ) {
+            delete m_trackLine;
+            m_trackLine = 0;
+        }
     }
-    
-
-    // Always draw the symbol then the text last so it's on top
-    if ( m_havePixmap ) {
-        if ( ! m_pixmap )
-            m_pixmap = new QPixmap ( m_pixmapFilename );
-        if ( m_pixmap && ! m_pixmap->isNull() )
-            painter->drawPixmap( m_history.last(), *m_pixmap ); 
-        else
-            painter->drawRect( m_history.last(), 6, 6 );
-    }
-    else
-        painter->drawRect( m_history.last(), 6, 6 );
-
-    painter->setPen( baseColor );
-    painter->drawText( m_history.last(), m_myName );
 }
