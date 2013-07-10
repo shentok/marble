@@ -9,6 +9,7 @@ SET( geodata_graphicsitem_SRCS
     geodata/graphicsitem/GeoImageGraphicsItem.cpp
     geodata/graphicsitem/GeoLineStringGraphicsItem.cpp
     geodata/graphicsitem/GeoPhotoGraphicsItem.cpp
+    geodata/graphicsitem/GeoPixmapGraphicsItem.cpp
     geodata/graphicsitem/GeoPointGraphicsItem.cpp
     geodata/graphicsitem/GeoPolygonGraphicsItem.cpp
     geodata/graphicsitem/GeoRectGraphicsItem.cpp
