@@ -234,6 +234,7 @@ AprsGatherer::addObject( const QString &callSign,
         ( *m_objects )[callSign] = foundObject;
         mDebug() << "aprs:  new: " << callSign.toLocal8Bit().data();
         // foundObject->setTarget( "earth" );
+        emit objectAdded( foundObject );
     }
     //emit repaintNeeded( QRegion() );
 }

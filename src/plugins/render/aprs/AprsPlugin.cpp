@@ -24,6 +24,12 @@
 #include "MarbleWidget.h"
 #include "GeoPainter.h"
 #include "GeoDataCoordinates.h"
+#include "GeoGraphicsItem.h"
+#include "GeoDataPlacemark.h"
+#include "GeoPixmapGraphicsItem.h"
+#include "GeoLineStringGraphicsItem.h"
+#include "GeoTextGraphicsItem.h"
+#include "GeoRectGraphicsItem.h"
 #include "MarbleModel.h"
 #include "GeoDataLatLonAltBox.h"
 #include "ViewportParams.h"
@@ -37,7 +43,58 @@
 #include "AprsTTY.h"
 #endif
 
-using namespace Marble;
+namespace Marble {
+
+/* A helper class to ensure placemarks are destroyed along with their
+   GeoGraphicsItems */
+class AprsPlugin::ItemHelper
+{
+    public:
+        ItemHelper( const QString &name,
+                    const GeoDataStyle *style,
+                    const GeoDataLineString *line )
+            : placemark( name ),
+              graphicsItem( new GeoLineStringGraphicsItem( &placemark, line ) )
+        {
+            graphicsItem->setStyle( style );
+        }
+
+        ItemHelper( const QString &name,
+                    const GeoDataStyle *style,
+                    const GeoDataCoordinates &origin,
+                    int width, int height )
+            : placemark( name ),
+              graphicsItem( new GeoRectGraphicsItem( &placemark, origin, width, height ) )
+        {
+            graphicsItem->setStyle( style );
+        }
+
+        ItemHelper( const QString &name,
+                    const GeoDataStyle *style,
+                    const GeoDataCoordinates &location )
+            : placemark( name ),
+              graphicsItem( new GeoTextGraphicsItem( &placemark, location, name ) )
+        {
+            graphicsItem->setStyle( style );
+        }
+
+        ItemHelper( const QString &name,
+                    const GeoDataCoordinates &location,
+                    const QPixmap *pixmap )
+            : placemark( name ),
+              graphicsItem( new GeoPixmapGraphicsItem( &placemark, pixmap, location ) )
+        {
+        }
+
+        ~ItemHelper()
+        {
+                delete graphicsItem;
+        }
+
+        GeoDataPlacemark placemark;
+        GeoGraphicsItem *graphicsItem;
+};
+
 /* TRANSLATOR Marble::AprsPlugin */
 
 AprsPlugin::AprsPlugin()
@@ -76,12 +133,12 @@ AprsPlugin::AprsPlugin( const MarbleModel *marbleModel )
     
     setSettings( QHash<QString,QVariant>() );
 
-    connect( this, SIGNAL(visibilityChanged(bool,QString)),
-             this, SLOT(updateVisibility(bool)) );
+    connect( this, SIGNAL( visibilityChanged( bool, QString ) ),
+             this, SLOT( updateVisibility( bool ) ) );
 
     m_action = new QAction( this );
-    connect( m_action,    SIGNAL(toggled(bool)),
-	     this,        SLOT(setVisible(bool)) );
+    connect( m_action, SIGNAL( toggled( bool ) ),
+             this, SLOT( setVisible( bool ) ) );
 
 }
 
@@ -92,14 +149,11 @@ AprsPlugin::~AprsPlugin()
     delete m_configDialog;
     delete ui_configWidget;
 
-    QMap<QString, AprsObject *>::Iterator obj;
-    QMap<QString, AprsObject *>::Iterator end = m_objects.end();
-
-    for( obj = m_objects.begin(); obj != end; ++obj ) {
-        delete *obj;
-    }
-
+    qDeleteAll( m_objects );
     m_objects.clear();
+
+    qDeleteAll( m_items );
+    m_items.clear();
 
     delete m_mutex;
 }
@@ -110,6 +164,11 @@ void AprsPlugin::updateVisibility( bool visible )
         restartGatherers();
     else
         stopGatherers();
+}
+
+void AprsPlugin::aprsObjectAdded( AprsObject *object )
+{
+    Q_UNUSED( object );
 }
 
 RenderPlugin::RenderType AprsPlugin::renderType() const
@@ -221,6 +280,8 @@ void AprsPlugin::restartGatherers()
 
         m_tcpipGatherer->start();
         mDebug() << "started TCPIP gatherer";
+        connect( m_tcpipGatherer, SIGNAL( objectAdded( AprsObject* ) ),
+                 this, SLOT( aprsObjectAdded( AprsObject* ) ) );
     }
 
 #ifdef HAVE_QEXTSERIALPORT
@@ -234,6 +295,9 @@ void AprsPlugin::restartGatherers()
 
         m_ttyGatherer->start();
         mDebug() << "started TTY gatherer";
+
+        connect( m_ttyGatherer, SIGNAL( objectAdded( AprsObject* ) ),
+                 this, SLOT( aprsObjectAdded( AprsObject* ) ) );
     }
 #endif
 
@@ -248,12 +312,30 @@ void AprsPlugin::restartGatherers()
 
         m_fileGatherer->start();
         mDebug() << "started File gatherer";
+
+        connect( m_fileGatherer, SIGNAL( objectAdded( AprsObject* ) ),
+                 this, SLOT( aprsObjectAdded( AprsObject* ) ) );
     }
 }
 
 
 void AprsPlugin::initialize ()
 {
+    // since we have only a small amount of different styles, we create them here
+    // once in order to share them between graphicsitems
+    m_directStyle.lineStyle().setColor( Oxygen::emeraldGreen4 );
+    m_directStyle.labelStyle().setColor( Oxygen::emeraldGreen4 );
+    m_directAndTCPIPStyle.lineStyle().setColor( Oxygen::burgundyPurple4 );
+    m_directAndTCPIPStyle.labelStyle().setColor( Oxygen::burgundyPurple4 );
+    m_netStyle.lineStyle().setColor( Oxygen::brickRed4 );
+    m_netStyle.labelStyle().setColor( Oxygen::brickRed4 );
+    m_tncTTYStyle.lineStyle().setColor( Oxygen::seaBlue4 );
+    m_tncTTYStyle.labelStyle().setColor( Oxygen::seaBlue4 );
+    m_fileOnlyStyle.lineStyle().setColor( Oxygen::sunYellow3 );
+    m_fileOnlyStyle.labelStyle().setColor( Oxygen::sunYellow3 );
+    m_unknownStyle.lineStyle().setColor( Oxygen::aluminumGray5 );
+    m_unknownStyle.labelStyle().setColor( Oxygen::aluminumGray5 );
+
     m_initialized = true;
     mDebug() << "APRS initialized";
 
@@ -272,10 +354,10 @@ QDialog *AprsPlugin::configDialog()
                  SLOT(writeSettings()) );
         connect( ui_configWidget->m_buttonBox, SIGNAL(rejected()),
                  SLOT(readSettings()) );
-        //       QPushButton *applyButton =
-//             ui_configWidget->m_buttonBox->button( QDialogButtonBox::Apply );
-//         connect( applyButton, SIGNAL(clicked()),
-//                  this,        SLOT(writeSettings()) );
+        // QPushButton *applyButton =
+        //  ui_configWidget->m_buttonBox->button( QDialogButtonBox::Apply );
+        // connect( applyButton, SIGNAL(clicked()),
+        //  this, SLOT(writeSettings()) );
     }
     return m_configDialog;
 }
@@ -416,8 +498,6 @@ bool AprsPlugin::setViewport( const ViewportParams *viewport )
     int fadetime = m_fadeTime * 60000;
     int hidetime = m_hideTime * 60000;
 
-    painter->save();
-
     if ( !( viewport->viewLatLonAltBox() == m_lastBox ) ) {
         m_lastBox = viewport->viewLatLonAltBox();
         QString towrite = "#filter a/" + 
@@ -430,21 +510,69 @@ bool AprsPlugin::setViewport( const ViewportParams *viewport )
         QMutexLocker locker( m_mutex );
         m_filter = towrite;
     }
-    
+
+    qDeleteAll( m_items );
+    m_items.clear();
 
     QMutexLocker locker( m_mutex );
-    QMap<QString, AprsObject *>::ConstIterator obj;
-    for( obj = m_objects.constBegin(); obj != m_objects.constEnd(); ++obj ) {
-        ( *obj )->render( painter, viewport, fadetime, hidetime );
+    QMap<QString, AprsObject *>::Iterator obj;
+    for( obj = m_objects.begin(); obj != m_objects.end(); ++obj ) {
+        AprsObject *o = *obj;
+
+        o->update( fadetime, hidetime );
+
+        // select style
+        GeoDataStyle *style;
+        if ( o->seenFrom() & GeoAprsCoordinates::Directly ) {
+            style = &m_directStyle; // oxygen green if direct
+        } else if ( (o->seenFrom() & ( GeoAprsCoordinates::FromTCPIP |
+                        GeoAprsCoordinates::FromTTY ) ) == 
+                    ( GeoAprsCoordinates::FromTCPIP | 
+                        GeoAprsCoordinates::FromTTY ) ) {
+            style = &m_directAndTCPIPStyle; // oxygen purple if both
+        } else if  ( o->seenFrom() & GeoAprsCoordinates::FromTCPIP ) {
+            style = &m_netStyle; // oxygen red if net
+        } else if  ( o->seenFrom() & GeoAprsCoordinates::FromTTY ) {
+            style = &m_tncTTYStyle; // oxygen blue if TNC TTY relay
+        } else if ( o->seenFrom() & ( GeoAprsCoordinates::FromFile ) ) {
+            style = &m_fileOnlyStyle; // oxygen yellow if file only
+        } else {
+            mDebug() << "FIXME: unimplemented from: " << o->seenFrom();
+            style = &m_unknownStyle;    // shouldn't happen but a user
+                                        // could mess up I suppose we
+                                        // should at least draw it in
+                                        // something.
+        }
+
+        if ( o->pixmap() ) {
+            m_items.append(
+                new ItemHelper( o->name(), o->location(), o->pixmap() ) );
+        } else {
+            m_items.append(
+                new ItemHelper( o->name(), style, o->location(), 5, 5 ) );
+        }
+        if ( o->trackLine() ) {
+            m_items.append(
+                new ItemHelper( o->name(), style, o->trackLine() ) );
+        }
+        m_items.append( new ItemHelper( o->name(), style, o->location() ) );
     }
 
-    painter->restore();
+    for ( int i = m_items.size() - 1; i >= 0; --i ) {
+        m_items.at( i )->graphicsItem->setViewport( viewport );
+    }
 
     return true;
 }
 
 bool AprsPlugin::render( GeoPainter *painter, const QSize &viewportSize ) const
 {
+    Q_UNUSED( viewportSize );
+
+    for ( int i = m_items.size() - 1; i >= 0; --i ) {
+        m_items.at( i )->graphicsItem->paint( painter );
+    }
+
     return true;
 }
 
@@ -456,6 +584,8 @@ QAction* AprsPlugin::action() const
     m_action->setText( guiString() );
     m_action->setToolTip( description() );
     return m_action;
+}
+
 }
 
 Q_EXPORT_PLUGIN2( AprsPlugin, Marble::AprsPlugin )

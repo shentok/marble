@@ -82,6 +82,7 @@ namespace Marble
         void readSettings();
         void writeSettings();
         void updateVisibility( bool visible );
+        void aprsObjectAdded( AprsObject *object );
         virtual RenderType renderType() const;
 
       private:
@@ -112,6 +113,15 @@ namespace Marble
         QDialog               *m_configDialog;
         Ui::AprsConfigWidget  *ui_configWidget;
 
+        GeoDataStyle           m_directStyle;
+        GeoDataStyle           m_directAndTCPIPStyle;
+        GeoDataStyle           m_netStyle;
+        GeoDataStyle           m_tncTTYStyle;
+        GeoDataStyle           m_fileOnlyStyle;
+        GeoDataStyle           m_unknownStyle;
+
+        class ItemHelper;
+        QList<ItemHelper*>     m_items;
     };
 
 }

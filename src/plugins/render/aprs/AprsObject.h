@@ -15,10 +15,12 @@
 #include <QtCore/QString>
 
 #include "GeoAprsCoordinates.h"
-#include "GeoPainter.h"
+#include "GeoDataStyle.h"
 
 namespace Marble
 {
+
+    class GeoDataLineString;
 
     class AprsObject
     {
@@ -27,21 +29,33 @@ namespace Marble
         AprsObject( const GeoAprsCoordinates &at, const QString &name );
         ~AprsObject();
 
+        const QString name() const;
+
+        const GeoDataLineString* trackLine() const;
+
         void setLocation( const GeoAprsCoordinates &location );
         void setPixmapId( QString &pixmap );
         GeoAprsCoordinates location() const;
 
-        QColor calculatePaintColor( int from, const QTime &time, int fadetime = 10*60*1000 ) const;
-        void render( GeoPainter *painter, ViewportParams *viewport,
-                     int fadeTime = 10*60, int hideTime = 30*60 );
+        QString pixmapId() const;
+        QPixmap* pixmap() const;
+
+        int seenFrom() const;
+
+        void update( int fadeTime = 10*60, int hideTime = 30*60 );
 
       private:
-        QList<GeoAprsCoordinates>     m_history;
-        QString                       m_myName;
+        QColor calculatePaintColor( int from, const QTime &time,
+                                    int fadetime = 10*60*1000 ) const;
+        void addPoint( const GeoAprsCoordinates at );
+
+        QString                       m_name;
         int                           m_seenFrom;
         bool                          m_havePixmap;
         QString                       m_pixmapFilename;
-        QPixmap                       *m_pixmap;
+        QPixmap                      *m_pixmap;
+        GeoDataLineString            *m_trackLine;
+        QList<GeoAprsCoordinates>     m_history;
     };
 
 }

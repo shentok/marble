@@ -22,22 +22,23 @@
 #include "AprsObject.h"
 
 namespace Marble {
-        
+
     class AprsGatherer : public QThread
     {
         Q_OBJECT
 
             public:
-        AprsGatherer( AprsSource *from,
+        AprsGatherer( AprsSource                  *from,
                       QMap<QString, AprsObject *> *objects,
-                      QMutex *mutex,
-                      QString *filter
+                      QMutex                      *mutex,
+                      QString                     *filter
             );
         AprsGatherer( QIODevice                   *from,
                       QMap<QString, AprsObject *> *objects,
-                      QMutex *mutex,
-                      QString *filter
+                      QMutex                      *mutex,
+                      QString                     *filter
             );
+
         void run();
 
         void addObject( const QString &callSign,
@@ -54,6 +55,9 @@ namespace Marble {
 
         void shutDown();
         void sleepFor(int seconds);
+
+      Q_SIGNALS:
+        void objectAdded( AprsObject *object );
 
       private:
         void initMicETables();
