@@ -19,8 +19,10 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QSize>
 #include <QtCore/QVector>
+#include <QtCore/QList>
 
 #include "GeoSceneTextureTile.h"
+#include "GeoDataGroundOverlay.h"
 #include "MarbleGlobal.h"
 
 class QImage;
@@ -42,6 +44,8 @@ class MergedLayerDecorator
     virtual ~MergedLayerDecorator();
 
     void setTextureLayers( const QVector<const GeoSceneTextureTile *> &textureLayers );
+    void setGroundOverlays( QList<const GeoDataGroundOverlay *> *groundOverlays );
+    void updateGroundOverlaysImages();
 
     int textureLayersSize() const;
 

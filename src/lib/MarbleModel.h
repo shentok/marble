@@ -118,6 +118,9 @@ class MARBLE_EXPORT MarbleModel : public QObject
     GeoDataTreeModel *treeModel();
     const GeoDataTreeModel *treeModel() const;
 
+    QAbstractItemModel *groundOverlayModel();
+    const QAbstractItemModel *groundOverlayModel() const;
+
     QAbstractItemModel *placemarkModel();
     const QAbstractItemModel *placemarkModel() const;
 

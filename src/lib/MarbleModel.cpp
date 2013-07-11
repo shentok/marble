@@ -104,6 +104,10 @@ class MarbleModelPrivate
         m_placemarkProxyModel.setFilterFixedString( GeoDataTypes::GeoDataPlacemarkType );
         m_placemarkProxyModel.setFilterKeyColumn( 1 );
         m_placemarkProxyModel.setSourceModel( &m_descendantProxy );
+
+        m_groundOverlayProxyModel.setFilterFixedString( GeoDataTypes::GeoDataGroundOverlayType );
+        m_groundOverlayProxyModel.setFilterKeyColumn( 1 );
+        m_groundOverlayProxyModel.setSourceModel( &m_descendantProxy );
     }
 
     ~MarbleModelPrivate()
@@ -137,6 +141,7 @@ class MarbleModelPrivate
     GeoDataTreeModel         m_treeModel;
     KDescendantsProxyModel   m_descendantProxy;
     QSortFilterProxyModel    m_placemarkProxyModel;
+    QSortFilterProxyModel    m_groundOverlayProxyModel;
 
     // Selection handling
     QItemSelectionModel      m_placemarkSelectionModel;
@@ -425,6 +430,16 @@ QAbstractItemModel *MarbleModel::placemarkModel()
 const QAbstractItemModel *MarbleModel::placemarkModel() const
 {
     return &d->m_placemarkProxyModel;
+}
+
+QAbstractItemModel *MarbleModel::groundOverlayModel()
+{
+    return &d->m_groundOverlayProxyModel;
+}
+
+const QAbstractItemModel *MarbleModel::groundOverlayModel() const
+{
+    return &d->m_groundOverlayProxyModel;
 }
 
 QItemSelectionModel *MarbleModel::placemarkSelectionModel()
