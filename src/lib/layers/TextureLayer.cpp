@@ -172,6 +172,7 @@ void TextureLayer::Private::addGroundOverlays( QModelIndex parent, int first, in
         m_groundOverlayCache.append( overlay );
     }
 
+    qStableSort( m_groundOverlayCache.begin(), m_groundOverlayCache.end() );
     m_layerDecorator.updateGroundOverlaysImages();
 
     m_parent->reset();
@@ -185,6 +186,7 @@ void TextureLayer::Private::removeGroundOverlays( QModelIndex parent, int first,
         m_groundOverlayCache.removeAll( overlay );
     }
 
+    qStableSort( m_groundOverlayCache.begin(), m_groundOverlayCache.end() );
     m_layerDecorator.updateGroundOverlaysImages();
 
     m_parent->reset();
