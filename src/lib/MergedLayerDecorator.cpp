@@ -180,7 +180,7 @@ StackedTile *MergedLayerDecorator::Private::createTile( const QVector<QSharedPoi
 
     // if there are more than one active texture layers, we have to convert the
     // result tile into QImage::Format_ARGB32_Premultiplied to make blending possible
-    const bool withConversion = tiles.count() > 1 || m_showSunShading || m_showTileId;
+    const bool withConversion = tiles.count() > 1 || m_showSunShading || m_showTileId || m_groundOverlays->size() > 0;
     foreach ( const QSharedPointer<TextureTile> &tile, tiles ) {
 
         // Image blending. If there are several images in the same tile (like clouds
@@ -222,13 +222,6 @@ StackedTile *MergedLayerDecorator::Private::createTile( const QVector<QSharedPoi
 
 void MergedLayerDecorator::Private::renderGroundOverlays( QImage *tileImage, const QVector<QSharedPointer<TextureTile> > &tiles ) const
 {
-
-    /*
-    QList<QImage> overlayImages;
-    for ( int i = 0; i < m_groundOverlays->size(); ++i) {
-        overlayImages.append( QImage ( m_groundOverlays->at( i )->absoluteIconFile() ) );
-    }
-    */
 
     /* All tiles are covering the same area. Pick one. */
     const TileId tileId = tiles.first()->id();
@@ -285,10 +278,17 @@ void MergedLayerDecorator::Private::renderGroundOverlays( QImage *tileImage, con
                  qreal latDiff = latNorth - latSouth;
                  qreal lonDiff = lonEast - lonWest;
 
+                 qreal rotationAngle = overlay->latLonBox().rotation();
 
-                 if ( lat <= latNorth && lat >= latSouth && lon >= lonWest && lon <= lonEast ) {
-                     int px = (int) ( ( lon - lonWest ) / lonDiff * overlayWidth );
-                     int py = (int) ( ( lat - latSouth ) / latDiff * overlayHeight );
+                 qreal centerLat = ( latNorth + latSouth ) / 2;
+                 qreal centerLon = ( lonWest + lonEast ) / 2;
+
+                 qreal lonR = ( lon - centerLon ) * cos( rotationAngle ) + ( lat - centerLat ) * sin( rotationAngle ) + centerLon;
+                 qreal latR = ( -lon + centerLon ) * sin( rotationAngle ) + ( lat - centerLat ) * cos( rotationAngle ) + centerLat;
+
+                 if ( latR <= latNorth && latR >= latSouth && lonR >= lonWest && lonR <= lonEast ) {
+                     int px = (int) ( ( lonR - lonWest ) / lonDiff * overlayWidth );
+                     int py = overlayHeight - (int) ( ( latR - latSouth ) / latDiff * overlayHeight ) - 1;
 
                      if ( px < overlayWidth && py < overlayHeight ) {
                          *scanLine = m_groundOverlaysImages.at( i ).pixel( px, py );
