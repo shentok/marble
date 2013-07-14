@@ -15,6 +15,7 @@
         <south>49.02274</south>
         <east>8.43243</east>
         <west>8.43137</west>
+        <rotation>45</rotation>
       </LatLonBox>
     </GroundOverlay>
     <Placemark>
