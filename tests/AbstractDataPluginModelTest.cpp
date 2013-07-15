@@ -171,7 +171,7 @@ void AbstractDataPluginModelTest::addItemToList()
     QVERIFY( model.itemExists( "foo" ) );
     QCOMPARE( model.findItem( "foo" ), item );
     QCOMPARE( itemsUpdatedSpy.count() == 1, initialized );
-    QCOMPARE( static_cast<bool>( model.items( &fullViewport, 1 ).contains( item ) ), initialized );
+    QCOMPARE( static_cast<bool>( model.items( &fullViewport, 1, 0 ).contains( item ) ), initialized );
 }
 
 void AbstractDataPluginModelTest::addItemToList_keepExisting_data()
@@ -286,7 +286,7 @@ void AbstractDataPluginModelTest::setFavoriteItemsOnly()
 
     const bool visible = !favoriteItemsOnly || itemIsFavorite;
 
-    QCOMPARE( static_cast<bool>( model.items( &fullViewport, 1 ).contains( item ) ), visible );
+    QCOMPARE( static_cast<bool>( model.items( &fullViewport, 1, 0 ).contains( item ) ), visible );
 }
 
 void AbstractDataPluginModelTest::itemsVersusInitialized_data()

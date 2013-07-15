@@ -32,6 +32,8 @@
 #include "MarbleDirs.h"
 #include "TileId.h"
 #include "ViewportParams.h"
+#include "GeoDataLinearRing.h"
+#include "GeoPainter.h"
 
 #include <cmath>
 
@@ -277,7 +279,7 @@ const MarbleModel *AbstractDataPluginModel::marbleModel() const
 }
 
 QList<AbstractDataPluginItem*> AbstractDataPluginModel::items( const ViewportParams *viewport,
-                                                               qint32 number )
+                                                               qint32 number, GeoPainter *painter )
 {
     const int zoomLevel = qLn( viewport->radius() * 4.0 / 512 ) / qLn( 2.0 );
 
@@ -299,6 +301,11 @@ QList<AbstractDataPluginItem*> AbstractDataPluginModel::items( const ViewportPar
     for ( int x = topLeft.x(); x <= bottomRight.x() + 1; ++x ) {
         for ( int y = topLeft.y(); y <= bottomRight.y() + 1; ++y ) {
             const TileId tileId = TileId( 0, zoomLevel, x, y );
+            const int numTiles = 1 << zoomLevel;
+            const qreal west = -180 + ( tileId.x()     ) * 360.0 / numTiles;
+            const qreal east = -180 + ( tileId.x() + 1 ) * 360.0 / numTiles;
+            const qreal north = 90 - ( tileId.y()     ) * 180.0 / numTiles;
+            const qreal south = 90 - ( tileId.y() + 1 ) * 180.0 / numTiles;
 
             if ( !d->m_itemSet.contains( tileId ) ) {
                 d->m_itemSet.insert( tileId, QList<AbstractDataPluginItem *>() );
@@ -319,6 +326,16 @@ QList<AbstractDataPluginItem*> AbstractDataPluginModel::items( const ViewportPar
                     continue;
                 }
             }
+
+            GeoDataLinearRing ring( Tessellate | RespectLatitudeCircle );
+            ring.append( GeoDataCoordinates( west, north, 0, GeoDataCoordinates::Degree ) );
+            ring.append( GeoDataCoordinates( west, south, 0, GeoDataCoordinates::Degree ) );
+            ring.append( GeoDataCoordinates( east, south, 0, GeoDataCoordinates::Degree ) );
+            ring.append( GeoDataCoordinates( east, north, 0, GeoDataCoordinates::Degree ) );
+
+            painter->drawPolygon( ring );
+
+            painter->drawText( GeoDataCoordinates( west, south, 0, GeoDataCoordinates::Degree ), QString( "%1, %2, %3").arg( zoomLevel ).arg( x ).arg( y ) );
 
             QList<AbstractDataPluginItem*>::const_iterator i = d->m_itemSet[tileId].constBegin();
             QList<AbstractDataPluginItem*>::const_iterator end = d->m_itemSet[tileId].constEnd();

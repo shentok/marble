@@ -107,7 +107,7 @@ bool AbstractDataPlugin::render( GeoPainter *painter, ViewportParams *viewport,
     if ( d->m_delegate ) {
         handleViewportChange( viewport );
     } else {
-        QList<AbstractDataPluginItem*> items = d->m_model->items( viewport, numberOfItems() );
+        QList<AbstractDataPluginItem*> items = d->m_model->items( viewport, numberOfItems(), painter );
         painter->save();
 
         // Paint the most important item at last
@@ -206,7 +206,7 @@ QObject *AbstractDataPlugin::favoritesModel()
 void AbstractDataPlugin::handleViewportChange( const ViewportParams *viewport )
 {
     QList<AbstractDataPluginItem*> orphane = d->m_delegateInstances.keys();
-    QList<AbstractDataPluginItem*> const items = d->m_model->items( viewport, numberOfItems() );
+    QList<AbstractDataPluginItem*> const items = d->m_model->items( viewport, numberOfItems(), 0 );
     foreach( AbstractDataPluginItem* item, items ) {
         qreal x, y;
         Marble::GeoDataCoordinates const coordinates = item->coordinate();
