@@ -125,22 +125,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 
 
 /*!
-    \brief Draws an ellipse at the given position.
-    The ellipse is placed with its center located at the given \a centerPosition.
-
-    For the outline it uses the painter's pen and for the background the
-    painter's brush.
-
-    \param width Width of the ellipse in pixels
-    \param height Height of the ellipse in pixels
-
-    \see GeoDataCoordinates
-*/
-    void drawEllipse ( const GeoDataCoordinates & centerPosition,
-                       qreal width, qreal height );
-
-
-/*!
     \brief Creates a region for an ellipse at a given position
 
     A QRegion object is created that represents the area covered by
@@ -234,7 +218,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 
 
     // Reenabling QPainter+ClipPainter methods.
-    using QPainter::drawEllipse;
     using QPainter::drawPixmap;
 
  private:

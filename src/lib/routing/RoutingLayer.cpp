@@ -341,14 +341,14 @@ void RoutingLayerPrivate::renderRoute( GeoPainter *painter, const ViewportParams
 
         QRegion region = painter->regionFromEllipse( pos, 12, 12 );
         m_instructionRegions.push_front( ModelRegion( index, region ) );
-        painter->drawEllipse( pos, 6, 6 );
+//        painter->drawEllipse( pos, 6, 6 );
 
         if( !m_routingModel->deviatedFromRoute() ) {
             GeoDataCoordinates location = m_routingModel->route().currentSegment().nextRouteSegment().maneuver().position();
             QString nextInstruction = m_routingModel->route().currentSegment().nextRouteSegment().maneuver().instructionText();
             if( !nextInstruction.isEmpty() ) {
                 painter->setBrush( QBrush( Oxygen::hotOrange4 ) );
-                painter->drawEllipse( location, 6, 6 );
+//                painter->drawEllipse( location, 6, 6 );
             }
         }
     }

@@ -39,7 +39,7 @@ void AreaAnnotation::paint(GeoPainter *painter, const ViewportParams *viewport )
         GeoDataPolygon *polygon = static_cast<GeoDataPolygon*>( placemark()->geometry() );
         GeoDataLinearRing &ring = polygon->outerBoundary();
         for( int i=0; i< ring.size(); ++i ) {
-            painter->drawEllipse( ring.at(i) , 10, 10 );
+//            painter->drawEllipse( ring.at(i) , 10, 10 );
             regionList.append( painter->regionFromEllipse( ring.at(i), 10, 10 ));
         }
         regionList.append( painter->regionFromPolygon( ring, Qt::OddEvenFill ) );

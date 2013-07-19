@@ -235,7 +235,7 @@ bool PositionMarker::render( GeoPainter *painter,
             }
 
             painter->setBrush( m_accuracyColor );
-            painter->drawEllipse( m_currentPosition, width, width );
+//            painter->drawEllipse( m_currentPosition, width, width );
         }
 
         // Draw trail if requested.

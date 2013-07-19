@@ -73,25 +73,6 @@ MapQuality GeoPainter::mapQuality() const
 }
 
 
-void GeoPainter::drawEllipse ( const GeoDataCoordinates & centerPosition,
-                               qreal width, qreal height )
-{
-        int pointRepeatNum;
-        qreal y;
-        bool globeHidesPoint;
-
-        bool visible = d->m_viewport->screenCoordinates( centerPosition, d->m_x, y, pointRepeatNum, QSizeF( width, height ), globeHidesPoint );
-
-        if ( visible ) {
-            // Draw all the x-repeat-instances of the point on the screen
-            for( int it = 0; it < pointRepeatNum; ++it ) {
-                QPainter::drawEllipse(  d->m_x[it] - width / 2.0,
-                                        y - height / 2.0, width, height  );
-            }
-        }
-}
-
-
 QRegion GeoPainter::regionFromEllipse ( const GeoDataCoordinates & centerPosition,
                                         qreal width, qreal height,
                                         qreal strokeWidth ) const
