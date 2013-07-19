@@ -111,7 +111,19 @@ void GeoRectGraphicsItem::paint( GeoPainter* painter, const ViewportParams *view
         }
     }
 
-    painter->drawRect( m_origin, m_width, m_height );
+    int pointRepeatNum;
+    qreal x[100];
+    qreal y;
+    bool globeHidesPoint;
+
+    bool visible = viewport->screenCoordinates( m_origin, x, y, pointRepeatNum, QSizeF( m_width, m_height ), globeHidesPoint );
+
+    if ( visible ) {
+        // Draw all the x-repeat-instances of the point on the screen
+        for( int it = 0; it < pointRepeatNum; ++it ) {
+            painter->drawRect( x[it] - ( m_width / 2.0 ), y - ( m_height / 2.0 ), m_width, m_height );
+        }
+    }
 
     painter->restore();
 }

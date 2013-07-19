@@ -214,23 +214,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 
 
 /*!
-    \brief Draws a rectangle at the given position.
-    The rectangle is placed with its center located at the given
-    \a centerPosition.
-
-    For the outline it uses the painter's pen and for the background the
-    painter's brush.
-
-    \param width Width of the rectangle in pixels
-    \param height Height of the rectangle in pixels
-
-    \see GeoDataCoordinates
-*/
-    void drawRect ( const GeoDataCoordinates & centerPosition,
-                    qreal width, qreal height );
-
-
-/*!
     \brief Creates a region for a rectangle at a given position.
 
     A QRegion object is created that represents the area covered by
@@ -253,7 +236,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
     // Reenabling QPainter+ClipPainter methods.
     using QPainter::drawEllipse;
     using QPainter::drawPixmap;
-    using QPainter::drawRect;
 
  private:
     Q_DISABLE_COPY( GeoPainter )

@@ -217,25 +217,6 @@ QRegion GeoPainter::regionFromPolygon ( const GeoDataLinearRing & linearRing,
 }
 
 
-void GeoPainter::drawRect ( const GeoDataCoordinates & centerCoordinates,
-                            qreal width, qreal height )
-{
-        int pointRepeatNum;
-        qreal y;
-        bool globeHidesPoint;
-
-        bool visible = d->m_viewport->screenCoordinates( centerCoordinates,
-                       d->m_x, y, pointRepeatNum, QSizeF( width, height ), globeHidesPoint );
-
-        if ( visible ) {
-            // Draw all the x-repeat-instances of the point on the screen
-            for( int it = 0; it < pointRepeatNum; ++it ) {
-                QPainter::drawRect( d->m_x[it] - ( width / 2.0 ), y - ( height / 2.0 ), width, height );
-            }
-        }
-}
-
-
 QRegion GeoPainter::regionFromRect ( const GeoDataCoordinates & centerCoordinates,
                                      qreal width, qreal height,
                                      qreal strokeWidth ) const
