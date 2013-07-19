@@ -143,19 +143,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
 
 
 /*!
-    \brief Draws a pixmap at the given position.
-    The pixmap is placed with its center located at the given \a centerPosition.
-
-    The image rendering is performed in screen coordinates and is
-    not subject to the current projection.
-
-    \see GeoDataCoordinates
-*/
-    void drawPixmap ( const GeoDataCoordinates & centerPosition,
-                      const QPixmap & pixmap /*, bool isGeoProjected = false */ );
-
-
-/*!
     \brief Creates a region for a given line string (a "polyline").
 
     A QRegion object is created that represents the area covered by
@@ -215,10 +202,6 @@ class MARBLE_EXPORT GeoPainter : public ClipPainter
                              qreal width, qreal height,
                              qreal strokeWidth = 3 ) const;
 
-
-
-    // Reenabling QPainter+ClipPainter methods.
-    using QPainter::drawPixmap;
 
  private:
     Q_DISABLE_COPY( GeoPainter )

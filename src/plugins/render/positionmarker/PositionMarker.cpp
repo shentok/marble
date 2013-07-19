@@ -269,7 +269,7 @@ bool PositionMarker::render( GeoPainter *painter,
 
         if( m_useCustomCursor)
         {
-            painter->drawPixmap( m_currentPosition, m_customCursorTransformed );
+//            painter->drawPixmap( m_currentPosition, m_customCursorTransformed );
         }
         else
         {

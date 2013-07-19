@@ -27,7 +27,7 @@ public:
                                     const QPixmap *pixmap,
                                     const GeoDataCoordinates &center );
 
-    const QPixmap* pixmap() const;
+    void setCoordinates( const GeoDataCoordinates &coordinates );
 
     void paint( GeoPainter* painter, const ViewportParams *viewport );
 

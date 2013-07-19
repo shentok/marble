@@ -99,28 +99,6 @@ QRegion GeoPainter::regionFromEllipse ( const GeoDataCoordinates & centerPositio
 }
 
 
-void GeoPainter::drawPixmap ( const GeoDataCoordinates & centerPosition,
-                              const QPixmap & pixmap /* , bool isGeoProjected */ )
-{
-    int pointRepeatNum;
-    qreal y;
-    bool globeHidesPoint;
-
-//    if ( !isGeoProjected ) {
-        // FIXME: Better visibility detection that takes the circle geometry into account
-        bool visible = d->m_viewport->screenCoordinates( centerPosition, d->m_x, y, pointRepeatNum, pixmap.size(), globeHidesPoint );
-
-        if ( visible ) {
-            // Draw all the x-repeat-instances of the point on the screen
-            for( int it = 0; it < pointRepeatNum; ++it ) {
-                QPainter::drawPixmap( d->m_x[it] - ( pixmap.width() / 2 ),
-                                      y - ( pixmap.height() / 2 ), pixmap );
-            }
-        }
-//    }
-}
-
-
 QRegion GeoPainter::regionFromPolyline ( const GeoDataLineString & lineString,
                                          qreal strokeWidth ) const
 {

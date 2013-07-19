@@ -218,9 +218,9 @@ void RoutingLayerPrivate::renderPlacemarks( GeoPainter *painter )
             if ( !pixmap.isNull() && m_selectionModel->isSelected( index ) ) {
                 QIcon selected = QIcon( pixmap );
                 QPixmap result = selected.pixmap( m_pixmapSize, QIcon::Selected, QIcon::On );
-                painter->drawPixmap( pos, result );
+//                painter->drawPixmap( pos, result );
             } else {
-                painter->drawPixmap( pos, pixmap );
+//                painter->drawPixmap( pos, pixmap );
             }
 
             QRegion region = painter->regionFromRect( pos, m_targetPixmap.width(), m_targetPixmap.height() );
@@ -382,7 +382,7 @@ void RoutingLayerPrivate::renderRequest( GeoPainter *painter )
         GeoDataCoordinates pos = m_routeRequest->at( i );
         if ( pos.longitude() != 0.0 && pos.latitude() != 0.0 ) {
             QPixmap pixmap = m_routeRequest->pixmap( i );
-            painter->drawPixmap( pos, pixmap );
+//            painter->drawPixmap( pos, pixmap );
             QRegion region = painter->regionFromRect( pos, pixmap.width(), pixmap.height() );
             m_regions.push_front( RequestRegion( i, region ) );
         }

@@ -41,7 +41,7 @@ void PlacemarkTextAnnotation::paint( GeoPainter *painter,
                             const ViewportParams *viewport )
 {
 
-    painter->drawPixmap( placemark()->coordinate(), QPixmap( MarbleDirs::path( "bitmaps/annotation.png" ) )  );
+//    painter->drawPixmap( placemark()->coordinate(), QPixmap( MarbleDirs::path( "bitmaps/annotation.png" ) )  );
 
     qreal x, y;
     bool hidden;

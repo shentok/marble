@@ -31,9 +31,10 @@ GeoPixmapGraphicsItem::GeoPixmapGraphicsItem( const GeoDataFeature *feature,
     return p()->m_latLonAltBox;
 }*/
 
-const QPixmap* GeoPixmapGraphicsItem::pixmap() const
+
+void GeoPixmapGraphicsItem::setCoordinates( const GeoDataCoordinates &coordinates )
 {
-    return m_pixmap;
+    m_centerPosition = coordinates;
 }
 
 void GeoPixmapGraphicsItem::paint( GeoPainter* painter, const ViewportParams *viewport )
@@ -43,7 +44,22 @@ void GeoPixmapGraphicsItem::paint( GeoPainter* painter, const ViewportParams *vi
     if ( !m_pixmap || m_pixmap->isNull() || !m_centerPosition.isValid() )
         return;
 
-    painter->drawPixmap( m_centerPosition, *m_pixmap );
+    int pointRepeatNum;
+    qreal x[100];
+    qreal y;
+    bool globeHidesPoint;
+
+//    if ( !isGeoProjected ) {
+        // FIXME: Better visibility detection that takes the circle geometry into account
+        bool visible = viewport->screenCoordinates( m_centerPosition, x, y, pointRepeatNum, m_pixmap->size(), globeHidesPoint );
+
+        if ( visible ) {
+            // Draw all the x-repeat-instances of the point on the screen
+            for( int it = 0; it < pointRepeatNum; ++it ) {
+                painter->drawPixmap( x[it] - ( m_pixmap->width() / 2 ), y - ( m_pixmap->height() / 2 ), *m_pixmap );
+            }
+        }
+        //    }
 }
 
 } /* Marble */

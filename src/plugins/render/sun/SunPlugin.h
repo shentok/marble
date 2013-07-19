@@ -14,6 +14,9 @@
 
 #include "RenderPlugin.h"
 
+#include "GeoDataFeature.h"
+#include "GeoPixmapGraphicsItem.h"
+
 #include <QtGui/QPixmap>
 
 namespace Marble
@@ -63,7 +66,9 @@ class SunPlugin : public RenderPlugin
     bool render( GeoPainter *painter, ViewportParams *viewport, const QString& renderPos, GeoSceneLayer * layer = 0 );
 
 private:
+    GeoDataFeature m_feature;
     QPixmap m_pixmap;
+    GeoPixmapGraphicsItem *m_pixmapItem;
 };
 
 }

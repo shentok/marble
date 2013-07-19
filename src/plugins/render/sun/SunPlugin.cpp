@@ -20,13 +20,17 @@
 namespace Marble
 {
 
-SunPlugin::SunPlugin()
-    : RenderPlugin( 0 )
+SunPlugin::SunPlugin() :
+    RenderPlugin( 0 ),
+    m_pixmapItem( 0 )
 {
 }
 
-SunPlugin::SunPlugin( const MarbleModel *marbleModel )
-    : RenderPlugin( marbleModel )
+SunPlugin::SunPlugin( const MarbleModel *marbleModel ) :
+    RenderPlugin( marbleModel ),
+    m_feature( tr( "Sun" ) ),
+    m_pixmap( QPixmap( MarbleDirs::path( "svg/sunshine.png" ) ).scaled( QSize(22,22) ) ),
+    m_pixmapItem( 0 )
 {
     setVisible( false );
 }
@@ -93,12 +97,12 @@ QIcon SunPlugin::icon () const
 
 void SunPlugin::initialize ()
 {
-    m_pixmap = QPixmap( MarbleDirs::path( "svg/sunshine.png" ) ).scaled( QSize(22,22) );
+    m_pixmapItem = new GeoPixmapGraphicsItem( &m_feature, &m_pixmap, GeoDataCoordinates() );
 }
 
 bool SunPlugin::isInitialized () const
 {
-    return !m_pixmap.isNull();
+    return m_pixmapItem != 0;
 }
 
 bool SunPlugin::render( GeoPainter *painter, ViewportParams *viewport,
@@ -113,7 +117,8 @@ bool SunPlugin::render( GeoPainter *painter, ViewportParams *viewport,
         const qreal lon = marbleModel()->sunLocator()->getLon();
         const qreal lat = marbleModel()->sunLocator()->getLat();
         const GeoDataCoordinates coordinates( lon, lat, 0, GeoDataCoordinates::Degree );
-        painter->drawPixmap( coordinates, m_pixmap );
+        m_pixmapItem->setCoordinates( coordinates );
+        m_pixmapItem->paint( painter, viewport );
     }
 
     return true;
