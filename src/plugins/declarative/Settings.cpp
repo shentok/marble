@@ -39,18 +39,44 @@ void Settings::setApplicationName( const QString &application )
     m_applicationName = application;
 }
 
-QVariant Settings::value( const QString &group, const QString &key, const QVariant &value ) const
+QString Settings::groupName() const
 {
-    QSettings settings( m_organizationName, m_applicationName );
-    settings.beginGroup( group );
-    return settings.value( key, value );
+    return m_groupName;
 }
 
-void Settings::setValue( const QString &group, const QString &key, const QVariant &value )
+void Settings::setGroupName( const QString &groupName )
+{
+    m_groupName = groupName;
+}
+
+void Settings::readSettings()
 {
     QSettings settings( m_organizationName, m_applicationName );
-    settings.beginGroup( group );
-    settings.setValue( key, value );
+    settings.beginGroup( m_groupName );
+
+    for ( int i = staticMetaObject.propertyCount(); i < metaObject()->propertyCount(); ++i ) {
+        const QMetaProperty property = metaObject()->property( i );
+        const QString key = property.name();
+        const QVariant defaultValue = property.read( this );
+        const QVariant value = settings.value( key, defaultValue );
+        property.write( this, value );
+    }
+
+    settings.endGroup();
+}
+
+void Settings::writeSettings()
+{
+    QSettings settings( m_organizationName, m_applicationName );
+    settings.beginGroup( m_groupName );
+
+    for ( int i = staticMetaObject.propertyCount(); i < metaObject()->propertyCount(); ++i ) {
+        const QMetaProperty property = metaObject()->property( i );
+        const QString key = property.name();
+        const QVariant value = property.read( this );
+        settings.setValue( key, value );
+    }
+
     settings.endGroup();
 }
 

@@ -11,15 +11,16 @@
 #ifndef MARBLE_DECLARATIVE_SETTINGS_H
 #define MARBLE_DECLARATIVE_SETTINGS_H
 
-#include <QObject>
+#include <QDeclarativeItem>
 #include <QSettings>
 
-class Settings : public QObject
+class Settings : public QDeclarativeItem
 {
     Q_OBJECT
 
     Q_PROPERTY( QString organizationName READ organizationName WRITE setOrganizationName )
     Q_PROPERTY( QString applicationName READ applicationName WRITE setApplicationName )
+    Q_PROPERTY( QString groupName READ groupName WRITE setGroupName )
 
 public:
     Settings();
@@ -32,15 +33,17 @@ public:
 
     void setApplicationName( const QString &application );
 
-public Q_SLOTS:
-    QVariant value( const QString &group, const QString &key, const QVariant &value = QVariant() ) const;
+    QString groupName() const;
 
-    void setValue( const QString &group, const QString &key, const QVariant &value );
+    void setGroupName( const QString &groupName );
+
+    Q_INVOKABLE void readSettings();
+    Q_INVOKABLE void writeSettings();
 
 private:
     QString m_organizationName;
-
     QString m_applicationName;
+    QString m_groupName;
 };
 
 #endif // MARBLE_DECLARATIVE_SETTINGS_H
