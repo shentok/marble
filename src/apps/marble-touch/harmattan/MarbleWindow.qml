@@ -15,7 +15,9 @@ PageStackWindow {
     width: screen.displayWidth
     height: screen.displayHeight
 
-    property Item marbleWidget: MainWidget {}
+    property Item marbleWidget: MainWidget {
+        id: mainWidget
+    }
     property bool inPortrait: width < height
     property string components: "harmattan"
 
@@ -26,6 +28,9 @@ PageStackWindow {
     // Stores the settings of the application.
     MarbleSettings {
         id: settings
+        property alias quitRadius: mainWidget.radius
+        property real quitLongitude: mainWidget.center.longitude
+        property real quitLatitude: mainWidget.center.latitude
     }
 
     // Displays all available activities and starts them if the user clicks on them.

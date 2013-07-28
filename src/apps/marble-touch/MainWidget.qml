@@ -27,6 +27,7 @@ Item {
 
     property alias mapThemeModel: map.mapThemeModel
     property alias radius: map.radius
+    property alias center: map.center
 
     property alias bookmarks: map.bookmarks
     property alias routing: map.routing
@@ -45,7 +46,9 @@ Item {
 
         workOffline: settings.workOffline
         mapThemeId: settings.mapTheme
-        radius: settings.quitRadius
+        radius: 148.0
+        center.longitude: 0.0
+        center.latitude: 0.0
         projection: settings.projection
         activeFloatItems: [ "compass", "scalebar", "progress" ]
         activeRenderPlugins: settings.activeRenderPlugins
@@ -93,17 +96,9 @@ Item {
             mouseClickGeoPosition.connect( screen.mouseClickGeoPosition )
 
             // Load last center of the map.
-            center.longitude = settings.quitLongitude
-            center.latitude = settings.quitLatitude
             tracking.lastKnownPosition.longitude = settings.lastKnownLongitude
             tracking.lastKnownPosition.latitude = settings.lastKnownLatitude
             initialized = true
-        }
-        
-        Component.onDestruction: {
-            settings.quitRadius = radius
-            settings.quitLongitude = center.longitude
-            settings.quitLatitude = center.latitude
         }
 
         property Search search: Search {

@@ -21,11 +21,8 @@ Settings {
     property string mapTheme: "earth/openstreetmap/openstreetmap.dgml"
     property string streetMapTheme: "earth/openstreetmap/openstreetmap.dgml"
     property bool workOffline: false
-    property real quitLongitude: 0.0
-    property real quitLatitude: 0.0
     property real lastKnownLongitude: 0.0
     property real lastKnownLatitude: 0.0
-    property real quitRadius: 148.0
     property bool gpsTracking: false
     property bool showPositionIndicator: false
     property bool showTrack: false
