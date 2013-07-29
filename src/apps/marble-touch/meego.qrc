@@ -57,5 +57,6 @@
         <file>RouteEditor.qml</file>
         <file>SearchField.qml</file>
         <file>ViaPointEditor.qml</file>
+        <file>MarbleSettings.qml</file>
     </qresource>
 </RCC>
