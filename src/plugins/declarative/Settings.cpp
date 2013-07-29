@@ -51,6 +51,8 @@ void Settings::setGroupName( const QString &groupName )
 
 void Settings::readSettings()
 {
+    qDebug() << Q_FUNC_INFO;
+
     QSettings settings( m_organizationName, m_applicationName );
     settings.beginGroup( m_groupName );
 
@@ -59,6 +61,7 @@ void Settings::readSettings()
         const QString key = property.name();
         const QVariant defaultValue = property.read( this );
         const QVariant value = settings.value( key, defaultValue );
+        qDebug() << key << value;
         property.write( this, value );
     }
 
@@ -67,6 +70,8 @@ void Settings::readSettings()
 
 void Settings::writeSettings()
 {
+    qDebug() << Q_FUNC_INFO;
+
     QSettings settings( m_organizationName, m_applicationName );
     settings.beginGroup( m_groupName );
 
@@ -74,6 +79,7 @@ void Settings::writeSettings()
         const QMetaProperty property = metaObject()->property( i );
         const QString key = property.name();
         const QVariant value = property.read( this );
+        qDebug() << key << value;
         settings.setValue( key, value );
     }
 
