@@ -19,9 +19,13 @@
 #include <QNetworkAccessManager>
 #include <QVariantMap>
 
+#include <QSystemNetworkInfo>
+
 #include "MapThemeManager.h"
 
 class QAction;
+
+QTM_USE_NAMESPACE
 
 namespace Marble
 {
@@ -66,7 +70,7 @@ private Q_SLOTS:
 
     void fallBackToDefaultTheme();
 
-    void setWorkOffline( bool );
+    void setNetworkStatus( QSystemNetworkInfo::NetworkMode mode, QSystemNetworkInfo::NetworkStatus status );
     void setKineticScrollingEnabled( bool );
     void setLegendShown( bool show );
 
@@ -102,7 +106,6 @@ private:
     GoToDialog *m_gotoDialog;
     RoutingWidget *m_routingWidget;
 
-    QAction *m_workOfflineAct;
     QAction *m_kineticScrollingAction;
     QAction *m_showLegendAct;
 
@@ -111,6 +114,8 @@ private:
     MapThemeManager m_mapThemeManager;
     QString m_lastFileOpenPath;
     QStringList m_commandlineFilePaths;
+
+    QtMobility::QSystemNetworkInfo m_networkInfo;
 };
 
 } // namespace Marble
