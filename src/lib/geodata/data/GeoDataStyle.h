@@ -17,8 +17,8 @@
 #include <QMetaType>
 #include <QPoint>
 #include <QColor>
-#include <QPixmap>
 #include <QFont>
+#include <QUrl>
 
 #include "GeoDataStyleSelector.h"
 #include "GeoDataIconStyle.h"
@@ -64,7 +64,7 @@ class GEODATA_EXPORT GeoDataStyle : public GeoDataStyleSelector
      * @param  font   used to construct the label styles
      * @param  color  used to construct the label styles
      */
-    GeoDataStyle( const QImage& icon,
+    GeoDataStyle( const QUrl& icon,
                   const QFont &font, const QColor &color  );
     ~GeoDataStyle();
 

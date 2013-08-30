@@ -14,12 +14,12 @@
 #define MARBLE_GEODATAICONSTYLE_H
 
 
-#include <QPixmap>
-
 #include "GeoDataColorStyle.h"
 #include "GeoDataHotSpot.h"
 
 #include "geodata_export.h"
+
+#include <QUrl>
 
 namespace Marble
 {
@@ -31,7 +31,7 @@ class GEODATA_EXPORT GeoDataIconStyle : public GeoDataColorStyle
   public:
     GeoDataIconStyle();
     GeoDataIconStyle( const GeoDataIconStyle& other );
-    explicit GeoDataIconStyle( const QImage& icon,
+    explicit GeoDataIconStyle( const QUrl& iconUrl,
                                const QPointF &hotSpot = QPointF( 0.5, 0.5 ) );
     ~GeoDataIconStyle();
 
@@ -40,9 +40,6 @@ class GEODATA_EXPORT GeoDataIconStyle : public GeoDataColorStyle
     /// Provides type information for downcasting a GeoData
     virtual const char* nodeType() const;
 
-    void setIcon( const QImage& icon );
-    QImage icon() const;
-
     void setIconPath( const QString& filename );
     QString iconPath() const;
 
@@ -50,7 +47,7 @@ class GEODATA_EXPORT GeoDataIconStyle : public GeoDataColorStyle
     QPointF hotSpot( GeoDataHotSpot::Units& xunits, GeoDataHotSpot::Units& yunits ) const;
 
     /** Convenience method that transforms the hotspot to the topleft corner */
-    const QPointF& hotSpot() const;
+    const QPointF& hotSpot( const QSize &iconSize ) const;
 
     void setScale( const float &scale );
     float scale() const;

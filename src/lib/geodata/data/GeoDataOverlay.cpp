@@ -23,8 +23,6 @@ public:
 
     int m_drawOrder;
 
-    QImage m_image;
-
     QString m_iconPath;
 
     GeoDataOverlayPrivate();
@@ -75,19 +73,6 @@ int GeoDataOverlay::drawOrder() const
 void GeoDataOverlay::setDrawOrder( int order )
 {
     d->m_drawOrder = order;
-}
-
-QImage GeoDataOverlay::icon() const
-{
-    if ( d->m_image.isNull() && !d->m_iconPath.isEmpty() ) {
-        d->m_image = QImage( absoluteIconFile() );
-    }
-    return d->m_image;
-}
-
-void GeoDataOverlay::setIcon( const QImage &icon )
-{
-    d->m_image = icon;
 }
 
 void GeoDataOverlay::setIconFile( const QString &path )

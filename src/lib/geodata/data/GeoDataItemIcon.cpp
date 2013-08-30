@@ -21,13 +21,11 @@ public:
 
     GeoDataItemIcon::ItemIconStates m_state;
     QString m_iconPath;
-    QImage m_icon;
 };
 
 GeoDataItemIconPrivate::GeoDataItemIconPrivate() :
     m_state(),
-    m_iconPath(),
-    m_icon()
+    m_iconPath()
 {
 }
 
@@ -68,11 +66,6 @@ void GeoDataItemIcon::setState( const ItemIconStates &state )
     d->m_state = state;
 }
 
-void GeoDataItemIcon::setIcon( const QImage &icon )
-{
-    d->m_icon = icon;
-}
-
 QString GeoDataItemIcon::iconPath() const
 {
     return d->m_iconPath;
@@ -81,23 +74,6 @@ QString GeoDataItemIcon::iconPath() const
 void GeoDataItemIcon::setIconPath( const QString &path )
 {
     d->m_iconPath = path;
-}
-
-QImage GeoDataItemIcon::icon() const
-{
-    if(!d->m_icon.isNull())
-    {
-        return d->m_icon;
-    }
-    else if(!d->m_iconPath.isEmpty())
-    {
-        d->m_icon = QImage(d->m_iconPath);
-        return d->m_icon;
-    }
-    else
-    {
-        return QImage();
-    }
 }
 
 }

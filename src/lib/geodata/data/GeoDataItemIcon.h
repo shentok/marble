@@ -11,7 +11,6 @@
 #ifndef GEODATAITEMICON_H
 #define GEODATAITEMICON_H
 
-#include <QImage>
 #include <QFlags>
 
 #include "GeoDataFeature.h"
@@ -51,9 +50,6 @@ public:
 
     QString iconPath() const;
     void setIconPath( const QString &path );
-
-    QImage icon() const;
-    void setIcon( const QImage &icon );
 
 private:
     GeoDataItemIconPrivate* const d;

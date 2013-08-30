@@ -21,9 +21,9 @@ ScreenOverlayGraphicsItem::ScreenOverlayGraphicsItem( const GeoDataScreenOverlay
     /** @todo: take the possible size values into account according to kml spec */
     setSize( QSizeF( m_screenOverlay->size().x(), m_screenOverlay->size().y() ) );
 
-    if ( !m_screenOverlay->icon().isNull() ) {
-        m_image = m_screenOverlay->icon().scaled( size().toSize() );
-    }
+//    if ( !m_screenOverlay->icon().isNull() ) {
+#warning        m_image = m_screenOverlay->icon().scaled( size().toSize() );
+//    }
 }
 
 const GeoDataScreenOverlay *ScreenOverlayGraphicsItem::screenOverlay() const

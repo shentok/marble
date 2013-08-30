@@ -17,7 +17,7 @@
 
 #include <QVector>
 #include <QColor>
-#include <QImage>
+#include <QUrl>
 
 namespace Marble
 {
@@ -43,10 +43,6 @@ class GEODATA_EXPORT GeoDataOverlay: public GeoDataFeature
     int drawOrder() const;
 
     void setDrawOrder( int order );
-
-    QImage icon() const;
-
-    void setIcon( const QImage &icon );
 
     void setIconFile( const QString &path );
 
