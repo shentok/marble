@@ -29,9 +29,7 @@ class EarthquakePlugin : public AbstractDataPlugin, public DialogConfigurationIn
     Q_OBJECT
     Q_PLUGIN_METADATA( IID "org.kde.edu.marble.EarthquakePlugin" )
 
-    Q_INTERFACES( Marble::RenderPluginInterface )
     Q_INTERFACES( Marble::DialogConfigurationInterface )
-
     MARBLE_PLUGIN( EarthquakePlugin )
 
 public:

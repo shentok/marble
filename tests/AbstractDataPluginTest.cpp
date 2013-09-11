@@ -37,7 +37,7 @@ void AbstractDataPluginTest::initialize_data()
 {
     QTest::addColumn<const AbstractDataPlugin *>( "factory" );
 
-    foreach ( const RenderPlugin *plugin, m_model.pluginManager()->renderPlugins() ) {
+    foreach ( const AbstractDataPlugin *plugin, m_model.pluginManager()->dataPlugins() ) {
         const AbstractDataPlugin *const dataPlugin = qobject_cast<const AbstractDataPlugin *>( plugin );
         if ( !dataPlugin )
             continue;
@@ -50,8 +50,7 @@ void AbstractDataPluginTest::initialize()
 {
     QFETCH( const AbstractDataPlugin *, factory );
 
-    RenderPlugin *const instance = factory->newInstance( &m_model );
-    AbstractDataPlugin *const dataInstance = qobject_cast<AbstractDataPlugin *>( instance );
+    AbstractDataPlugin *const dataInstance = factory->newInstance( &m_model );
 
     QVERIFY( dataInstance != 0 );
     QVERIFY( dataInstance->model() == 0 );

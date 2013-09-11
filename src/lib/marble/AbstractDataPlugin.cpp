@@ -45,8 +45,11 @@ namespace Marble
 class AbstractDataPluginPrivate
 {
  public:
-    AbstractDataPluginPrivate()
-        : m_model( 0 ),
+    AbstractDataPluginPrivate( const MarbleModel *marbleModel )
+        : m_marbleModel( marbleModel ),
+          m_isEnabled( false ),
+          m_isVisible( false ),
+          m_model( 0 ),
           m_numberOfItems( 10 ),
           m_delegate( 0 ),
           m_delegateParent( 0 )
@@ -58,6 +61,9 @@ class AbstractDataPluginPrivate
         delete m_model;
     }
     
+    const MarbleModel *const m_marbleModel;
+    bool m_isEnabled;
+    bool m_isVisible;
     AbstractDataPluginModel *m_model;
     quint32 m_numberOfItems;
     QQmlComponent* m_delegate;
@@ -67,8 +73,9 @@ class AbstractDataPluginPrivate
 };
 
 AbstractDataPlugin::AbstractDataPlugin( const MarbleModel *marbleModel )
-    : RenderPlugin( marbleModel ),
-      d( new AbstractDataPluginPrivate )
+    : QObject(),
+      PluginInterface(),
+      d( new AbstractDataPluginPrivate( marbleModel ) )
 {
   connect( &d->m_updateTimer, SIGNAL(timeout()), this, SIGNAL(repaintNeeded()) );
 }
@@ -78,9 +85,30 @@ AbstractDataPlugin::~AbstractDataPlugin()
     delete d;
 }
 
-bool AbstractDataPlugin::isInitialized() const
+bool AbstractDataPlugin::enabled() const
 {
-    return model() != 0;
+    return d->m_isEnabled;
+}
+
+bool AbstractDataPlugin::visible() const
+{
+    return d->m_isVisible;
+}
+
+QHash<QString, QVariant> AbstractDataPlugin::settings() const
+{
+    QHash<QString,QVariant> result;
+
+    result.insert( "enabled", d->m_isEnabled );
+    result.insert( "visible", d->m_isVisible );
+
+    return result;
+}
+
+void AbstractDataPlugin::setSettings( const QHash<QString, QVariant> &settings )
+{
+    setEnabled( settings.value( "enabled", d->m_isEnabled ).toBool() );
+    setVisible( settings.value( "visible", d->m_isVisible ).toBool() );
 }
 
 QStringList AbstractDataPlugin::backendTypes() const
@@ -98,6 +126,7 @@ QStringList AbstractDataPlugin::renderPosition() const
     return QStringList( "ALWAYS_ON_TOP" );
 }
 
+#if 0
 bool AbstractDataPlugin::render( GeoPainter *painter, ViewportParams *viewport,
              const QString& renderPos, GeoSceneLayer * layer)
 {
@@ -119,6 +148,12 @@ bool AbstractDataPlugin::render( GeoPainter *painter, ViewportParams *viewport,
     }
     
     return true;
+}
+#endif
+
+const MarbleModel *AbstractDataPlugin::marbleModel() const
+{
+    return d->m_marbleModel;
 }
 
 AbstractDataPluginModel *AbstractDataPlugin::model()
@@ -172,11 +207,6 @@ QList<AbstractDataPluginItem *> AbstractDataPlugin::whichItemAt( const QPoint& c
     }
 }
 
-RenderPlugin::RenderType AbstractDataPlugin::renderType() const
-{
-    return OnlineRenderType;
-}
-
 void AbstractDataPlugin::setDelegate( QQmlComponent *delegate, QGraphicsItem* parent )
 {
     qDeleteAll( d->m_delegateInstances.values() );
@@ -201,6 +231,16 @@ bool AbstractDataPlugin::isFavoriteItemsOnly() const
 QObject *AbstractDataPlugin::favoritesModel()
 {
     return d->m_model ? d->m_model->favoritesModel() : 0;
+}
+
+void AbstractDataPlugin::setEnabled( bool enabled )
+{
+    d->m_isEnabled = enabled;
+}
+
+void AbstractDataPlugin::setVisible( bool visible )
+{
+    d->m_isVisible = visible;
 }
 
 void AbstractDataPlugin::handleViewportChange( const ViewportParams *viewport )

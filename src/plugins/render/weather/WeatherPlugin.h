@@ -31,10 +31,9 @@ class WeatherPlugin : public AbstractDataPlugin, public DialogConfigurationInter
 {
     Q_OBJECT
     Q_PLUGIN_METADATA( IID "org.kde.edu.marble.WeatherPlugin" )
-    Q_INTERFACES( Marble::RenderPluginInterface )
     Q_INTERFACES( Marble::DialogConfigurationInterface )
     MARBLE_PLUGIN( WeatherPlugin )
-    
+
  public:
     WeatherPlugin();
 

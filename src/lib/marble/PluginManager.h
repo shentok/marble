@@ -22,6 +22,7 @@ namespace Marble
 
 class RenderPlugin;
 class PositionProviderPlugin;
+class AbstractDataPlugin;
 class AbstractFloatItem;
 class PluginManagerPrivate;
 class SearchRunnerPlugin;
@@ -66,6 +67,10 @@ class MARBLE_EXPORT PluginManager : public QObject
      * @param plugin The plugin to add. Ownership retains with the caller.
      */
     void addRenderPlugin( const RenderPlugin *plugin );
+
+    QList<const AbstractDataPlugin *> dataPlugins() const;
+
+    void addDataPlugin( const AbstractDataPlugin *plugin );
 
     /**
      * @brief Returns all available PositionProviderPlugins.

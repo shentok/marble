@@ -114,7 +114,7 @@ QHash<QString,QVariant> OpenDesktopPlugin::settings() const
 
 bool OpenDesktopPlugin::eventFilter(QObject *object, QEvent *event)
 {
-    if ( isInitialized() ) {
+    if ( model() ) {
         OpenDesktopModel *odModel = qobject_cast<OpenDesktopModel*>( model() );
         Q_ASSERT(odModel);
         MarbleWidget* widget = qobject_cast<MarbleWidget*>( object );

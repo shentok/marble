@@ -157,7 +157,7 @@ void WikipediaPlugin::setSettings( const QHash<QString,QVariant> &settings )
 
 bool WikipediaPlugin::eventFilter(QObject *object, QEvent *event)
 {
-    if ( isInitialized() ) {
+    if ( model() ) {
         WikipediaModel *wikipediaModel = dynamic_cast<WikipediaModel*>( model() );
         Q_ASSERT( wikipediaModel );
         MarbleWidget* widget = dynamic_cast<MarbleWidget*>( object );

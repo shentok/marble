@@ -156,7 +156,7 @@ void DeclarativeDataPluginPrivate::parseObject( QObject *object )
     }
 }
 
-Marble::RenderPlugin *DeclarativeDataPlugin::newInstance(const Marble::MarbleModel *marbleModel) const
+Marble::AbstractDataPlugin *DeclarativeDataPlugin::newInstance( const Marble::MarbleModel *marbleModel ) const
 {
     DeclarativeDataPlugin* instance = new DeclarativeDataPlugin( marbleModel );
     instance->d->m_planet = d->m_planet;

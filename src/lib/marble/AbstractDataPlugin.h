@@ -11,9 +11,11 @@
 #ifndef MARBLE_ABSTRACTDATAPLUGIN_H
 #define MARBLE_ABSTRACTDATAPLUGIN_H
 
+#include <QObject>
+
 // Marble
 #include "marble_export.h"
-#include "RenderPlugin.h"
+#include "PluginInterface.h"
 
 #if QT_VERSION < 0x050000
 class QDeclarativeComponent;
@@ -30,6 +32,7 @@ class GeoSceneLayer;
 class AbstractDataPluginItem;
 class AbstractDataPluginModel;
 class AbstractDataPluginPrivate;
+class MarbleModel;
 
 /**
  * @short An abstract class for plugins that show data that has a geo coordinate
@@ -42,7 +45,7 @@ class AbstractDataPluginPrivate;
  * Additionally it should be useful to set standard values via setEnabled (often true)
  * and setVisible (often false) in the constructor of a subclass.
  **/
-class MARBLE_EXPORT AbstractDataPlugin : public RenderPlugin
+class MARBLE_EXPORT AbstractDataPlugin : public QObject, public PluginInterface
 {
     Q_OBJECT
 
@@ -56,7 +59,33 @@ class MARBLE_EXPORT AbstractDataPlugin : public RenderPlugin
 
     virtual ~AbstractDataPlugin();
 
-    bool isInitialized() const;
+    virtual AbstractDataPlugin *newInstance( const MarbleModel *marbleModel ) const = 0;
+
+    bool enabled() const;
+
+    bool visible() const;
+
+    /**
+     * @brief Settings of the plugin
+     *
+     * Settings is the map (hash table) of plugin's settings
+     * This method is called to determine the current settings of the plugin
+     * for serialization, e.g. when closing the application.
+     *
+     * @return plugin's settings
+     * @see setSettings
+     */
+    virtual QHash<QString,QVariant> settings() const;
+
+    /**
+     * @brief Set the settings of the plugin
+     *
+     * Usually this is called at startup to restore saved settings.
+     *
+     * @param new plugin's settings
+     * @see settings
+     */
+    virtual void setSettings( const QHash<QString,QVariant> &settings );
 
     /**
      * @brief Returns the name(s) of the backend that the plugin can render
@@ -72,13 +101,8 @@ class MARBLE_EXPORT AbstractDataPlugin : public RenderPlugin
      * @brief Preferred level in the layer stack for the rendering
      */
     QStringList renderPosition() const;
-    
-    /**
-     * @brief Renders the content provided by the plugin on the viewport.
-     * @return @c true  Returns whether the rendering has been successful
-     */
-    bool render( GeoPainter *painter, ViewportParams *viewport,
-                 const QString& renderPos = QLatin1String("NONE"), GeoSceneLayer * layer = 0 );
+
+    const MarbleModel *marbleModel() const;
 
     /**
      * @return The model associated with the plugin.
@@ -109,14 +133,6 @@ class MARBLE_EXPORT AbstractDataPlugin : public RenderPlugin
      */
     QList<AbstractDataPluginItem *> whichItemAt( const QPoint& curpos );
 
-    /**
-     * Function for returning the type of plugin this is for.
-     * This affects where in the menu tree the action() is placed.
-     *
-     * @return: The type of render plugin this is.
-     */
-    virtual RenderType renderType() const;
-
 #if QT_VERSION < 0x050000
     void setDelegate( QDeclarativeComponent* delegate, QGraphicsItem* parent );
 #else
@@ -130,7 +146,9 @@ class MARBLE_EXPORT AbstractDataPlugin : public RenderPlugin
 
     QObject* favoritesModel();
     
-public Q_SLOTS:
+ public Q_SLOTS:
+    void setEnabled( bool enabled );
+    void setVisible( bool visible );
     void handleViewportChange( const ViewportParams *viewport );
 
  private Q_SLOTS:
@@ -144,11 +162,16 @@ public Q_SLOTS:
     void favoriteItemsOnlyChanged();
 
     void favoritesModelChanged();
-    
+
+    void settingsChanged( const QString &nameId );
+
  private:
     AbstractDataPluginPrivate * const d;
 };
-    
+
+#define MARBLE_PLUGIN(T) public:\
+    virtual AbstractDataPlugin* newInstance( const MarbleModel *marbleModel ) const { return new T( marbleModel ); }
+
 }
 
 #endif

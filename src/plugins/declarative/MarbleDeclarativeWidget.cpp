@@ -21,7 +21,6 @@
 #include "MapThemeManager.h"
 #include "AbstractFloatItem.h"
 #include "AbstractDataPlugin.h"
-#include "RenderPlugin.h"
 #include "MarbleMap.h"
 #include "MarbleDirs.h"
 #include "ViewParams.h"
@@ -314,7 +313,7 @@ void MarbleWidget::addLayer( QQmlListProperty<DeclarativeDataPlugin> *list, Decl
 {
     MarbleWidget *object = qobject_cast<MarbleWidget *>( list->object );
     if ( object ) {
-        object->m_marbleWidget->model()->pluginManager()->addRenderPlugin( layer );
+        object->m_marbleWidget->model()->pluginManager()->addDataPlugin( layer );
         object->setDataPluginDelegate( layer->nameId(), layer->delegate() );
         object->m_dataLayers << layer;
     }

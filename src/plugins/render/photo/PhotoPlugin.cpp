@@ -206,7 +206,7 @@ void PhotoPlugin::setSettings( const QHash<QString,QVariant> &settings )
 
 bool PhotoPlugin::eventFilter(QObject *object, QEvent *event)
 {
-    if ( isInitialized() ) {
+    if ( model() ) {
         PhotoPluginModel *photoPluginModel = dynamic_cast<PhotoPluginModel*>( model() );
         Q_ASSERT( photoPluginModel );
         MarbleWidget* widget = dynamic_cast<MarbleWidget*>( object );

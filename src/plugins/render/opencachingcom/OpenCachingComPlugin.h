@@ -12,7 +12,6 @@
 #define OPENCACHINGCOMPLUGIN_H
 
 #include "AbstractDataPlugin.h"
-#include "RenderPlugin.h"
 #include "RenderPluginInterface.h"
 
 #include <QHash>
@@ -34,9 +33,6 @@ class OpenCachingComPlugin : public AbstractDataPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA( IID "org.kde.edu.marble.OpenCachingComPlugin" )
-
-    Q_INTERFACES( Marble::RenderPluginInterface )
-
     MARBLE_PLUGIN( OpenCachingComPlugin )
 
 public:

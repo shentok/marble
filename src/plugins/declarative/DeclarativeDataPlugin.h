@@ -14,7 +14,6 @@
 #define DECLARATIVEDATAPLUGIN_H
 
 #include "AbstractDataPlugin.h"
-#include "RenderPlugin.h"
 #include "RenderPluginInterface.h"
 
 #include <QStringList>
@@ -25,7 +24,6 @@ namespace Marble { class MarbleModel; }
 class DeclarativeDataPlugin: public Marble::AbstractDataPlugin
 {
     Q_OBJECT
-    Q_INTERFACES( Marble::RenderPluginInterface )
 
     Q_PROPERTY( QString planet READ planet WRITE setPlanet NOTIFY planetChanged )
     Q_PROPERTY( QString name READ name WRITE setName NOTIFY nameChanged )
@@ -44,7 +42,7 @@ class DeclarativeDataPlugin: public Marble::AbstractDataPlugin
 #endif
 
 public:
-    Marble::RenderPlugin* newInstance( const Marble::MarbleModel *marbleModel ) const;
+    Marble::AbstractDataPlugin *newInstance( const Marble::MarbleModel *marbleModel ) const;
 
     explicit DeclarativeDataPlugin( const Marble::MarbleModel *marbleModel=0 );
 
