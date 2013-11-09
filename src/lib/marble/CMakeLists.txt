@@ -78,8 +78,6 @@ set(marblewidget_SRCS
     MarbleWebView.cpp
     MarbleModel.cpp
     MarbleMap.cpp
-    MarbleControlBox.cpp
-    NavigationWidget.cpp
     MapViewWidget.cpp
     FileViewWidget.cpp
     LegendWidget.cpp
@@ -261,7 +259,6 @@ set(marblewidget_SRCS
 
 set (marblewidget_UI
     LatLonBoxWidget.ui
-    NavigationWidget.ui
     LegendWidget.ui
     MapViewWidget.ui
     CurrentLocationWidget.ui
@@ -384,8 +381,6 @@ else (APPLE AND QTONLY)
     MarbleWebView.h
     MarbleMap.h
     MarbleModel.h
-    MarbleControlBox.h
-    NavigationWidget.h
     MapViewWidget.h
     LegendWidget.h
     FileViewWidget.h
