@@ -1,4 +1,11 @@
-set(marble_SRCS ControlView.cpp MarbleTest.cpp)
+set(marble_SRCS
+    ControlView.cpp
+    MarbleTest.cpp
+    PrintOptionsWidget.cpp
+    SunControlWidget.cpp
+    TimeControlWidget.cpp
+)
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if(MSVC)
@@ -10,6 +17,12 @@ if(MINGW)
 endif(MINGW)
 
 qt_add_resources(marble_SRCS marble.qrc)
+
+set(marble_UI
+    PrintOptions.ui
+    SunControlWidget.ui
+    TimeControlWidget.ui
+)
 
 qt_wrap_ui(marble_SRCS ${marble_UI})
 marble_qt4_automoc(${marble_SRCS})

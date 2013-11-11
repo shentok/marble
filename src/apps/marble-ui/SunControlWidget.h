@@ -17,8 +17,6 @@
 #include <QTime>
 #include <QDialog>
 
-#include "marble_export.h"
-
 namespace Ui
 {
     class SunControlWidget;
@@ -28,10 +26,10 @@ namespace Marble
 {
 class MarbleWidget;
 
-class MARBLE_EXPORT SunControlWidget : public QDialog
+class SunControlWidget : public QDialog
 {
     Q_OBJECT
-	
+
  public:
     explicit SunControlWidget( MarbleWidget *marbleWidget, QWidget* parent = 0 );
     virtual ~SunControlWidget();
@@ -39,7 +37,7 @@ class MARBLE_EXPORT SunControlWidget : public QDialog
 
  private Q_SLOTS:
     void apply();
-	
+
  Q_SIGNALS:
     void showSun( bool show );
     void isLockedToSubSolarPoint( bool show );

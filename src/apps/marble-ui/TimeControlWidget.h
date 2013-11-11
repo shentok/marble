@@ -15,9 +15,6 @@
 #include <QDateTime>
 #include <QDialog>
 
-// Marble
-#include "marble_export.h"
-
 namespace Ui
 {
     class TimeControlWidget;
@@ -28,7 +25,7 @@ namespace Marble
 
 class MarbleClock;
 
-class MARBLE_EXPORT TimeControlWidget : public QDialog
+class TimeControlWidget : public QDialog
 {
     Q_OBJECT
 

@@ -107,7 +107,6 @@ set(marblewidget_SRCS
     HttpJob.cpp
     LayerManager.cpp
     PluginManager.cpp
-    TimeControlWidget.cpp
     AbstractFloatItem.cpp
     PopupItem.cpp
     MarbleGlobal.cpp
@@ -176,7 +175,6 @@ set(marblewidget_SRCS
 
     SunLocator.cpp
     MarbleClock.cpp
-    SunControlWidget.cpp
     MergedLayerDecorator.cpp
 
     MathHelper.cpp
@@ -231,7 +229,6 @@ set(marblewidget_SRCS
     BookmarkManagerDialog.cpp
     NewBookmarkFolderDialog.cpp
 
-    PrintOptionsWidget.cpp
     ExternalEditorDialog.cpp
     GoToDialog.cpp
 
@@ -267,20 +264,17 @@ set (marblewidget_UI
     MarbleCacheSettingsWidget.ui
     MarbleViewSettingsWidget.ui
     MarbleNavigationSettingsWidget.ui
-    TimeControlWidget.ui
     MarbleTimeSettingsWidget.ui
     MarblePluginSettingsWidget.ui
     TileCreatorDialog.ui
     TileLevelRangeWidget.ui
     MarbleAboutDialog.ui
-    SunControlWidget.ui
     LatLonEdit.ui
     routing/RoutingWidget.ui
     DataMigrationWidget.ui
     EditBookmarkDialog.ui
     BookmarkManagerDialog.ui
     NewBookmarkFolderDialog.ui
-    PrintOptions.ui
     ExternalEditor.ui
     GoToDialog.ui
     routing/RoutingSettingsWidget.ui
