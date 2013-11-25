@@ -14,7 +14,6 @@
 
 #include <QString>
 #include <QHostInfo>
-#include <QNetworkAccessManager>
 #include <QNetworkRequest>
 
 class QNetworkReply;
@@ -34,7 +33,7 @@ private Q_SLOTS:
     void get();
 
     // Http request with hostip.info done
-    void slotRequestFinished( QNetworkReply* );
+    void slotRequestFinished();
 
     // IP address lookup finished
     void slotLookupFinished(const QHostInfo &host);
@@ -47,7 +46,7 @@ private Q_SLOTS:
 private:
     QHostInfo m_hostInfo;
 
-    QNetworkAccessManager m_networkAccessManager;
+    QNetworkReply *m_reply;
 
     QNetworkRequest m_request;
 };

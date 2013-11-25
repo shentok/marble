@@ -9,6 +9,9 @@
 
 #include "ReverseGeocodingRunner.h"
 
+#include "HttpDownloadManager.h"
+#include "MarbleModel.h"
+
 namespace Marble
 {
 
@@ -25,6 +28,11 @@ void ReverseGeocodingRunner::setModel( const MarbleModel *model )
 const MarbleModel *ReverseGeocodingRunner::model() const
 {
     return m_model;
+}
+
+QNetworkAccessManager *ReverseGeocodingRunner::networkAccessManager()
+{
+    return const_cast<HttpDownloadManager *>( m_model->downloadManager() )->networkAccessManager();
 }
 
 }

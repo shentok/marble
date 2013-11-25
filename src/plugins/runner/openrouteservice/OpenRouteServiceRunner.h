@@ -16,7 +16,7 @@
 #include "routing/instructions/RoutingInstruction.h"
 
 #include <QString>
-#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QNetworkReply>
 
 namespace Marble
@@ -43,7 +43,7 @@ public:
 
 private Q_SLOTS:
     /** Route data was retrieved via http */
-    void retrieveData( QNetworkReply *reply );
+    void retrieveData();
 
     /** A network error occurred */
     void handleError( QNetworkReply::NetworkError );
@@ -70,7 +70,7 @@ private:
 
     RoutingInstruction::TurnType parseTurnType( const QString &text, QString* road ) const;
 
-    QNetworkAccessManager m_networkAccessManager;
+    QNetworkReply *m_reply;
 
     QNetworkRequest m_request;
 

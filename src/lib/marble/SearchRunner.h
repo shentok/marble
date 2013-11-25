@@ -19,6 +19,8 @@
 
 #include <QVector>
 
+class QNetworkAccessManager;
+
 namespace Marble
 {
 
@@ -59,6 +61,8 @@ protected:
      * Access to the currently used model, or null if no was set with @see setModel
      */
     const MarbleModel *model() const;
+
+    QNetworkAccessManager *networkAccessManager();
 
 private:
     const MarbleModel *m_model;

@@ -32,11 +32,9 @@ namespace Marble
 
 MapQuestRunner::MapQuestRunner( QObject *parent ) :
     RoutingRunner( parent ),
-    m_networkAccessManager(),
+    m_reply( 0 ),
     m_request()
 {
-    connect( &m_networkAccessManager, SIGNAL(finished(QNetworkReply*)),
-             this, SLOT(retrieveData(QNetworkReply*)) );
 }
 
 MapQuestRunner::~MapQuestRunner()
@@ -126,16 +124,19 @@ void MapQuestRunner::retrieveRoute( const RouteRequest *route )
 
 void MapQuestRunner::get()
 {
-    QNetworkReply *reply = m_networkAccessManager.get( m_request );
-    connect( reply, SIGNAL(error(QNetworkReply::NetworkError)),
+    m_reply = networkAccessManager()->get( m_request );
+    connect( m_reply, SIGNAL(finished()),
+             this, SLOT(retrieveData()) );
+    connect( m_reply, SIGNAL(error(QNetworkReply::NetworkError)),
              this, SLOT(handleError(QNetworkReply::NetworkError)), Qt::DirectConnection );
 }
 
-void MapQuestRunner::retrieveData( QNetworkReply *reply )
+void MapQuestRunner::retrieveData()
 {
-    if ( reply->isFinished() ) {
-        QByteArray data = reply->readAll();
-        reply->deleteLater();
+    if ( m_reply->isFinished() ) {
+        QByteArray data = m_reply->readAll();
+        m_reply->deleteLater();
+        m_reply = 0;
         //mDebug() << "Download completed: " << data;
         GeoDataDocument* document = parse( data );
 

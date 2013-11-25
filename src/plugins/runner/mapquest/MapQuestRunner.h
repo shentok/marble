@@ -14,8 +14,8 @@
 
 #include "RoutingRunner.h"
 
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QNetworkRequest>
 
 namespace Marble
 {
@@ -36,7 +36,7 @@ private Q_SLOTS:
     void get();
 
     /** Route data was retrieved via http */
-    void retrieveData( QNetworkReply *reply );
+    void retrieveData();
 
     /** A network error occurred */
     void handleError( QNetworkReply::NetworkError );
@@ -48,7 +48,7 @@ private:
 
     GeoDataDocument* parse( const QByteArray &input ) const;
 
-    QNetworkAccessManager m_networkAccessManager;
+    QNetworkReply *m_reply;
 
     QNetworkRequest m_request;
 };

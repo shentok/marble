@@ -39,10 +39,8 @@ QString OSRMRunner:: m_hintChecksum;
 
 OSRMRunner::OSRMRunner( QObject *parent ) :
     RoutingRunner( parent ),
-    m_networkAccessManager()
+    m_reply( 0 )
 {
-    connect( &m_networkAccessManager, SIGNAL(finished(QNetworkReply*)),
-             this, SLOT(retrieveData(QNetworkReply*)) );
 }
 
 OSRMRunner::~OSRMRunner()
@@ -102,11 +100,12 @@ void OSRMRunner::retrieveRoute( const RouteRequest *route )
     eventLoop.exec();
 }
 
-void OSRMRunner::retrieveData( QNetworkReply *reply )
+void OSRMRunner::retrieveData()
 {
-    if ( reply->isFinished() ) {
-        QByteArray data = reply->readAll();
-        reply->deleteLater();
+    if ( m_reply->isFinished() ) {
+        QByteArray data = m_reply->readAll();
+        m_reply->deleteLater();
+        m_reply = 0;
         GeoDataDocument* document = parse( data );
 
         if ( !document ) {
@@ -124,8 +123,10 @@ void OSRMRunner::handleError( QNetworkReply::NetworkError error )
 
 void OSRMRunner::get()
 {
-    QNetworkReply *reply = m_networkAccessManager.get( m_request );
-    connect( reply, SIGNAL(error(QNetworkReply::NetworkError)),
+    m_reply = networkAccessManager()->get( m_request );
+    connect( m_reply, SIGNAL(finished()),
+             this, SLOT(retrieveData()) );
+    connect( m_reply, SIGNAL(error(QNetworkReply::NetworkError)),
              this, SLOT(handleError(QNetworkReply::NetworkError)), Qt::DirectConnection );
 }
 

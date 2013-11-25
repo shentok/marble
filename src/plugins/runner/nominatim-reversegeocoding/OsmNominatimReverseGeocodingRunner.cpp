@@ -30,15 +30,15 @@ namespace Marble
 
 OsmNominatimRunner::OsmNominatimRunner( QObject *parent ) :
     ReverseGeocodingRunner( parent ),
-    m_manager(this)
+    m_reply( 0 )
 {
-    connect(&m_manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(handleResult(QNetworkReply*)));
 }
 
 OsmNominatimRunner::~OsmNominatimRunner()
 {
-    // nothing to do
+    if ( m_reply ) {
+        m_reply->deleteLater();
+    }
 }
 
 
@@ -80,20 +80,22 @@ void OsmNominatimRunner::reverseGeocoding( const GeoDataCoordinates &coordinates
 
 void OsmNominatimRunner::startReverseGeocoding()
 {
-    QNetworkReply *reply = m_manager.get( m_request );
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+    m_reply = networkAccessManager()->get( m_request );
+    connect(m_reply, SIGNAL(finished()),
+            this, SLOT(handleResult()));
+    connect(m_reply, SIGNAL(error(QNetworkReply::NetworkError)),
             this, SLOT(returnNoReverseGeocodingResult()));
 }
 
-void OsmNominatimRunner::handleResult( QNetworkReply* reply )
+void OsmNominatimRunner::handleResult()
 {
-    if ( !reply->bytesAvailable() ) {
+    if ( !m_reply->bytesAvailable() ) {
         returnNoReverseGeocodingResult();
         return;
     }
 
     QDomDocument xml;
-    if ( !xml.setContent( reply->readAll() ) ) {
+    if ( !xml.setContent( m_reply->readAll() ) ) {
         mDebug() << "Cannot parse osm nominatim result " << xml.toString();
         returnNoReverseGeocodingResult();
         return;

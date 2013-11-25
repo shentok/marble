@@ -16,7 +16,6 @@
 #include "GeoDataCoordinates.h"
 
 #include <QString>
-#include <QNetworkAccessManager>
 #include <QNetworkRequest>
 
 class QNetworkReply;
@@ -40,7 +39,7 @@ public:
 
 private Q_SLOTS:
     // Forward a result to the search or reverse geocoding handler
-    void handleResult( QNetworkReply* );
+    void handleResult();
 
     void returnNoReverseGeocodingResult();
 
@@ -49,7 +48,7 @@ private Q_SLOTS:
 private:
     void addData( const QDomNodeList &node, const QString &key, GeoDataExtendedData *extendedData );
 
-    QNetworkAccessManager m_manager;
+    QNetworkReply *m_reply;
 
     QNetworkRequest m_request;
 

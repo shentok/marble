@@ -9,6 +9,9 @@
 
 #include "SearchRunner.h"
 
+#include "HttpDownloadManager.h"
+#include "MarbleModel.h"
+
 namespace Marble
 {
 
@@ -25,6 +28,11 @@ void SearchRunner::setModel( const MarbleModel *model )
 const MarbleModel *SearchRunner::model() const
 {
     return m_model;
+}
+
+QNetworkAccessManager *SearchRunner::networkAccessManager()
+{
+    return const_cast<HttpDownloadManager *>( m_model->downloadManager() )->networkAccessManager();
 }
 
 }

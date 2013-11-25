@@ -25,14 +25,15 @@ namespace Marble
 
 HostipRunner::HostipRunner( QObject *parent ) :
         SearchRunner( parent ),
-        m_networkAccessManager()
+        m_reply( 0 )
 {
-    connect( &m_networkAccessManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(slotRequestFinished(QNetworkReply*)), Qt::DirectConnection );
 }
 
 HostipRunner::~HostipRunner()
 {
+    if ( m_reply ) {
+        m_reply->deleteLater();
+    }
 }
 
 void HostipRunner::slotNoResults()
@@ -84,15 +85,17 @@ void HostipRunner::slotLookupFinished(const QHostInfo &info)
 
 void HostipRunner::get()
 {
-    QNetworkReply *reply = m_networkAccessManager.get( m_request );
-    connect( reply, SIGNAL(error(QNetworkReply::NetworkError)),
+    m_reply = networkAccessManager()->get( m_request );
+    connect( m_reply, SIGNAL(finished()),
+            this, SLOT(slotRequestFinished()), Qt::DirectConnection );
+    connect( m_reply, SIGNAL(error(QNetworkReply::NetworkError)),
              this, SLOT(slotNoResults()), Qt::DirectConnection );
 }
 
-void HostipRunner::slotRequestFinished( QNetworkReply* reply )
+void HostipRunner::slotRequestFinished()
 {
     double lon(0.0), lat(0.0);
-    for ( QString line = reply->readLine(); !line.isEmpty(); line = reply->readLine() ) {
+    for ( QString line = m_reply->readLine(); !line.isEmpty(); line = m_reply->readLine() ) {
         QString lonInd = "Longitude: ";
         if ( line.startsWith(lonInd) ) {
             lon = line.mid( lonInd.length() ).toDouble();

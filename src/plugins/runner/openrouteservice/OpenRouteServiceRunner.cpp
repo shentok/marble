@@ -11,8 +11,10 @@
 #include "OpenRouteServiceRunner.h"
 
 #include "MarbleDebug.h"
+#include "MarbleModel.h"
 #include "GeoDataDocument.h"
 #include "GeoDataPlacemark.h"
+#include "HttpDownloadManager.h"
 #include "TinyWebBrowser.h"
 #include "GeoDataData.h"
 #include "GeoDataExtendedData.h"
@@ -23,18 +25,15 @@
 #include <QUrl>
 #include <QTime>
 #include <QTimer>
-#include <QNetworkReply>
 #include <QDomDocument>
 
 namespace Marble
 {
 
 OpenRouteServiceRunner::OpenRouteServiceRunner( QObject *parent ) :
-        RoutingRunner( parent ),
-        m_networkAccessManager()
+    RoutingRunner( parent ),
+    m_reply( 0 )
 {
-    connect( &m_networkAccessManager, SIGNAL(finished(QNetworkReply*)),
-             this, SLOT(retrieveData(QNetworkReply*)));
 }
 
 OpenRouteServiceRunner::~OpenRouteServiceRunner()
@@ -103,16 +102,19 @@ void OpenRouteServiceRunner::retrieveRoute( const RouteRequest *route )
 
 void OpenRouteServiceRunner::get()
 {
-    QNetworkReply *reply = m_networkAccessManager.post( m_request, m_requestData );
-    connect( reply, SIGNAL(error(QNetworkReply::NetworkError)),
+    m_reply = networkAccessManager()->post( m_request, m_requestData );
+    connect( m_reply, SIGNAL(finished()),
+             this, SLOT(retrieveData()));
+    connect( m_reply, SIGNAL(error(QNetworkReply::NetworkError)),
              this, SLOT(handleError(QNetworkReply::NetworkError)), Qt::DirectConnection);
 }
 
-void OpenRouteServiceRunner::retrieveData( QNetworkReply *reply )
+void OpenRouteServiceRunner::retrieveData()
 {
-    if ( reply->isFinished() ) {
-        QByteArray data = reply->readAll();
-        reply->deleteLater();
+    if ( m_reply->isFinished() ) {
+        QByteArray data = m_reply->readAll();
+        m_reply->deleteLater();
+        m_reply = 0;
         //mDebug() << "Download completed: " << data;
         GeoDataDocument* document = parse( data );
 

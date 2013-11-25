@@ -30,15 +30,15 @@ namespace Marble
 
 OsmNominatimRunner::OsmNominatimRunner( QObject *parent ) :
     SearchRunner( parent ),
-    m_manager()
+    m_reply( 0 )
 {
-    connect(&m_manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(handleResult(QNetworkReply*)));
 }
 
 OsmNominatimRunner::~OsmNominatimRunner()
 {
-    // nothing to do
+    if ( m_reply ) {
+        m_reply->deleteLater();
+    }
 }
 
 void OsmNominatimRunner::returnNoResults()
@@ -83,16 +83,21 @@ void OsmNominatimRunner::search( const QString &searchTerm, const GeoDataLatLonA
 
 void OsmNominatimRunner::startSearch()
 {
-    QNetworkReply *reply = m_manager.get( m_request );
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+    m_reply = networkAccessManager()->get( m_request );
+    connect(m_reply, SIGNAL(finished()),
+            this, SLOT(handleResult()));
+    connect(m_reply, SIGNAL(error(QNetworkReply::NetworkError)),
             this, SLOT(returnNoResults()));
 }
 
 
-void OsmNominatimRunner::handleResult( QNetworkReply* reply )
-{   
+void OsmNominatimRunner::handleResult()
+{
+    if ( !m_reply->isFinished() )
+        return;
+
     QDomDocument xml;
-    if (!xml.setContent(reply->readAll())) {
+    if (!xml.setContent(m_reply->readAll())) {
         qWarning() << "Cannot parse osm nominatim result";
         returnNoResults();
         return;

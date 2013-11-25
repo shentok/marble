@@ -16,7 +16,6 @@
 
 #include <QString>
 #include <QHostInfo>
-#include <QNetworkAccessManager>
 #include <QNetworkRequest>
 
 class QNetworkReply;
@@ -37,7 +36,7 @@ public:
 
 private Q_SLOTS:
     // Forward a result to the search or reverse geocoding handler
-    void handleResult( QNetworkReply* );
+    void handleResult();
 
     // No results (or an error)
     void returnNoResults();
@@ -45,7 +44,7 @@ private Q_SLOTS:
     void startSearch();
 
 private:
-    QNetworkAccessManager m_manager;
+    QNetworkReply *m_reply;
 
     QNetworkRequest m_request;
 };

@@ -10,6 +10,8 @@
 #include "RoutingRunner.h"
 
 #include "GeoDataPlacemark.h"
+#include "HttpDownloadManager.h"
+#include "MarbleModel.h"
 
 #include <QString>
 
@@ -30,6 +32,11 @@ void RoutingRunner::setModel( const MarbleModel *model )
 const MarbleModel *RoutingRunner::model() const
 {
     return m_model;
+}
+
+QNetworkAccessManager *RoutingRunner::networkAccessManager()
+{
+    return const_cast<HttpDownloadManager *>( m_model->downloadManager() )->networkAccessManager();
 }
 
 }
