@@ -22,6 +22,7 @@
 #include "MarbleGlobal.h"
 #include "marble_export.h"
 
+class QNetworkAccessManager;
 class QUrl;
 
 namespace Marble
@@ -59,6 +60,8 @@ class MARBLE_EXPORT HttpDownloadManager : public QObject
      * Destroys the http download manager.
      */
     virtual ~HttpDownloadManager();
+
+    QNetworkAccessManager *networkAccessManager();
 
     /**
      * Switches loading on/off, useful for offline mode.

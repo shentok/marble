@@ -105,6 +105,11 @@ HttpDownloadManager::~HttpDownloadManager()
     delete d;
 }
 
+QNetworkAccessManager *HttpDownloadManager::networkAccessManager()
+{
+    return &d->m_networkAccessManager;
+}
+
 void HttpDownloadManager::setDownloadEnabled( const bool enable )
 {
     d->m_networkAccessManager.setNetworkAccessible( enable ? QNetworkAccessManager::Accessible : QNetworkAccessManager::NotAccessible );
