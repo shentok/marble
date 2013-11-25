@@ -24,18 +24,20 @@
 #include <QString>
 #include <QImage>
 
-#include "TileId.h"
+#include "HttpDownloadManager.h"
+#include "FileStoragePolicy.h"
 #include "GeoDataContainer.h"
-#include "PluginManager.h"
 #include "MarbleGlobal.h"
+#include "PluginManager.h"
+#include "TileId.h"
 
 class QByteArray;
 class QImage;
+class QNetworkAccessManager;
 class QUrl;
 
 namespace Marble
 {
-class HttpDownloadManager;
 class GeoDataDocument;
 class GeoSceneTiled;
 class GeoSceneTextureTile;
@@ -52,7 +54,7 @@ class TileLoader: public QObject
         Available
     };
 
-    explicit TileLoader(HttpDownloadManager * const, const PluginManager * );
+    explicit TileLoader(QNetworkAccessManager * const, const PluginManager * );
 
     QImage loadTileImage( GeoSceneTextureTile const *textureLayer, TileId const & tileId, DownloadUsage const );
     GeoDataDocument* loadTileVectorData( GeoSceneVectorTile const *textureLayer, TileId const & tileId, DownloadUsage const usage );
@@ -90,8 +92,9 @@ class TileLoader: public QObject
     void triggerDownload( GeoSceneTiled const *textureLayer, TileId const &, DownloadUsage const );
     QImage scaledLowerLevelTile( GeoSceneTextureTile const * textureLayer, TileId const & ) const;
 
-    // For vectorTile parsing
-    const PluginManager * m_pluginManager;
+    FileStoragePolicy m_storagePolicy;
+    HttpDownloadManager m_downloadManager;
+    const PluginManager * m_pluginManager; // For vectorTile parsing
 };
 
 }

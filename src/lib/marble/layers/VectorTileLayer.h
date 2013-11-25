@@ -27,6 +27,7 @@
 #include <QSize>
 
 class QImage;
+class QNetworkAccessManager;
 class QRegion;
 class QRect;
 
@@ -36,7 +37,6 @@ namespace Marble
 class GeoPainter;
 class GeoSceneGroup;
 class GeoSceneVectorTile;
-class HttpDownloadManager;
 class SunLocator;
 class TileLoader;
 class ViewportParams;
@@ -46,7 +46,7 @@ class VectorTileLayer : public QObject, public LayerInterface
     Q_OBJECT
 
  public:
-    VectorTileLayer( HttpDownloadManager *downloadManager,
+    VectorTileLayer( QNetworkAccessManager *networkAccessManager,
                   const PluginManager *pluginManager,
                   GeoDataTreeModel *treeModel);
 

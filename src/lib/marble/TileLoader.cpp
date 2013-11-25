@@ -40,13 +40,15 @@ Q_DECLARE_METATYPE( Marble::DownloadUsage )
 namespace Marble
 {
 
-TileLoader::TileLoader(HttpDownloadManager * const downloadManager, const PluginManager *pluginManager) :
-      m_pluginManager( pluginManager )
+TileLoader::TileLoader(QNetworkAccessManager * const networkAccessManager, const PluginManager *pluginManager) :
+    m_storagePolicy(),
+    m_downloadManager( &m_storagePolicy, networkAccessManager ),
+    m_pluginManager( pluginManager )
 {
     qRegisterMetaType<DownloadUsage>( "DownloadUsage" );
     connect( this, SIGNAL(downloadTile(QUrl,QString,QString,DownloadUsage)),
-             downloadManager, SLOT(addJob(QUrl,QString,QString,DownloadUsage)));
-    connect( downloadManager, SIGNAL(downloadComplete(QByteArray,QString)),
+             &m_downloadManager, SLOT(addJob(QUrl,QString,QString,DownloadUsage)));
+    connect( &m_downloadManager, SIGNAL(downloadComplete(QByteArray,QString)),
              SLOT(updateTile(QByteArray,QString)));
 }
 

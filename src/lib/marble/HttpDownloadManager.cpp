@@ -31,7 +31,7 @@ const quint32 requeueTime = 60000;
 class HttpDownloadManager::Private
 {
   public:
-    explicit Private( StoragePolicy *policy );
+    explicit Private( StoragePolicy *policy, QNetworkAccessManager *networkAccessManager );
     ~Private();
 
     DownloadQueueSet *findQueues( const QString& hostName, const DownloadUsage usage );
@@ -45,14 +45,14 @@ class HttpDownloadManager::Private
     QList<QPair<DownloadPolicyKey, DownloadQueueSet *> > m_queueSets;
     QMap<DownloadUsage, DownloadQueueSet *> m_defaultQueueSets;
     StoragePolicy *const m_storagePolicy;
-    QNetworkAccessManager m_networkAccessManager;
+    QNetworkAccessManager *const m_networkAccessManager;
 
 };
 
-HttpDownloadManager::Private::Private( StoragePolicy *policy )
+HttpDownloadManager::Private::Private( StoragePolicy *policy, QNetworkAccessManager *networkAccessManager )
     : m_requeueTimer(),
       m_storagePolicy( policy ),
-      m_networkAccessManager()
+      m_networkAccessManager( networkAccessManager )
 {
     // setup default download policy and associated queue set
     DownloadPolicy defaultBrowsePolicy;
@@ -61,6 +61,8 @@ HttpDownloadManager::Private::Private( StoragePolicy *policy )
     DownloadPolicy defaultBulkDownloadPolicy;
     defaultBulkDownloadPolicy.setMaximumConnections( 2 );
     m_defaultQueueSets[ DownloadBulk ] = new DownloadQueueSet( defaultBulkDownloadPolicy );
+
+    m_requeueTimer.setInterval( requeueTime );
 }
 
 HttpDownloadManager::Private::~Private()
@@ -93,9 +95,15 @@ DownloadQueueSet *HttpDownloadManager::Private::findQueues( const QString& hostN
 
 
 HttpDownloadManager::HttpDownloadManager( StoragePolicy *policy )
-    : d( new Private( policy ) )
+    : d( new Private( policy, new QNetworkAccessManager( this ) ) )
 {
-    d->m_requeueTimer.setInterval( requeueTime );
+    connect( &d->m_requeueTimer, SIGNAL(timeout()), this, SLOT(requeue()) );
+    connectDefaultQueueSets();
+}
+
+HttpDownloadManager::HttpDownloadManager( StoragePolicy *policy, QNetworkAccessManager *networkAccessManager )
+    : d( new Private( policy, networkAccessManager ) )
+{
     connect( &d->m_requeueTimer, SIGNAL(timeout()), this, SLOT(requeue()) );
     connectDefaultQueueSets();
 }
@@ -107,12 +115,12 @@ HttpDownloadManager::~HttpDownloadManager()
 
 QNetworkAccessManager *HttpDownloadManager::networkAccessManager()
 {
-    return &d->m_networkAccessManager;
+    return d->m_networkAccessManager;
 }
 
 void HttpDownloadManager::setDownloadEnabled( const bool enable )
 {
-    d->m_networkAccessManager.setNetworkAccessible( enable ? QNetworkAccessManager::Accessible : QNetworkAccessManager::NotAccessible );
+    d->m_networkAccessManager->setNetworkAccessible( enable ? QNetworkAccessManager::Accessible : QNetworkAccessManager::NotAccessible );
     QList<QPair<DownloadPolicyKey, DownloadQueueSet *> >::iterator pos = d->m_queueSets.begin();
     QList<QPair<DownloadPolicyKey, DownloadQueueSet *> >::iterator const end = d->m_queueSets.end();
     for (; pos != end; ++pos ) {
@@ -134,12 +142,12 @@ void HttpDownloadManager::addDownloadPolicy( const DownloadPolicy& policy )
 void HttpDownloadManager::addJob( const QUrl& sourceUrl, const QString& destFileName,
                                   const QString &id, const DownloadUsage usage )
 {
-    if ( d->m_networkAccessManager.networkAccessible() == QNetworkAccessManager::NotAccessible )
+    if ( d->m_networkAccessManager->networkAccessible() == QNetworkAccessManager::NotAccessible )
         return;
 
     DownloadQueueSet * const queueSet = d->findQueues( sourceUrl.host(), usage );
     if ( queueSet->canAcceptJob( sourceUrl, destFileName )) {
-        HttpJob * const job = new HttpJob( sourceUrl, destFileName, id, &d->m_networkAccessManager );
+        HttpJob * const job = new HttpJob( sourceUrl, destFileName, id, d->m_networkAccessManager );
         job->setUserAgentPluginId( "QNamNetworkPlugin" );
         job->setDownloadUsage( usage );
         queueSet->addJob( job );

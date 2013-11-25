@@ -32,7 +32,7 @@ namespace Marble
 class VectorTileLayer::Private
 {
 public:
-    Private(HttpDownloadManager *downloadManager,
+    Private(QNetworkAccessManager *networkAccessManager,
             const PluginManager *pluginManager,
             VectorTileLayer *parent,
             GeoDataTreeModel *treeModel);
@@ -54,12 +54,12 @@ public:
     QThreadPool m_threadPool; // a shared thread pool for all layers to keep CPU usage sane
 };
 
-VectorTileLayer::Private::Private(HttpDownloadManager *downloadManager,
+VectorTileLayer::Private::Private(QNetworkAccessManager *networkAccessManager,
                                   const PluginManager *pluginManager,
                                   VectorTileLayer *parent,
                                   GeoDataTreeModel *treeModel) :
     m_parent( parent ),
-    m_loader( downloadManager, pluginManager ),
+    m_loader( networkAccessManager, pluginManager ),
     m_texmappers(),
     m_activeTexmappers(),
     m_textureLayerSettings( 0 ),
@@ -95,11 +95,11 @@ void VectorTileLayer::Private::updateTextureLayers()
     }
 }
 
-VectorTileLayer::VectorTileLayer(HttpDownloadManager *downloadManager,
+VectorTileLayer::VectorTileLayer(QNetworkAccessManager *networkAccessManager,
                                  const PluginManager *pluginManager,
                                  GeoDataTreeModel *treeModel )
     : QObject()
-    , d( new Private( downloadManager, pluginManager, this, treeModel ) )
+    , d( new Private( networkAccessManager, pluginManager, this, treeModel ) )
 {
     qRegisterMetaType<TileId>( "TileId" );
     qRegisterMetaType<GeoDataDocument*>( "GeoDataDocument*" );

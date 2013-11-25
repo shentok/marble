@@ -45,7 +45,7 @@ const int REPAINT_SCHEDULING_INTERVAL = 1000;
 class TextureLayer::Private
 {
 public:
-    Private( HttpDownloadManager *downloadManager,
+    Private( QNetworkAccessManager *downloadManager,
              const SunLocator *sunLocator,
              VectorComposer *veccomposer,
              const PluginManager *pluginManager,
@@ -84,7 +84,7 @@ public:
     QTimer           m_repaintTimer;
 };
 
-TextureLayer::Private::Private( HttpDownloadManager *downloadManager,
+TextureLayer::Private::Private( QNetworkAccessManager *networkAccessManager,
                                 const SunLocator *sunLocator,
                                 VectorComposer *veccomposer,
                                 const PluginManager *pluginManager,
@@ -93,7 +93,7 @@ TextureLayer::Private::Private( HttpDownloadManager *downloadManager,
     : m_parent( parent )
     , m_sunLocator( sunLocator )
     , m_veccomposer( veccomposer )
-    , m_loader( downloadManager, pluginManager )
+    , m_loader( networkAccessManager, pluginManager )
     , m_layerDecorator( &m_loader, sunLocator )
     , m_tileLoader( &m_layerDecorator )
     , m_centerCoordinates()
@@ -231,13 +231,13 @@ void TextureLayer::Private::updateGroundOverlays()
 }
 
 
-TextureLayer::TextureLayer( HttpDownloadManager *downloadManager,
+TextureLayer::TextureLayer( QNetworkAccessManager *networkAccessManager,
                             const SunLocator *sunLocator,
                             VectorComposer *veccomposer ,
                             const PluginManager *pluginManager,
                             QAbstractItemModel *groundOverlayModel )
     : QObject()
-    , d( new Private( downloadManager, sunLocator, veccomposer, pluginManager, groundOverlayModel, this ) )
+    , d( new Private( networkAccessManager, sunLocator, veccomposer, pluginManager, groundOverlayModel, this ) )
 {
     connect( &d->m_loader, SIGNAL(tileCompleted(TileId,QImage)),
              this, SLOT(updateTile(TileId,QImage)) );

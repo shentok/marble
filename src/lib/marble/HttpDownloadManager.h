@@ -56,6 +56,8 @@ class MARBLE_EXPORT HttpDownloadManager : public QObject
      */
     explicit HttpDownloadManager( StoragePolicy *policy );
 
+    explicit HttpDownloadManager( StoragePolicy *policy, QNetworkAccessManager *networkAccessManager );
+
     /**
      * Destroys the http download manager.
      */

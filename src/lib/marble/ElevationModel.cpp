@@ -14,6 +14,7 @@
 #include "GeoSceneMap.h"
 #include "GeoSceneDocument.h"
 #include "GeoSceneTextureTile.h"
+#include "HttpDownloadManager.h"
 #include "Tile.h"
 #include "TileLoader.h"
 #include "TileLoaderHelper.h"
@@ -33,7 +34,7 @@ class ElevationModelPrivate
 public:
     ElevationModelPrivate( ElevationModel *_q, MarbleModel *const model )
         : q( _q ),
-          m_tileLoader( model->downloadManager(), model->pluginManager() ),
+          m_tileLoader( model->downloadManager()->networkAccessManager(), model->pluginManager() ),
           m_textureLayer( 0 )
     {
         m_cache.setMaxCost( 10 ); //keep 10 tiles in memory (~17MB)

@@ -22,6 +22,7 @@
 #include <QSize>
 
 class QImage;
+class QNetworkAccessManager;
 class QRegion;
 class QRect;
 
@@ -30,7 +31,6 @@ namespace Marble
 
 class GeoPainter;
 class GeoSceneGroup;
-class HttpDownloadManager;
 class PluginManager;
 class SunLocator;
 class VectorComposer;
@@ -41,7 +41,7 @@ class TextureLayer : public QObject, public LayerInterface
     Q_OBJECT
 
  public:
-    TextureLayer( HttpDownloadManager *downloadManager,
+    TextureLayer( QNetworkAccessManager *networkAccessManager,
                   const SunLocator *sunLocator,
                   VectorComposer *veccomposer,
                   const PluginManager *pluginManager,
