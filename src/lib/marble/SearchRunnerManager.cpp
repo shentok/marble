@@ -215,6 +215,21 @@ QVector<GeoDataPlacemark *> SearchRunnerManager::searchPlacemarks( const QString
     return d->m_placemarkContainer;
 }
 
+QVector<GeoDataPlacemark *> SearchRunnerManager::searchResult() const
+{
+    return d->m_placemarkContainer;
+}
+
+GeoDataLatLonBox SearchRunnerManager::bbox() const
+{
+    return d->m_lastPreferredBox;
+}
+
+bool SearchRunnerManager::isRunning() const
+{
+    return !d->m_searchTasks.isEmpty();
+}
+
 }
 
 #include "SearchRunnerManager.moc"

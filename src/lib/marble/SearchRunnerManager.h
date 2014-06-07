@@ -54,6 +54,12 @@ public:
     void findPlacemarks( const QString &searchTerm, const GeoDataLatLonBox &preferred = GeoDataLatLonBox() );
     QVector<GeoDataPlacemark *> searchPlacemarks( const QString &searchTerm, const GeoDataLatLonBox &preferred = GeoDataLatLonBox(), int timeout = 30000 );
 
+    QVector<GeoDataPlacemark *> searchResult() const;
+
+    GeoDataLatLonBox bbox() const;
+
+    bool isRunning() const;
+
 Q_SIGNALS:
     /**
      * Placemarks were added to or removed from the model
