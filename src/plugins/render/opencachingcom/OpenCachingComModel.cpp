@@ -60,29 +60,14 @@ void OpenCachingComModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qi
         return;
     }
 
-    if ( m_previousbox.contains( box ) )
-    {
-        return;
-    }
-
     QString url("http://www.opencaching.com/api/geocache/?Authorization=");
     url += AUTHKEY + QString("&bbox=%1,%2,%3,%4")
         .arg( box.south( GeoDataCoordinates::Degree ) )
         .arg( box.west(GeoDataCoordinates::Degree ) )
         .arg( box.north(GeoDataCoordinates::Degree ) )
         .arg( box.east(GeoDataCoordinates::Degree ) );
-    if(!m_previousbox.isNull())
-    {
-        url += QString("&exclude_bbox=%1,%2,%3,%4")
-            .arg( m_previousbox.south( GeoDataCoordinates::Degree ) )
-            .arg( m_previousbox.west(GeoDataCoordinates::Degree ) )
-            .arg( m_previousbox.north(GeoDataCoordinates::Degree ) )
-            .arg( m_previousbox.east(GeoDataCoordinates::Degree ) );
-    }
     url += "&limit=" + QString::number( number );
     // TODO Limit to user set tags/types/difficulty - when there is a config dialog...
-
-    m_previousbox = box;
 
 //     qDebug()<<"Fetching more caches: "<<url;
     downloadDescriptionFile( QUrl( url ) );

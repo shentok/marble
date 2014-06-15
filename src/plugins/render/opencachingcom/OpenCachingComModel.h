@@ -59,9 +59,6 @@ protected:
      * prepares the data for usage.
      **/
     void parseFile( const QByteArray& file );
-
-private:
-    GeoDataLatLonAltBox m_previousbox;
 };
 
 }
