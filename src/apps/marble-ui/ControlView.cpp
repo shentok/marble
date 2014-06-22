@@ -44,7 +44,9 @@
 #include "MarbleDirs.h"
 #include "MarbleModel.h"
 #include "MarbleMap.h"
+#include "MarbleWebView.h"
 #include "MapThemeManager.h"
+#include "layers/PopupLayer.h"
 #include "PrintOptionsWidget.h"
 #include "ViewportParams.h"
 #include "ViewParams.h"
@@ -589,6 +591,18 @@ QList<QAction*> ControlView::setupDockWidgets( QMainWindow *mainWindow )
     searchWidget->setToolTip( tr( "Search for cities, addresses, points of interest and more (%1)" ).arg( searchSequence.toString() ) );
     QShortcut* searchShortcut = new QShortcut( mainWindow );
     connect( searchShortcut, SIGNAL(activated()), this, SLOT(showSearch()) );
+
+    m_infoDock = new QDockWidget( tr( "Info" ), this );
+    m_infoDock->setObjectName( "infoDock" );
+    m_infoDock->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
+    m_infoDock->setFeatures( m_infoDock->features() ^ QDockWidget::DockWidgetFloatable );
+    m_infoView = new MarbleWebView( this );
+    connect( m_marbleWidget->popupLayer(), SIGNAL(requestHtml(QString,QUrl)), m_infoView, SLOT(setHtml(QString,QUrl)) );
+    connect( m_marbleWidget->popupLayer(), SIGNAL(requestUrl(QUrl)), m_infoView, SLOT(setUrl(QUrl)) );
+    connect( m_marbleWidget->popupLayer(), SIGNAL(requestHtml(QString,QUrl)), m_infoDock, SLOT(show()) );
+    connect( m_marbleWidget->popupLayer(), SIGNAL(requestUrl(QUrl)), m_infoDock, SLOT(show()) );
+    m_infoDock->setWidget( m_infoView );
+    mainWindow->addDockWidget( Qt::RightDockWidgetArea, m_infoDock );
 
     QDockWidget *mapViewDock = new QDockWidget( tr( "Map View" ), this );
     mapViewDock->setObjectName( "mapViewDock" );

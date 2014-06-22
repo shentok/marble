@@ -243,7 +243,6 @@ void MarbleWidgetPrivate::construct()
                       m_widget, SLOT(update()) );
 
     m_mapInfoDialog = new PopupLayer( m_widget, m_widget );
-    m_mapInfoDialog->setVisible( false );
     m_widget->connect( m_mapInfoDialog, SIGNAL(repaintNeeded()), m_widget, SLOT(update()) );
     map()->addLayer( m_mapInfoDialog );
 

@@ -24,6 +24,7 @@
 
 #include "MarbleWidget.h"
 
+class MarbleWebView;
 class QSplitter;
 class QPrintDialog;
 class QTextDocument;
@@ -156,6 +157,8 @@ private Q_SLOTS:
     MarbleWidget      *m_marbleWidget;
     QString            m_externalEditor;
     QDockWidget       *m_searchDock;
+    QDockWidget       *m_infoDock;
+    MarbleWebView     *m_infoView;
     CurrentLocationWidget* m_locationWidget;
     ConflictDialog *m_conflictDialog;
     CloudSyncManager *m_cloudSyncManager;
