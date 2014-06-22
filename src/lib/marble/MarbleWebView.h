@@ -21,6 +21,10 @@ class MARBLE_EXPORT MarbleWebView : public QWebView
 public:
     explicit MarbleWebView(QWidget *parent = 0);
 
+public Q_SLOTS:
+    void setHtml(const QString &html, const QUrl &baseUrl = QUrl());
+    void setUrl(const QUrl &url);
+
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
     void keyPressEvent(QKeyEvent *event);

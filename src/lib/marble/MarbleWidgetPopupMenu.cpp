@@ -472,7 +472,6 @@ void MarbleWidgetPopupMenu::slotInfoDialog()
             return;
         }
         if (placemark->style()->balloonStyle().displayMode() == GeoDataBalloonStyle::Hide) {
-            popup->setVisible(false);
             return;
         }
 

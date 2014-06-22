@@ -43,32 +43,10 @@ public:
     QStringList renderPosition() const;
     bool render( GeoPainter *painter, ViewportParams *viewport,
                  const QString &, GeoSceneLayer * );
-    virtual bool eventFilter( QObject *, QEvent * );
-    qreal zValue() const;
 
     RenderState renderState() const;
 
     virtual QString runtimeTrace() const { return "PopupLayer"; }
-
-    /**
-     * @brief Is popup item visible
-     *
-     * If popup item visible, it will return `true`,
-     * otherwise - `false`
-     *
-     * @return visibility of the item
-     */
-    bool visible() const;
-
-    /**
-     * @brief Set visibility of the item
-     *
-     * If @p visible is `true`, popup will be visible,
-     * otherwise - popup won't be visible.
-     *
-     * @param visible visibility of the item
-     */
-    void setVisible( bool visible );
 
     /**
      * @brief Make the dialog pop up
@@ -142,8 +120,8 @@ public:
 Q_SIGNALS:
     void repaintNeeded();
 
-private Q_SLOTS:
-    void hidePopupItem();
+    void requestUrl( const QUrl &url );
+    void requestHtml( const QString &html, const QUrl &baseUrl );
 
 private:
     class Private;

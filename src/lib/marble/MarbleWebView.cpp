@@ -30,6 +30,16 @@ MarbleWebView::MarbleWebView(QWidget *parent) :
     setContextMenuPolicy(Qt::DefaultContextMenu);
 }
 
+void MarbleWebView::setHtml(const QString &html, const QUrl &baseUrl)
+{
+    QWebView::setHtml(html, baseUrl);
+}
+
+void MarbleWebView::setUrl(const QUrl &url)
+{
+    QWebView::setUrl(url);
+}
+
 void MarbleWebView::contextMenuEvent(QContextMenuEvent *event)
 {
     m_copyAction->setEnabled(!selectedText().isEmpty());
