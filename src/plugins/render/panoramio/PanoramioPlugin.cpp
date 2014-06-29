@@ -10,16 +10,23 @@
 
 // Self
 #include "PanoramioPlugin.h"
-
 #include "PanoramioModel.h"
+#include "ui_ConfigWidget.h"
+
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QPushButton>
 
 #include "MarbleWidget.h"
 
 using namespace Marble;
 
 PanoramioPlugin::PanoramioPlugin( const MarbleModel *marbleModel ) :
-    AbstractDataPlugin( marbleModel )
+    AbstractDataPlugin( marbleModel ),
+    m_configDialog( 0 ),
+    m_uiConfigWidget( 0 )
 {
+    setSettings( QHash<QString, QVariant>() );
 }
 
 QString Marble::PanoramioPlugin::nameId() const
@@ -52,8 +59,7 @@ QIcon PanoramioPlugin::icon() const
     return QIcon( ":/icons/panoramio.png" );
 }
 
-
-QString Marble::PanoramioPlugin::version() const
+QString PanoramioPlugin::version() const
 {
     return "0.1";
 }
@@ -66,6 +72,44 @@ QString PanoramioPlugin::copyrightYears() const
 QList<PluginAuthor> PanoramioPlugin::pluginAuthors() const
 {
     return QList<PluginAuthor>() << PluginAuthor( "Bastian Holst", "bastianholst@gmx.de" );
+}
+
+QHash<QString, QVariant> PanoramioPlugin::settings() const
+{
+    QHash<QString, QVariant> settings = AbstractDataPlugin::settings();
+
+    settings.insert( "itemsOnScreen", numberOfItems() );
+
+    return settings;
+}
+
+void PanoramioPlugin::setSettings( const QHash<QString, QVariant> &settings )
+{
+    AbstractDataPlugin::setSettings( settings );
+
+    setNumberOfItems( settings.value( "itemsOnScreen", 15 ).toInt() );
+
+    emit settingsChanged( nameId() );
+}
+
+QDialog *PanoramioPlugin::configDialog()
+{
+    if ( !m_configDialog ) {
+        m_configDialog = new QDialog();
+        m_uiConfigWidget = new Ui::ConfigWidget;
+        m_uiConfigWidget->setupUi( m_configDialog );
+        readSettings();
+
+        connect( m_uiConfigWidget->m_buttonBox, SIGNAL(accepted()),
+                SLOT(writeSettings()) );
+        connect( m_uiConfigWidget->m_buttonBox, SIGNAL(rejected()),
+                SLOT(readSettings()) );
+        QPushButton *applyButton = m_uiConfigWidget->m_buttonBox->button( QDialogButtonBox::Apply );
+        connect( applyButton, SIGNAL(clicked()),
+                 this,        SLOT(writeSettings()) );
+    }
+
+    return m_configDialog;
 }
 
 bool PanoramioPlugin::eventFilter(QObject *object, QEvent *event)
@@ -81,6 +125,22 @@ bool PanoramioPlugin::eventFilter(QObject *object, QEvent *event)
     }
 
     return AbstractDataPlugin::eventFilter( object, event );
+}
+
+void PanoramioPlugin::readSettings()
+{
+    if ( m_uiConfigWidget ) {
+        m_uiConfigWidget->m_itemsOnScreenSpin->setValue( numberOfItems() );
+    }
+}
+
+void PanoramioPlugin::writeSettings()
+{
+    if ( m_uiConfigWidget ) {
+        setNumberOfItems( m_uiConfigWidget->m_itemsOnScreenSpin->value() );
+    }
+
+    emit settingsChanged( nameId() );
 }
 
 Q_EXPORT_PLUGIN2(PanoramioPlugin, Marble::PanoramioPlugin)

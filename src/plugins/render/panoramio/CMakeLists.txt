@@ -14,6 +14,9 @@ set( panoramio_SRCS PanoramioPlugin.cpp
                     PanoramioItem.cpp
                     PanoramioParser.cpp )
 
+set( panoramio_UI ConfigWidget.ui )
+qt_wrap_ui( panoramio_SRCS ${panoramio_UI} )
+
 qt_add_resources( panoramio_SRCS panoramio.qrc )
 
 marble_add_plugin( Panoramio ${panoramio_SRCS} )
