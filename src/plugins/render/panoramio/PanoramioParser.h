@@ -26,7 +26,6 @@ sanity checking would include :
 */
 struct panoramioDataStructure
 {
-    long int count;// Total number of photographs will be stored in this int
     long int photo_id ; // Id of each photograph
     QString photo_title; // Title of each photograph
     QString photo_url; // Url of each photograph
@@ -44,19 +43,15 @@ struct panoramioDataStructure
 class PanoramioParser
 {
 public:
-    PanoramioParser();
+    PanoramioParser(const QString &content);
 
     ~PanoramioParser();
 
-    panoramioDataStructure parseObjectOnPosition(const QString &content, int requiredObjectPosition);   //for parsing single object
+    panoramioDataStructure parseObjectOnPosition(int requiredObjectPosition);   //for parsing single object
 
-    QList<panoramioDataStructure> parseAllObjects(const QString &content, int number);   //for parsing a list objects
+    QList<panoramioDataStructure> parseAllObjects();   //for parsing a list objects
 
 private:
-    QList <panoramioDataStructure> parsedJsonOutput;
-
-    panoramioDataStructure dataStorage;
-
     QScriptEngine myEngine;
 };
 

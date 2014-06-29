@@ -18,8 +18,6 @@ namespace Marble
 
 class MarbleWidget;
 
-const quint32 numberOfImagesPerFetch = 7;
-
 class PanoramioModel : public AbstractDataPluginModel
 {
     Q_OBJECT

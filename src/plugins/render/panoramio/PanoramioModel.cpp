@@ -60,10 +60,8 @@ void PanoramioModel::getAdditionalItems( const GeoDataLatLonAltBox &box, qint32 
 
 void PanoramioModel::parseFile( const QByteArray &file )
 {
-    PanoramioParser panoramioJsonParser;
-    QList<panoramioDataStructure> list
-        = panoramioJsonParser.parseAllObjects( file,
-                                               numberOfImagesPerFetch );
+    PanoramioParser parser( file );
+    QList<panoramioDataStructure> list = parser.parseAllObjects();
 
     QList<panoramioDataStructure>::iterator it;
     for ( it = list.begin(); it != list.end(); ++it ) {

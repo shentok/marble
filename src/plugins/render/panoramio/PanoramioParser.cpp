@@ -14,18 +14,10 @@
 #include <QScriptValue>
 #include <QScriptEngine>
 
-PanoramioParser::PanoramioParser() :
-    dataStorage()
+PanoramioParser::PanoramioParser(const QString &content)
 {
-  myEngine.setProcessEventsInterval(10);//this lets the gui remain responsive
-}
+    myEngine.setProcessEventsInterval(10);//this lets the gui remain responsive
 
-PanoramioParser::~PanoramioParser()
-{
-}
-
-panoramioDataStructure PanoramioParser::parseObjectOnPosition(const QString &content, int requiredObjectPosition)
-{
     QString temp = "var myJSONObject =" + content;
     myEngine.evaluate(temp);
     myEngine.evaluate(QString("function count(){ return myJSONObject.count };"));
@@ -38,8 +30,17 @@ panoramioDataStructure PanoramioParser::parseObjectOnPosition(const QString &con
     myEngine.evaluate(QString("function photo_title(x){return myJSONObject.photos[x].photo_title};"));
     myEngine.evaluate(QString("function photo_id(x){return myJSONObject.photos[x].photo_id};"));
     myEngine.evaluate(QString("function upload_date(x){return myJSONObject.photos[x].upload_date};"));
-    dataStorage.count = myEngine.evaluate("count();").toInteger();
+}
+
+PanoramioParser::~PanoramioParser()
+{
+}
+
+panoramioDataStructure PanoramioParser::parseObjectOnPosition(int requiredObjectPosition)
+{
     myEngine.evaluate(QString("var x="+QString::number(requiredObjectPosition)));
+
+    panoramioDataStructure dataStorage;
     dataStorage.longitude=myEngine.evaluate(QString("longitude(x)")).toNumber();
     dataStorage.latitude=myEngine.evaluate(QString("latitude(x)")).toNumber();
     dataStorage.photo_url=myEngine.evaluate("photo_url(x)").toString();
@@ -90,13 +91,15 @@ panoramioDataStructure PanoramioParser::parseObjectOnPosition(const QString &con
     return dataStorage;
 }
 
-QList<panoramioDataStructure> PanoramioParser::parseAllObjects(const QString &content, int number)
+QList<panoramioDataStructure> PanoramioParser::parseAllObjects()
 {
+    const int number = myEngine.evaluate("count();").toInteger();
+
     QList <panoramioDataStructure> returnStructure;
-    
+
     for( int i = 0; i < number; i++ ) {
-        returnStructure.append( parseObjectOnPosition( content, i ) );
+        returnStructure.append( parseObjectOnPosition( i ) );
     }
-    
+
     return returnStructure;
 }

@@ -30,7 +30,6 @@ QString Marble::PanoramioPlugin::nameId() const
 void PanoramioPlugin::initialize()
 {
     setModel( new PanoramioModel( marbleModel(), this ) );
-    setNumberOfItems( numberOfImagesPerFetch );
 }
 
 QString PanoramioPlugin::name() const
