@@ -37,14 +37,9 @@ class DiscCache
 
     private:
         QString keyToFileName( const QString& ) const;
-        void cleanup();
 
         QString m_CacheDirectory;
         quint64 m_CacheLimit;
-        quint64 m_CurrentCacheSize;
-
-        typedef QPair<QDateTime, quint64> Entry;
-        QMap<QString, Entry> m_Entries;
 };
 
 }
