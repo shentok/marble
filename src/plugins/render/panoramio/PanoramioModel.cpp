@@ -60,8 +60,10 @@ void PanoramioModel::getAdditionalItems( const GeoDataLatLonAltBox &box, qint32 
 
 void PanoramioModel::parseFile( const QByteArray &file )
 {
+    const QTime time = QTime::currentTime();
     PanoramioParser parser( file );
     QList<panoramioDataStructure> list = parser.parseAllObjects();
+    qDebug() << Q_FUNC_INFO << "took" << time.elapsed() << "ms to parse" << list.size() << "elements" << QString("(%1 bytes)").arg( file.size() ).toAscii().constData();
 
     QList<panoramioDataStructure>::iterator it;
     for ( it = list.begin(); it != list.end(); ++it ) {
