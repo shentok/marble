@@ -13,10 +13,31 @@
 
 #include "AbstractDataPluginModel.h"
 
+#include <QThreadPool>
+
+struct panoramioDataStructure;
+
 namespace Marble
 {
 
 class MarbleWidget;
+
+class PanoramioWorker : public QObject, public QRunnable
+{
+    Q_OBJECT
+
+ public:
+    PanoramioWorker( const QByteArray &data, const qint32 count );
+
+    void run();
+
+ Q_SIGNALS:
+    void finished( const QList<panoramioDataStructure> &list );
+
+ private:
+    QByteArray m_data;
+    qint32 m_count;
+};
 
 class PanoramioModel : public AbstractDataPluginModel
 {
@@ -41,8 +62,14 @@ class PanoramioModel : public AbstractDataPluginModel
      **/
     void parseFile( const QByteArray &file );
 
+ private Q_SLOTS:
+    void addItems( const QList<panoramioDataStructure> &list );
+
 private:
     MarbleWidget *m_marbleWidget;
+    qint32 m_lastNumber;
+    QByteArray m_lastData;
+    QThreadPool m_threadPool;
 };
 
 }

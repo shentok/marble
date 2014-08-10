@@ -55,5 +55,4 @@ private:
     QScriptEngine myEngine;
 };
 
-
 #endif

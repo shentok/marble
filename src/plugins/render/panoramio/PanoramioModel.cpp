@@ -24,10 +24,24 @@
 
 using namespace Marble;
 
+PanoramioWorker::PanoramioWorker( const QByteArray &data, qint32 count ) :
+    QObject(),
+    QRunnable(),
+    m_data( data ),
+    m_count( count )
+{
+}
+
 PanoramioModel::PanoramioModel( const MarbleModel *marbleModel, QObject *parent ) :
     AbstractDataPluginModel( "panoramio", marbleModel, parent ),
-    m_marbleWidget( 0 )
+    m_marbleWidget( 0 ),
+    m_lastNumber( 0 ),
+    m_lastData(),
+    m_threadPool( this )
 {
+    m_threadPool.setMaxThreadCount( 1 );
+
+    qRegisterMetaType<QList<panoramioDataStructure> >( "QList<panoramioDataStructure>" );
 }
 
 void PanoramioModel::setMarbleWidget( MarbleWidget *widget )
@@ -55,18 +69,36 @@ void PanoramioModel::getAdditionalItems( const GeoDataLatLonAltBox &box, qint32 
                   + "&maxy=" + QString::number( box.north() * RAD2DEG )
                   + "&size=small");
 
+    m_lastNumber = number;
+
     downloadDescriptionFile( jsonUrl );
 }
 
 void PanoramioModel::parseFile( const QByteArray &file )
 {
-    const QTime time = QTime::currentTime();
-    PanoramioParser parser( file );
-    QList<panoramioDataStructure> list = parser.parseAllObjects();
-    qDebug() << Q_FUNC_INFO << "took" << time.elapsed() << "ms to parse" << list.size() << "elements" << QString("(%1 bytes)").arg( file.size() ).toAscii().constData();
+    m_lastData = file;
 
-    QList<panoramioDataStructure>::iterator it;
-    for ( it = list.begin(); it != list.end(); ++it ) {
+    m_threadPool.waitForDone( 0 );
+    PanoramioWorker *worker = new PanoramioWorker( m_lastData, m_lastNumber );
+    connect( worker, SIGNAL(finished(QList<panoramioDataStructure>)), this, SLOT(addItems(QList<panoramioDataStructure>)));
+    m_threadPool.start( worker );
+}
+
+void PanoramioWorker::run()
+{
+    const QTime time = QTime::currentTime();
+    PanoramioParser parser( m_data );
+    QList<panoramioDataStructure> list = parser.parseAllObjects();
+    qDebug() << Q_FUNC_INFO << "took" << time.elapsed() << "ms to parse" << list.size() << "elements" << QString("(%1 bytes)").arg( m_data.size() ).toAscii().constData();
+
+    emit finished( list );
+}
+
+void PanoramioModel::addItems( const QList<panoramioDataStructure> &list )
+{
+    int count = 0;
+    QList<panoramioDataStructure>::const_iterator it;
+    for ( it = list.constBegin(); it != list.constEnd() && count < m_lastNumber; ++it ) {
         // Setting the meta information of the current image
         GeoDataCoordinates coordinates( (*it).longitude,
                                         (*it).latitude,
@@ -88,6 +120,7 @@ void PanoramioModel::parseFile( const QByteArray &file )
                             item );
 
         addItemToList( item );
+        ++count;
     }
 }
 

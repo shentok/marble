@@ -16,8 +16,6 @@
 
 PanoramioParser::PanoramioParser(const QString &content)
 {
-    myEngine.setProcessEventsInterval(10);//this lets the gui remain responsive
-
     QString temp = "var myJSONObject =" + content;
     myEngine.evaluate(temp);
     myEngine.evaluate(QString("function count(){ return myJSONObject.count };"));
