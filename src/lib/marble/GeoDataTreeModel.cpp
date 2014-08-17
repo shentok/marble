@@ -93,52 +93,6 @@ GeoDataTreeModel::~GeoDataTreeModel()
     delete d;
 }
 
-bool GeoDataTreeModel::hasChildren( const QModelIndex &parent ) const
-{
-    GeoDataObject *parentItem;
-    if ( parent.column() > 0 ) {
-        return false;
-    }
-
-    if ( !parent.isValid() ) {
-        parentItem = d->m_rootDocument;
-    } else {
-        parentItem = static_cast<GeoDataObject*>( parent.internalPointer() );
-    }
-
-    if ( !parentItem ) {
-        return false;
-    }
-
-    if ( parentItem->nodeType() == GeoDataTypes::GeoDataPlacemarkType ) {
-        GeoDataPlacemark *placemark = static_cast<GeoDataPlacemark*>( parentItem );
-        return dynamic_cast<const GeoDataMultiGeometry*>( placemark->geometry() );
-    }
-
-    if ( parentItem->nodeType() == GeoDataTypes::GeoDataFolderType
-         || parentItem->nodeType() == GeoDataTypes::GeoDataDocumentType ) {
-        GeoDataContainer *container = static_cast<GeoDataContainer*>( parentItem );
-        return container->size();
-    }
-
-    if ( parentItem->nodeType() == GeoDataTypes::GeoDataMultiGeometryType ) {
-        GeoDataMultiGeometry *geometry = static_cast<GeoDataMultiGeometry*>( parentItem );
-        return geometry->size();
-    }
-
-    if ( parentItem->nodeType() == GeoDataTypes::GeoDataTourType ) {
-        GeoDataTour *tour = static_cast<GeoDataTour*>( parentItem );
-        return tour->playlist();
-    }
-
-    if ( parentItem->nodeType() == GeoDataTypes::GeoDataPlaylistType ) {
-        GeoDataPlaylist *playlist = static_cast<GeoDataPlaylist*>( parentItem );
-        return playlist->size();
-    }
-
-    return false;
-}
-
 int GeoDataTreeModel::rowCount( const QModelIndex &parent ) const
 {
 //    mDebug() << "rowCount";
