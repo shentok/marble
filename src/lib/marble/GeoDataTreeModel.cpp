@@ -158,10 +158,8 @@ int GeoDataTreeModel::rowCount( const QModelIndex &parent ) const
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataPlacemarkType ) {
         GeoDataPlacemark *placemark = static_cast<GeoDataPlacemark*>( parentItem );
-        if ( dynamic_cast<const GeoDataMultiGeometry*>( placemark->geometry() ) ) {
-//            mDebug() << "rowCount " << type << "(" << parentItem << ") = 1";
-            return 1;
-        }
+        //            mDebug() << "rowCount " << type << "(" << parentItem << ") = 1";
+        return ( placemark->geometry() == 0 ) ? 0 : 1;
     }
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataMultiGeometryType ) {
@@ -434,9 +432,7 @@ QModelIndex GeoDataTreeModel::index( int row, int column, const QModelIndex &par
         GeoDataObject *const childItem = placemark->geometry();
         Q_ASSERT( childItem->parent() == parentItem );
         Q_ASSERT( row == 0 );
-        if ( dynamic_cast<GeoDataMultiGeometry*>( childItem ) ) {
-            return createIndex( row, column, childItem );
-        }
+        return createIndex( row, column, childItem );
     }
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataMultiGeometryType ) {
@@ -730,11 +726,7 @@ QModelIndex GeoDataTreeModel::index( GeoDataObject *object ) const
                 //The only child of the model is a Geometry or MultiGeometry object
                 //If it is a geometry object, we should be on the bottom of the list
                 ancestors.removeLast();
-                if( ancestors.last()->nodeType() == GeoDataTypes::GeoDataMultiGeometryType )
-                    itdown = index( 0 , 0, itdown );
-                else
-                    itdown = QModelIndex();
-
+                itdown = index( 0 , 0, itdown );
             }  else if ( ( parent->nodeType() == GeoDataTypes::GeoDataMultiGeometryType ) ) {
                 //The child is one of the geometry children of MultiGeometry
                 ancestors.removeLast();
