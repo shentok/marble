@@ -96,18 +96,13 @@ GeoDataTreeModel::~GeoDataTreeModel()
 int GeoDataTreeModel::rowCount( const QModelIndex &parent ) const
 {
 //    mDebug() << "rowCount";
-    GeoDataObject *parentItem;
     if ( parent.column() > 0 ) {
 //        mDebug() << "rowCount bad column";
         return 0;
     }
 
-    if ( !parent.isValid() ) {
-//        mDebug() << "rowCount root parent";
-        parentItem = d->m_rootDocument;
-    } else {
-        parentItem = static_cast<GeoDataObject*>( parent.internalPointer() );
-    }
+    GeoDataObject *const parentItem = ( !parent.isValid() ) ? static_cast<GeoDataObject *>( d->m_rootDocument )
+                                                            : static_cast<GeoDataObject *>( parent.internalPointer() );
 
     if ( !parentItem ) {
 //        mDebug() << "rowCount bad parent";
@@ -382,32 +377,25 @@ QModelIndex GeoDataTreeModel::index( int row, int column, const QModelIndex &par
 //        mDebug() << "index bad index";
         return QModelIndex();
     }
-    
-    GeoDataObject *parentItem;
-    
-    if ( !parent.isValid() )
-        parentItem = d->m_rootDocument;
-    else
-        parentItem = static_cast<GeoDataObject*>( parent.internalPointer() );
+
+    GeoDataObject *const parentItem = ( !parent.isValid() ) ? static_cast<GeoDataObject *>( d->m_rootDocument )
+                                                            : static_cast<GeoDataObject*>( parent.internalPointer() );
 
     if ( !parentItem ) {
 //        mDebug() << "index bad parent";
         return QModelIndex();
     }
 
-    GeoDataObject *childItem = 0;
-
-
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataFolderType
          || parentItem->nodeType() == GeoDataTypes::GeoDataDocumentType ) {
         GeoDataContainer *container = static_cast<GeoDataContainer*>( parentItem );
-        childItem = container->child( row );
+        GeoDataObject *const childItem = container->child( row );
         return createIndex( row, column, childItem );
     }
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataPlacemarkType ) {
         GeoDataPlacemark *placemark = static_cast<GeoDataPlacemark*>( parentItem );
-        childItem = placemark->geometry();
+        GeoDataObject *const childItem = placemark->geometry();
         if ( dynamic_cast<GeoDataMultiGeometry*>( childItem ) ) {
             return createIndex( row, column, childItem );
         }
@@ -415,19 +403,19 @@ QModelIndex GeoDataTreeModel::index( int row, int column, const QModelIndex &par
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataMultiGeometryType ) {
         GeoDataMultiGeometry *geometry = static_cast<GeoDataMultiGeometry*>( parentItem );
-        childItem = geometry->child( row );
+        GeoDataObject *const childItem = geometry->child( row );
         return createIndex( row, column, childItem );
     }
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataTourType ) {
         GeoDataTour *tour = static_cast<GeoDataTour*>( parentItem );
-        childItem = tour->playlist();
+        GeoDataObject *const childItem = tour->playlist();
         return createIndex( row, column, childItem );
     }
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataPlaylistType ) {
         GeoDataPlaylist *playlist = static_cast<GeoDataPlaylist*>( parentItem );
-        childItem = playlist->primitive( row );
+        GeoDataObject *const childItem = playlist->primitive( row );
         return createIndex(row, column, childItem);
     }
 
@@ -454,7 +442,7 @@ QModelIndex GeoDataTreeModel::parent( const QModelIndex &index ) const
         return QModelIndex();
     }
 
-    GeoDataObject *greatParentObject = parentObject->parent();
+    GeoDataObject *const greatParentObject = parentObject->parent();
 
     // Avoid crashing when there is no grandparent
     if ( greatParentObject == 0 ) {
