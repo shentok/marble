@@ -381,10 +381,7 @@ QModelIndex GeoDataTreeModel::index( int row, int column, const QModelIndex &par
     GeoDataObject *const parentItem = ( !parent.isValid() ) ? static_cast<GeoDataObject *>( d->m_rootDocument )
                                                             : static_cast<GeoDataObject*>( parent.internalPointer() );
 
-    if ( !parentItem ) {
-//        mDebug() << "index bad parent";
-        return QModelIndex();
-    }
+    Q_ASSERT( parentItem != 0 );
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataFolderType
          || parentItem->nodeType() == GeoDataTypes::GeoDataDocumentType ) {
@@ -432,22 +429,17 @@ QModelIndex GeoDataTreeModel::parent( const QModelIndex &index ) const
 
 
     GeoDataObject *const childObject = static_cast<GeoDataObject*>( index.internalPointer() );
-    if ( childObject == 0 ) {
-        return QModelIndex();
-    }
+    Q_ASSERT( childObject != 0 );
 
     // parentObject can be a container, placemark, multigeometry or playlist
     GeoDataObject *const parentObject = childObject->parent();
-    if ( parentObject == d->m_rootDocument || parentObject == 0 ) {
+    Q_ASSERT( parentObject != 0 );
+    if ( parentObject == d->m_rootDocument ) {
         return QModelIndex();
     }
 
     GeoDataObject *const greatParentObject = parentObject->parent();
-
-    // Avoid crashing when there is no grandparent
-    if ( greatParentObject == 0 ) {
-        return QModelIndex();
-    }
+    Q_ASSERT( greatParentObject != 0 );
 
     // greatParent can be a container
     if ( greatParentObject->nodeType() == GeoDataTypes::GeoDataFolderType
