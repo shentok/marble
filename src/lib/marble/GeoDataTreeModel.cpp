@@ -496,7 +496,7 @@ QModelIndex GeoDataTreeModel::parent( const QModelIndex &index ) const
 
     // parentObject can be a container, placemark, multigeometry or playlist
     GeoDataObject *const parentObject = childObject->parent();
-    if ( parentObject == d->m_rootDocument ) {
+    if ( parentObject == d->m_rootDocument || parentObject == 0 ) {
         return QModelIndex();
     }
 
