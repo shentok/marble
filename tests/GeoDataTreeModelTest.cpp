@@ -71,6 +71,21 @@ void GeoDataTreeModelTest::addDocument()
         model.addDocument( document );
         QCOMPARE( model.rowCount(), 1 );
     }
+
+    {
+        GeoDataDocument *const document = new GeoDataDocument;
+        GeoDataPlacemark *const placemark = new GeoDataPlacemark();
+        document->append( placemark );
+        placemark->setParent( 0 );
+
+        QCOMPARE( document->child( 0 ), static_cast<const GeoDataFeature *>( placemark ) );
+        QCOMPARE( placemark->parent(), static_cast<const GeoDataObject *>( 0 ) );
+
+        GeoDataTreeModel model;
+
+        model.addDocument( document );
+        QCOMPARE( model.rowCount(), 0 );
+    }
 }
 
 }
