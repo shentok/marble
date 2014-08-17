@@ -489,56 +489,54 @@ QModelIndex GeoDataTreeModel::parent( const QModelIndex &index ) const
     }
 
 
-    GeoDataObject *childObject = static_cast<GeoDataObject*>( index.internalPointer() );
-    if ( childObject ) {
+    GeoDataObject *const childObject = static_cast<GeoDataObject*>( index.internalPointer() );
+    if ( childObject == 0 ) {
+        return QModelIndex();
+    }
 
-        /// parentObject can be a container, placemark, multigeometry or playlist
-        GeoDataObject *parentObject = childObject->parent();
-        if ( parentObject == d->m_rootDocument )
-        {
-            return QModelIndex();
-        }
+    // parentObject can be a container, placemark, multigeometry or playlist
+    GeoDataObject *const parentObject = childObject->parent();
+    if ( parentObject == d->m_rootDocument ) {
+        return QModelIndex();
+    }
 
-        GeoDataObject *greatParentObject = parentObject->parent();
+    GeoDataObject *greatParentObject = parentObject->parent();
 
-        // Avoid crashing when there is no grandparent
-        if ( greatParentObject == 0 )
-        {
-            return QModelIndex();
-        }
+    // Avoid crashing when there is no grandparent
+    if ( greatParentObject == 0 ) {
+        return QModelIndex();
+    }
 
-        // greatParent can be a container
-        if ( greatParentObject->nodeType() == GeoDataTypes::GeoDataFolderType
-             || greatParentObject->nodeType() == GeoDataTypes::GeoDataDocumentType ) {
-            GeoDataContainer *greatparentContainer = static_cast<GeoDataContainer*>( greatParentObject );
-            GeoDataFeature *parentFeature = static_cast<GeoDataFeature*>( parentObject );
+    // greatParent can be a container
+    if ( greatParentObject->nodeType() == GeoDataTypes::GeoDataFolderType
+         || greatParentObject->nodeType() == GeoDataTypes::GeoDataDocumentType ) {
+        GeoDataContainer *greatparentContainer = static_cast<GeoDataContainer*>( greatParentObject );
+        GeoDataFeature *parentFeature = static_cast<GeoDataFeature*>( parentObject );
 //            mDebug() << "parent " << childObject->nodeType() << "(" << childObject << ") = "
 //                    << parentObject->nodeType() << "[" << greatparentContainer->childPosition( parentFeature ) << "](" << parentObject << ")";
-            return createIndex( greatparentContainer->childPosition( parentFeature ), 0, parentObject );
-        }
+        return createIndex( greatparentContainer->childPosition( parentFeature ), 0, parentObject );
+    }
 
-        // greatParent can be a placemark
-        if ( greatParentObject->nodeType() == GeoDataTypes::GeoDataPlacemarkType ) {
-//            GeoDataPlacemark *greatparentPlacemark = static_cast<GeoDataPlacemark*>( greatParentObject );
-//                mDebug() << "parent " << childObject->nodeType() << "(" << childObject << ") = "
-//                        << parentObject->nodeType() << "[0](" << parentObject << ")";
-            return createIndex( 0, 0, parentObject );
-        }
+    // greatParent can be a placemark
+    if ( greatParentObject->nodeType() == GeoDataTypes::GeoDataPlacemarkType ) {
+//        GeoDataPlacemark *greatparentPlacemark = static_cast<GeoDataPlacemark*>( greatParentObject );
+//            mDebug() << "parent " << childObject->nodeType() << "(" << childObject << ") = "
+//                    << parentObject->nodeType() << "[0](" << parentObject << ")";
+        return createIndex( 0, 0, parentObject );
+    }
 
-        // greatParent can be a multigeometry
-        if ( greatParentObject->nodeType() == GeoDataTypes::GeoDataMultiGeometryType ) {
-            GeoDataMultiGeometry *greatparentMultiGeo = static_cast<GeoDataMultiGeometry*>( greatParentObject );
-            GeoDataGeometry *parentGeometry = static_cast<GeoDataGeometry*>( parentObject );
-//                mDebug() << "parent " << childObject->nodeType() << "(" << childObject << ") = "
-//                        << parentObject->nodeType() << "[" << greatParentItem->childPosition( parentGeometry ) << "](" << parentObject << ")";
-            return createIndex( greatparentMultiGeo->childPosition( parentGeometry ), 0, parentObject );
-        }
+    // greatParent can be a multigeometry
+    if ( greatParentObject->nodeType() == GeoDataTypes::GeoDataMultiGeometryType ) {
+        GeoDataMultiGeometry *greatparentMultiGeo = static_cast<GeoDataMultiGeometry*>( greatParentObject );
+        GeoDataGeometry *parentGeometry = static_cast<GeoDataGeometry*>( parentObject );
+//            mDebug() << "parent " << childObject->nodeType() << "(" << childObject << ") = "
+//                    << parentObject->nodeType() << "[" << greatParentItem->childPosition( parentGeometry ) << "](" << parentObject << ")";
+        return createIndex( greatparentMultiGeo->childPosition( parentGeometry ), 0, parentObject );
+    }
 
-        if ( greatParentObject->nodeType() == GeoDataTypes::GeoDataTourType ) {
-            GeoDataTour *tour = static_cast<GeoDataTour*>( greatParentObject );
-            return createIndex( 0, 0, tour->playlist() );
-        }
-
+    if ( greatParentObject->nodeType() == GeoDataTypes::GeoDataTourType ) {
+        GeoDataTour *tour = static_cast<GeoDataTour*>( greatParentObject );
+        return createIndex( 0, 0, tour->playlist() );
     }
 
 //    mDebug() << "parent unknown index";
