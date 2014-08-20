@@ -84,6 +84,13 @@ bool GeoDataTreeModel::Private::checkParenting( const GeoDataObject *object, con
                 return false;
         }
     }
+    else if ( object->nodeType() == GeoDataTypes::GeoDataPlacemarkType ) {
+        const GeoDataPlacemark *const placemark = static_cast<const GeoDataPlacemark *>( object );
+        const GeoDataObject *const childItem = placemark->geometry();
+        const bool ok = checkParenting( childItem, object );
+        if ( !ok )
+            return false;
+    }
     else if ( object->nodeType() == GeoDataTypes::GeoDataMultiGeometryType ) {
         const GeoDataMultiGeometry *const geometry = static_cast<const GeoDataMultiGeometry *>( object );
         for ( int row = 0; row < geometry->size(); ++row ) {
