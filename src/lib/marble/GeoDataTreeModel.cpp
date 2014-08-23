@@ -387,12 +387,15 @@ QModelIndex GeoDataTreeModel::index( int row, int column, const QModelIndex &par
          || parentItem->nodeType() == GeoDataTypes::GeoDataDocumentType ) {
         GeoDataContainer *container = static_cast<GeoDataContainer*>( parentItem );
         GeoDataObject *const childItem = container->child( row );
+        Q_ASSERT( childItem->parent() == parentItem );
         return createIndex( row, column, childItem );
     }
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataPlacemarkType ) {
         GeoDataPlacemark *placemark = static_cast<GeoDataPlacemark*>( parentItem );
         GeoDataObject *const childItem = placemark->geometry();
+        Q_ASSERT( childItem->parent() == parentItem );
+        Q_ASSERT( row == 0 );
         if ( dynamic_cast<GeoDataMultiGeometry*>( childItem ) ) {
             return createIndex( row, column, childItem );
         }
@@ -401,18 +404,23 @@ QModelIndex GeoDataTreeModel::index( int row, int column, const QModelIndex &par
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataMultiGeometryType ) {
         GeoDataMultiGeometry *geometry = static_cast<GeoDataMultiGeometry*>( parentItem );
         GeoDataObject *const childItem = geometry->child( row );
+        Q_ASSERT( childItem->parent() == parentItem );
         return createIndex( row, column, childItem );
     }
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataTourType ) {
         GeoDataTour *tour = static_cast<GeoDataTour*>( parentItem );
         GeoDataObject *const childItem = tour->playlist();
+        Q_ASSERT( childItem->parent() == parentItem );
+        Q_ASSERT( row == 0 );
         return createIndex( row, column, childItem );
     }
 
     if ( parentItem->nodeType() == GeoDataTypes::GeoDataPlaylistType ) {
         GeoDataPlaylist *playlist = static_cast<GeoDataPlaylist*>( parentItem );
         GeoDataObject *const childItem = playlist->primitive( row );
+        Q_ASSERT( childItem->parent() == parentItem );
+        Q_ASSERT( row == 0 );
         return createIndex(row, column, childItem);
     }
 
@@ -448,7 +456,9 @@ QModelIndex GeoDataTreeModel::parent( const QModelIndex &index ) const
         GeoDataFeature *parentFeature = static_cast<GeoDataFeature*>( parentObject );
 //            mDebug() << "parent " << childObject->nodeType() << "(" << childObject << ") = "
 //                    << parentObject->nodeType() << "[" << greatparentContainer->childPosition( parentFeature ) << "](" << parentObject << ")";
-        return createIndex( greatparentContainer->childPosition( parentFeature ), 0, parentObject );
+        const int row = greatparentContainer->childPosition( parentFeature );
+        Q_ASSERT( row >= 0 );
+        return createIndex( row, 0, parentObject );
     }
 
     // greatParent can be a placemark
@@ -465,7 +475,9 @@ QModelIndex GeoDataTreeModel::parent( const QModelIndex &index ) const
         GeoDataGeometry *parentGeometry = static_cast<GeoDataGeometry*>( parentObject );
 //            mDebug() << "parent " << childObject->nodeType() << "(" << childObject << ") = "
 //                    << parentObject->nodeType() << "[" << greatParentItem->childPosition( parentGeometry ) << "](" << parentObject << ")";
-        return createIndex( greatparentMultiGeo->childPosition( parentGeometry ), 0, parentObject );
+        const int row = greatparentMultiGeo->childPosition( parentGeometry );
+        Q_ASSERT( row >= 0 );
+        return createIndex( row, 0, parentObject );
     }
 
     if ( greatParentObject->nodeType() == GeoDataTypes::GeoDataTourType ) {
