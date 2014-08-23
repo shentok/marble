@@ -93,7 +93,6 @@ class MarbleModelPrivate
           m_storageWatcher( MarbleDirs::localPath() ),
           m_fileManager( 0 ),
           m_treeModel(),
-          m_descendantProxy(),
           m_placemarkProxyModel(),
           m_placemarkSelectionModel( 0 ),
           m_positionTracking( &m_treeModel ),
@@ -104,15 +103,13 @@ class MarbleModelPrivate
           m_workOffline( false ),
           m_elevationModel( 0 )
     {
-        m_descendantProxy.setSourceModel( &m_treeModel );
-
         m_placemarkProxyModel.setFilterFixedString( GeoDataTypes::GeoDataPlacemarkType );
         m_placemarkProxyModel.setFilterKeyColumn( 1 );
-        m_placemarkProxyModel.setSourceModel( &m_descendantProxy );
+        m_placemarkProxyModel.setSourceModel( &m_treeModel );
 
         m_groundOverlayProxyModel.setFilterFixedString( GeoDataTypes::GeoDataGroundOverlayType );
         m_groundOverlayProxyModel.setFilterKeyColumn( 1 );
-        m_groundOverlayProxyModel.setSourceModel( &m_descendantProxy );
+        m_groundOverlayProxyModel.setSourceModel( &m_treeModel );
     }
 
     ~MarbleModelPrivate()
@@ -146,7 +143,6 @@ class MarbleModelPrivate
     FileManager             *m_fileManager;
 
     GeoDataTreeModel         m_treeModel;
-    KDescendantsProxyModel   m_descendantProxy;
     QSortFilterProxyModel    m_placemarkProxyModel;
     QSortFilterProxyModel    m_groundOverlayProxyModel;
 
