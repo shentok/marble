@@ -46,7 +46,7 @@ class GeoDataTreeModel::Private {
     Private( QAbstractItemModel* model );
     ~Private();
 
-    static bool checkParenting( const GeoDataObject *object, const GeoDataObject *parent );
+    static void fixParenting( GeoDataObject *object, GeoDataObject *parent );
 
     GeoDataDocument* m_rootDocument;
     bool             m_ownsRootDocument;
@@ -68,56 +68,41 @@ GeoDataTreeModel::Private::~Private()
     }
 }
 
-bool GeoDataTreeModel::Private::checkParenting( const GeoDataObject *object, const GeoDataObject *parent )
+void GeoDataTreeModel::Private::fixParenting( GeoDataObject *object, GeoDataObject *parent )
 {
-    if ( object->parent() != parent ) {
-        qWarning() << "Parenting mismatch for ID" << object->id();
-        return false;
-    }
+    object->setParent( parent );
 
     if(    object->nodeType() == GeoDataTypes::GeoDataDocumentType
         || object->nodeType() == GeoDataTypes::GeoDataFolderType ) {
-        const GeoDataContainer *const container = static_cast<const GeoDataContainer *>( object );
-        foreach ( const GeoDataFeature *child, container->featureList() ) {
-            const bool ok = checkParenting( child, object );
-            if ( !ok )
-                return false;
+        GeoDataContainer *const container = static_cast<GeoDataContainer *>( object );
+        foreach ( GeoDataFeature *child, container->featureList() ) {
+            fixParenting( child, object );
         }
     }
     else if ( object->nodeType() == GeoDataTypes::GeoDataPlacemarkType ) {
-        const GeoDataPlacemark *const placemark = static_cast<const GeoDataPlacemark *>( object );
-        const GeoDataObject *const childItem = placemark->geometry();
-        const bool ok = checkParenting( childItem, object );
-        if ( !ok )
-            return false;
+        GeoDataPlacemark *const placemark = static_cast<GeoDataPlacemark *>( object );
+        GeoDataObject *const childItem = placemark->geometry();
+        fixParenting( childItem, object );
     }
     else if ( object->nodeType() == GeoDataTypes::GeoDataMultiGeometryType ) {
-        const GeoDataMultiGeometry *const geometry = static_cast<const GeoDataMultiGeometry *>( object );
+        GeoDataMultiGeometry *const geometry = static_cast<GeoDataMultiGeometry *>( object );
         for ( int row = 0; row < geometry->size(); ++row ) {
-            const GeoDataObject *const childItem = geometry->child( row );
-            const bool ok = checkParenting( childItem, object );
-            if ( !ok )
-                return false;
+            GeoDataObject *const childItem = geometry->child( row );
+            fixParenting( childItem, object );
         }
     }
     else if ( object->nodeType() == GeoDataTypes::GeoDataTourType ) {
-        const GeoDataTour *tour = static_cast<const GeoDataTour *>( object );
-        const GeoDataObject *const childItem = tour->playlist();
-        const bool ok = checkParenting( childItem, object );
-        if ( !ok )
-            return false;
+        GeoDataTour *tour = static_cast<GeoDataTour *>( object );
+        GeoDataObject *const childItem = tour->playlist();
+        fixParenting( childItem, object );
     }
     else if ( object->nodeType() == GeoDataTypes::GeoDataPlaylistType ) {
-        const GeoDataPlaylist *const playlist = static_cast<const GeoDataPlaylist *>( object );
+        GeoDataPlaylist *const playlist = static_cast<GeoDataPlaylist *>( object );
         for ( int row = 0; row < playlist->size(); ++row ) {
-            const GeoDataObject *const childItem = playlist->primitive( row );
-            const bool ok = checkParenting( childItem, object );
-            if ( !ok )
-                return false;
+            GeoDataObject *const childItem = playlist->primitive( row );
+            fixParenting( childItem, object );
         }
     }
-
-    return true;
 }
 
 GeoDataTreeModel::GeoDataTreeModel( QObject *parent )
@@ -767,19 +752,14 @@ int GeoDataTreeModel::addFeature( GeoDataContainer *parent, GeoDataFeature *feat
             //the right parent to insert the child object) or that we have a valid QModelIndex
 
         if ( ( parent == d->m_rootDocument ) || modelindex.isValid() ) {
-            const bool parentingOk = Private::checkParenting( feature, feature->parent() );
-            if ( parentingOk ) {
-                if( row < 0 || row > parent->size()) {
-                    row = parent->size();
-                }
-                beginInsertRows( modelindex , row , row );
-                parent->insert( row, feature );
-                endInsertRows();
-                emit added( feature );
+            Private::fixParenting( feature, feature->parent() );
+            if( row < 0 || row > parent->size()) {
+                row = parent->size();
             }
-            else {
-                qWarning() << "parenting error in" << parent->name();
-            }
+            beginInsertRows( modelindex , row , row );
+            parent->insert( row, feature );
+            endInsertRows();
+            emit added(feature);
         }
         else
             qWarning() << "GeoDataTreeModel::addFeature (parent " << parent << " - feature" << feature << ") : parent not found on the TreeModel";
