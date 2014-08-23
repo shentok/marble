@@ -700,12 +700,8 @@ QModelIndex GeoDataTreeModel::index( GeoDataObject *object ) const
 
     QList< GeoDataObject* > ancestors;
 
-    GeoDataObject *itup = object; //Iterator to reach the top of the GeoDataDocument (bottom-up)
-
-    while ( itup && ( itup != d->m_rootDocument ) ) {//We reach up to the rootDocument
-
+    for ( GeoDataObject *itup = object; itup && ( itup != d->m_rootDocument ); itup = itup->parent() ) {//We reach up to the rootDocument
         ancestors.append( itup );
-        itup = itup->parent() ;
     }
 
     QModelIndex itdown;
