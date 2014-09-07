@@ -117,6 +117,7 @@ class MarbleModelPrivate
 
     ~MarbleModelPrivate()
     {
+        delete m_routingManager;
         delete m_mapTheme;
         delete m_legend;
     }

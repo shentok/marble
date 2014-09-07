@@ -41,10 +41,36 @@
 namespace Marble
 {
 
+class GeoDataTreeModelDocumentInitializer
+{
+public:
+    GeoDataTreeModelDocumentInitializer(GeoDataTreeModel *model, GeoDataDocument *document, const QString &name) :
+        m_model(model),
+        m_document(document)
+    {
+        document->setName(name);
+
+        model->addDocument(document);
+    }
+
+    ~GeoDataTreeModelDocumentInitializer()
+    {
+        m_model->removeFeature(m_document);
+    }
+
+private:
+    GeoDataTreeModel *const m_model;
+    GeoDataDocument *const m_document;
+};
+
 class RoutingManagerPrivate
 {
 public:
     RoutingManager* q;
+
+    GeoDataDocument m_document;
+
+    GeoDataTreeModelDocumentInitializer m_documentInitializer;
 
     RouteRequest m_routeRequest;
 
@@ -107,6 +133,8 @@ public:
 
 RoutingManagerPrivate::RoutingManagerPrivate(MarbleModel *model, RoutingManager *manager) :
         q( manager ),
+        m_document(),
+        m_documentInitializer(model->treeModel(), &m_document, QStringLiteral("Routing")),
         m_routeRequest( manager ),
         m_routingModel(&m_routeRequest, model->positionTracking(), manager),
         m_profilesModel( model->pluginManager() ),
