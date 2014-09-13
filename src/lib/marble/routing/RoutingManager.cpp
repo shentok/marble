@@ -244,7 +244,7 @@ void RoutingManagerPrivate::loadRoute(const QString &filename)
             QVector<GeoDataPlacemark*> placemarks = viaPoints->placemarkList();
             for( int i=0; i<placemarks.size(); ++i ) {
                 if ( i < m_routeRequest.size() ) {
-                    m_routeRequest[i] = *placemarks[i];
+                    m_routeRequest.setPosition( i, placemarks[i]->coordinate(), placemarks[i]->name() );
                 } else {
                     m_routeRequest.append( *placemarks[i] );
                 }

@@ -344,11 +344,6 @@ RoutingProfile RouteRequest::routingProfile() const
     return d->m_routingProfile;
 }
 
-GeoDataPlacemark &RouteRequest::operator []( int index )
-{
-    return d->m_route[index];
-}
-
 const GeoDataPlacemark &RouteRequest::operator [](int index) const
 {
     return d->m_route[index];

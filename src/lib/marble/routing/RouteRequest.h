@@ -103,8 +103,6 @@ public:
 
     RoutingProfile routingProfile() const;
 
-    GeoDataPlacemark & operator[] ( int index );
-
     GeoDataPlacemark const & operator[] ( int index ) const;
 
 Q_SIGNALS:
