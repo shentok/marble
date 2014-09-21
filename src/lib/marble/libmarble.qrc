@@ -27,6 +27,10 @@
         <file>../../../data/bitmaps/turn-merge.png</file>
         <file>../../../data/bitmaps/turn-exit-left.png</file>
         <file>../../../data/bitmaps/turn-exit-right.png</file>
+        <file alias="icons/16x16/via_point.png">../../../data/bitmaps/via_point16.png</file>
+        <file alias="icons/16x16/via_point_visited.png">../../../data/bitmaps/via_point_visited16.png</file>
+        <file alias="icons/32x32/via_point.png">../../../data/bitmaps/via_point32.png</file>
+        <file alias="icons/32x32/via_point_visited.png">../../../data/bitmaps/via_point_visited32.png</file>
         <file alias="marble/turn-around.svg">../../../data/svg/turn-around.svg</file>
         <file alias="marble/turn-continue.svg">../../../data/svg/turn-continue.svg</file>
         <file alias="marble/turn-left.svg">../../../data/svg/turn-left.svg</file>

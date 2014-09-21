@@ -14,8 +14,10 @@
 #include "GeoDataData.h"
 #include "GeoDataExtendedData.h"
 #include "GeoDataFolder.h"
+#include "GeoDataIconStyle.h"
 #include "GeoDataLineString.h"
 #include "GeoDataPlacemark.h"
+#include "GeoDataStyle.h"
 #include "GeoDataTreeModel.h"
 #include "MarbleDirs.h"
 
@@ -48,6 +50,9 @@ public:
 
     GeoDataFolder m_route;
 
+    QSharedPointer<GeoDataStyle> m_viaStyle;
+    QSharedPointer<GeoDataStyle> m_viaVisitedStyle;
+
     QMap<PixmapElement, QPixmap> m_pixmapCache;
 
     RoutingProfile m_routingProfile;
@@ -69,11 +74,16 @@ bool PixmapElement::operator <(const PixmapElement &other) const
 
 RouteRequestPrivate::RouteRequestPrivate(GeoDataTreeModel *treeModel, GeoDataContainer *parentContainer) :
     m_treeModel(treeModel),
-    m_route()
+    m_route(),
+    m_viaStyle(new GeoDataStyle),
+    m_viaVisitedStyle(new GeoDataStyle)
 {
     m_route.setName("Route Request");
     m_route.setParent(parentContainer);
     m_treeModel->addFeature(static_cast<GeoDataContainer *>(m_route.parent()), &m_route);
+
+    m_viaStyle->iconStyle().setIconPath(":/icons/16x16/via_point.png");
+    m_viaVisitedStyle->iconStyle().setIconPath(":/icons/16x16/via_point_visited.png");
 }
 
 RouteRequestPrivate::~RouteRequestPrivate()
@@ -237,6 +247,7 @@ void RouteRequest::insert( int index, const GeoDataCoordinates &coordinates, con
     GeoDataPlacemark placemark;
     placemark.setCoordinate( coordinates );
     placemark.setName( name );
+    placemark.setStyle(d->m_viaStyle);
     insert(index, placemark);
 }
 
@@ -264,6 +275,7 @@ void RouteRequest::append( const GeoDataCoordinates &coordinates, const QString 
     GeoDataPlacemark placemark;
     placemark.setCoordinate( coordinates );
     placemark.setName( name );
+    placemark.setStyle(d->m_viaStyle);
     append( placemark );
 }
 
@@ -286,6 +298,7 @@ void RouteRequest::addVia( const GeoDataCoordinates &position )
 {
     GeoDataPlacemark placemark;
     placemark.setCoordinate( position );
+    placemark.setStyle(d->m_viaStyle);
     addVia(placemark);
 }
 
@@ -332,17 +345,17 @@ QString RouteRequest::name( int index ) const
 void RouteRequest::setVisited( int index, bool visited )
 {
     if ( index >= 0 && index < d->m_route.size() ) {
-        d->m_route.child(index)->extendedData().addValue(GeoDataData(QStringLiteral("routingVisited"), visited));
-        QMap<PixmapElement, QPixmap>::iterator iter = d->m_pixmapCache.begin();
-        while ( iter != d->m_pixmapCache.end() ) {
-             if ( iter.key().index == index ) {
-                 iter = d->m_pixmapCache.erase( iter );
-             } else {
-                 ++iter;
-             }
-         }
-        d->m_treeModel->updateFeature(d->m_route.child(index));
-        emit positionChanged(index, static_cast<const GeoDataPlacemark *>(d->m_route.child(index))->coordinate());
+        Q_ASSERT(dynamic_cast<GeoDataPlacemark *>(d->m_route.child(index)) != 0);
+        GeoDataPlacemark *const placemark = static_cast<GeoDataPlacemark *>(d->m_route.child(index));
+        placemark->extendedData().addValue(GeoDataData(QStringLiteral("routingVisited"), visited));
+        if ( visited ) {
+            placemark->setStyle(d->m_viaVisitedStyle);
+        }
+        else {
+            placemark->setStyle(d->m_viaStyle);
+        }
+        d->m_treeModel->updateFeature( placemark );
+        emit positionChanged( index, placemark->coordinate() );
     }
 }
 

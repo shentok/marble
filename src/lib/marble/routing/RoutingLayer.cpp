@@ -390,7 +390,6 @@ void RoutingLayerPrivate::renderRequest( GeoPainter *painter )
         const GeoDataCoordinates pos = m_routeRequest->at( i );
         if ( pos.isValid() ) {
             QPixmap pixmap = m_routeRequest->pixmap( i );
-            painter->drawPixmap( pos, pixmap );
             const QRegion region = painter->regionFromPixmapRect(pos, pixmap.width(), pixmap.height());
             m_regions.push_front( RequestRegion( i, region ) );
         }
