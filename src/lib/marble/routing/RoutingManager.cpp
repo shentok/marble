@@ -105,7 +105,7 @@ public:
 RoutingManagerPrivate::RoutingManagerPrivate( MarbleModel *model, RoutingManager* manager, QObject *parent ) :
         q( manager ),
         m_routeRequest( manager ),
-        m_routingModel( &m_routeRequest, model, manager ),
+        m_routingModel( &m_routeRequest, manager ),
         m_profilesModel( model->pluginManager() ),
         m_state( RoutingManager::Retrieved ),
         m_pluginManager( model->pluginManager() ),
@@ -261,6 +261,8 @@ RoutingManager::RoutingManager( MarbleModel *marbleModel, QObject *parent ) : QO
              this, SLOT(setCurrentRoute(GeoDataDocument*)) );
     connect( &d->m_routingModel, SIGNAL(deviatedFromRoute(bool)),
              this, SLOT(recalculateRoute(bool)) );
+    connect( d->m_positionTracking, SIGNAL(gpsLocation(GeoDataCoordinates,qreal)),
+             &d->m_routingModel, SLOT(updatePosition(GeoDataCoordinates,qreal)) );
 }
 
 RoutingManager::~RoutingManager()

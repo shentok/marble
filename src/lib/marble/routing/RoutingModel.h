@@ -28,7 +28,6 @@ namespace Marble
 class RoutingModelPrivate;
 class Route;
 class RouteRequest;
-class MarbleModel;
 class MARBLE_EXPORT RoutingModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -44,7 +43,7 @@ public:
     };
 
     /** Constructor */
-    explicit RoutingModel( RouteRequest* request, MarbleModel *model, QObject *parent = 0 );
+    explicit RoutingModel( RouteRequest* request, QObject *parent = 0 );
 
     /** Destructor */
     ~RoutingModel();

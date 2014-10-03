@@ -14,7 +14,6 @@
 #include "Route.h"
 #include "RouteRequest.h"
 #include "PositionTracking.h"
-#include "MarbleModel.h"
 #include "MarbleGlobal.h"
 
 #include <QPixmap>
@@ -52,16 +51,9 @@ RoutingModelPrivate::RoutingModelPrivate( RouteRequest* request )
     // nothing to do
 }
 
-RoutingModel::RoutingModel( RouteRequest* request, MarbleModel *model, QObject *parent ) :
+RoutingModel::RoutingModel( RouteRequest* request, QObject *parent ) :
         QAbstractListModel( parent ), d( new RoutingModelPrivate( request ) )
 {
-   if( model )
-    {
-        d->m_positionTracking = model->positionTracking();
-        QObject::connect( d->m_positionTracking, SIGNAL(gpsLocation(GeoDataCoordinates,qreal)),
-                 this, SLOT(updatePosition(GeoDataCoordinates,qreal)) );
-    }
-
    QHash<int, QByteArray> roles;
    roles.insert( Qt::DisplayRole, "display" );
    roles.insert( RoutingModel::TurnTypeIconRole, "turnTypeIcon" );
