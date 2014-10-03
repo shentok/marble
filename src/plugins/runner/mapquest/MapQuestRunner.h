@@ -14,6 +14,9 @@
 
 #include "RoutingRunner.h"
 
+#include "routing/Maneuver.h"
+#include "routing/Route.h"
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 
@@ -44,9 +47,9 @@ private Q_SLOTS:
 private:
     static void append( QString* input, const QString &key, const QString &value );
 
-    static int maneuverType( int mapQuestId );
+    static Maneuver::Direction maneuverType(int mapQuestId);
 
-    GeoDataDocument* parse( const QByteArray &input ) const;
+    Route parse(const QByteArray &input) const;
 
     QNetworkAccessManager m_networkAccessManager;
 

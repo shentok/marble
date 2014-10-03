@@ -15,13 +15,10 @@
 #include <QObject>
 #include "marble_export.h"
 
-class QTime;
-
 namespace Marble
 {
 
-class GeoDataExtendedData;
-class GeoDataDocument;
+class Route;
 class RouteRequest;
 
 class MARBLE_EXPORT RoutingRunner : public QObject
@@ -44,13 +41,7 @@ Q_SIGNALS:
      * Route download/calculation is finished, result in the given route object.
      * To be emitted by runners after a @see retrieveRoute call.
      */
-    void routeCalculated( GeoDataDocument* route );
-
-protected:
-    const QString nameString( const QString &name, qreal length, const QTime &duration ) const;
-    const QString lengthString( qreal length ) const;
-    const QString durationString( const QTime &duration ) const;
-    const GeoDataExtendedData routeData( qreal length, const QTime &duration ) const;
+    void routeCalculated( const Route &route );
 };
 
 }

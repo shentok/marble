@@ -18,6 +18,7 @@
 #include "RoutingRunnerManager.h"
 #include "SearchRunnerManager.h"
 #include "GeoDataPlacemark.h"
+#include "routing/Route.h"
 #include "routing/RouteRequest.h"
 #include "TestUtils.h"
 
@@ -235,7 +236,7 @@ void MarbleRunnerManagerTest::testSyncRouting()
 
     QTime timer;
     timer.start();
-    QVector<GeoDataDocument*> routes = m_runnerManager.searchRoute( &m_request );
+    QVector<Route> routes = m_runnerManager.searchRoute( &m_request );
 
     QVERIFY( timer.elapsed() < m_time );
     QVERIFY( resultSpy.count() > 0 );

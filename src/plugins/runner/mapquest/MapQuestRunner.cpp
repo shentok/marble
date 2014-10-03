@@ -12,14 +12,10 @@
 
 #include "MarbleDebug.h"
 #include "MarbleLocale.h"
-#include "GeoDataDocument.h"
-#include "GeoDataPlacemark.h"
-#include "GeoDataExtendedData.h"
-#include "GeoDataData.h"
 #include "GeoDataLineString.h"
 #include "HttpDownloadManager.h"
-#include "routing/Maneuver.h"
 #include "routing/RouteRequest.h"
+#include "routing/RouteSegment.h"
 
 #include <QString>
 #include <QUrl>
@@ -151,11 +147,7 @@ void MapQuestRunner::retrieveData( QNetworkReply *reply )
         QByteArray data = reply->readAll();
         reply->deleteLater();
         //mDebug() << "Download completed: " << data;
-        GeoDataDocument* document = parse( data );
-
-        if ( !document ) {
-            mDebug() << "Failed to parse the downloaded route data" << data;
-        }
+        const Route document = parse(data);
 
         emit routeCalculated( document );
     }
@@ -171,7 +163,7 @@ void MapQuestRunner::append(QString *input, const QString &key, const QString &v
     *input += QLatin1Char('&') + key + QLatin1Char('=') + value;
 }
 
-int MapQuestRunner::maneuverType( int mapQuestId )
+Maneuver::Direction MapQuestRunner::maneuverType(int mapQuestId)
 {
     /** @todo FIXME: review 10, 11 */
     switch( mapQuestId ) {
@@ -199,23 +191,21 @@ int MapQuestRunner::maneuverType( int mapQuestId )
     return Maneuver::Unknown;
 }
 
-GeoDataDocument* MapQuestRunner::parse( const QByteArray &content ) const
+Route MapQuestRunner::parse(const QByteArray &content) const
 {
     QDomDocument xml;
     if ( !xml.setContent( content ) ) {
         mDebug() << "Cannot parse xml file with routing instructions.";
-        return 0;
+        return Route();
     }
 
     // mDebug() << xml.toString(2);
     QDomElement root = xml.documentElement();
 
-    GeoDataDocument* result = new GeoDataDocument();
-    result->setName(QStringLiteral("MapQuest"));
-    GeoDataPlacemark* routePlacemark = new GeoDataPlacemark;
-    routePlacemark->setName(QStringLiteral("Route"));
+    Route result;
+    result.setProviderName(QStringLiteral("MQ"));
 
-    GeoDataLineString* routeWaypoints = new GeoDataLineString;
+    GeoDataLineString routeWaypoints;
     QDomNodeList shapePoints = root.elementsByTagName(QStringLiteral("shapePoints"));
     if ( shapePoints.size() == 1 ) {
         QDomNodeList geometry = shapePoints.at(0).toElement().elementsByTagName(QStringLiteral("latLng"));
@@ -223,19 +213,14 @@ GeoDataDocument* MapQuestRunner::parse( const QByteArray &content ) const
             double const lat = geometry.item(i).namedItem(QStringLiteral("lat")).toElement().text().toDouble();
             double const lon = geometry.item(i).namedItem(QStringLiteral("lng")).toElement().text().toDouble();
             GeoDataCoordinates const position( lon, lat, 0.0, GeoDataCoordinates::Degree );
-            routeWaypoints->append( position );
+            routeWaypoints.append(position);
         }
     }
-    routePlacemark->setGeometry( routeWaypoints );
 
+#if 0
     QTime time;
     time = time.addSecs(root.elementsByTagName(QStringLiteral("time")).at(0).toElement().text().toInt());
-    qreal length = routeWaypoints->length( EARTH_RADIUS );
-    const QString name = nameString( "MQ", length, time );
-    const GeoDataExtendedData data = routeData( length, time );
-    routePlacemark->setExtendedData( data );
-    result->setName( name );
-    result->append( routePlacemark );
+#endif
 
     QMap<int,int> mapping;
     QDomNodeList maneuvers = root.elementsByTagName(QStringLiteral("maneuverIndexes"));
@@ -243,7 +228,7 @@ GeoDataDocument* MapQuestRunner::parse( const QByteArray &content ) const
         maneuvers = maneuvers.at( 0 ).childNodes();
         for ( int i=0; i<maneuvers.size(); ++i ) {
             mapping[i] = maneuvers.at( i ).toElement().text().toInt();
-            if ( mapping[i] == routeWaypoints->size() ) {
+            if (mapping[i] == routeWaypoints.size()) {
                 --mapping[i];
             }
         }
@@ -254,49 +239,39 @@ GeoDataDocument* MapQuestRunner::parse( const QByteArray &content ) const
     for ( unsigned int i = 0; i < lastInstruction; ++i ) {
         QDomElement node = instructions.item( i ).toElement();
 
-        QDomNodeList maneuver = node.elementsByTagName(QStringLiteral("turnType"));
+        QDomNodeList turnType = node.elementsByTagName(QStringLiteral("turnType"));
         QDomNodeList textNodes = node.elementsByTagName(QStringLiteral("narrative"));
         QDomNodeList points = node.elementsByTagName(QStringLiteral("startPoint"));
         QDomNodeList streets = node.elementsByTagName(QStringLiteral("streets"));
 
         Q_ASSERT( mapping.contains( i ) );
-        if ( textNodes.size() == 1 && maneuver.size() == 1 && points.size() == 1 && mapping.contains( i ) ) {
-            GeoDataPlacemark* instruction = new GeoDataPlacemark;
-            instruction->setName( textNodes.at( 0 ).toElement().text() );
+        if ( textNodes.size() == 1 && turnType.size() == 1 && points.size() == 1 && mapping.contains( i ) ) {
+            Maneuver maneuver;
+            maneuver.setInstructionText(textNodes.at(0).toElement().text());
+            maneuver.setDirection(maneuverType(turnType.at(0).toElement().text().toInt()));
 
-            GeoDataExtendedData extendedData;
-            GeoDataData turnType;
-            turnType.setName(QStringLiteral("turnType"));
-            turnType.setValue( maneuverType( maneuver.at( 0 ).toElement().text().toInt() ) );
-            extendedData.addValue( turnType );
             if ( streets.size() == 1 ) {
-                GeoDataData roadName;
-                roadName.setName(QStringLiteral("roadName"));
-                roadName.setValue( streets.at( 0 ).toElement().text() );
-                extendedData.addValue( roadName );
+                maneuver.setRoadName(streets.at(0).toElement().text());
             }
-            instruction->setExtendedData( extendedData );
 
             int const start = mapping[i];
-            int const end = mapping.contains(i+1) ? mapping[i+1] : routeWaypoints->size()-1;
-            if ( start >= 0 && start < routeWaypoints->size() && end < routeWaypoints->size() ) {
-                instruction->setName( textNodes.item( 0 ).toElement().text() );
-                GeoDataLineString *lineString = new GeoDataLineString;
+            int const end = mapping.contains(i+1) ? mapping[i+1] : routeWaypoints.size() - 1;
+            if (start >= 0 && start < routeWaypoints.size() && end < routeWaypoints.size()) {
+//                instruction->setName( textNodes.item( 0 ).toElement().text() );
+                GeoDataLineString lineString;
                 for ( int j=start; j<=end; ++j ) {
-                    *lineString << GeoDataCoordinates( routeWaypoints->at( j ).longitude(), routeWaypoints->at( j ).latitude() );
+                    lineString << GeoDataCoordinates(routeWaypoints.at(j).longitude(), routeWaypoints.at(j).latitude());
                 }
 
-                if ( !lineString->isEmpty() ) {
-                    instruction->setGeometry( lineString );
-                    result->append( instruction );
+                if (!lineString.isEmpty()) {
+                    maneuver.setPosition(lineString.first());
+                    RouteSegment segment;
+                    segment.setPath(lineString);
+                    segment.setManeuver(maneuver);
+                    result.addRouteSegment(segment);
                 }
             }
         }
-    }
-
-    if ( routeWaypoints->size() < 1 ) {
-        delete result;
-        result = 0;
     }
 
     return result;

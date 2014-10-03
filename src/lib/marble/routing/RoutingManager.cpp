@@ -92,7 +92,7 @@ public:
 
     void loadRoute( const QString &filename );
 
-    void addRoute( GeoDataDocument* route );
+    void addRoute(const Route &route);
 
     void routingFinished();
 
@@ -299,8 +299,8 @@ RoutingManager::RoutingManager(MarbleModel *marbleModel, QObject *parent) :
     QObject(parent),
     d(new RoutingManagerPrivate(marbleModel, this))
 {
-    connect( &d->m_runnerManager, SIGNAL(routeRetrieved(GeoDataDocument*)),
-             this, SLOT(addRoute(GeoDataDocument*)) );
+    connect( &d->m_runnerManager, SIGNAL(routeRetrieved(Route,RoutingRunnerPlugin)),
+             this, SLOT(addRoute(Route,RoutingRunnerPlugin)) );
     connect( &d->m_runnerManager, SIGNAL(routingFinished()),
              this, SLOT(routingFinished()) );
     connect(&d->m_alternativeRoutesModel, SIGNAL(currentRouteChanged(Route)),
@@ -362,13 +362,12 @@ void RoutingManager::retrieveRoute()
     emit stateChanged( d->m_state );
 }
 
-void RoutingManagerPrivate::addRoute(GeoDataDocument *routeResult)
+void RoutingManagerPrivate::addRoute(const Route &route)
 {
-    if (routeResult == nullptr) {
+    if (route.size() == 0) {
         return;
     }
 
-    const Route route = importDocument(*routeResult, m_routeRequest);
     m_alternativeRoutesModel.addRoute(route);
     m_haveRoute = true;
 

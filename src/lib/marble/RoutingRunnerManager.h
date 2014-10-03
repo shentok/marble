@@ -23,7 +23,9 @@ namespace Marble
 
 class GeoDataDocument;
 class MarbleModel;
+class Route;
 class RouteRequest;
+class RoutingRunnerPlugin;
 class RoutingTask;
 
 class MARBLE_EXPORT RoutingRunnerManager : public QObject
@@ -48,13 +50,13 @@ public:
      * @see routingFinished signal indicates all runners are finished.
      */
     void retrieveRoute( const RouteRequest *request );
-    QVector<GeoDataDocument *> searchRoute( const RouteRequest *request, int timeout = 30000 );
+    QVector<Route> searchRoute( const RouteRequest *request, int timeout = 30000 );
 
 Q_SIGNALS:
     /**
      * A route was retrieved
      */
-    void routeRetrieved( GeoDataDocument *route );
+    void routeRetrieved(const Route &route);
 
     /**
      * Emitted whenever all runners are finished for the query
@@ -62,7 +64,7 @@ Q_SIGNALS:
     void routingFinished();
 
 private:
-    Q_PRIVATE_SLOT( d, void addRoutingResult( GeoDataDocument *route ) )
+    Q_PRIVATE_SLOT(d, void addRoutingResult(const Route &route))
     Q_PRIVATE_SLOT( d, void cleanupRoutingTask( RoutingTask *task ) )
 
     class Private;

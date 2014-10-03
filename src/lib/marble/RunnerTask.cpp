@@ -67,8 +67,8 @@ RoutingTask::RoutingTask( RoutingRunner *runner, RoutingRunnerManager *manager, 
     m_runner( runner ),
     m_routeRequest( routeRequest )
 {
-    connect( m_runner, SIGNAL(routeCalculated(GeoDataDocument*)),
-             manager, SLOT(addRoutingResult(GeoDataDocument*)) );
+    connect( m_runner, SIGNAL(routeCalculated(Route)),
+             manager, SLOT(addRoutingResult(Route)) );
 }
 
 void RoutingTask::run()

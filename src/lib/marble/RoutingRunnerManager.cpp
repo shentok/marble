@@ -21,6 +21,7 @@
 #include "PluginManager.h"
 #include "RoutingRunnerPlugin.h"
 #include "RunnerTask.h"
+#include "routing/Route.h"
 #include "routing/RouteRequest.h"
 #include "routing/RoutingProfilesModel.h"
 
@@ -42,14 +43,14 @@ public:
     template<typename T>
     QList<T*> plugins( const QList<T*> &plugins ) const;
 
-    void addRoutingResult( GeoDataDocument *route );
+    void addRoutingResult(const Route &route);
     void cleanupRoutingTask( RoutingTask *task );
 
     RoutingRunnerManager *const q;
     const MarbleModel *const m_marbleModel;
     const PluginManager *const m_pluginManager;
     QList<RoutingTask*> m_routingTasks;
-    QVector<GeoDataDocument*> m_routingResult;
+    QVector<Route> m_routingResult;
 };
 
 RoutingRunnerManager::Private::Private( RoutingRunnerManager *parent, const MarbleModel *marbleModel ) :
@@ -89,12 +90,12 @@ QList<T*> RoutingRunnerManager::Private::plugins( const QList<T*> &plugins ) con
     return result;
 }
 
-void RoutingRunnerManager::Private::addRoutingResult( GeoDataDocument *route )
+void RoutingRunnerManager::Private::addRoutingResult(const Route &route)
 {
-    if ( route ) {
+    if ( route.size() > 0 ) {
         mDebug() << "route retrieved";
         m_routingResult.push_back( route );
-        emit q->routeRetrieved( route );
+        emit q->routeRetrieved(route);
     }
 }
 
@@ -103,10 +104,6 @@ void RoutingRunnerManager::Private::cleanupRoutingTask( RoutingTask *task )
     m_routingTasks.removeAll( task );
     mDebug() << "removing task" << m_routingTasks.size() << " " << (quintptr)task;
     if ( m_routingTasks.isEmpty() ) {
-        if ( m_routingResult.isEmpty() ) {
-            emit q->routeRetrieved( 0 );
-        }
-
         emit q->routingFinished();
     }
 }
@@ -154,7 +151,7 @@ void RoutingRunnerManager::retrieveRoute( const RouteRequest *request )
     }
 }
 
-QVector<GeoDataDocument*> RoutingRunnerManager::searchRoute( const RouteRequest *request, int timeout ) {
+QVector<Route> RoutingRunnerManager::searchRoute( const RouteRequest *request, int timeout ) {
     QEventLoop localEventLoop;
     QTimer watchdog;
     watchdog.setSingleShot(true);
