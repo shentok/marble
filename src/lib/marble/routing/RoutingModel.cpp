@@ -162,57 +162,6 @@ void RoutingModel::setRoute( const Route &route )
     emit currentRouteChanged();
 }
 
-void RoutingModel::exportGpx( QIODevice *device ) const
-{
-    QString content( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" );
-    content += "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"Marble\" version=\"1.1\" ";
-    content += "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ";
-    content += "xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 ";
-    content += "http://www.topografix.com/GPX/1/1/gpx.xsd\">\n";
-    content += "<metadata>\n  <link href=\"http://edu.kde.org/marble\">\n    ";
-    content += "<text>Marble Virtual Globe</text>\n  </link>\n</metadata>\n";
-
-    content += "  <rte>\n    <name>Route</name>\n";
-    bool hasAltitude = false;
-    for ( int i=0; !hasAltitude && i<d->m_route.size(); ++i ) {
-        hasAltitude = d->m_route.at( i ).maneuver().position().altitude() != 0.0;
-    }
-    for ( int i=0; i<d->m_route.size(); ++i ) {
-        const Maneuver &maneuver = d->m_route.at( i ).maneuver();
-        qreal lon = maneuver.position().longitude( GeoDataCoordinates::Degree );
-        qreal lat = maneuver.position().latitude( GeoDataCoordinates::Degree );
-        QString const text = maneuver.instructionText();
-        content += QString( "    <rtept lat=\"%1\" lon=\"%2\">\n" ).arg( lat, 0, 'f', 7 ).arg( lon, 0, 'f', 7 );
-        content += QString( "        <name>%1</name>\n").arg( text );
-        if ( hasAltitude ) {
-            content += QString( "        <ele>%1</ele>\n" ).arg( maneuver.position().altitude(), 0, 'f', 2 );
-        }
-        content += QString( "    </rtept>\n" );
-    }
-    content += "  </rte>\n";
-
-    content += "<trk>\n  <name>Route</name>\n    <trkseg>\n";
-    GeoDataLineString points = d->m_route.path();
-    hasAltitude = false;
-    for ( int i=0; !hasAltitude && i<points.size(); ++i ) {
-        hasAltitude = points[i].altitude() != 0.0;
-    }
-    for ( int i=0; i<points.size(); ++i ) {
-        GeoDataCoordinates const &point = points[i];
-        qreal lon = point.longitude( GeoDataCoordinates::Degree );
-        qreal lat = point.latitude( GeoDataCoordinates::Degree );
-        content += QString( "      <trkpt lat=\"%1\" lon=\"%2\">\n" ).arg( lat, 0, 'f', 7 ).arg( lon, 0, 'f', 7 );
-        if ( hasAltitude ) {
-            content += QString( "        <ele>%1</ele>\n" ).arg( point.altitude(), 0, 'f', 2 );
-        }
-        content += QString( "      </trkpt>\n" );
-    }
-    content += "    </trkseg>\n  </trk>\n";
-    content += "</gpx>\n";
-
-    device->write( content.toUtf8() );
-}
-
 void RoutingModel::clear()
 {
     d->m_route = Route();

@@ -68,11 +68,6 @@ public:
     // Model data filling
 
     /**
-      * Export waypoints and instructions in gpx format
-      */
-    void exportGpx( QIODevice *device ) const;
-
-    /**
       * Clear any data held in the model
       */
     void clear();

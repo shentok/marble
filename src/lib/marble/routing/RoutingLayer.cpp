@@ -743,7 +743,7 @@ void RoutingLayer::exportRoute()
         if ( fileName.endsWith( QLatin1String( ".gpx" ), Qt::CaseInsensitive ) ) {
             QFile gpx( fileName );
             if ( gpx.open( QFile::WriteOnly) ) {
-                d->m_routingModel->exportGpx( &gpx );
+                d->m_marbleWidget->model()->routingManager()->exportGpx( &gpx );
                 gpx.close();
             }
         } else {

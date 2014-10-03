@@ -105,6 +105,11 @@ public:
     void loadRoute( const QString &filename );
 
     /**
+     * Export waypoints and instructions in gpx format
+     */
+    void exportGpx( QIODevice *device ) const;
+
+    /**
       * Generates a routing profile with default settings for the given transport type
       */
     RoutingProfile defaultProfile( RoutingProfile::TransportType transportType ) const;
