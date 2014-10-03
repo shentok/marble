@@ -15,6 +15,7 @@
 #include "GeoDataData.h"
 #include "GeoDataExtendedData.h"
 #include "MarbleDirs.h"
+#include "MarbleMath.h"
 
 #include <QMap>
 #include <QPainter>
@@ -331,6 +332,59 @@ GeoDataPlacemark &RouteRequest::operator []( int index )
 const GeoDataPlacemark &RouteRequest::operator [](int index) const
 {
     return d->m_route[index];
+}
+
+int RouteRequest::rightNeighbor( const GeoDataCoordinates &position, const GeoDataLineString &points ) const
+{
+    // Quick result for trivial cases
+    if ( d->m_route.size() < 3 ) {
+        return d->m_route.size() - 1;
+    }
+
+    // Generate an ordered list of all waypoints
+    QMap<int,int> mapping;
+
+    // Force first mapping point to match the route start
+    mapping[0] = 0;
+
+    // Calculate the mapping between waypoints and via points
+    // Need two for loops to avoid getting stuck in local minima
+    for ( int j = 1; j < d->m_route.size()-1; ++j ) {
+        qreal minDistance = -1.0;
+        for ( int i=mapping[j-1]; i<points.size(); ++i ) {
+            qreal distance = distanceSphere( points[i], at(j) );
+            if (minDistance < 0.0 || distance < minDistance ) {
+                mapping[j] = i;
+                minDistance = distance;
+            }
+        }
+    }
+
+    // Determine waypoint with minimum distance to the provided position
+    qreal minWaypointDistance = -1.0;
+    int waypoint=0;
+    for ( int i=0; i<points.size(); ++i ) {
+        qreal waypointDistance = distanceSphere( points[i], position );
+        if ( minWaypointDistance < 0.0 || waypointDistance < minWaypointDistance ) {
+            minWaypointDistance = waypointDistance;
+            waypoint = i;
+        }
+    }
+
+    // Force last mapping point to match the route destination
+    mapping[d->m_route.size()-1] = points.size()-1;
+
+    // Determine neighbor based on the mapping
+    QMap<int, int>::const_iterator iter = mapping.constBegin();
+    for ( ; iter != mapping.constEnd(); ++iter ) {
+        if ( iter.value() > waypoint ) {
+            int index = iter.key();
+            Q_ASSERT( index >= 0 && index <= d->m_route.size() );
+            return index;
+        }
+    }
+
+    return d->m_route.size()-1;
 }
 
 } // namespace Marble

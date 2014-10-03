@@ -170,62 +170,6 @@ void RoutingModel::clear()
     emit currentRouteChanged();
 }
 
-int RoutingModel::rightNeighbor( const GeoDataCoordinates &position, RouteRequest const *const route ) const
-{
-    Q_ASSERT( route && "Must not pass a null route ");
-
-    // Quick result for trivial cases
-    if ( route->size() < 3 ) {
-        return route->size() - 1;
-    }
-
-    // Generate an ordered list of all waypoints
-    GeoDataLineString points = d->m_route.path();
-    QMap<int,int> mapping;
-
-    // Force first mapping point to match the route start
-    mapping[0] = 0;
-
-    // Calculate the mapping between waypoints and via points
-    // Need two for loops to avoid getting stuck in local minima
-    for ( int j=1; j<route->size()-1; ++j ) {
-        qreal minDistance = -1.0;
-        for ( int i=mapping[j-1]; i<points.size(); ++i ) {
-            qreal distance = distanceSphere( points[i], route->at(j) );
-            if (minDistance < 0.0 || distance < minDistance ) {
-                mapping[j] = i;
-                minDistance = distance;
-            }
-        }
-    }
-
-    // Determine waypoint with minimum distance to the provided position
-    qreal minWaypointDistance = -1.0;
-    int waypoint=0;
-    for ( int i=0; i<points.size(); ++i ) {
-        qreal waypointDistance = distanceSphere( points[i], position );
-        if ( minWaypointDistance < 0.0 || waypointDistance < minWaypointDistance ) {
-            minWaypointDistance = waypointDistance;
-            waypoint = i;
-        }
-    }
-
-    // Force last mapping point to match the route destination
-    mapping[route->size()-1] = points.size()-1;
-
-    // Determine neighbor based on the mapping
-    QMap<int, int>::const_iterator iter = mapping.constBegin();
-    for ( ; iter != mapping.constEnd(); ++iter ) {
-        if ( iter.value() > waypoint ) {
-            int index = iter.key();
-            Q_ASSERT( index >= 0 && index <= route->size() );
-            return index;
-        }
-    }
-
-    return route->size()-1;
-}
-
 void RoutingModel::updatePosition( GeoDataCoordinates location, qreal /*speed*/ )
 {
     d->m_route.setPosition( location );

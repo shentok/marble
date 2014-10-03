@@ -399,7 +399,7 @@ void RoutingLayerPrivate::storeDragPosition( const QPoint &pos )
     if ( m_routeRequest && !pos.isNull()
         && m_marbleWidget->geoCoordinates( pos.x(), pos.y(), lon, lat, GeoDataCoordinates::Radian ) ) {
         GeoDataCoordinates waypoint( lon, lat );
-        m_dragStopOverRightIndex = m_routingModel->rightNeighbor( waypoint, m_routeRequest );
+        m_dragStopOverRightIndex = m_routeRequest->rightNeighbor( waypoint, m_routingModel->route().path() );
     }
 }
 

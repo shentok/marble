@@ -20,6 +20,7 @@
 namespace Marble
 {
 
+class GeoDataLineString;
 class GeoDataPlacemark;
 class RouteRequestPrivate;
 
@@ -100,6 +101,17 @@ public:
     GeoDataPlacemark & operator[] ( int index );
 
     GeoDataPlacemark const & operator[] ( int index ) const;
+
+    /**
+      * Maps points from the provided route request to waypoints in the model
+      * according to their global minimal distance. Returns the right neighbor
+      * (next route request item along the waypoints) of the provided position.
+      * Provided route must not be null.
+      * @return -1 If the provided route is empty, the index of the right
+      * neighbor along the waypoints otherwise (result is a valid RouteRequest
+      * index in that case)
+      */
+    int rightNeighbor( const GeoDataCoordinates &position, const GeoDataLineString &points ) const;
 
 Q_SIGNALS:
     /** The value of the n-th element was changed */
