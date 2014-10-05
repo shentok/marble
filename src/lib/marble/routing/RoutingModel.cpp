@@ -42,8 +42,6 @@ public:
 #if QT_VERSION >= 0x050000
     QHash<int, QByteArray> m_roleNames;
 #endif
-
-    void updateViaPoints( const GeoDataCoordinates &position );
 };
 
 RoutingModelPrivate::RoutingModelPrivate( RouteRequest* request )
@@ -52,19 +50,6 @@ RoutingModelPrivate::RoutingModelPrivate( RouteRequest* request )
       m_request( request )
 {
     // nothing to do
-}
-
-void RoutingModelPrivate::updateViaPoints( const GeoDataCoordinates &position )
-{
-    // Mark via points visited after approaching them in a range of 500m or less
-    qreal const threshold = 500 / EARTH_RADIUS;
-    for( int i=0; i<m_request->size(); ++i ) {
-        if ( !m_request->visited( i ) ) {
-            if ( distanceSphere( position, m_request->at( i ) ) < threshold ) {
-                m_request->setVisited( i, true );
-            }
-        }
-    }
 }
 
 RoutingModel::RoutingModel( RouteRequest* request, MarbleModel *model, QObject *parent ) :
@@ -296,7 +281,16 @@ void RoutingModel::updatePosition( GeoDataCoordinates location, qreal /*speed*/ 
 {
     d->m_route.setPosition( location );
 
-    d->updateViaPoints( location );
+    // Mark via points visited after approaching them in a range of 500m or less
+    for ( int i = 0; i < d->m_request->size(); ++i ) {
+        if ( !d->m_request->visited( i ) ) {
+            qreal const threshold = 500 / EARTH_RADIUS;
+            if ( distanceSphere( location, d->m_request->at( i ) ) < threshold ) {
+                d->m_request->setVisited( i, true );
+            }
+        }
+    }
+
     qreal distance = EARTH_RADIUS * distanceSphere( location, d->m_route.positionOnRoute() );
     emit positionChanged();
 
