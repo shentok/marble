@@ -39,6 +39,7 @@ class MARBLE_EXPORT RoutingManager : public QObject
     Q_OBJECT
     Q_PROPERTY( State state READ state NOTIFY stateChanged )
     Q_PROPERTY( bool guidanceModeEnabled READ guidanceModeEnabled WRITE setGuidanceModeEnabled NOTIFY guidanceModeEnabledChanged )
+    Q_PROPERTY( bool deviatedFromRoute READ deviatedFromRoute NOTIFY deviatedFromRoute )
 
 public:
     enum State {
@@ -85,6 +86,11 @@ public:
      * @return
      */
     State state() const;
+
+    /**
+     * @brief Returns whether the GPS location is on route
+     */
+    bool deviatedFromRoute() const;
 
     /**
       * Saves the current route request and the current route to disk
@@ -205,10 +211,18 @@ Q_SIGNALS:
 
     void guidanceModeEnabledChanged( bool enabled );
 
+    /**
+     * emits a signal regarding information about total time( seconds ) and distance( metres ) remaining to reach destination
+     */
+     void positionChanged();
+     void deviatedFromRoute( bool deviated );
+
 private:
     Q_PRIVATE_SLOT( d, void addRoute( GeoDataDocument* route ) )
 
     Q_PRIVATE_SLOT( d, void setCurrentRoute( GeoDataDocument *route ) )
+
+    Q_PRIVATE_SLOT( d, void updatePosition( const GeoDataCoordinates &, qreal ) )
 
     Q_PRIVATE_SLOT( d, void recalculateRoute( bool deviated ) )
 

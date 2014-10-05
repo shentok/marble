@@ -345,7 +345,7 @@ void RoutingLayerPrivate::renderRoute( GeoPainter *painter )
         }
         painter->drawEllipse( pos, 6, 6 );
 
-        if( !m_routingModel->deviatedFromRoute() ) {
+        if( !m_marbleWidget->model()->routingManager()->deviatedFromRoute() ) {
             GeoDataCoordinates location = m_routingModel->route().currentSegment().nextRouteSegment().maneuver().position();
             QString nextInstruction = m_routingModel->route().currentSegment().nextRouteSegment().maneuver().instructionText();
             if( !nextInstruction.isEmpty() ) {

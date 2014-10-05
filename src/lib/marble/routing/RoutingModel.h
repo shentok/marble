@@ -32,8 +32,6 @@ class MARBLE_EXPORT RoutingModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    Q_PROPERTY( bool deviatedFromRoute READ deviatedFromRoute NOTIFY deviatedFromRoute )
-
 public:
     enum RoutingModelRoles {
         CoordinateRole = Qt::UserRole + 3,
@@ -71,11 +69,6 @@ public:
       */
     void clear();
 
-    /**
-     * returns whether the gps location is on route
-     */
-    bool deviatedFromRoute() const;
-
     const Route & route() const;
 
 public Q_SLOTS:
@@ -87,12 +80,6 @@ public Q_SLOTS:
     void updatePosition( GeoDataCoordinates, qreal );
 
 Q_SIGNALS:
-   /**
-    * emits a signal regarding information about total time( seconds ) and distance( metres ) remaining to reach destination
-    */
-    void positionChanged();
-    void deviatedFromRoute( bool deviated );
-
     /** A different route was loaded */
     void currentRouteChanged();
 

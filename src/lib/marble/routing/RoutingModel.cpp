@@ -24,19 +24,10 @@ namespace Marble
 class RoutingModelPrivate
 {
 public:
-    enum RouteDeviation
-    {
-        Unknown,
-        OnRoute,
-        OffRoute
-    };
-
     RoutingModelPrivate( RouteRequest* request );
 
     Route m_route;
 
-    RouteDeviation m_deviation;
-    PositionTracking* m_positionTracking;
     RouteRequest* const m_request;
 #if QT_VERSION >= 0x050000
     QHash<int, QByteArray> m_roleNames;
@@ -44,9 +35,7 @@ public:
 };
 
 RoutingModelPrivate::RoutingModelPrivate( RouteRequest* request )
-    : m_deviation( Unknown ),
-      m_positionTracking( 0 ),
-      m_request( request )
+    : m_request( request )
 {
     // nothing to do
 }
@@ -147,7 +136,6 @@ QHash<int, QByteArray> RoutingModel::roleNames() const
 void RoutingModel::setRoute( const Route &route )
 {
     d->m_route = route;
-    d->m_deviation = RoutingModelPrivate::Unknown;
 
     beginResetModel();
     endResetModel();
@@ -165,36 +153,6 @@ void RoutingModel::clear()
 void RoutingModel::updatePosition( GeoDataCoordinates location, qreal /*speed*/ )
 {
     d->m_route.setPosition( location );
-
-    // Mark via points visited after approaching them in a range of 500m or less
-    for ( int i = 0; i < d->m_request->size(); ++i ) {
-        if ( !d->m_request->visited( i ) ) {
-            qreal const threshold = 500 / EARTH_RADIUS;
-            if ( distanceSphere( location, d->m_request->at( i ) ) < threshold ) {
-                d->m_request->setVisited( i, true );
-            }
-        }
-    }
-
-    qreal distance = EARTH_RADIUS * distanceSphere( location, d->m_route.positionOnRoute() );
-    emit positionChanged();
-
-    qreal deviation = 0.0;
-    if ( d->m_positionTracking && d->m_positionTracking->accuracy().vertical > 0.0 ) {
-        deviation = qMax<qreal>( d->m_positionTracking->accuracy().vertical, d->m_positionTracking->accuracy().horizontal );
-    }
-    qreal const threshold = deviation + 100.0;
-
-    RoutingModelPrivate::RouteDeviation const deviated = distance < threshold ? RoutingModelPrivate::OnRoute : RoutingModelPrivate::OffRoute;
-    if ( d->m_deviation != deviated ) {
-        d->m_deviation = deviated;
-        emit deviatedFromRoute( deviated == RoutingModelPrivate::OffRoute );
-    }
-}
-
-bool RoutingModel::deviatedFromRoute() const
-{
-    return d->m_deviation == RoutingModelPrivate::OffRoute;
 }
 
 const Route & RoutingModel::route() const

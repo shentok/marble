@@ -25,6 +25,7 @@
 #include "GeoDataTreeModel.h"
 #include "MarbleDirs.h"
 #include "MarbleDebug.h"
+#include "MarbleMath.h"
 #include "PositionTracking.h"
 #include "PluginManager.h"
 #include "PositionProviderPlugin.h"
@@ -43,6 +44,13 @@ namespace Marble
 class RoutingManagerPrivate
 {
 public:
+    enum RouteDeviation
+    {
+        Unknown,
+        OnRoute,
+        OffRoute
+    };
+
     RoutingManager* q;
 
     RouteRequest m_routeRequest;
@@ -66,6 +74,8 @@ public:
     bool m_haveRoute;
 
     bool m_guidanceModeEnabled;
+
+    RouteDeviation m_deviation;
 
     QMutex m_fileMutex;
 
@@ -97,6 +107,8 @@ public:
 
     void setCurrentRoute( GeoDataDocument *route );
 
+    void updatePosition( const GeoDataCoordinates &location, qreal speed );
+
     void recalculateRoute( bool deviated );
 
     static void importPlacemark( RouteSegment &outline, QVector<RouteSegment> &segments, const GeoDataPlacemark *placemark );
@@ -115,6 +127,7 @@ RoutingManagerPrivate::RoutingManagerPrivate( MarbleModel *model, RoutingManager
         m_runnerManager( model, q ),
         m_haveRoute( false ),
         m_guidanceModeEnabled( false ),
+        m_deviation( Unknown ),
         m_shutdownPositionTracking( false ),
         m_guidanceModeWarning( true ),
         m_routeColorStandard( Oxygen::skyBlue4 ),
@@ -259,10 +272,10 @@ RoutingManager::RoutingManager( MarbleModel *marbleModel, QObject *parent ) : QO
              this, SLOT(addRoute(GeoDataDocument*)) );
     connect( &d->m_alternativeRoutesModel, SIGNAL(currentRouteChanged(GeoDataDocument*)),
              this, SLOT(setCurrentRoute(GeoDataDocument*)) );
-    connect( &d->m_routingModel, SIGNAL(deviatedFromRoute(bool)),
+    connect( this, SIGNAL(deviatedFromRoute(bool)),
              this, SLOT(recalculateRoute(bool)) );
     connect( d->m_positionTracking, SIGNAL(gpsLocation(GeoDataCoordinates,qreal)),
-             &d->m_routingModel, SLOT(updatePosition(GeoDataCoordinates,qreal)) );
+             this, SLOT(updatePosition(GeoDataCoordinates,qreal)) );
 }
 
 RoutingManager::~RoutingManager()
@@ -298,6 +311,11 @@ const Route &RoutingManager::route() const
 RoutingManager::State RoutingManager::state() const
 {
     return d->m_state;
+}
+
+bool RoutingManager::deviatedFromRoute() const
+{
+    return d->m_deviation == RoutingManagerPrivate::OffRoute;
 }
 
 void RoutingManager::retrieveRoute()
@@ -391,7 +409,38 @@ void RoutingManagerPrivate::setCurrentRoute( GeoDataDocument *document )
         }
     }
 
+    m_deviation = RoutingManagerPrivate::Unknown;
     m_routingModel.setRoute( route );
+}
+
+void RoutingManagerPrivate::updatePosition( const GeoDataCoordinates &coordinates, qreal speed )
+{
+    m_routingModel.updatePosition( coordinates, speed );
+
+    // Mark via points visited after approaching them in a range of 500m or less
+    for ( int i = 0; i < m_routeRequest.size(); ++i ) {
+        if ( !m_routeRequest.visited( i ) ) {
+            qreal const threshold = 500 / EARTH_RADIUS;
+            if ( distanceSphere( coordinates, m_routeRequest.at( i ) ) < threshold ) {
+                m_routeRequest.setVisited( i, true );
+            }
+        }
+    }
+
+    qreal distance = EARTH_RADIUS * distanceSphere( coordinates, m_routingModel.route().positionOnRoute() );
+    emit q->positionChanged();
+
+    qreal deviation = 0.0;
+    if ( m_positionTracking && m_positionTracking->accuracy().vertical > 0.0 ) {
+        deviation = qMax<qreal>( m_positionTracking->accuracy().vertical, m_positionTracking->accuracy().horizontal );
+    }
+    qreal const threshold = deviation + 100.0;
+
+    RoutingManagerPrivate::RouteDeviation const deviated = distance < threshold ? RoutingManagerPrivate::OnRoute : RoutingManagerPrivate::OffRoute;
+    if ( m_deviation != deviated ) {
+        m_deviation = deviated;
+        emit q->deviatedFromRoute( deviated == RoutingManagerPrivate::OffRoute );
+    }
 }
 
 void RoutingManagerPrivate::importPlacemark( RouteSegment &outline, QVector<RouteSegment> &segments, const GeoDataPlacemark *placemark )
