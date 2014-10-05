@@ -290,6 +290,11 @@ RouteRequest* RoutingManager::routeRequest()
     return &d->m_routeRequest;
 }
 
+const Route &RoutingManager::route() const
+{
+    return d->m_routingModel.route();
+}
+
 RoutingManager::State RoutingManager::state() const
 {
     return d->m_state;

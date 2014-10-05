@@ -22,6 +22,7 @@ namespace Marble
 
 class RoutingManagerPrivate;
 class RoutingModel;
+class Route;
 class RouteRequest;
 class MarbleModel;
 class GeoDataDocument;
@@ -76,6 +77,8 @@ public:
       * Returns the current route request
       */
     RouteRequest* routeRequest();
+
+    const Route &route() const;
 
     /**
      * @brief Returns whether a route is being downloaded
