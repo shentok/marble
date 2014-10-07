@@ -66,6 +66,7 @@
 #include "Planet.h"
 #include "PlanetFactory.h"
 #include "PluginManager.h"
+#include "RouteGuidance.h"
 #include "StoragePolicy.h"
 #include "SunLocator.h"
 #include "TileCreator.h"
@@ -102,6 +103,7 @@ class MarbleModelPrivate
           m_trackedPlacemark( 0 ),
           m_bookmarkManager( &m_treeModel ),
           m_routingManager( 0 ),
+          m_routeGuidance( 0 ),
           m_legend( 0 ),
           m_workOffline( false ),
           m_elevationModel( 0 )
@@ -161,6 +163,7 @@ class MarbleModelPrivate
 
     BookmarkManager          m_bookmarkManager;
     RoutingManager          *m_routingManager;
+    RouteGuidance           *m_routeGuidance;
     QTextDocument           *m_legend;
 
     bool                     m_workOffline;
@@ -194,6 +197,7 @@ MarbleModel::MarbleModel( QObject *parent )
              this, SLOT(assignFillColors( QString)) );
 
     d->m_routingManager = new RoutingManager( this, this );
+    d->m_routeGuidance = new RouteGuidance( d->m_routingManager, &d->m_positionTracking, this );
 
     connect(&d->m_clock,   SIGNAL(timeChanged()),
             &d->m_sunLocator, SLOT(update()) );
@@ -687,6 +691,16 @@ RoutingManager* MarbleModel::routingManager()
 const RoutingManager* MarbleModel::routingManager() const
 {
     return d->m_routingManager;
+}
+
+RouteGuidance *MarbleModel::routeGuidance()
+{
+    return d->m_routeGuidance;
+}
+
+const RouteGuidance *MarbleModel::routeGuidance() const
+{
+    return d->m_routeGuidance;
 }
 
 void MarbleModel::setClockDateTime( const QDateTime& datetime )

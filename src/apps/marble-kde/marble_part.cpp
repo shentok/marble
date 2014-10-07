@@ -84,6 +84,7 @@
 #include "routing/RoutingProfilesModel.h"
 #include "routing/RoutingProfilesWidget.h"
 #include "routing/RouteRequest.h"
+#include "RouteGuidance.h"
 #include "SunControlWidget.h"
 #include "TimeControlWidget.h"
 #include "TileCoordsPyramid.h"
@@ -533,7 +534,7 @@ void MarblePart::readSettings()
     // Load previous route settings
     m_controlView->marbleModel()->routingManager()->readSettings();
     bool const startupWarning = MarbleSettings::showGuidanceModeStartupWarning();
-    m_controlView->marbleModel()->routingManager()->setShowGuidanceModeStartupWarning( startupWarning );
+    m_controlView->marbleModel()->routeGuidance()->setShowGuidanceModeStartupWarning( startupWarning );
 
     KSharedConfig::Ptr sharedConfig = KSharedConfig::openConfig( KGlobal::mainComponent() );
     if ( sharedConfig->hasGroup( "Routing Profiles" ) ) {
@@ -766,9 +767,10 @@ void MarblePart::writeSettings()
     m_recentFilesAction->saveEntries( sharedConfig->group( "RecentFiles" ) );
 
     // Store current route settings
+    RouteGuidance *const routeGuidace = m_controlView->marbleModel()->routeGuidance();
     RoutingManager *routingManager = m_controlView->marbleWidget()->model()->routingManager();
     routingManager->writeSettings();
-    bool const startupWarning = routingManager->showGuidanceModeStartupWarning();
+    bool const startupWarning = routeGuidace->showGuidanceModeStartupWarning();
     MarbleSettings::setShowGuidanceModeStartupWarning( startupWarning );
     QList<RoutingProfile>  profiles = routingManager->profilesModel()->profiles();
     RoutingProfile const profile = routingManager->routeRequest()->routingProfile();

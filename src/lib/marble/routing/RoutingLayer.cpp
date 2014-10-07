@@ -18,6 +18,7 @@
 #include "MarbleWidgetPopupMenu.h"
 #include "RoutingModel.h"
 #include "Route.h"
+#include "RouteGuidance.h"
 #include "RouteRequest.h"
 #include "MarbleModel.h"
 #include "AlternativeRoutesModel.h"
@@ -345,7 +346,7 @@ void RoutingLayerPrivate::renderRoute( GeoPainter *painter )
         }
         painter->drawEllipse( pos, 6, 6 );
 
-        if( !m_marbleWidget->model()->routingManager()->deviatedFromRoute() ) {
+        if( !m_marbleWidget->model()->routeGuidance()->deviatedFromRoute() ) {
             GeoDataCoordinates location = m_routingModel->route().currentSegment().nextRouteSegment().maneuver().position();
             QString nextInstruction = m_routingModel->route().currentSegment().nextRouteSegment().maneuver().instructionText();
             if( !nextInstruction.isEmpty() ) {

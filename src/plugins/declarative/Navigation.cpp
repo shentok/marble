@@ -12,9 +12,8 @@
 
 #include "MarbleDeclarativeWidget.h"
 #include "MarbleModel.h"
-#include "routing/RoutingManager.h"
-#include "routing/RoutingModel.h"
 #include "PositionTracking.h"
+#include "RouteGuidance.h"
 #include "MarbleMath.h"
 #include "AutoNavigation.h"
 #include "routing/VoiceNavigationModel.h"
@@ -86,7 +85,7 @@ Marble::RouteSegment NavigationPrivate::nextRouteSegment()
 {
     if ( m_marbleWidget ) {
         // Not using m_currentSegment on purpose
-        return m_marbleWidget->model()->routingManager()->routingModel()->route().currentSegment().nextRouteSegment();
+        return m_marbleWidget->model()->routeGuidance()->route().currentSegment().nextRouteSegment();
     }
 
     return Marble::RouteSegment();
@@ -113,9 +112,9 @@ void Navigation::setMap( MarbleWidget* widget )
     d->m_marbleWidget = widget;
     if ( d->m_marbleWidget ) {
         // Avoid the QWidget based warning
-        d->m_marbleWidget->model()->routingManager()->setShowGuidanceModeStartupWarning( false );
-        connect( d->m_marbleWidget->model()->routingManager()->routingModel(),
-                SIGNAL(positionChanged()), this, SLOT(update()) );
+        d->m_marbleWidget->model()->routeGuidance()->setShowGuidanceModeStartupWarning( false );
+        connect( d->m_marbleWidget->model()->routeGuidance(), SIGNAL(positionChanged()),
+                 this, SLOT(update()) );
 
         delete d->m_autoNavigation;
         d->m_autoNavigation = new Marble::AutoNavigation( d->m_marbleWidget->model(), d->m_marbleWidget->viewport(), this );
@@ -136,13 +135,13 @@ void Navigation::setMap( MarbleWidget* widget )
 
 bool Navigation::guidanceModeEnabled() const
 {
-    return d->m_marbleWidget ? d->m_marbleWidget->model()->routingManager()->guidanceModeEnabled() : false;
+    return d->m_marbleWidget ? d->m_marbleWidget->model()->routeGuidance()->guidanceModeEnabled() : false;
 }
 
 void Navigation::setGuidanceModeEnabled( bool enabled )
 {
     if ( d->m_marbleWidget ) {
-        d->m_marbleWidget->model()->routingManager()->setGuidanceModeEnabled( enabled );
+        d->m_marbleWidget->model()->routeGuidance()->setGuidanceModeEnabled( enabled );
         d->m_autoNavigation->setAutoZoom( enabled );
         d->m_autoNavigation->setRecenter( enabled ? Marble::AutoNavigation::RecenterOnBorder : Marble::AutoNavigation::DontRecenter );
 
@@ -235,7 +234,7 @@ void Navigation::setSoundEnabled( bool soundEnabled )
 bool Navigation::deviated() const
 {
     if ( d->m_marbleWidget ) {
-        Marble::RoutingManager const *const routing= d->m_marbleWidget->model()->routingManager();
+        Marble::RouteGuidance const *const routing= d->m_marbleWidget->model()->routeGuidance();
         return routing->deviatedFromRoute();
     }
 
@@ -244,13 +243,13 @@ bool Navigation::deviated() const
 
 void Navigation::update()
 {
-    Marble::RoutingModel const * model = d->m_marbleWidget->model()->routingManager()->routingModel();
-    d->updateNextInstructionDistance( model->route() );
+    Marble::RouteGuidance const *routing = d->m_marbleWidget->model()->routeGuidance();
+    d->updateNextInstructionDistance( routing->route() );
     emit nextInstructionDistanceChanged();
     emit destinationDistanceChanged();
-    Marble::RouteSegment segment = model->route().currentSegment();
+    Marble::RouteSegment segment = routing->route().currentSegment();
     if ( !d->m_muted ) {
-        d->m_voiceNavigation.update( model->route(), d->m_nextInstructionDistance, d->m_destinationDistance, d->m_marbleWidget->model()->routingManager()->deviatedFromRoute() );
+        d->m_voiceNavigation.update( routing->route(), d->m_nextInstructionDistance, d->m_destinationDistance, routing->deviatedFromRoute() );
     }
     if ( segment != d->m_currentSegment ) {
         d->m_currentSegment = segment;

@@ -25,7 +25,7 @@
 #include "PositionProviderPlugin.h"
 #include "PluginManager.h"
 #include "PositionTracking.h"
-#include "routing/RoutingManager.h"
+#include "RouteGuidance.h"
 
 using namespace Marble;
 /* TRANSLATOR Marble::CurrentLocationWidget */
@@ -172,7 +172,7 @@ void CurrentLocationWidget::setMarbleWidget( MarbleWidget *widget )
 
     connect( d->m_widget, SIGNAL(visibleLatLonAltBoxChanged(GeoDataLatLonAltBox)),
              d->m_adjustNavigation, SLOT(inhibitAutoAdjustments()) );
-    connect( d->m_widget->model()->routingManager(), SIGNAL(guidanceModeEnabledChanged(bool)),
+    connect( d->m_widget->model()->routeGuidance(), SIGNAL(guidanceModeEnabledChanged(bool)),
              this, SLOT(updateGuidanceMode()) );
 
     connect (d->m_currentLocationUi.showTrackCheckBox, SIGNAL(clicked(bool)),
@@ -243,7 +243,7 @@ void CurrentLocationWidgetPrivate::updateActivePositionProvider( const PositionP
 
 void CurrentLocationWidgetPrivate::updateGuidanceMode()
 {
-    const bool enabled = m_widget->model()->routingManager()->guidanceModeEnabled();
+    const bool enabled = m_widget->model()->routeGuidance()->guidanceModeEnabled();
 
     m_adjustNavigation->setAutoZoom( enabled );
     m_adjustNavigation->setRecenter( enabled ? AutoNavigation::RecenterOnBorder : AutoNavigation::DontRecenter );

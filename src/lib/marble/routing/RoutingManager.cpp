@@ -44,13 +44,6 @@ namespace Marble
 class RoutingManagerPrivate
 {
 public:
-    enum RouteDeviation
-    {
-        Unknown,
-        OnRoute,
-        OffRoute
-    };
-
     RoutingManager* q;
 
     RouteRequest m_routeRequest;
@@ -65,23 +58,13 @@ public:
 
     GeoDataTreeModel *const m_treeModel;
 
-    PositionTracking *const m_positionTracking;
-
     AlternativeRoutesModel m_alternativeRoutesModel;
 
     RoutingRunnerManager m_runnerManager;
 
     bool m_haveRoute;
 
-    bool m_guidanceModeEnabled;
-
-    RouteDeviation m_deviation;
-
     QMutex m_fileMutex;
-
-    bool m_shutdownPositionTracking;
-
-    bool m_guidanceModeWarning;
 
     QString m_lastOpenPath;
 
@@ -97,7 +80,7 @@ public:
 
     GeoDataFolder* routeRequest() const;
 
-    static QString stateFile( const QString &name = QString( "route.kml" ) );
+    static QString stateFile();
 
     void saveRoute( const QString &filename );
 
@@ -106,10 +89,6 @@ public:
     void addRoute( GeoDataDocument* route );
 
     void setCurrentRoute( GeoDataDocument *route );
-
-    void updatePosition( const GeoDataCoordinates &location, qreal speed );
-
-    void recalculateRoute( bool deviated );
 
     static void importPlacemark( RouteSegment &outline, QVector<RouteSegment> &segments, const GeoDataPlacemark *placemark );
 };
@@ -122,14 +101,9 @@ RoutingManagerPrivate::RoutingManagerPrivate( MarbleModel *model, RoutingManager
         m_state( RoutingManager::Retrieved ),
         m_pluginManager( model->pluginManager() ),
         m_treeModel( model->treeModel() ),
-        m_positionTracking( model->positionTracking() ),
         m_alternativeRoutesModel( parent ),
         m_runnerManager( model, q ),
         m_haveRoute( false ),
-        m_guidanceModeEnabled( false ),
-        m_deviation( Unknown ),
-        m_shutdownPositionTracking( false ),
-        m_guidanceModeWarning( true ),
         m_routeColorStandard( Oxygen::skyBlue4 ),
         m_routeColorHighlighted( Oxygen::skyBlue1 ),
         m_routeColorAlternative( Oxygen::aluminumGray4 )
@@ -151,7 +125,7 @@ GeoDataFolder* RoutingManagerPrivate::routeRequest() const
     return result;
 }
 
-QString RoutingManagerPrivate::stateFile( const QString &name)
+QString RoutingManagerPrivate::stateFile()
 {
     QString const subdir = "routing";
     QDir dir( MarbleDirs::localPath() );
@@ -166,7 +140,7 @@ QString RoutingManagerPrivate::stateFile( const QString &name)
         mDebug() << "Cannot change into " << dir.absoluteFilePath( subdir );
     }
 
-    return dir.absoluteFilePath( name );
+    return dir.absoluteFilePath( "route.kml" );
 }
 
 void RoutingManagerPrivate::saveRoute(const QString &filename)
@@ -272,10 +246,6 @@ RoutingManager::RoutingManager( MarbleModel *marbleModel, QObject *parent ) : QO
              this, SLOT(addRoute(GeoDataDocument*)) );
     connect( &d->m_alternativeRoutesModel, SIGNAL(currentRouteChanged(GeoDataDocument*)),
              this, SLOT(setCurrentRoute(GeoDataDocument*)) );
-    connect( this, SIGNAL(deviatedFromRoute(bool)),
-             this, SLOT(recalculateRoute(bool)) );
-    connect( d->m_positionTracking, SIGNAL(gpsLocation(GeoDataCoordinates,qreal)),
-             this, SLOT(updatePosition(GeoDataCoordinates,qreal)) );
 }
 
 RoutingManager::~RoutingManager()
@@ -311,11 +281,6 @@ const Route &RoutingManager::route() const
 RoutingManager::State RoutingManager::state() const
 {
     return d->m_state;
-}
-
-bool RoutingManager::deviatedFromRoute() const
-{
-    return d->m_deviation == RoutingManagerPrivate::OffRoute;
 }
 
 void RoutingManager::retrieveRoute()
@@ -409,38 +374,7 @@ void RoutingManagerPrivate::setCurrentRoute( GeoDataDocument *document )
         }
     }
 
-    m_deviation = RoutingManagerPrivate::Unknown;
     m_routingModel.setRoute( route );
-}
-
-void RoutingManagerPrivate::updatePosition( const GeoDataCoordinates &coordinates, qreal speed )
-{
-    m_routingModel.updatePosition( coordinates, speed );
-
-    // Mark via points visited after approaching them in a range of 500m or less
-    for ( int i = 0; i < m_routeRequest.size(); ++i ) {
-        if ( !m_routeRequest.visited( i ) ) {
-            qreal const threshold = 500 / EARTH_RADIUS;
-            if ( distanceSphere( coordinates, m_routeRequest.at( i ) ) < threshold ) {
-                m_routeRequest.setVisited( i, true );
-            }
-        }
-    }
-
-    qreal distance = EARTH_RADIUS * distanceSphere( coordinates, m_routingModel.route().positionOnRoute() );
-    emit q->positionChanged();
-
-    qreal deviation = 0.0;
-    if ( m_positionTracking && m_positionTracking->accuracy().vertical > 0.0 ) {
-        deviation = qMax<qreal>( m_positionTracking->accuracy().vertical, m_positionTracking->accuracy().horizontal );
-    }
-    qreal const threshold = deviation + 100.0;
-
-    RoutingManagerPrivate::RouteDeviation const deviated = distance < threshold ? RoutingManagerPrivate::OnRoute : RoutingManagerPrivate::OffRoute;
-    if ( m_deviation != deviated ) {
-        m_deviation = deviated;
-        emit q->deviatedFromRoute( deviated == RoutingManagerPrivate::OffRoute );
-    }
 }
 
 void RoutingManagerPrivate::importPlacemark( RouteSegment &outline, QVector<RouteSegment> &segments, const GeoDataPlacemark *placemark )
@@ -592,70 +526,6 @@ void RoutingManager::readSettings()
     d->loadRoute( d->stateFile() );
 }
 
-void RoutingManager::setGuidanceModeEnabled( bool enabled )
-{
-    if ( d->m_guidanceModeEnabled == enabled ) {
-        return;
-    }
-
-    d->m_guidanceModeEnabled = enabled;
-
-    if ( enabled ) {
-        d->saveRoute( d->stateFile( "guidance.kml" ) );
-
-        if ( d->m_guidanceModeWarning ) {
-            QString text = "<p>" + tr( "Caution: Driving instructions may be incomplete or wrong." );
-            text += ' ' + tr( "Road construction, weather and other unforeseen variables can result in the suggested route not to be the most expedient or safest route to your destination." );
-            text += ' ' + tr( "Please use common sense while navigating." ) + "</p>";
-            text += "<p>" + tr( "The Marble development team wishes you a pleasant and safe journey." ) + "</p>";
-            QPointer<QMessageBox> messageBox = new QMessageBox( QMessageBox::Information, tr( "Guidance Mode - Marble" ), text, QMessageBox::Ok );
-            QCheckBox *showAgain = new QCheckBox( tr( "Show again" ) );
-            showAgain->setChecked( true );
-            showAgain->blockSignals( true ); // otherwise it'd close the dialog
-            messageBox->addButton( showAgain, QMessageBox::ActionRole );
-            const bool smallScreen = MarbleGlobal::getInstance()->profiles() & MarbleGlobal::SmallScreen;
-            messageBox->resize( 380, smallScreen ? 400 : 240 );
-            messageBox->exec();
-            if ( !messageBox.isNull() ) {
-                d->m_guidanceModeWarning = showAgain->isChecked();
-            }
-            delete messageBox;
-        }
-    } else {
-        d->loadRoute( d->stateFile( "guidance.kml" ) );
-    }
-
-    const bool isTrackingEnabled = d->m_positionTracking->isEnabled();
-    if ( !isTrackingEnabled && enabled ) {
-        d->m_positionTracking->setEnabled( isTrackingEnabled );
-        d->m_shutdownPositionTracking = true;
-    } else if ( isTrackingEnabled && !enabled && d->m_shutdownPositionTracking ) {
-        d->m_shutdownPositionTracking = false;
-        d->m_positionTracking->setEnabled( false );
-    }
-
-    emit guidanceModeEnabledChanged( d->m_guidanceModeEnabled );
-}
-
-void RoutingManagerPrivate::recalculateRoute( bool deviated )
-{
-    if ( m_guidanceModeEnabled && deviated ) {
-        for ( int i=m_routeRequest.size()-3; i>=0; --i ) {
-            if ( m_routeRequest.visited( i ) ) {
-                m_routeRequest.remove( i );
-            }
-        }
-
-        if ( m_routeRequest.size() == 2 && m_routeRequest.visited( 0 ) && !m_routeRequest.visited( 1 ) ) {
-            m_routeRequest.setPosition( 0, m_positionTracking->currentLocation(), QObject::tr( "Current Location" ) );
-            q->retrieveRoute();
-        } else if ( m_routeRequest.size() != 0 && !m_routeRequest.visited( m_routeRequest.size()-1 ) ) {
-            m_routeRequest.insert( 0, m_positionTracking->currentLocation(), QObject::tr( "Current Location" ) );
-            q->retrieveRoute();
-        }
-    }
-}
-
 void RoutingManager::reverseRoute()
 {
     d->m_routeRequest.reverse();
@@ -666,16 +536,6 @@ void RoutingManager::clearRoute()
 {
     d->m_routeRequest.clear();
     retrieveRoute();
-}
-
-void RoutingManager::setShowGuidanceModeStartupWarning( bool show )
-{
-    d->m_guidanceModeWarning = show;
-}
-
-bool RoutingManager::showGuidanceModeStartupWarning() const
-{
-    return d->m_guidanceModeWarning;
 }
 
 void RoutingManager::setLastOpenPath( const QString &path )
@@ -726,11 +586,6 @@ void RoutingManager::setRouteColorAlternative( QColor color )
 QColor RoutingManager::routeColorAlternative() const
 {
     return d->m_routeColorAlternative;
-}
-
-bool RoutingManager::guidanceModeEnabled() const
-{
-    return d->m_guidanceModeEnabled;
 }
 
 } // namespace Marble

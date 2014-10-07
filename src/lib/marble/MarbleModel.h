@@ -62,6 +62,7 @@ class GeoDataStyle;
 class GeoDataTreeModel;
 class GeoSceneDocument;
 class Planet;
+class RouteGuidance;
 class RoutingManager;
 class BookmarkManager;
 class FileManager;
@@ -246,6 +247,9 @@ class MARBLE_EXPORT MarbleModel : public QObject
 
     RoutingManager* routingManager();
     const RoutingManager* routingManager() const;
+
+    RouteGuidance *routeGuidance();
+    const RouteGuidance *routeGuidance() const;
 
     void setClockDateTime( const QDateTime& datetime );
 

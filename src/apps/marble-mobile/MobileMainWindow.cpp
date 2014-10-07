@@ -35,6 +35,7 @@
 #include "PluginManager.h"
 #include "PositionTracking.h"
 #include "PositionProviderPlugin.h"
+#include "RouteGuidance.h"
 #include "ViewportParams.h"
 #include "routing/RoutingManager.h"
 #include "routing/RoutingProfilesModel.h"
@@ -373,10 +374,11 @@ void MainWindow::readSettings(const QVariantMap& overrideSettings)
     // Load previous route settings
     settings.beginGroup( "Routing" );
     {
+        RouteGuidance *const routeGuidance = m_marbleWidget->model()->routeGuidance();
         RoutingManager *const routingManager = m_marbleWidget->model()->routingManager();
         routingManager->readSettings();
         bool const startupWarning = settings.value( "showGuidanceModeStartupWarning", QVariant( true ) ).toBool();
-        routingManager->setShowGuidanceModeStartupWarning( startupWarning );
+        routeGuidance->setShowGuidanceModeStartupWarning( startupWarning );
         routingManager->setLastOpenPath( settings.value( "lastRouteOpenPath", QDir::homePath() ).toString() );
         routingManager->setLastSavePath( settings.value( "lastRouteSavePath", QDir::homePath() ).toString() );
 
@@ -573,9 +575,10 @@ void MainWindow::writeSettings()
     // Store current route settings
     settings.beginGroup( "Routing" );
     {
+        RouteGuidance *const routeGuidance = m_marbleWidget->model()->routeGuidance();
         RoutingManager *const routingManager = m_marbleWidget->model()->routingManager();
         routingManager->writeSettings();
-        settings.setValue( "showGuidanceModeStartupWarning", routingManager->showGuidanceModeStartupWarning() );
+        settings.setValue( "showGuidanceModeStartupWarning", routeGuidance->showGuidanceModeStartupWarning() );
         settings.setValue( "lastRouteOpenPath", routingManager->lastOpenPath() );
         settings.setValue( "lastRouteSavePath", routingManager->lastSavePath() );
         settings.setValue( "routeColorStandard", routingManager->routeColorStandard().name() );

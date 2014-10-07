@@ -24,8 +24,7 @@
 #include "MarbleLocale.h"
 #include "MarbleDirs.h"
 #include "PositionTracking.h"
-#include "routing/RoutingManager.h"
-#include "routing/RoutingModel.h"
+#include "RouteGuidance.h"
 #include "routing/RouteRequest.h"
 #include "routing/SpeakersModel.h"
 #include "ViewportParams.h"
@@ -57,7 +56,7 @@ class RoutingPluginPrivate
 public:
     MarbleWidget* m_marbleWidget;
     WidgetGraphicsItem* m_widgetItem;
-    RoutingManager* m_routingManager;
+    RouteGuidance* m_routeGuidance;
     Ui::RoutingPlugin m_widget;
     bool m_nearNextInstruction;
     bool m_guidanceModeEnabled;
@@ -106,7 +105,7 @@ private:
 RoutingPluginPrivate::RoutingPluginPrivate( RoutingPlugin *parent ) :
     m_marbleWidget( 0 ),
     m_widgetItem( 0 ),
-    m_routingManager( 0 ),
+    m_routeGuidance( 0 ),
     m_nearNextInstruction( false ),
     m_guidanceModeEnabled( false ),
     m_audio( new AudioOutput( parent ) ),
@@ -176,7 +175,7 @@ void RoutingPluginPrivate::updateZoomButtons( int zoomValue )
 
 void RoutingPluginPrivate::updateGuidanceModeButton()
 {
-    bool const hasRoute = m_routingManager->route().size() > 0;
+    bool const hasRoute = m_routeGuidance->route().size() > 0;
     m_widget.routingButton->setEnabled( hasRoute );
     forceRepaint();
 }
@@ -240,10 +239,10 @@ void RoutingPluginPrivate::toggleGuidanceMode( bool enabled )
     updateButtonVisibility();
 
     if( enabled ) {
-        QObject::connect( m_routingManager->routingModel(), SIGNAL(positionChanged()),
+        QObject::connect( m_routeGuidance, SIGNAL(positionChanged()),
                  m_parent, SLOT(updateDestinationInformation()) );
     } else {
-        QObject::disconnect( m_routingManager->routingModel(), SIGNAL(positionChanged()),
+        QObject::disconnect( m_routeGuidance, SIGNAL(positionChanged()),
                     m_parent, SLOT(updateDestinationInformation()) );
     }
 
@@ -253,7 +252,7 @@ void RoutingPluginPrivate::toggleGuidanceMode( bool enabled )
     }
 
     if ( enabled ) {
-        RouteRequest* request = m_routingManager->routeRequest();
+        const RouteRequest *request = m_routeGuidance->routeRequest();
         if ( request && request->size() > 0 ) {
             GeoDataCoordinates source = request->source();
             if ( source.isValid() ) {
@@ -266,7 +265,7 @@ void RoutingPluginPrivate::toggleGuidanceMode( bool enabled )
         }
     }
 
-    m_routingManager->setGuidanceModeEnabled( enabled );
+    m_routeGuidance->setGuidanceModeEnabled( enabled );
 
     if ( enabled ) {
         m_routeCompleted = false;
@@ -277,10 +276,10 @@ void RoutingPluginPrivate::toggleGuidanceMode( bool enabled )
 
 void RoutingPluginPrivate::updateDestinationInformation()
 {
-    if ( m_routingManager->route().currentSegment().isValid() ) {
+    if ( m_routeGuidance->route().currentSegment().isValid() ) {
         qreal remaining = remainingDistance();
         qreal distanceLeft = nextInstructionDistance();
-        m_audio->update( m_routingManager->route(), distanceLeft, remaining, m_routingManager->deviatedFromRoute() );
+        m_audio->update( m_routeGuidance->route(), distanceLeft, remaining, m_routeGuidance->deviatedFromRoute() );
 
         m_nearNextInstruction = distanceLeft < thresholdDistance;
 
@@ -296,22 +295,22 @@ void RoutingPluginPrivate::updateDestinationInformation()
         QString pixmap = MarbleDirs::path( "bitmaps/routing_step.png" );
         pixmapHtml = QString( "<img src=\"%1\" />" ).arg( pixmap );
 
-        GeoDataCoordinates const onRoute = m_routingManager->route().positionOnRoute();
-        GeoDataCoordinates const ego = m_routingManager->route().position();
+        GeoDataCoordinates const onRoute = m_routeGuidance->route().positionOnRoute();
+        GeoDataCoordinates const ego = m_routeGuidance->route().position();
         qreal const distanceToRoute = EARTH_RADIUS * distanceSphere( ego, onRoute );
 
-        if ( !m_routingManager->route().currentSegment().isValid() ) {
+        if ( !m_routeGuidance->route().currentSegment().isValid() ) {
             m_widget.instructionLabel->setText( richText( QObject::tr( "Calculate a route to get directions." ) ) );
             m_widget.instructionIconLabel->setText( pixmapHtml );
         } else if ( distanceToRoute > 300.0 ) {
             m_widget.instructionLabel->setText( richText( QObject::tr( "Route left." ) ) );
             m_widget.instructionIconLabel->setText( pixmapHtml );
-        } else if ( !m_routingManager->route().currentSegment().nextRouteSegment().isValid() ) {
+        } else if ( !m_routeGuidance->route().currentSegment().nextRouteSegment().isValid() ) {
             m_widget.instructionLabel->setText( richText( QObject::tr( "Destination ahead." ) ) );
             m_widget.instructionIconLabel->setText( pixmapHtml );
         } else {
-            pixmap = m_routingManager->route().currentSegment().nextRouteSegment().maneuver().directionPixmap();
-            QString const instructionText = m_routingManager->route().currentSegment().nextRouteSegment().maneuver().instructionText();
+            pixmap = m_routeGuidance->route().currentSegment().nextRouteSegment().maneuver().directionPixmap();
+            QString const instructionText = m_routeGuidance->route().currentSegment().nextRouteSegment().maneuver().instructionText();
             m_widget.instructionLabel->setText( richText( "%1" ).arg( instructionText ) );
             pixmapHtml = QString( "<p align=\"center\"><img src=\"%1\" /><br />%2</p>" ).arg( pixmap );
             m_widget.instructionIconLabel->setText( pixmapHtml.arg( richText( fuzzyDistance( distanceLeft ) ) ) );
@@ -345,7 +344,7 @@ void RoutingPluginPrivate::togglePositionTracking( bool enabled )
 void RoutingPluginPrivate::reverseRoute()
 {
     if ( m_marbleWidget ) {
-        m_routingManager->reverseRoute();
+        m_routeGuidance->reverseRoute();
     }
 }
 
@@ -366,11 +365,11 @@ void RoutingPluginPrivate::readSettings()
 
 qreal RoutingPluginPrivate::nextInstructionDistance() const
 {
-    GeoDataCoordinates position = m_routingManager->route().position();
-    GeoDataCoordinates interpolated = m_routingManager->route().positionOnRoute();
-    GeoDataCoordinates onRoute = m_routingManager->route().currentWaypoint();
+    GeoDataCoordinates position = m_routeGuidance->route().position();
+    GeoDataCoordinates interpolated = m_routeGuidance->route().positionOnRoute();
+    GeoDataCoordinates onRoute = m_routeGuidance->route().currentWaypoint();
     qreal distance = EARTH_RADIUS * ( distanceSphere( position, interpolated ) + distanceSphere( interpolated, onRoute ) );
-    const RouteSegment &segment = m_routingManager->route().currentSegment();
+    const RouteSegment &segment = m_routeGuidance->route().currentSegment();
     for (int i=0; i<segment.path().size(); ++i) {
         if (segment.path()[i] == onRoute) {
             return distance + segment.path().length( EARTH_RADIUS, i );
@@ -382,14 +381,14 @@ qreal RoutingPluginPrivate::nextInstructionDistance() const
 
 qreal RoutingPluginPrivate::remainingDistance() const
 {
-    GeoDataCoordinates position = m_routingManager->route().currentSegment().maneuver().position();
+    GeoDataCoordinates position = m_routeGuidance->route().currentSegment().maneuver().position();
     bool foundSegment = false;
     qreal distance = nextInstructionDistance();
-    for ( int i=0; i<m_routingManager->route().size(); ++i ) {
+    for ( int i=0; i<m_routeGuidance->route().size(); ++i ) {
         if ( foundSegment ) {
-            distance += m_routingManager->route().at( i ).distance();
+            distance += m_routeGuidance->route().at( i ).distance();
         } else {
-            foundSegment =  m_routingManager->route().at( i ).maneuver().position() == position;
+            foundSegment =  m_routeGuidance->route().at( i ).maneuver().position() == position;
         }
     }
 
@@ -533,7 +532,7 @@ bool RoutingPlugin::eventFilter( QObject *object, QEvent *e )
 
     if ( widget && !d->m_marbleWidget ) {
         d->m_marbleWidget = widget;
-        d->m_routingManager = d->m_marbleWidget->model()->routingManager();
+        d->m_routeGuidance = d->m_marbleWidget->model()->routeGuidance();
 
         connect( d->m_widget.routingButton, SIGNAL(clicked(bool)),
                  this, SLOT(toggleGuidanceMode(bool)) );
@@ -547,7 +546,7 @@ bool RoutingPlugin::eventFilter( QObject *object, QEvent *e )
                  this, SLOT(updateZoomButtons()) );
         connect( d->m_marbleWidget, SIGNAL(zoomChanged(int)),
                  this, SLOT(updateZoomButtons(int)) );
-        connect( d->m_routingManager, SIGNAL(currentRouteChanged()),
+        connect( d->m_routeGuidance, SIGNAL(currentRouteChanged()),
                 this, SLOT(updateGuidanceModeButton()) );
         d->updateGuidanceModeButton();
     }

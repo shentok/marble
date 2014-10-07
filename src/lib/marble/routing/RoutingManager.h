@@ -38,8 +38,6 @@ class MARBLE_EXPORT RoutingManager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY( State state READ state NOTIFY stateChanged )
-    Q_PROPERTY( bool guidanceModeEnabled READ guidanceModeEnabled WRITE setGuidanceModeEnabled NOTIFY guidanceModeEnabledChanged )
-    Q_PROPERTY( bool deviatedFromRoute READ deviatedFromRoute NOTIFY deviatedFromRoute )
 
 public:
     enum State {
@@ -88,11 +86,6 @@ public:
     State state() const;
 
     /**
-     * @brief Returns whether the GPS location is on route
-     */
-    bool deviatedFromRoute() const;
-
-    /**
       * Saves the current route request and the current route to disk
       */
     void writeSettings() const;
@@ -122,18 +115,6 @@ public:
       * Generates a routing profile with default settings for the given transport type
       */
     RoutingProfile defaultProfile( RoutingProfile::TransportType transportType ) const;
-
-    /**
-      * Set whether a warning message should be shown to the user before
-      * starting guidance mode.
-      */
-    void setShowGuidanceModeStartupWarning( bool show );
-
-    /**
-      * Returns true (default) if a warning is shown to the user when starting guidance
-      * mode.
-      */
-    bool showGuidanceModeStartupWarning() const;
 
     /**
      * Set last directory the user opened a route from.
@@ -185,8 +166,6 @@ public:
      */
     QColor routeColorAlternative() const;
 
-    bool guidanceModeEnabled() const;
-
 public Q_SLOTS:
     /** Reverse the previously requested route, i.e. swap start and destination (and via points, if any) */
     void reverseRoute();
@@ -197,9 +176,6 @@ public Q_SLOTS:
     /** Clear all via points */
     void clearRoute();
 
-    /** Toggle turn by turn navigation mode */
-    void setGuidanceModeEnabled( bool enabled );
-
 Q_SIGNALS:
     /**
       * Directions and waypoints for the given route are being downloaded or have
@@ -209,22 +185,10 @@ Q_SIGNALS:
 
     void routeRetrieved( GeoDataDocument* route );
 
-    void guidanceModeEnabledChanged( bool enabled );
-
-    /**
-     * emits a signal regarding information about total time( seconds ) and distance( metres ) remaining to reach destination
-     */
-     void positionChanged();
-     void deviatedFromRoute( bool deviated );
-
 private:
     Q_PRIVATE_SLOT( d, void addRoute( GeoDataDocument* route ) )
 
     Q_PRIVATE_SLOT( d, void setCurrentRoute( GeoDataDocument *route ) )
-
-    Q_PRIVATE_SLOT( d, void updatePosition( const GeoDataCoordinates &, qreal ) )
-
-    Q_PRIVATE_SLOT( d, void recalculateRoute( bool deviated ) )
 
 private:
     friend class RoutingManagerPrivate;

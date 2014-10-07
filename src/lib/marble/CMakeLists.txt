@@ -255,6 +255,7 @@ set(marblewidget_SRCS
     SearchRunnerManager.cpp
 
     AutoNavigation.cpp
+    RouteGuidance.cpp
 
     SearchRunnerPlugin.cpp
     ReverseGeocodingRunnerPlugin.cpp
