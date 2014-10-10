@@ -32,20 +32,27 @@ class MARBLE_EXPORT PositionTracking : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY( PositionProviderPlugin* positionProviderPlugin READ positionProviderPlugin WRITE setPositionProviderPlugin NOTIFY positionProviderPluginChanged )
+    Q_PROPERTY( const PositionProviderPlugin* positionProviderFactory READ positionProviderFactory WRITE setPositionProviderFactory )
+    Q_PROPERTY( bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledChanged )
 
 public:
     explicit PositionTracking( GeoDataTreeModel* model );
     ~PositionTracking();
 
+    bool isEnabled() const;
+
+    bool isActive() const;
+
     /**
       * Change the position provider to use. You can provide 0 to disable
       * position tracking. Ownership of the provided plugin is taken.
       */
-    void setPositionProviderPlugin( PositionProviderPlugin* plugin );
+    void setPositionProviderFactory( const PositionProviderPlugin *plugin );
 
-    /** @brief Returns the current position provider plugin, or 0 if none is in use */
-    PositionProviderPlugin* positionProviderPlugin();
+    /**
+     * @brief Returns the current position provider plugin, or 0 if none is in use
+     */
+    const PositionProviderPlugin *positionProviderFactory() const;
 
     /**
       * @brief gives the error message from the current position provider
@@ -96,6 +103,8 @@ public:
     void writeSettings();
 
 public Q_SLOTS:
+    void setEnabled( bool enabled );
+
     /**
       * Toggles the visibility of the Position Tracking document
       */
@@ -116,10 +125,9 @@ Q_SIGNALS:
 
     void statusChanged( PositionProviderStatus status );
 
-    /**
-     * @brief emits positionProviderPluginChanged(0) when provider is disabled
-     */
-    void positionProviderPluginChanged( PositionProviderPlugin *activePlugin );
+    void enabledChanged( bool enabled );
+
+    void positionProviderFactoryChanged( const PositionProviderPlugin * );
 
  private:
     Q_PRIVATE_SLOT( d, void updatePosition() )

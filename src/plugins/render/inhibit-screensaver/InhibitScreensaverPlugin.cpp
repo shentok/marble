@@ -130,9 +130,9 @@ void InhibitScreensaverPlugin::initialize()
        "com.nokia.mce.request", QDBusConnection::systemBus() );
 
     PositionTracking *tracking = marbleModel()->positionTracking();
-    connect( tracking, SIGNAL(positionProviderPluginChanged(PositionProviderPlugin*)),
-             this, SLOT(updateScreenSaverState(PositionProviderPlugin*)) );
-    updateScreenSaverState( tracking->positionProviderPlugin() );
+    connect( tracking, SIGNAL(enabledChanged(bool)),
+             this, SLOT(updateScreenSaverState()) );
+    updateScreenSaverState( tracking->isEnabled() );
 }
 
 bool InhibitScreensaverPlugin::isInitialized() const
@@ -140,13 +140,13 @@ bool InhibitScreensaverPlugin::isInitialized() const
     return d->m_interface;
 }
 
-void InhibitScreensaverPlugin::updateScreenSaverState( PositionProviderPlugin *activePlugin )
+void InhibitScreensaverPlugin::updateScreenSaverState( bool isPositionTrackingEnabled )
 {
     if ( !enabled() ) {
         return;
     }
 
-    if ( activePlugin ) {
+    if ( isPositionTrackingEnabled ) {
         d->m_timer.start(); // Inhibit screensaver
     } else {
       d->m_timer.stop();

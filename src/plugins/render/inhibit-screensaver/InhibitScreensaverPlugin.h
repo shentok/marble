@@ -15,7 +15,7 @@
 
 namespace Marble
 {
-class PositionProviderPlugin;
+
 class InhibitScreensaverPluginPrivate;
 
 /**
@@ -68,7 +68,7 @@ public:
     virtual QString renderPolicy() const;
 
 private Q_SLOTS:
-     void updateScreenSaverState( PositionProviderPlugin *activePlugin );
+     void updateScreenSaverState( bool isPositionTrackingEnabled );
 
      void inhibitScreenSaver();
 

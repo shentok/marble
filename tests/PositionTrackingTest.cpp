@@ -20,12 +20,13 @@ class FakeProvider : public Marble::PositionProviderPlugin
 {
 public:
     FakeProvider() :
-        m_status( Marble::PositionProviderStatusUnavailable ),
+        m_status( Marble::PositionProviderStatusAcquiring ),
         m_position(),
         m_accuracy(),
         m_speed( 0.0 ),
         m_direction( 0.0 ),
-        m_timestamp()
+        m_timestamp(),
+        m_lastInstance( 0 )
     {}
 
     QString name() const           { return "fake plugin"; }
@@ -46,7 +47,7 @@ public:
     qreal direction() const { return m_direction; }
     QDateTime timestamp() const { return m_timestamp; }
 
-    Marble::PositionProviderPlugin *newInstance() const { return 0; }
+    Marble::PositionProviderPlugin *newInstance() const;
 
     void setStatus( Marble::PositionProviderStatus status );
     void setPosition( const Marble::GeoDataCoordinates &position,
@@ -55,6 +56,8 @@ public:
                       qreal direction,
                       const QDateTime &timestamp );
 
+    FakeProvider *lastInstance() const { return m_lastInstance; }
+
 private:
     Marble::PositionProviderStatus m_status;
     Marble::GeoDataCoordinates m_position;
@@ -62,7 +65,14 @@ private:
     qreal m_speed;
     qreal m_direction;
     QDateTime m_timestamp;
+    mutable FakeProvider *m_lastInstance;
 };
+
+Marble::PositionProviderPlugin *FakeProvider::newInstance() const
+{
+    m_lastInstance = new FakeProvider;
+    return m_lastInstance;
+}
 
 void FakeProvider::setStatus( Marble::PositionProviderStatus status )
 {
@@ -81,6 +91,8 @@ void FakeProvider::setPosition( const Marble::GeoDataCoordinates &position,
                                 qreal direction,
                                 const QDateTime &timestamp )
 {
+    setStatus( Marble::PositionProviderStatusAvailable );
+
     m_position = position;
     m_accuracy = accuracy;
     m_speed = speed;
@@ -103,7 +115,7 @@ class PositionTrackingTest : public QObject
  private Q_SLOTS:
     void construct();
 
-    void setPositionProviderPlugin();
+    void setPositionProviderFactory();
 
     void statusChanged_data();
     void statusChanged();
@@ -122,7 +134,9 @@ void PositionTrackingTest::construct()
     GeoDataTreeModel treeModel;
     const PositionTracking tracking( &treeModel );
 
-    QCOMPARE( const_cast<PositionTracking &>( tracking ).positionProviderPlugin(), static_cast<PositionProviderPlugin *>( 0 ) );
+    QCOMPARE( tracking.isEnabled(), true );
+    QCOMPARE( tracking.isActive(), false );
+    QCOMPARE( tracking.positionProviderFactory(), static_cast<const PositionProviderPlugin *>( 0 ) );
     QCOMPARE( tracking.speed(), qreal( 0 ) );
     QCOMPARE( tracking.direction(), qreal( 0 ) );
     QCOMPARE( tracking.timestamp(), QDateTime() );
@@ -142,25 +156,29 @@ void PositionTrackingTest::construct()
     QCOMPARE( treeModel.data( indexCurrentTrack, Qt::DisplayRole ).toString(), QString( "Current Track" ) );
 }
 
-void PositionTrackingTest::setPositionProviderPlugin()
+void PositionTrackingTest::setPositionProviderFactory()
 {
-    const GeoDataCoordinates coordinates( 1.2, 0.9 );
-    const GeoDataAccuracy accuracy( GeoDataAccuracy::Detailed, 10.0, 22.0 );
-    const qreal speed = 32.8;
-    const qreal direction = 49.7;
-    const QDateTime timestamp( QDate( 1, 3, 1994 ) );
-
     GeoDataTreeModel treeModel;
     PositionTracking tracking( &treeModel );
 
     QSignalSpy gpsLocationSpy( &tracking, SIGNAL(gpsLocation(GeoDataCoordinates,qreal)) );
 
-    QPointer<FakeProvider> provider( new FakeProvider );
-    provider->setStatus( PositionProviderStatusAvailable );
+    const FakeProvider factory;
+    tracking.setPositionProviderFactory( &factory );
+
+    QCOMPARE( tracking.status(), PositionProviderStatusAcquiring );
+    QCOMPARE( tracking.isActive(), true );
+
+    QPointer<FakeProvider> provider = factory.lastInstance();
+
+    const GeoDataCoordinates coordinates( 1.2, 0.9 );
+    const GeoDataAccuracy accuracy( GeoDataAccuracy::Detailed, 10.0, 22.0 );
+    const qreal speed = 32.8;
+    const qreal direction = 49.7;
+    const QDateTime timestamp( QDate( 1, 3, 1994 ) );
     provider->setPosition( coordinates, accuracy, speed, direction, timestamp );
 
-    tracking.setPositionProviderPlugin( provider );
-
+    QCOMPARE( tracking.isActive(), true );
     QCOMPARE( tracking.currentLocation(), coordinates );
     QCOMPARE( tracking.accuracy(), accuracy );
     QCOMPARE( tracking.speed(), speed );
@@ -168,7 +186,7 @@ void PositionTrackingTest::setPositionProviderPlugin()
     QCOMPARE( tracking.timestamp(), timestamp );
     QCOMPARE( gpsLocationSpy.count(), 1 );
 
-    tracking.setPositionProviderPlugin( 0 );
+    tracking.setPositionProviderFactory( 0 );
 
     QVERIFY( provider.isNull() );
 }
@@ -176,53 +194,52 @@ void PositionTrackingTest::setPositionProviderPlugin()
 void PositionTrackingTest::statusChanged_data()
 {
     QTest::addColumn<PositionProviderStatus>( "finalStatus" );
+    QTest::addColumn<bool>( "isActive" );
 
-    addRow() << PositionProviderStatusError;
-    addRow() << PositionProviderStatusUnavailable;
-    addRow() << PositionProviderStatusAcquiring;
-    addRow() << PositionProviderStatusAvailable;
+    addRow() << PositionProviderStatusError << false;
+    addRow() << PositionProviderStatusUnavailable << false;
+    addRow() << PositionProviderStatusAcquiring << true;
+    addRow() << PositionProviderStatusAvailable << true;
 }
 
 void PositionTrackingTest::statusChanged()
 {
     QFETCH( PositionProviderStatus, finalStatus );
-    const int expectedStatusChangedCount = ( finalStatus == PositionProviderStatusUnavailable ) ? 0 : 1;
+    QFETCH( bool, isActive );
+    const int expectedStatusChangedCount = ( finalStatus == PositionProviderStatusAcquiring ) ? 1 : 2;
 
     GeoDataTreeModel treeModel;
     PositionTracking tracking( &treeModel );
 
     QSignalSpy statusChangedSpy( &tracking, SIGNAL(statusChanged(PositionProviderStatus)) );
 
-    FakeProvider provider;
-    provider.setStatus( finalStatus );
-
-    tracking.setPositionProviderPlugin( &provider );
+    const FakeProvider factory;
+    tracking.setPositionProviderFactory( &factory );
+    factory.lastInstance()->setStatus( finalStatus );
 
     QCOMPARE( tracking.status(), finalStatus );
+    QCOMPARE( tracking.isActive(), isActive );
     QCOMPARE( statusChangedSpy.count(), expectedStatusChangedCount );
 }
 
 void PositionTrackingTest::clearTrack()
 {
-    const GeoDataCoordinates position( 2.1, 0.8 );
-    const GeoDataAccuracy accuracy( GeoDataAccuracy::Detailed, 10.0, 22.0 );
-    const qreal speed = 32.8;
-    const qreal direction = 49.7;
-    const QDateTime timestamp( QDate( 1, 3, 1994 ) );
-
     GeoDataTreeModel treeModel;
     PositionTracking tracking( &treeModel );
 
-    FakeProvider provider;
-    tracking.setPositionProviderPlugin( &provider );
+    const FakeProvider factory;
+    tracking.setPositionProviderFactory( &factory );
 
     tracking.clearTrack();
 
     QVERIFY( tracking.isTrackEmpty() );
 
-    provider.setStatus( PositionProviderStatusAvailable );
-
-    provider.setPosition( position, accuracy, speed, direction, timestamp );
+    const GeoDataCoordinates position( 2.1, 0.8 );
+    const GeoDataAccuracy accuracy( GeoDataAccuracy::Detailed, 10.0, 22.0 );
+    const qreal speed = 32.8;
+    const qreal direction = 49.7;
+    const QDateTime timestamp( QDate( 1, 3, 1994 ) );
+    factory.lastInstance()->setPosition( position, accuracy, speed, direction, timestamp );
 
     QVERIFY( !tracking.isTrackEmpty() );
 

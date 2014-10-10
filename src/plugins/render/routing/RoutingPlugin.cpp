@@ -23,9 +23,7 @@
 #include "MarbleMath.h"
 #include "MarbleLocale.h"
 #include "MarbleDirs.h"
-#include "PluginManager.h"
 #include "PositionTracking.h"
-#include "PositionProviderPlugin.h"
 #include "routing/RoutingManager.h"
 #include "routing/RoutingModel.h"
 #include "routing/RouteRequest.h"
@@ -87,7 +85,7 @@ public:
 
     void updateDestinationInformation();
 
-    void updateGpsButton( PositionProviderPlugin *activePlugin );
+    void updateGpsButton( bool isPositionTrackingEnabled );
 
     void togglePositionTracking( bool enabled );
 
@@ -333,23 +331,15 @@ void RoutingPluginPrivate::updateDestinationInformation()
     }
 }
 
-void RoutingPluginPrivate::updateGpsButton( PositionProviderPlugin *activePlugin )
+void RoutingPluginPrivate::updateGpsButton( bool isPositionTrackingEnabled)
 {
-    m_widget.gpsButton->setChecked( activePlugin != 0 );
+    m_widget.gpsButton->setChecked( isPositionTrackingEnabled );
     forceRepaint();
 }
 
 void RoutingPluginPrivate::togglePositionTracking( bool enabled )
 {
-    PositionProviderPlugin* plugin = 0;
-    if ( enabled ) {
-        const PluginManager* pluginManager = m_marbleWidget->model()->pluginManager();
-        QList<const PositionProviderPlugin*> plugins = pluginManager->positionProviderPlugins();
-        if ( plugins.size() > 0 ) {
-            plugin = plugins.first()->newInstance();
-        }
-    }
-    m_parent->marbleModel()->positionTracking()->setPositionProviderPlugin( plugin );
+    m_parent->marbleModel()->positionTracking()->setEnabled( enabled );
 }
 
 void RoutingPluginPrivate::reverseRoute()
@@ -501,11 +491,10 @@ void RoutingPlugin::initialize()
     d->m_widgetItem = new WidgetGraphicsItem( this );
     d->m_widgetItem->setWidget( widget );
 
-    PositionProviderPlugin* activePlugin = marbleModel()->positionTracking()->positionProviderPlugin();
-    d->updateGpsButton( activePlugin );
+    d->updateGpsButton( marbleModel()->positionTracking()->isEnabled() );
     connect( marbleModel()->positionTracking(),
-             SIGNAL(positionProviderPluginChanged(PositionProviderPlugin*)),
-             this, SLOT(updateGpsButton(PositionProviderPlugin*)) );
+             SIGNAL(enabledChanged(bool)),
+             this, SLOT(updateGpsButton(bool)) );
 
     d->m_widget.routingButton->setEnabled( false );
     connect( d->m_widget.instructionLabel, SIGNAL(linkActivated(QString)),

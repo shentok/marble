@@ -39,7 +39,7 @@ void PositionSource::setActive( bool active )
             start();
         } else if ( m_marbleWidget ) {
             Marble::PositionTracking *tracking = m_marbleWidget->model()->positionTracking();
-            tracking->setPositionProviderPlugin( 0 );
+            tracking->setEnabled( false );
         }
 
         if ( m_hasPosition ) {
@@ -92,9 +92,9 @@ void PositionSource::start()
     const Marble::PluginManager* pluginManager = m_marbleWidget->model()->pluginManager();
     foreach( const Marble::PositionProviderPlugin *plugin, pluginManager->positionProviderPlugins() ) {
         if ( m_source.isEmpty() || plugin->nameId() == m_source ) {
-            Marble::PositionProviderPlugin* instance = plugin->newInstance();
             Marble::PositionTracking *tracking = m_marbleWidget->model()->positionTracking();
-            tracking->setPositionProviderPlugin( instance );
+            tracking->setPositionProviderFactory( plugin );
+            m_marbleWidget->model()->positionTracking()->setEnabled( true );
             break;
         }
     }

@@ -88,7 +88,7 @@ private:
     Q_PRIVATE_SLOT( d, void updateDestinationInformation() )
 
     /** Update the checked state of the position tracking button */
-    Q_PRIVATE_SLOT( d, void updateGpsButton( PositionProviderPlugin *activePlugin ) )
+    Q_PRIVATE_SLOT( d, void updateGpsButton( bool ) )
 
     /** Activate or deactivate position tracking */
     Q_PRIVATE_SLOT( d, void togglePositionTracking( bool enabled ) )

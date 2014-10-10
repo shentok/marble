@@ -39,12 +39,14 @@ class PositionTrackingPrivate
  public:
     PositionTrackingPrivate( GeoDataTreeModel *model, PositionTracking *parent ) :
         q( parent ),
+        m_isEnabled( true ),
         m_treeModel( model ),
         m_currentPositionPlacemark( new GeoDataPlacemark ),
         m_currentTrackPlacemark( new GeoDataPlacemark ),
         m_trackSegments( new GeoDataMultiTrack ),
         m_document(),
         m_currentTrack( 0 ),
+        m_factory( 0 ),
         m_positionProvider( 0 ),
         m_length( 0.0 )
     {
@@ -58,6 +60,8 @@ class PositionTrackingPrivate
 
     PositionTracking *const q;
 
+    bool m_isEnabled;
+
     GeoDataTreeModel *const m_treeModel;
 
     GeoDataPlacemark *const m_currentPositionPlacemark;
@@ -68,6 +72,7 @@ class PositionTrackingPrivate
     GeoDataCoordinates  m_gpsPreviousPosition;
     GeoDataTrack  *m_currentTrack;
 
+    const PositionProviderPlugin *m_factory;
     PositionProviderPlugin* m_positionProvider;
 
     qreal m_length;
@@ -181,17 +186,41 @@ PositionTracking::~PositionTracking()
     delete d;
 }
 
-void PositionTracking::setPositionProviderPlugin( PositionProviderPlugin* plugin )
+bool PositionTracking::isEnabled() const
+{
+    return d->m_isEnabled;
+}
+
+bool PositionTracking::isActive() const
+{
+    return d->m_isEnabled && ( status() == PositionProviderStatusAcquiring || status() == PositionProviderStatusAvailable );
+}
+
+void PositionTracking::setEnabled( bool enabled )
+{
+    if ( d->m_isEnabled == enabled )
+        return;
+
+    d->m_isEnabled = enabled;
+
+    emit enabledChanged( d->m_isEnabled );
+
+    setPositionProviderFactory( d->m_factory );
+}
+
+void PositionTracking::setPositionProviderFactory( const PositionProviderPlugin *factory )
 {
     const PositionProviderStatus oldStatus = status();
 
     if ( d->m_positionProvider ) {
         delete d->m_positionProvider;
+        d->m_positionProvider = 0;
     }
 
-    d->m_positionProvider = plugin;
+    d->m_factory = factory;
 
-    if ( d->m_positionProvider ) {
+    if ( d->m_factory != 0 && d->m_isEnabled) {
+        d->m_positionProvider = factory->newInstance();
         d->m_positionProvider->setParent( this );
         mDebug() << "Initializing position provider:" << d->m_positionProvider->name();
         connect( d->m_positionProvider, SIGNAL(statusChanged(PositionProviderStatus)),
@@ -202,7 +231,7 @@ void PositionTracking::setPositionProviderPlugin( PositionProviderPlugin* plugin
         d->m_positionProvider->initialize();
     }
 
-    emit positionProviderPluginChanged( plugin );
+    emit positionProviderFactoryChanged( d->m_factory );
 
     if ( oldStatus != status() ) {
         emit statusChanged( status() );
@@ -213,9 +242,9 @@ void PositionTracking::setPositionProviderPlugin( PositionProviderPlugin* plugin
     }
 }
 
-PositionProviderPlugin* PositionTracking::positionProviderPlugin()
+const PositionProviderPlugin *PositionTracking::positionProviderFactory() const
 {
-    return d->m_positionProvider;
+    return d->m_factory;
 }
 
 QString PositionTracking::error() const

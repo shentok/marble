@@ -174,7 +174,7 @@ bool PositionMarker::render( GeoPainter *painter,
     Q_UNUSED( renderPos )
     Q_UNUSED( layer )
 
-    bool const gpsActive = marbleModel()->positionTracking()->positionProviderPlugin() != 0;
+    bool const gpsActive = marbleModel()->positionTracking()->isActive();
     if ( gpsActive ) {
         m_lastBoundingBox = viewport->viewLatLonAltBox();
 

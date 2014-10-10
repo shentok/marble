@@ -518,17 +518,13 @@ void RoutingManager::setGuidanceModeEnabled( bool enabled )
         d->loadRoute( d->stateFile( "guidance.kml" ) );
     }
 
-    PositionProviderPlugin* positionProvider = d->m_positionTracking->positionProviderPlugin();
-    if ( !positionProvider && enabled ) {
-        QList<const PositionProviderPlugin*> plugins = d->m_pluginManager->positionProviderPlugins();
-        if ( plugins.size() > 0 ) {
-            positionProvider = plugins.first()->newInstance();
-        }
-        d->m_positionTracking->setPositionProviderPlugin( positionProvider );
+    const bool isTrackingEnabled = d->m_positionTracking->isEnabled();
+    if ( !isTrackingEnabled && enabled ) {
+        d->m_positionTracking->setEnabled( isTrackingEnabled );
         d->m_shutdownPositionTracking = true;
-    } else if ( positionProvider && !enabled && d->m_shutdownPositionTracking ) {
+    } else if ( isTrackingEnabled && !enabled && d->m_shutdownPositionTracking ) {
         d->m_shutdownPositionTracking = false;
-        d->m_positionTracking->setPositionProviderPlugin( 0 );
+        d->m_positionTracking->setEnabled( false );
     }
 
     emit guidanceModeEnabledChanged( d->m_guidanceModeEnabled );

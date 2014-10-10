@@ -1306,15 +1306,14 @@ void MainWindow::readSettings(const QVariantMap& overrideSettings)
     settings.endGroup();
 
     settings.beginGroup( "Plugins");
-    PositionTracking* tracking = m_controlView->marbleModel()->positionTracking();
+    PositionTracking *const tracking = m_controlView->marbleModel()->positionTracking();
     tracking->readSettings();
     QString positionProvider = settings.value( "activePositionTrackingPlugin", QString() ).toString();
     if ( !positionProvider.isEmpty() ) {
         const PluginManager* pluginManager = m_controlView->marbleModel()->pluginManager();
         foreach( const PositionProviderPlugin* plugin, pluginManager->positionProviderPlugins() ) {
             if ( plugin->nameId() == positionProvider ) {
-                PositionProviderPlugin* instance = plugin->newInstance();
-                tracking->setPositionProviderPlugin( instance );
+                tracking->setPositionProviderFactory( plugin );
                 break;
             }
         }
@@ -1330,6 +1329,10 @@ void MainWindow::readSettings(const QVariantMap& overrideSettings)
         trackingWidget->setTrackVisible( settings.value( "trackVisible", true ).toBool() );
         trackingWidget->setLastOpenPath( settings.value( "lastTrackOpenPath", QDir::homePath() ).toString() );
         trackingWidget->setLastSavePath( settings.value( "lastTrackSavePath", QDir::homePath() ).toString() );
+        tracking->setEnabled( true );
+    }
+    else {
+        tracking->setEnabled( false );
     }
     settings.endGroup();
 
@@ -1441,8 +1444,8 @@ void MainWindow::writeSettings()
      QString positionProvider;
      PositionTracking* tracking = m_controlView->marbleModel()->positionTracking();
      tracking->writeSettings();
-     if ( tracking->positionProviderPlugin() ) {
-         positionProvider = tracking->positionProviderPlugin()->nameId();
+     if ( tracking->positionProviderFactory() ) {
+         positionProvider = tracking->positionProviderFactory()->nameId();
      }
      settings.setValue( "activePositionTrackingPlugin", positionProvider );
      settings.endGroup();

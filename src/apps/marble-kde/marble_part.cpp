@@ -572,8 +572,7 @@ void MarblePart::readSettings()
         const PluginManager* pluginManager = m_controlView->marbleModel()->pluginManager();
         foreach( const PositionProviderPlugin* plugin, pluginManager->positionProviderPlugins() ) {
             if ( plugin->nameId() == positionProvider ) {
-                PositionProviderPlugin* instance = plugin->newInstance();
-                tracking->setPositionProviderPlugin( instance );
+                tracking->setPositionProviderFactory( plugin );
                 break;
             }
         }
@@ -628,6 +627,10 @@ void MarblePart::readTrackingSettings()
             trackingWidget->setTrackVisible( MarbleSettings::trackVisible() );
             trackingWidget->setLastOpenPath( MarbleSettings::lastTrackOpenPath() );
             trackingWidget->setLastSavePath( MarbleSettings::lastTrackSavePath() );
+            m_controlView->marbleModel()->positionTracking()->setEnabled( true );
+        }
+        else {
+            m_controlView->marbleModel()->positionTracking()->setEnabled( false );
         }
     }
 }
@@ -749,8 +752,8 @@ void MarblePart::writeSettings()
     QString positionProvider;
     PositionTracking* tracking = m_controlView->marbleModel()->positionTracking();
     tracking->writeSettings();
-    if ( tracking->positionProviderPlugin() ) {
-        positionProvider = tracking->positionProviderPlugin()->nameId();
+    if ( tracking->positionProviderFactory() ) {
+        positionProvider = tracking->positionProviderFactory()->nameId();
     }
     MarbleSettings::setActivePositionTrackingPlugin( positionProvider );
 
