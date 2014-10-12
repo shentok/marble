@@ -103,10 +103,10 @@ class PositionTrackingTest : public QObject
  private Q_SLOTS:
     void construct();
 
+    void setPositionProviderPlugin();
+
     void statusChanged_data();
     void statusChanged();
-
-    void setPositionProviderPlugin();
 
     void clearTrack();
 };
@@ -142,35 +142,6 @@ void PositionTrackingTest::construct()
     QCOMPARE( treeModel.data( indexCurrentTrack, Qt::DisplayRole ).toString(), QString( "Current Track" ) );
 }
 
-void PositionTrackingTest::statusChanged_data()
-{
-    QTest::addColumn<PositionProviderStatus>( "finalStatus" );
-
-    addRow() << PositionProviderStatusError;
-    addRow() << PositionProviderStatusUnavailable;
-    addRow() << PositionProviderStatusAcquiring;
-    addRow() << PositionProviderStatusAvailable;
-}
-
-void PositionTrackingTest::statusChanged()
-{
-    QFETCH( PositionProviderStatus, finalStatus );
-    const int expectedStatusChangedCount = ( finalStatus == PositionProviderStatusUnavailable ) ? 0 : 1;
-
-    GeoDataTreeModel treeModel;
-    PositionTracking tracking( &treeModel );
-
-    QSignalSpy statusChangedSpy( &tracking, SIGNAL(statusChanged(PositionProviderStatus)) );
-
-    FakeProvider provider;
-    provider.setStatus( finalStatus );
-
-    tracking.setPositionProviderPlugin( &provider );
-
-    QCOMPARE( tracking.status(), finalStatus );
-    QCOMPARE( statusChangedSpy.count(), expectedStatusChangedCount );
-}
-
 void PositionTrackingTest::setPositionProviderPlugin()
 {
     const GeoDataCoordinates coordinates( 1.2, 0.9 );
@@ -200,6 +171,35 @@ void PositionTrackingTest::setPositionProviderPlugin()
     tracking.setPositionProviderPlugin( 0 );
 
     QVERIFY( provider.isNull() );
+}
+
+void PositionTrackingTest::statusChanged_data()
+{
+    QTest::addColumn<PositionProviderStatus>( "finalStatus" );
+
+    addRow() << PositionProviderStatusError;
+    addRow() << PositionProviderStatusUnavailable;
+    addRow() << PositionProviderStatusAcquiring;
+    addRow() << PositionProviderStatusAvailable;
+}
+
+void PositionTrackingTest::statusChanged()
+{
+    QFETCH( PositionProviderStatus, finalStatus );
+    const int expectedStatusChangedCount = ( finalStatus == PositionProviderStatusUnavailable ) ? 0 : 1;
+
+    GeoDataTreeModel treeModel;
+    PositionTracking tracking( &treeModel );
+
+    QSignalSpy statusChangedSpy( &tracking, SIGNAL(statusChanged(PositionProviderStatus)) );
+
+    FakeProvider provider;
+    provider.setStatus( finalStatus );
+
+    tracking.setPositionProviderPlugin( &provider );
+
+    QCOMPARE( tracking.status(), finalStatus );
+    QCOMPARE( statusChangedSpy.count(), expectedStatusChangedCount );
 }
 
 void PositionTrackingTest::clearTrack()
