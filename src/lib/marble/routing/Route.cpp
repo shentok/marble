@@ -40,7 +40,11 @@ void Route::addRouteSegment( const RouteSegment &segment )
     if ( segment.isValid() ) {
         m_bounds = m_bounds.united( segment.bounds() );
         m_distance += segment.distance();
-        m_path << segment.path();
+        const GeoDataLineString path = segment.path();
+        if (!m_path.isEmpty() && !path.isEmpty() && m_path.last() == path.first()) {
+            m_path.remove(m_path.size() - 1);
+        }
+        m_path << path;
         if ( segment.maneuver().position().isValid() ) {
             m_turnPoints << segment.maneuver().position();
         }
