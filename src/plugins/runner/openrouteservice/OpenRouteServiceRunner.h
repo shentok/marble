@@ -18,6 +18,7 @@
 #include <QString>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QTime>
 
 namespace Marble
 {
@@ -69,6 +70,8 @@ private:
     GeoDataDocument* parse( const QByteArray &input ) const;
 
     static RoutingInstruction::TurnType parseTurnType( const QString &text, QString* road );
+
+    static int parseTime( const QString &text );
 
     QNetworkAccessManager m_networkAccessManager;
 

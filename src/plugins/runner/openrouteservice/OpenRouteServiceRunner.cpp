@@ -259,29 +259,7 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
     if ( summary.size() > 0 ) {
         QDomNodeList timeNodeList = summary.item( 0 ).toElement().elementsByTagName( "xls:TotalTime" );
         if ( timeNodeList.size() == 1 ) {
-            QRegExp regexp = QRegExp( "^P(?:(\\d+)D)?T(?:(\\d+)H)?(?:(\\d+)M)?(\\d+)S" );
-            if ( regexp.indexIn( timeNodeList.item( 0 ).toElement().text() ) == 0 ) {
-                QStringList matches = regexp.capturedTexts();
-                unsigned int days( 0 ), hours( 0 ), minutes( 0 ), seconds( 0 );
-                switch ( matches.size() ) {
-                case 5:
-                    days    = regexp.cap( matches.size() - 4 ).toInt();
-                    // Intentionally no break
-                case 4:
-                    hours   = regexp.cap( matches.size() - 3 ).toInt();
-                    // Intentionally no break
-                case 3:
-                    minutes = regexp.cap( matches.size() - 2 ).toInt();
-                    // Intentionally no break
-                case 2:
-                    seconds = regexp.cap( matches.size() - 1 ).toInt();
-                    break;
-                default:
-                    mDebug() << "Unable to parse time string " << timeNodeList.item( 0 ).toElement().text();
-                }
-
-                duration = ( days * 24 + hours ) * 3600 + minutes * 60 + seconds;
-            }
+            duration = parseTime( timeNodeList.item( 0 ).toElement().text() );
         }
     }
 
@@ -406,6 +384,35 @@ RoutingInstruction::TurnType OpenRouteServiceRunner::parseTurnType( const QStrin
     }
 
     return RoutingInstruction::Unknown;
+}
+
+int OpenRouteServiceRunner::parseTime( const QString &text )
+{
+    QRegExp regexp = QRegExp( "^P(?:(\\d+)D)?T(?:(\\d+)H)?(?:(\\d+)M)?(\\d+)S" );
+    if ( regexp.indexIn( text ) != 0 ) {
+        return 0;
+    }
+
+    QStringList matches = regexp.capturedTexts();
+    unsigned int days( 0 ), hours( 0 ), minutes( 0 ), seconds( 0 );
+    switch ( matches.size() ) {
+    case 5:
+        days    = regexp.cap( matches.size() - 4 ).toInt();
+        // Intentionally no break
+    case 4:
+        hours   = regexp.cap( matches.size() - 3 ).toInt();
+        // Intentionally no break
+    case 3:
+        minutes = regexp.cap( matches.size() - 2 ).toInt();
+        // Intentionally no break
+    case 2:
+        seconds = regexp.cap( matches.size() - 1 ).toInt();
+        break;
+    default:
+        mDebug() << "Unable to parse time string " << text;
+    }
+
+    return ( days * 24 + hours ) * 3600 + minutes * 60 + seconds;
 }
 
 } // namespace Marble
