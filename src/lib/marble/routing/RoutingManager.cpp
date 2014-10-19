@@ -96,9 +96,9 @@ public:
 
     void routingFinished();
 
-    void setCurrentRoute(const GeoDataDocument *route);
-
     void recalculateRoute( bool deviated );
+
+    static Route importDocument(const GeoDataDocument &document, const RouteRequest &request);
 
     static void importPlacemark( RouteSegment &outline, QVector<RouteSegment> &segments, const GeoDataPlacemark *placemark );
 };
@@ -131,6 +131,41 @@ GeoDataContainer &operator<<(GeoDataContainer &container, const RouteRequest &re
 {
     for (int i = 0; i < request.size(); ++i) {
         GeoDataPlacemark *placemark = new GeoDataPlacemark(request[i]);
+        container.append(placemark);
+    }
+
+    return container;
+}
+
+GeoDataContainer &operator<<(GeoDataContainer &container, const Route &route)
+{
+    {
+        auto placemark = new GeoDataPlacemark("Route");
+        placemark->setGeometry(new GeoDataLineString(route.path()));
+
+        GeoDataExtendedData extendedData;
+        extendedData.addValue(GeoDataData("length", QString::number(route.distance())));
+        extendedData.addValue(GeoDataData("duration", route.travelTime()));
+        placemark->setExtendedData(extendedData);
+
+        container.append(placemark);
+    }
+
+    for (int i = 0; i < route.size(); ++i) {
+        const RouteSegment &segment = route.at(i);
+        GeoDataPlacemark *placemark = new GeoDataPlacemark(segment.maneuver().instructionText());
+        placemark->setGeometry(new GeoDataLineString(segment.path()));
+
+        GeoDataExtendedData extendedData;
+        if (segment.maneuver().hasDirection()) {
+            extendedData.addValue(GeoDataData(QStringLiteral("turnType"), QString::number(segment.maneuver().direction())));
+        }
+        if (!segment.maneuver().roadName().isEmpty()) {
+            extendedData.addValue(GeoDataData(QStringLiteral("roadName"), segment.maneuver().roadName()));
+        }
+
+        placemark->setExtendedData(extendedData);
+
         container.append(placemark);
     }
 
@@ -178,9 +213,12 @@ void RoutingManagerPrivate::saveRoute(const QString &filename)
         container.append(request);
     }
 
-    const GeoDataDocument *route = m_alternativeRoutesModel.currentRoute();
-    if ( route ) {
-        container.append( new GeoDataDocument( *route ) );
+    const Route *currentRoute = m_alternativeRoutesModel.currentRoute();
+    if (currentRoute) {
+        GeoDataDocument *route = new GeoDataDocument;
+        route->setName(currentRoute->providerName());
+        *route << *currentRoute;
+        container.append( route );
     }
 
     if ( !writer.write( &file, &container ) ) {
@@ -232,11 +270,12 @@ void RoutingManagerPrivate::loadRoute(const QString &filename)
     }
 
     if ( container && container->size() == 2 ) {
-        GeoDataDocument* route = dynamic_cast<GeoDataDocument*>(&container->last());
-        if ( route ) {
+        const GeoDataDocument *routeDocument = dynamic_cast<const GeoDataDocument *>( &container->last() );
+        if ( routeDocument ) {
+            const Route route = importDocument( *routeDocument, m_routeRequest );
             loaded = true;
             m_alternativeRoutesModel.clear();
-            m_alternativeRoutesModel.addRoute( new GeoDataDocument(*route), AlternativeRoutesModel::Instant );
+            m_alternativeRoutesModel.addRoute(route, AlternativeRoutesModel::Instant);
             m_alternativeRoutesModel.setCurrentRoute( 0 );
             m_state = RoutingManager::Retrieved;
             emit q->stateChanged( m_state );
@@ -264,8 +303,8 @@ RoutingManager::RoutingManager(MarbleModel *marbleModel, QObject *parent) :
              this, SLOT(addRoute(GeoDataDocument*)) );
     connect( &d->m_runnerManager, SIGNAL(routingFinished()),
              this, SLOT(routingFinished()) );
-    connect(&d->m_alternativeRoutesModel, SIGNAL(currentRouteChanged(const GeoDataDocument*)),
-            this, SLOT(setCurrentRoute(const GeoDataDocument*)));
+    connect(&d->m_alternativeRoutesModel, SIGNAL(currentRouteChanged(Route)),
+            &d->m_routingModel, SLOT(setRoute(Route)));
     connect( &d->m_routingModel, SIGNAL(deviatedFromRoute(bool)),
              this, SLOT(recalculateRoute(bool)) );
 }
@@ -323,12 +362,13 @@ void RoutingManager::retrieveRoute()
     emit stateChanged( d->m_state );
 }
 
-void RoutingManagerPrivate::addRoute( GeoDataDocument* route )
+void RoutingManagerPrivate::addRoute(GeoDataDocument *routeResult)
 {
-    if (route == nullptr) {
+    if (routeResult == nullptr) {
         return;
     }
 
+    const Route route = importDocument(*routeResult, m_routeRequest);
     m_alternativeRoutesModel.addRoute(route);
     m_haveRoute = true;
 
@@ -341,20 +381,20 @@ void RoutingManagerPrivate::routingFinished()
     emit q->stateChanged( m_state );
 }
 
-void RoutingManagerPrivate::setCurrentRoute(const GeoDataDocument *document)
+Route RoutingManagerPrivate::importDocument(const GeoDataDocument &document, const RouteRequest &request)
 {
     QVector<RouteSegment> segments;
     RouteSegment outline;
 
-    if (document != nullptr) {
-        const auto folders = document->folderList();
+    {
+        const auto folders = document.folderList();
         for (const auto folder : folders) {
             for (const auto placemark : folder->placemarkList()) {
                 importPlacemark(outline, segments, placemark);
             }
         }
 
-        for (const auto placemark : document->placemarkList()) {
+        for (const auto placemark : document.placemarkList()) {
             importPlacemark(outline, segments, placemark);
         }
     }
@@ -364,15 +404,15 @@ void RoutingManagerPrivate::setCurrentRoute(const GeoDataDocument *document)
     }
 
     // Map via points onto segments
-    if ( m_routeRequest.size() > 1 && segments.size() > 1 ) {
+    if ( request.size() > 1 && segments.size() > 1 ) {
         int index = 0;
-        for ( int j = 0; j < m_routeRequest.size(); ++j ) {
+        for ( int j = 0; j < request.size(); ++j ) {
             QPair<int, qreal> minimum( -1, -1.0 );
             int viaIndex = -1;
             for ( int i = index; i < segments.size(); ++i ) {
                 const RouteSegment &segment = segments[i];
                 GeoDataCoordinates closest;
-                const qreal distance = segment.distanceTo( m_routeRequest.at( j ), closest, closest );
+                const qreal distance = segment.distanceTo( request.at( j ), closest, closest );
                 if ( minimum.first < 0 || distance < minimum.second ) {
                     minimum.first = i;
                     minimum.second = distance;
@@ -383,13 +423,14 @@ void RoutingManagerPrivate::setCurrentRoute(const GeoDataDocument *document)
             if ( minimum.first >= 0 ) {
                 index = minimum.first;
                 Maneuver viaPoint = segments[ minimum.first ].maneuver();
-                viaPoint.setWaypoint( m_routeRequest.at( viaIndex ), viaIndex );
+                viaPoint.setWaypoint( request.at( viaIndex ), viaIndex );
                 segments[ minimum.first ].setManeuver( viaPoint );
             }
         }
     }
 
     Route route;
+    route.setProviderName(document.name());
 
     if ( segments.size() > 0 ) {
         for( const RouteSegment &segment: segments ) {
@@ -397,7 +438,7 @@ void RoutingManagerPrivate::setCurrentRoute(const GeoDataDocument *document)
         }
     }
 
-    m_routingModel.setRoute( route );
+    return route;
 }
 
 void RoutingManagerPrivate::importPlacemark( RouteSegment &outline, QVector<RouteSegment> &segments, const GeoDataPlacemark *placemark )

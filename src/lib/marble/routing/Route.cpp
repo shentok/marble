@@ -10,16 +10,29 @@
 
 #include "Route.h"
 
+#include <QTime>
+
 namespace Marble
 {
 
 Route::Route() :
+    m_providerName(),
     m_distance( 0.0 ),
     m_travelTime( 0 ),
     m_positionDirty( true ),
     m_closestSegmentIndex( -1 )
 {
     // nothing to do
+}
+
+void Route::setProviderName(const QString &providerName)
+{
+    m_providerName = providerName;
+}
+
+QString Route::providerName() const
+{
+    return m_providerName;
 }
 
 void Route::addRouteSegment( const RouteSegment &segment )
@@ -76,6 +89,11 @@ const GeoDataLineString & Route::path() const
 int Route::travelTime() const
 {
     return m_travelTime;
+}
+
+QString Route::guiString() const
+{
+    return QString("%1; %2 (%3)").arg(lengthString(m_distance)).arg(durationString(QTime().addSecs(m_travelTime))).arg(m_providerName);
 }
 
 const GeoDataLineString & Route::turnPoints() const
@@ -160,6 +178,26 @@ GeoDataCoordinates Route::currentWaypoint() const
     }
 
     return m_currentWaypoint;
+}
+
+const QString Route::lengthString(qreal length)
+{
+    QString unit = QLatin1String("m");
+    if (length >= 1000) {
+        length /= 1000.0;
+        unit = "km";
+    }
+
+    return QString("%1 %2").arg(length, 0, 'f', 1).arg(unit);
+}
+
+const QString Route::durationString(const QTime &duration)
+{
+    const QString hoursString = duration.toString("hh");
+    const QString minutesString = duration.toString("mm");
+    const QString timeString = QObject::tr("%1:%2 h","journey duration").arg(hoursString).arg(minutesString);
+
+    return timeString;
 }
 
 }

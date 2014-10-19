@@ -22,6 +22,10 @@ class MARBLE_EXPORT Route
 public:
     Route();
 
+    void setProviderName(const QString &providerName);
+
+    QString providerName() const;
+
     void addRouteSegment( const RouteSegment &segment );
 
     GeoDataLatLonBox bounds() const;
@@ -37,6 +41,8 @@ public:
     const GeoDataLineString & path() const;
 
     int travelTime() const;
+
+    QString guiString() const;
 
     const GeoDataLineString & turnPoints() const;
 
@@ -54,6 +60,12 @@ public:
 
 private:
     void updatePosition() const;
+
+    static const QString lengthString(qreal length);
+
+    static const QString durationString(const QTime &duration);
+
+    QString m_providerName;
 
     GeoDataLatLonBox m_bounds;
 

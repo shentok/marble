@@ -502,11 +502,11 @@ void Routing::openRoute( const QString &fileName )
         routingManager->clearRoute();
         QString target = fileName.startsWith( QLatin1String( "file://" ) ) ? fileName.mid( 7 ) : fileName;
         routingManager->loadRoute( target );
-        const Marble::GeoDataDocument *route = routingManager->alternativeRoutesModel()->currentRoute();
+        const Marble::Route *route = routingManager->alternativeRoutesModel()->currentRoute();
         if ( route ) {
-            const Marble::GeoDataLineString* waypoints = Marble::AlternativeRoutesModel::waypoints( route );
-            if ( waypoints ) {
-                GeoDataCoordinates const center = waypoints->latLonAltBox().center();
+            const Marble::GeoDataLineString waypoints = route->path();
+            if (!waypoints.isEmpty()) {
+                GeoDataCoordinates const center = waypoints.latLonAltBox().center();
                 GeoDataCoordinates::Unit const inDegree = GeoDataCoordinates::Degree;
                 d->m_marbleMap->centerOn( center.longitude(inDegree), center.latitude(inDegree) );
             }

@@ -15,6 +15,8 @@
 
 #include <QAbstractListModel>
 
+#include "routing/Route.h"
+
 /**
   * A QAbstractItemModel that contains a list of routing instructions.
   * Each item represents a routing step in the way from source to
@@ -24,9 +26,8 @@
 namespace Marble
 {
 
+class Route;
 class RouteRequest;
-class GeoDataDocument;
-class GeoDataLineString;
 
 class MARBLE_EXPORT AlternativeRoutesModel : public QAbstractListModel
 {
@@ -55,7 +56,7 @@ public:
     /** Overload of QAbstractListModel */
     QVariant data ( const QModelIndex &index, int role = Qt::DisplayRole ) const override;
 
-    const GeoDataDocument *route(int index) const;
+    const Route *route(int index) const;
 
     // Model data filling
 
@@ -65,26 +66,23 @@ public:
     /**
       * Old data in the model is discarded, the parsed content of the provided document
       * is used as the new model data and a model reset is done
-      * @param document The route to add
+      * @param route The route to add
       * @param policy In lazy mode (default), a short amount of time is waited for
       *   other addRoute() calls before adding the route to the model. Otherwise, the
       *   model is changed immediately.
       */
-    void addRoute( GeoDataDocument* document, WritePolicy policy = Lazy );
+    void addRoute(const Route &route, WritePolicy policy = Lazy);
 
     /** Remove all alternative routes from the model */
     void clear();
 
-    const GeoDataDocument *currentRoute() const;
-
-    /** Returns the waypoints contained in the route as a linestring */
-    static const GeoDataLineString* waypoints( const GeoDataDocument* document );
+    const Route *currentRoute() const;
 
 public Q_SLOTS:
     void setCurrentRoute( int index );
 
 Q_SIGNALS:
-    void currentRouteChanged(const GeoDataDocument *newRoute);
+    void currentRouteChanged(const Route &newRoute);
     void currentRouteChanged( int index );
 
 private Q_SLOTS:

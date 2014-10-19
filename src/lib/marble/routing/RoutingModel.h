@@ -100,7 +100,7 @@ public Q_SLOTS:
     /**
       * Old data in the model is discarded and a model reset is done
       */
-    void setRoute( const Route &route );
+    void setRoute(const Route &route);
 
     void updatePosition( const GeoDataCoordinates&, qreal );
 

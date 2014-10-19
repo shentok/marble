@@ -53,6 +53,11 @@ Maneuver::Direction Maneuver::direction() const
     return m_direction;
 }
 
+bool Maneuver::hasDirection() const
+{
+    return m_direction != Unknown;
+}
+
 QString Maneuver::directionPixmap() const
 {
     static const QHash<Maneuver::Direction, QString> turnTypePixmaps = createTurnTypePixmapMap();

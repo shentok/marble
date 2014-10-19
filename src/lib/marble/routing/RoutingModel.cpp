@@ -158,7 +158,7 @@ QHash<int, QByteArray> RoutingModel::roleNames() const
     return d->m_roleNames;
 }
 
-void RoutingModel::setRoute( const Route &route )
+void RoutingModel::setRoute(const Route &route)
 {
     d->m_route = route;
     d->m_deviation = RoutingModelPrivate::Unknown;

@@ -10,14 +10,13 @@
 
 #include "AlternativeRoutesModel.h"
 
-#include "GeoDataLatLonAltBox.h"
-#include "GeoDataDocument.h"
-#include "GeoDataFolder.h"
-#include "GeoDataExtendedData.h"
 #include "GeoDataLineString.h"
-#include "GeoDataPlacemark.h"
 #include "MarbleMath.h"
+#include "routing/Maneuver.h"
+#include "routing/RouteSegment.h"
+#include "routing/Route.h"
 
+#include <QTime>
 #include <QTimer>
 #include <QPainter>
 
@@ -31,7 +30,7 @@ public:
     /**
       * Returns true if there exists a route with high similarity to the given one
       */
-    bool filter( const GeoDataDocument* document ) const;
+    bool filter( const Route &route ) const;
 
     /**
       * Returns a similarity measure in the range of [0..1]. Two routes with a similarity of 0 can
@@ -40,7 +39,7 @@ public:
       * similarity value -- the higher, the more they do overlap.
       * @note: The direction of routes is important; reversed routes are not considered equal
       */
-    static qreal similarity( const GeoDataDocument* routeA, const GeoDataDocument* routeB );
+    static qreal similarity(const Route &routeA, const Route &routeB);
 
     /**
       * Returns the distance between the given polygon and the given point
@@ -68,29 +67,27 @@ public:
       * Returns the similarity between routeA and routeB. This method is not symmetric, i.e. in
       * general unidirectionalSimilarity(a,b) != unidirectionalSimilarity(b,a)
       */
-    static qreal unidirectionalSimilarity( const GeoDataDocument* routeA, const GeoDataDocument* routeB );
+    static qreal unidirectionalSimilarity(const Route &routeA, const Route &routeB);
 
     /**
       * (Primitive) scoring for routes
       */
-    static bool higherScore( const GeoDataDocument* one, const GeoDataDocument* two );
+    static bool higherScore(const Route &one, const Route &two);
 
     /**
       * Returns true if the given route contains instructions (placemarks with turn instructions)
       */
-    static qreal instructionScore( const GeoDataDocument* document );
-
-    static const GeoDataLineString* waypoints( const GeoDataDocument* document );
+    static qreal instructionScore(const Route &route);
 
     static int nonZero( const QImage &image );
 
     static QPolygonF polygon( const GeoDataLineString &lineString, qreal x, qreal y, qreal sx, qreal sy );
 
     /** The currently shown alternative routes (model data) */
-    QVector<GeoDataDocument*> m_routes;
+    QVector<Route> m_routes;
 
     /** Pending route data (waiting for other results to come in) */
-    QVector<GeoDataDocument*> m_restrainedRoutes;
+    QVector<Route> m_restrainedRoutes;
 
     /** Counts the time between route request and first result */
     QTime m_responseTime;
@@ -128,10 +125,10 @@ QPolygonF AlternativeRoutesModel::Private::polygon( const GeoDataLineString &lin
     return poly;
 }
 
-bool AlternativeRoutesModel::Private::filter( const GeoDataDocument* document ) const
+bool AlternativeRoutesModel::Private::filter( const Route &route ) const
 {
     for ( int i=0; i<m_routes.size(); ++i ) {
-        qreal similarity = Private::similarity( document, m_routes.at( i ) );
+        qreal similarity = Private::similarity(route, m_routes.at(i));
         if ( similarity > 0.8 ) {
             return true;
         }
@@ -140,7 +137,7 @@ bool AlternativeRoutesModel::Private::filter( const GeoDataDocument* document ) 
     return false;
 }
 
-qreal AlternativeRoutesModel::Private::similarity( const GeoDataDocument* routeA, const GeoDataDocument* routeB )
+qreal AlternativeRoutesModel::Private::similarity(const Route &routeA, const Route &routeB)
 {
     return qMax<qreal>( unidirectionalSimilarity( routeA, routeB ),
                         unidirectionalSimilarity( routeB, routeA ) );
@@ -197,19 +194,19 @@ qreal AlternativeRoutesModel::Private::distance( const GeoDataCoordinates &satel
     }
 }
 
-qreal AlternativeRoutesModel::Private::unidirectionalSimilarity( const GeoDataDocument* routeA, const GeoDataDocument* routeB )
+qreal AlternativeRoutesModel::Private::unidirectionalSimilarity(const Route &routeA, const Route &routeB)
 {
-    const GeoDataLineString* waypointsA = waypoints( routeA );
-    const GeoDataLineString* waypointsB = waypoints( routeB );
-    if ( !waypointsA || !waypointsB )
+    const GeoDataLineString waypointsA = routeA.waypoints();
+    const GeoDataLineString waypointsB = routeB.waypoints();
+    if ( waypointsA.isEmpty() || !waypointsB.isEmpty() )
     {
         return 0.0;
     }
 
     QImage image( 64, 64, QImage::Format_ARGB32_Premultiplied );
     image.fill( qRgb( 0, 0, 0 ) );
-    GeoDataLatLonBox box = GeoDataLatLonBox::fromLineString( *waypointsA );
-    box = box.united( GeoDataLatLonBox::fromLineString( *waypointsB ) );
+    GeoDataLatLonBox box = GeoDataLatLonBox::fromLineString( waypointsA );
+    box = box.united( GeoDataLatLonBox::fromLineString( waypointsB ) );
     if ( !box.width() || !box.height() ) {
       return 0.0;
     }
@@ -220,79 +217,47 @@ qreal AlternativeRoutesModel::Private::unidirectionalSimilarity( const GeoDataDo
     QPainter painter( &image );
     painter.setPen( QColor( Qt::white ) );
 
-    painter.drawPoints( Private::polygon( *waypointsA, box.west(), box.north(), sw, sh ) );
+    painter.drawPoints( Private::polygon( waypointsA, box.west(), box.north(), sw, sh ) );
     int const countA = Private::nonZero( image );
 
-    painter.drawPoints( Private::polygon( *waypointsB, box.west(), box.north(), sw, sh ) );
+    painter.drawPoints( Private::polygon( waypointsB, box.west(), box.north(), sw, sh ) );
     int const countB = Private::nonZero( image );
     Q_ASSERT( countA <= countB );
     return countB ? 1.0 - qreal( countB - countA ) / countB : 0;
 }
 
-bool AlternativeRoutesModel::Private::higherScore( const GeoDataDocument* one, const GeoDataDocument* two )
+bool AlternativeRoutesModel::Private::higherScore(const Route &one, const Route &two)
 {
-    qreal instructionScoreA = instructionScore( one );
-    qreal instructionScoreB = instructionScore( two );
+    const qreal instructionScoreA = instructionScore(one);
+    const qreal instructionScoreB = instructionScore(two);
+
     if ( instructionScoreA != instructionScoreB ) {
         return instructionScoreA > instructionScoreB;
     }
 
-    qreal lengthA = waypoints( one )->length( EARTH_RADIUS );
-    qreal lengthB = waypoints( two )->length( EARTH_RADIUS );
-
-    return lengthA < lengthB;
+    return one.distance() < two.distance();
 }
 
-qreal AlternativeRoutesModel::Private::instructionScore( const GeoDataDocument* document )
+qreal AlternativeRoutesModel::Private::instructionScore(const Route &route)
 {
     bool hasInstructions = false;
 
-    QStringList blacklist = QStringList() << "" << "Route" << "Tessellated";
-    QVector<GeoDataFolder*> folders = document->folderList();
-    for( const GeoDataFolder *folder: folders ) {
-        for( const GeoDataPlacemark *placemark: folder->placemarkList() ) {
-            if ( !blacklist.contains( placemark->name() ) ) {
-                hasInstructions = true;
-                break;
-            }
+    for ( int i = 0; i < route.size(); ++i ) {
+        const RouteSegment &segment = route.at( i );
+        if ( segment.maneuver() != Maneuver() ) {
+            hasInstructions = true;
+            break;
         }
     }
 
-    for( const GeoDataPlacemark *placemark: document->placemarkList() ) {
-        if ( !blacklist.contains( placemark->name() ) ) {
-            hasInstructions = true;
-
-            if (placemark->extendedData().contains(QStringLiteral("turnType"))) {
-                return 1.0;
-            }
+    for ( int i = 0; i < route.size(); ++i ) {
+        const RouteSegment &segment = route.at( i );
+        if ( segment.maneuver().direction() != Maneuver::Unknown ) {
+            return 1.0;
         }
     }
 
     return hasInstructions ? 0.5 : 0.0;
-}
-
-const GeoDataLineString* AlternativeRoutesModel::Private::waypoints( const GeoDataDocument* document )
-{
-    QVector<GeoDataFolder*> folders = document->folderList();
-    for( const GeoDataFolder *folder: folders ) {
-        for( const GeoDataPlacemark *placemark: folder->placemarkList() ) {
-            const GeoDataGeometry* geometry = placemark->geometry();
-            const GeoDataLineString* lineString = dynamic_cast<const GeoDataLineString*>( geometry );
-            if ( lineString ) {
-                return lineString;
-            }
-        }
-    }
-
-    for( const GeoDataPlacemark *placemark: document->placemarkList() ) {
-        const GeoDataGeometry* geometry = placemark->geometry();
-        const GeoDataLineString* lineString = dynamic_cast<const GeoDataLineString*>( geometry );
-        if ( lineString ) {
-            return lineString;
-        }
-    }
-
-    return 0;
 }
 
 AlternativeRoutesModel::AlternativeRoutesModel( QObject *parent ) :
@@ -323,16 +288,16 @@ QVariant AlternativeRoutesModel::data ( const QModelIndex &index, int role ) con
     QVariant result;
 
     if ( role == Qt::DisplayRole && index.column() == 0 && index.row() >= 0 && index.row() < d->m_routes.size() ) {
-        result = d->m_routes.at( index.row() )->name();
+        result = d->m_routes.at(index.row()).guiString();
     }
 
     return result;
 }
 
-const GeoDataDocument *AlternativeRoutesModel::route(int index) const
+const Route *AlternativeRoutesModel::route(int index) const
 {
     if ( index >= 0 && index < d->m_routes.size() ) {
-        return d->m_routes.at(index);
+        return &d->m_routes.at(index);
     }
 
     return 0;
@@ -350,12 +315,12 @@ void AlternativeRoutesModel::addRestrainedRoutes()
     Q_ASSERT( d->m_routes.isEmpty() );
     std::sort( d->m_restrainedRoutes.begin(), d->m_restrainedRoutes.end(), Private::higherScore );
 
-    for( GeoDataDocument* route: d->m_restrainedRoutes ) {
-        if ( !d->filter( route ) ) {
+    for (auto route : d->m_restrainedRoutes) {
+        if (!d->filter(route)) {
             int affected = d->m_routes.size();
             beginInsertRows( QModelIndex(), affected, affected );
 //            GeoDataDocument* base = d->m_routes.isEmpty() ? 0 : d->m_routes.first();
-            d->m_routes.push_back( route );
+            d->m_routes.push_back(route);
             endInsertRows();
         }
     }
@@ -365,11 +330,11 @@ void AlternativeRoutesModel::addRestrainedRoutes()
     setCurrentRoute( 0 );
 }
 
-void AlternativeRoutesModel::addRoute( GeoDataDocument* document, WritePolicy policy )
+void AlternativeRoutesModel::addRoute(const Route &route, WritePolicy policy)
 {
     if (policy != Instant) {
         if (d->m_routes.isEmpty()) {
-            d->m_restrainedRoutes.push_back(document);
+            d->m_restrainedRoutes.push_back(route);
 
             if (d->m_restrainedRoutes.isEmpty()) {
                 // First
@@ -382,10 +347,10 @@ void AlternativeRoutesModel::addRoute( GeoDataDocument* document, WritePolicy po
         }
 
         for ( int i=0; i<d->m_routes.size(); ++i ) {
-            qreal similarity = Private::similarity( document, d->m_routes.at( i ) );
+            qreal similarity = Private::similarity(route, d->m_routes.at(i));
             if ( similarity > 0.8 ) {
-                if ( Private::higherScore( document, d->m_routes.at( i ) ) ) {
-                    d->m_routes[i] = document;
+                if (Private::higherScore(route, d->m_routes.at(i))) {
+                    d->m_routes[i] = route;
                     QModelIndex changed = index( i );
                     emit dataChanged( changed, changed );
                 }
@@ -397,41 +362,33 @@ void AlternativeRoutesModel::addRoute( GeoDataDocument* document, WritePolicy po
 
     const int affected = d->m_routes.size();
     beginInsertRows(QModelIndex(), affected, affected);
-    d->m_routes.push_back(document);
+    d->m_routes.push_back(route);
     endInsertRows();
-}
-
-const GeoDataLineString* AlternativeRoutesModel::waypoints( const GeoDataDocument* document )
-{
-    return Private::waypoints( document );
 }
 
 void AlternativeRoutesModel::setCurrentRoute( int index )
 {
     if ( index >= 0 && index < rowCount() && d->m_currentIndex != index ) {
         d->m_currentIndex = index;
-        emit currentRouteChanged( currentRoute() );
+        emit currentRouteChanged( *currentRoute() );
         emit currentRouteChanged( d->m_currentIndex );
     }
 }
 
-const GeoDataDocument *AlternativeRoutesModel::currentRoute() const
+const Route *AlternativeRoutesModel::currentRoute() const
 {
-    const GeoDataDocument *result = 0;
     if ( d->m_currentIndex >= 0 && d->m_currentIndex < rowCount() ) {
-        result = d->m_routes[d->m_currentIndex];
+        return &d->m_routes[d->m_currentIndex];
     }
 
-    return result;
+    return 0;
 }
 
 void AlternativeRoutesModel::clear()
 {
     beginResetModel();
-    QVector<GeoDataDocument*> routes = d->m_routes;
     d->m_currentIndex = -1;
     d->m_routes.clear();
-    qDeleteAll(routes);
     endResetModel();
 }
 

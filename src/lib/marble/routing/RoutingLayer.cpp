@@ -243,13 +243,13 @@ void RoutingLayerPrivate::renderAlternativeRoutes( GeoPainter *painter )
     painter->setPen( alternativeRoutePen );
 
     for ( int i=0; i<m_alternativeRoutesModel->rowCount(); ++i ) {
-        const GeoDataDocument *route = m_alternativeRoutesModel->route(i);
+        const Route *route = m_alternativeRoutesModel->route(i);
         if ( route && route != m_alternativeRoutesModel->currentRoute() ) {
-            const GeoDataLineString* points = AlternativeRoutesModel::waypoints( route );
-            if ( points ) {
-                painter->drawPolyline( *points );
+            const GeoDataLineString &points = route->waypoints();
+            if ( !points.isEmpty() ) {
+                painter->drawPolyline( points );
                 if ( m_viewportChanged && m_isInteractive && m_viewContext == Still ) {
-                    QRegion region = painter->regionFromPolyline( *points, 8 );
+                    QRegion region = painter->regionFromPolyline( points, 8 );
                     m_alternativeRouteRegions.push_back( RequestRegion( i, region ) );
                 }
             }
@@ -645,9 +645,9 @@ RoutingLayer::RoutingLayer( MarbleWidget *widget, QWidget *parent ) :
              this, SLOT(updateRouteState()) );
     connect( widget, SIGNAL(visibleLatLonAltBoxChanged(GeoDataLatLonAltBox)),
             this, SLOT(setViewportChanged()) );
-    connect(widget->model()->routingManager()->alternativeRoutesModel(), SIGNAL(currentRouteChanged(const GeoDataDocument*)),
+    connect(widget->model()->routingManager()->alternativeRoutesModel(), SIGNAL(currentRouteChanged(const Route&)),
             this, SLOT(setViewportChanged()) );
-    connect(widget->model()->routingManager()->alternativeRoutesModel(), SIGNAL(currentRouteChanged(const GeoDataDocument*)),
+    connect(widget->model()->routingManager()->alternativeRoutesModel(), SIGNAL(currentRouteChanged(const Route&)),
              this, SIGNAL(repaintNeeded()) );
     connect( widget->model()->routingManager()->alternativeRoutesModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
              this, SLOT(showAlternativeRoutes()) );

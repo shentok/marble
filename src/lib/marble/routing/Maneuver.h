@@ -46,6 +46,8 @@ public:
 
     Direction direction() const;
 
+    bool hasDirection() const;
+
     void setDirection( Direction direction );
 
     GeoDataCoordinates position() const;
