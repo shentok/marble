@@ -29,6 +29,8 @@
 #include <QBuffer>
 #include <QTimer>
 
+#include <QFile>
+
 namespace Marble
 {
 
@@ -128,6 +130,10 @@ void YoursRunner::handleError( QNetworkReply::NetworkError error )
 
 GeoDataDocument* YoursRunner::parse( const QByteArray &content )
 {
+    QFile file( "/tmp/yours-response.xml" );
+    file.open( QFile::WriteOnly );
+    file.write( content );
+
     GeoDataParser parser( GeoData_UNKNOWN );
 
     // Open file in right mode

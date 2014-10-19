@@ -25,6 +25,8 @@
 #include <QVector>
 #include <QPair>
 
+#include <QFile>
+
 #if QT_VERSION >= 0x050000
   #include <QUrlQuery>
 #endif
@@ -153,6 +155,10 @@ int CycleStreetsRunner::maneuverType(QString& cycleStreetsName) const
 
 GeoDataDocument *CycleStreetsRunner::parse( const QByteArray &content ) const
 {
+    QFile file( "/tmp/cyclestreets.xml" );
+    file.open( QFile::WriteOnly );
+    file.write( content );
+
     QDomDocument xml;
     if ( !xml.setContent( content ) ) {
         mDebug() << "Cannot parse xml file with routing instructions.";

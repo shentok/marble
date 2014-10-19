@@ -26,6 +26,8 @@
 #include <QNetworkReply>
 #include <QDomDocument>
 
+#include <QFile>
+
 namespace Marble
 {
 
@@ -197,6 +199,10 @@ QString OpenRouteServiceRunner::xmlFooter()
 
 GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) const
 {
+    QFile file( "/tmp/openrouteservice-reply.xml" );
+    file.open( QFile::WriteOnly );
+    file.write( content );
+
     QDomDocument xml;
     if ( !xml.setContent( content ) ) {
         mDebug() << "Cannot parse xml file with routing instructions.";

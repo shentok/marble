@@ -30,6 +30,8 @@
 #include <QScriptEngine>
 #include <QScriptValueIterator>
 
+#include <QFile>
+
 namespace Marble
 {
 
@@ -199,6 +201,10 @@ RoutingInstruction::TurnType OSRMRunner::parseTurnType( const QString &instructi
 
 GeoDataDocument *OSRMRunner::parse( const QByteArray &input ) const
 {
+    QFile file( "/tmp/opensourceroutingmachine.js" );
+    file.open( QFile::WriteOnly );
+    file.write( input );
+
     QScriptEngine engine;
     // Qt requires parentheses around json code
     QScriptValue const data = engine.evaluate( '(' + QString::fromUtf8( input ) + ')' );

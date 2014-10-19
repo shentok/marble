@@ -27,6 +27,8 @@
 #include <QNetworkReply>
 #include <QDomDocument>
 
+#include <QFile>
+
 #if QT_VERSION >= 0x050000
   #include <QUrlQuery>
 #endif
@@ -203,6 +205,10 @@ int MapQuestRunner::maneuverType( int mapQuestId )
 
 GeoDataDocument* MapQuestRunner::parse( const QByteArray &content ) const
 {
+    QFile file( "/tmp/mapquest-reply.xml" );
+    file.open( QFile::WriteOnly );
+    file.write( content );
+
     QDomDocument xml;
     if ( !xml.setContent( content ) ) {
         mDebug() << "Cannot parse xml file with routing instructions.";
