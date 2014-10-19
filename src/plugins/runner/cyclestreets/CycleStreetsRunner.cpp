@@ -211,6 +211,7 @@ GeoDataDocument *CycleStreetsRunner::parse( const QByteArray &content ) const
 
         QString name = segment.elementsByTagName( "cs:name" ).at( 0 ).toElement().text();
         QString maneuver = segment.elementsByTagName( "cs:turn" ).at( 0 ).toElement().text();
+        int const seconds = segment.elementsByTagName( "cs:time" ).at( 0 ).toElement().text().toInt();
         QStringList points = segment.elementsByTagName( "cs:points" ).at( 0 ).toElement().text().split( ' ' );
         QStringList const elevation = segment.elementsByTagName( "cs:elevations" ).at( 0 ).toElement().text().split( ',' );
 
@@ -231,6 +232,8 @@ GeoDataDocument *CycleStreetsRunner::parse( const QByteArray &content ) const
         turnType.setName( "turnType" );
         turnType.setValue( maneuverType( maneuver ) );
         extendedData.addValue( turnType );
+        GeoDataData const duration( "duration", QString::number( seconds ) );
+        extendedData.addValue( duration );
 
         instructions->setExtendedData( extendedData );
         GeoDataLineString *lineString = new GeoDataLineString;

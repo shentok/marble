@@ -306,6 +306,7 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
 
             QDomNodeList textNodes = node.elementsByTagName( "xls:Instruction" );
             QDomNodeList positions = node.elementsByTagName( "gml:pos" );
+            QDomAttr durationAttribute = node.attributeNode( "duration" );
 
             if ( textNodes.size() > 0 && positions.size() > 0 ) {
                 QStringList content = positions.at( 0 ).toElement().text().split( ' ' );
@@ -335,6 +336,11 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
                         roadName.setName( "roadName" );
                         roadName.setValue( road );
                         extendedData.addValue( roadName );
+                    }
+                    if ( !durationAttribute.isNull() ) {
+                        int const seconds = durationAttribute.value().toInt();
+                        GeoDataData duration( "duration", QString::number( seconds ) );
+                        extendedData.addValue( duration );
                     }
 
                     QString const instructionText = turnType == RoutingInstruction::Unknown ? text : RoutingInstruction::generateRoadInstruction( turnType, road );

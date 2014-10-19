@@ -265,9 +265,10 @@ GeoDataDocument* MapQuestRunner::parse( const QByteArray &content ) const
         QDomNodeList textNodes = node.elementsByTagName( "narrative" );
         QDomNodeList points = node.elementsByTagName( "startPoint" );
         QDomNodeList streets = node.elementsByTagName( "streets" );
+        QDomNodeList times = node.elementsByTagName( "time" );
 
         Q_ASSERT( mapping.contains( i ) );
-        if ( textNodes.size() == 1 && maneuver.size() == 1 && points.size() == 1 && mapping.contains( i ) ) {
+        if ( textNodes.size() == 1 && maneuver.size() == 1 && points.size() == 1 && times.size() == 1 && mapping.contains( i ) ) {
             GeoDataPlacemark* instruction = new GeoDataPlacemark;
             instruction->setName( textNodes.at( 0 ).toElement().text() );
 
@@ -282,6 +283,9 @@ GeoDataDocument* MapQuestRunner::parse( const QByteArray &content ) const
                 roadName.setValue( streets.at( 0 ).toElement().text() );
                 extendedData.addValue( roadName );
             }
+            const int seconds = times.at( 0 ).toElement().text().toInt();
+            const GeoDataData duration( "duration", QString::number( seconds ) );
+            extendedData.addValue( duration );
             instruction->setExtendedData( extendedData );
 
             int const start = mapping[i];

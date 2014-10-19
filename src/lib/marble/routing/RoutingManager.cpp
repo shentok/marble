@@ -422,6 +422,12 @@ void RoutingManagerPrivate::importPlacemark( RouteSegment &outline, QVector<Rout
             }
 
             segment.setManeuver( maneuver );
+
+            if ( placemark->extendedData().contains( "duration" ) ) {
+                const QVariant duration = placemark->extendedData().value( "duration" ).value();
+                segment.setTravelTime( duration.toInt( ) );
+            }
+
             isOutline = false;
         }
     }

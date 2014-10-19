@@ -240,6 +240,7 @@ GeoDataDocument *OSRMRunner::parse( const QByteArray &input ) const
                 QString const text = details.at( 0 ).toString();
                 QString const road = details.at( 1 ).toString();
                 int const waypointIndex = details.at( 3 ).toInt();
+                int const seconds = details.at( 4 ).toInt();
 
                 if ( waypointIndex < routeWaypoints->size() ) {
                     if ( iterator.hasNext() ) {
@@ -264,6 +265,8 @@ GeoDataDocument *OSRMRunner::parse( const QByteArray &input ) const
                         roadName.setValue( road );
                         extendedData.addValue( roadName );
                     }
+                    GeoDataData const duration( "duration", QString::number( seconds ) );
+                    extendedData.addValue( duration );
 
                     if ( first ) {
                         turnType = RoutingInstruction::Continue;
