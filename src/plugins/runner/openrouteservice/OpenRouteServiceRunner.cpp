@@ -256,10 +256,10 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
             QRegExp regexp = QRegExp( "^P(?:(\\d+)D)?T(?:(\\d+)H)?(?:(\\d+)M)?(\\d+)S" );
             if ( regexp.indexIn( timeNodeList.item( 0 ).toElement().text() ) == 0 ) {
                 QStringList matches = regexp.capturedTexts();
-                unsigned int hours( 0 ), minutes( 0 ), seconds( 0 );
+                unsigned int days( 0 ), hours( 0 ), minutes( 0 ), seconds( 0 );
                 switch ( matches.size() ) {
                 case 5:
-                    // days    = regexp.cap( matches.size() - 4 ).toInt();
+                    days    = regexp.cap( matches.size() - 4 ).toInt();
                     // Intentionally no break
                 case 4:
                     hours   = regexp.cap( matches.size() - 3 ).toInt();
@@ -274,7 +274,7 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
                     mDebug() << "Unable to parse time string " << timeNodeList.item( 0 ).toElement().text();
                 }
 
-                duration = hours * 3600 + minutes * 60 + seconds;
+                duration = ( days * 24 + hours ) * 3600 + minutes * 60 + seconds;
             }
         }
     }
