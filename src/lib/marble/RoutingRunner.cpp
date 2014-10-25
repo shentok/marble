@@ -35,19 +35,39 @@ const QString RoutingRunner::lengthString(qreal length) const
 
 const QString RoutingRunner::durationString(const QTime& duration) const
 {
-    const QString hoursString = duration.toString( "hh" );
-    const QString minutesString = duration.toString( "mm" );
+    const int seconds = duration.hour() * 3600 + duration.minute() * 60 + duration.second();
+    return durationString( seconds );
+}
+
+const QString RoutingRunner::durationString( int seconds )
+{
+    const int hours = seconds / 3600;
+    const int minutes = ( seconds / 60 ) % 60;
+    const QString hoursString = QString::number( hours );
+    const QString minutesString = ( minutes < 10 ? "0" : "" ) + QString::number( minutes );
     const QString timeString = tr("%1:%2 h","journey duration").arg( hoursString ).arg( minutesString );
     return timeString;
 }
 
 const QString RoutingRunner::nameString(const QString& name, qreal length, const QTime& duration) const
 {
+    const int seconds = duration.hour() * 3600 + duration.minute() * 60 + duration.second();
+    return nameString( name, length, seconds );
+}
+
+const QString RoutingRunner::nameString( const QString &name, qreal length, int seconds ) const
+{
     const QString result = "%1; %2 (%3)";
-    return result.arg( lengthString( length ) ).arg( durationString( duration ) ).arg( name );
+    return result.arg( lengthString( length ) ).arg( durationString( seconds ) ).arg( name );
 }
 
 const GeoDataExtendedData RoutingRunner::routeData(qreal length, const QTime& duration) const
+{
+    const int seconds = duration.hour() * 3600 + duration.minute() * 60 + duration.second();
+    return routeData( length, seconds );
+}
+
+const GeoDataExtendedData RoutingRunner::routeData( qreal length, int seconds )
 {
     GeoDataExtendedData result;
     GeoDataData lengthData;
@@ -56,7 +76,7 @@ const GeoDataExtendedData RoutingRunner::routeData(qreal length, const QTime& du
     result.addValue( lengthData );
     GeoDataData durationData;
     durationData.setName( "duration" );
-    durationData.setValue( duration.toString( Qt::ISODate ) );
+    durationData.setValue( QString::number( seconds ) );
     result.addValue( durationData );
     return result;
 }

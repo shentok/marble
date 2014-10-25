@@ -189,12 +189,11 @@ GeoDataDocument *CycleStreetsRunner::parse( const QByteArray &content ) const
     routePlacemark->setGeometry( routeWaypoints );
 
     QDomElement durationElement = route.elementsByTagName( "cs:time" ).at(0).toElement();
-    QTime duration;
-    duration = duration.addSecs( durationElement.text().toInt() );
+    const int seconds = durationElement.text().toInt();
     qreal length = routeWaypoints->length( EARTH_RADIUS );
 
-    const QString name = nameString( "CS", length, duration );
-    const GeoDataExtendedData data = routeData( length, duration );
+    const QString name = nameString( "CS", length, seconds );
+    const GeoDataExtendedData data = routeData( length, seconds );
     routePlacemark->setExtendedData( data );
     result->setName( name );
     result->append( routePlacemark );

@@ -213,11 +213,10 @@ GeoDataDocument *OSRMRunner::parse( const QByteArray &input ) const
         routeWaypoints = decodePolyline( data.property( "route_geometry" ).toString() );
         routePlacemark->setGeometry( routeWaypoints );
 
-        QTime time;
-        time = time.addSecs( data.property( "route_summary" ).property("total_time").toNumber() );
+        const int seconds = data.property( "route_summary" ).property("total_time").toNumber();
         qreal length = routeWaypoints->length( EARTH_RADIUS );
-        const QString name = nameString( "OSRM", length, time );
-        const GeoDataExtendedData extendedData = routeData( length, time );
+        const QString name = nameString( "OSRM", length, seconds );
+        const GeoDataExtendedData extendedData = routeData( length, seconds );
         routePlacemark->setExtendedData( extendedData );
         result->setName( name );
         result->append( routePlacemark );

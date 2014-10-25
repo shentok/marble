@@ -248,7 +248,7 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
 
     GeoDataPlacemark* routePlacemark = new GeoDataPlacemark;
     routePlacemark->setName( "Route" );
-    QTime time;
+    int duration = 0;
     QDomNodeList summary = root.elementsByTagName( "xls:RouteSummary" );
     if ( summary.size() > 0 ) {
         QDomNodeList timeNodeList = summary.item( 0 ).toElement().elementsByTagName( "xls:TotalTime" );
@@ -274,7 +274,7 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
                     mDebug() << "Unable to parse time string " << timeNodeList.item( 0 ).toElement().text();
                 }
 
-                time = QTime( hours, minutes, seconds, 0 );
+                duration = hours * 3600 + minutes * 60 + seconds;
             }
         }
     }
@@ -302,8 +302,8 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
     routePlacemark->setGeometry( routeWaypoints );
 
     qreal length = routeWaypoints->length( EARTH_RADIUS );
-    const QString name = nameString( "ORS", length, time );
-    const GeoDataExtendedData data = routeData( length, time );
+    const QString name = nameString( "ORS", length, duration );
+    const GeoDataExtendedData data = routeData( length, duration );
     routePlacemark->setExtendedData( data );
     result->setName( name );
 

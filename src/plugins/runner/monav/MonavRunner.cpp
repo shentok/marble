@@ -235,13 +235,11 @@ MonavRunner::~MonavRunner()
 void MonavRunner::retrieveRoute( const RouteRequest *route )
 {
     QVector<GeoDataPlacemark*> instructions;
-    QTime time;
     GeoDataLineString* waypoints = new GeoDataLineString();
     int duration = d->retrieveRoute( route, &instructions, waypoints );
-    time = time.addSecs( duration );
     qreal length = waypoints->length( EARTH_RADIUS );
-    const QString name = nameString( "Monav", length, time );
-    const GeoDataExtendedData data = routeData( length, time );
+    const QString name = nameString( "Monav", length, duration );
+    const GeoDataExtendedData data = routeData( length, duration );
     GeoDataDocument *result = d->createDocument( waypoints, instructions, name, data );
     emit routeCalculated( result );
 }

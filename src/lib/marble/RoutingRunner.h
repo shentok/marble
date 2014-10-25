@@ -15,6 +15,7 @@
 #include <QObject>
 #include "marble_export.h"
 #include "GeoDataExtendedData.h"
+#include "MarbleGlobal.h"
 
 class QTime;
 
@@ -47,10 +48,13 @@ Q_SIGNALS:
     void routeCalculated( GeoDataDocument* route );
 
 protected:
-    const QString nameString( const QString &name, qreal length, const QTime &duration ) const;
+    MARBLE_DEPRECATED( const QString nameString( const QString &name, qreal length, const QTime &duration ) const );
+    const QString nameString( const QString &name, qreal length, int seconds ) const;
     const QString lengthString( qreal length ) const;
-    const QString durationString( const QTime &duration ) const;
-    const GeoDataExtendedData routeData( qreal length, const QTime &duration ) const;
+    MARBLE_DEPRECATED( const QString durationString( const QTime &duration ) const );
+    static const QString durationString( int seconds );
+    MARBLE_DEPRECATED( const GeoDataExtendedData routeData( qreal length, const QTime &duration ) const );
+    static const GeoDataExtendedData routeData( qreal length, int seconds );
 };
 
 }
