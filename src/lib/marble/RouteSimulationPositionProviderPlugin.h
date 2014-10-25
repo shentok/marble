@@ -15,8 +15,8 @@
 
 #include "PositionProviderPlugin.h"
 
-#include "GeoDataLineString.h"
-#include "GeoDataLineString.h"
+#include "GeoDataCoordinates.h"
+#include "GeoDataTrack.h"
 
 #include <QDateTime>
 
@@ -63,9 +63,8 @@ private Q_SLOTS:
 
 private:
     MarbleModel *const m_marbleModel;
-    int m_currentIndex;
     PositionProviderStatus m_status;
-    GeoDataLineString m_lineString;
+    GeoDataTrack m_track;
     GeoDataCoordinates m_currentPosition;
     QDateTime m_currentDateTime;
     qreal m_speed;

@@ -97,6 +97,11 @@ int GeoDataTrack::size() const
     return p()->m_coordinates.size();
 }
 
+bool GeoDataTrack::isEmpty() const
+{
+    return size() == 0;
+}
+
 bool GeoDataTrack::interpolate() const
 {
     return p()->m_interpolate;

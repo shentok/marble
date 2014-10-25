@@ -66,6 +66,11 @@ public:
     int size() const;
 
     /**
+     * @brief Returns true if the track has size 0; otherwise returns false.
+     */
+    bool isEmpty() const;
+
+    /**
      * @brief: Equality operators.
      */
     bool operator==( const GeoDataTrack& other ) const;
