@@ -342,6 +342,9 @@ void GeometryLayerPrivate::createGraphicsItemFromGeometry( const GeoDataGeometry
     }
     else if ( object->nodeType() == GeoDataTypes::GeoDataTrackType )
     {
+        if ( placemark->name() == "Current Track" ) {
+            qDebug() << Q_FUNC_INFO << "current track";
+        }
         const GeoDataTrack *track = static_cast<const GeoDataTrack*>( object );
         item = new GeoTrackGraphicsItem( placemark, track );
     }
