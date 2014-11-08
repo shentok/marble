@@ -76,9 +76,9 @@ QIcon LambertAzimuthalProjection::icon() const
     return QIcon(":/icons/map-globe.png");
 }
 
-qreal LambertAzimuthalProjection::clippingRadius() const
+bool LambertAzimuthalProjection::isClippedToSphere() const
 {
-    return 1;
+    return false;
 }
 
 bool LambertAzimuthalProjection::screenCoordinates( const GeoDataCoordinates &coordinates,
@@ -105,13 +105,6 @@ bool LambertAzimuthalProjection::screenCoordinates( const GeoDataCoordinates &co
 
     x *= viewport->radius() / qSqrt(2);
     y *= viewport->radius() / qSqrt(2);
-
-    const qint64  radius  = clippingRadius() * viewport->radius();
-
-    if (x*x + y*y > radius * radius) {
-        globeHidesPoint = true;
-        return false;
-    }
 
     globeHidesPoint = false;
 

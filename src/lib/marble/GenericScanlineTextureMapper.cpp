@@ -103,8 +103,11 @@ void GenericScanlineTextureMapper::mapTexture( GeoPainter *painter,
 
     const int radius = viewport->radius() * viewport->currentProjection()->clippingRadius();
 
-    QRect rect( viewport->width() / 2 - radius, viewport->height() / 2 - radius,
-                2 * radius, 2 * radius);
+    const QRect clippedRect( viewport->width() / 2 - radius, viewport->height() / 2 - radius,
+                             2 * radius, 2 * radius );
+
+    QRect rect = viewport->currentProjection()->isClippedToSphere() ? clippedRect : dirtyRect;
+    qDebug() << Q_FUNC_INFO << rect.size() << m_canvasImage.size();
 #if QT_VERSION < 0x050000
     rect = rect.intersect( dirtyRect );
 #else
@@ -147,7 +150,6 @@ void GenericScanlineTextureMapper::RenderJob::run()
 {
     const int imageWidth  = m_canvasImage->width();
     const int imageHeight  = m_canvasImage->height();
-    const qint64  radius  = m_viewport->radius();
 
     const bool interlaced   = ( m_mapQuality == LowQuality );
     const bool highQuality  = ( m_mapQuality == HighQuality
@@ -167,16 +169,16 @@ void GenericScanlineTextureMapper::RenderJob::run()
 
     ScanlineTextureMapperContext context( m_tileLoader, m_tileLevel );
 
-    qreal clipRadius = radius * m_viewport->currentProjection()->clippingRadius();
-
+    const qreal clipRadius = m_viewport->radius() * m_viewport->currentProjection()->clippingRadius();
+    const qreal viewportRadius = qSqrt( m_viewport->width() * m_viewport->width() + m_viewport->height() * m_viewport->height() );
+    const qreal radius = m_viewport->currentProjection()->isClippedToSphere() ? clipRadius : viewportRadius;
 
     // Paint the map.
     for ( int y = m_yTop; y < m_yBottom; ++y ) {
 
+        const int ry = ( y - imageHeight / 2 );
         // rx is the radius component in x direction
-        const int rx = (int)sqrt( (qreal)( clipRadius * clipRadius
-                                      - ( ( y - imageHeight / 2 )
-                                          * ( y - imageHeight / 2 ) ) ) );
+        const int rx = (int)sqrt( ( radius * radius ) - ( ry * ry ) );
 
         // Calculate the actual x-range of the map within the current scanline.
         //

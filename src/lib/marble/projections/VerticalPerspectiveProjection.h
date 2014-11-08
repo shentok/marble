@@ -53,6 +53,8 @@ class VerticalPerspectiveProjection : public AzimuthalProjection
      */
     QIcon icon() const;
 
+    virtual bool isClippedToSphere() const;
+
     virtual qreal clippingRadius() const;
 
     /**

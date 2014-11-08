@@ -77,6 +77,11 @@ QIcon SphericalProjection::icon() const
     return QIcon(":/icons/map-globe.png");
 }
 
+bool SphericalProjection::isClippedToSphere() const
+{
+    return true;
+}
+
 bool SphericalProjection::screenCoordinates( const GeoDataCoordinates &coordinates, 
                                              const ViewportParams *viewport,
                                              qreal &x, qreal &y, bool &globeHidesPoint ) const

@@ -53,7 +53,7 @@ class StereographicProjection : public AzimuthalProjection
      */
     QIcon icon() const;
 
-    virtual qreal clippingRadius() const;
+    virtual bool isClippedToSphere() const;
 
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.

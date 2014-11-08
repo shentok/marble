@@ -70,14 +70,14 @@ QIcon AzimuthalEquidistantProjection::icon() const
     return QIcon(":/icons/map-globe.png");
 }
 
+bool AzimuthalEquidistantProjection::isClippedToSphere() const
+{
+    return false;
+}
+
 AzimuthalEquidistantProjectionPrivate::AzimuthalEquidistantProjectionPrivate( AzimuthalEquidistantProjection * parent )
         : AzimuthalProjectionPrivate( parent )
 {
-}
-
-qreal AzimuthalEquidistantProjection::clippingRadius() const
-{
-    return 1;
 }
 
 bool AzimuthalEquidistantProjection::screenCoordinates( const GeoDataCoordinates &coordinates,
@@ -106,13 +106,6 @@ bool AzimuthalEquidistantProjection::screenCoordinates( const GeoDataCoordinates
 
     x *= 2 * viewport->radius() / M_PI;
     y *= 2 * viewport->radius() / M_PI;
-
-    const qint64  radius  = clippingRadius() * viewport->radius();
-
-    if (x*x + y*y > radius * radius) {
-        globeHidesPoint = true;
-        return false;
-    }
 
     globeHidesPoint = false;
 

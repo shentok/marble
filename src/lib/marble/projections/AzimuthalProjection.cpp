@@ -31,11 +31,6 @@ qreal AzimuthalProjection::minValidLat() const
     return -90.0 * DEG2RAD;
 }
 
-bool AzimuthalProjection::isClippedToSphere() const
-{
-    return true;
-}
-
 qreal AzimuthalProjection::clippingRadius() const
 {
     return 1;

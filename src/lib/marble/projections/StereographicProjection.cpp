@@ -76,9 +76,9 @@ QIcon StereographicProjection::icon() const
     return QIcon(":/icons/map-globe.png");
 }
 
-qreal StereographicProjection::clippingRadius() const
+bool StereographicProjection::isClippedToSphere() const
 {
-    return 1;
+    return false;
 }
 
 bool StereographicProjection::screenCoordinates( const GeoDataCoordinates &coordinates,
@@ -97,7 +97,7 @@ bool StereographicProjection::screenCoordinates( const GeoDataCoordinates &coord
         return false;
     }
 
-    qreal k = 1 / (1 + cosC);
+    const qreal k = 1 / (1 + cosC);
 
     // Let (x, y) be the position on the screen of the placemark..
     x = ( qCos( phi ) * qSin( lambda - lambdaPrime ) ) * k;
@@ -105,13 +105,6 @@ bool StereographicProjection::screenCoordinates( const GeoDataCoordinates &coord
 
     x *= viewport->radius();
     y *= viewport->radius();
-
-    const qint64  radius  = clippingRadius() * viewport->radius();
-
-    if (x*x + y*y > radius * radius) {
-        globeHidesPoint = true;
-        return false;
-    }
 
     globeHidesPoint = false;
 

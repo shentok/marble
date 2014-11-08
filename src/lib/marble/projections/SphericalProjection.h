@@ -62,6 +62,8 @@ class SphericalProjection : public AzimuthalProjection
      */
     QIcon icon() const;
 
+    virtual bool isClippedToSphere() const;
+
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.
      * @param lon    the lon coordinate of the requested pixel position

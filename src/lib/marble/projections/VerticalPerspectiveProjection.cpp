@@ -91,6 +91,11 @@ QIcon VerticalPerspectiveProjection::icon() const
     return QIcon(":/icons/map-globe.png");
 }
 
+bool VerticalPerspectiveProjection::isClippedToSphere() const
+{
+    return true;
+}
+
 void VerticalPerspectiveProjectionPrivate::calculateConstants(qreal radius) const
 {
     if (radius == m_previousRadius)  return;

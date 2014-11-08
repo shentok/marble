@@ -76,9 +76,9 @@ QIcon GnomonicProjection::icon() const
     return QIcon(":/icons/map-gnomonic.png");
 }
 
-qreal GnomonicProjection::clippingRadius() const
+bool GnomonicProjection::isClippedToSphere() const
 {
-    return 1;
+    return false;
 }
 
 bool GnomonicProjection::screenCoordinates( const GeoDataCoordinates &coordinates,
@@ -103,13 +103,6 @@ bool GnomonicProjection::screenCoordinates( const GeoDataCoordinates &coordinate
 
     x *= viewport->radius() / 2;
     y *= viewport->radius() / 2;
-
-    const qint64  radius  = clippingRadius() * viewport->radius();
-
-    if (x*x + y*y > radius * radius) {
-        globeHidesPoint = true;
-        return false;
-    }
 
     globeHidesPoint = false;
 

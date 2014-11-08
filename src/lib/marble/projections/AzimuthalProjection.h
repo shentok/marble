@@ -47,7 +47,7 @@ class AzimuthalProjection : public AbstractProjection
 
     virtual PreservationType preservationType() const { return NoPreservation; }
 
-    virtual bool isClippedToSphere() const;
+    virtual bool isClippedToSphere() const = 0;
 
     virtual qreal clippingRadius() const;
 
