@@ -190,10 +190,8 @@ void GenericScanlineTextureMapper::RenderJob::run()
         // In that situation xLeft equals zero.
         // For xRight the situation is similar.
 
-        const int xLeft  = ( imageWidth / 2 - rx > 0 ) ? imageWidth / 2 - rx
-                                                       : 0;
-        const int xRight = ( imageWidth / 2 - rx > 0 ) ? xLeft + rx + rx
-                                                       : imageWidth;
+        const int xLeft  = qMax<int>( imageWidth / 2 - rx, 0 );
+        const int xRight = qMin<int>( xLeft + rx + rx, imageWidth );
 
         QRgb * scanLine = (QRgb*)( m_canvasImage->scanLine( y ) ) + xLeft;
 
