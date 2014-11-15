@@ -140,7 +140,7 @@ RoutingManagerPrivate::RoutingManagerPrivate(MarbleModel *model, RoutingManager 
         m_pluginManager( model->pluginManager() ),
         m_treeModel( model->treeModel() ),
         m_positionTracking( model->positionTracking() ),
-        m_alternativeRoutesModel(manager),
+        m_alternativeRoutesModel(m_treeModel, &m_document, manager),
         m_runnerManager(model, manager),
         m_haveRoute( false ),
         m_guidanceModeEnabled( false ),
