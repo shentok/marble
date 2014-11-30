@@ -76,6 +76,8 @@ class MARBLE_EXPORT AbstractProjection
 
     virtual ~AbstractProjection();
 
+    virtual QString nameId() const = 0;
+
     /**
      * @brief Returns the user-visible name of the projection.
      *
@@ -122,8 +124,6 @@ class MARBLE_EXPORT AbstractProjection
     virtual bool isClippedToSphere() const;
 
     virtual qreal clippingRadius() const;
-
-    virtual QVector3D vertexCoordinates( const GeoDataCoordinates &coordinates ) const = 0;
 
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.

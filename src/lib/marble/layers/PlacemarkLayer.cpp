@@ -87,6 +87,7 @@ PlacemarkLayer::PlacemarkLayer( QAbstractItemModel *placemarkModel,
     QObject( parent ),
     m_layout( placemarkModel, selectionModel, clock ),
     m_glContext( 0 ),
+    m_previousProjection( 0 ),
     m_textureId( 0 ),
     m_program( 0 )
 {
@@ -158,17 +159,38 @@ bool PlacemarkLayer::render( GeoPainter *geoPainter, ViewportParams *viewport,
 
 void PlacemarkLayer::paintGL( QGLContext *glContext, const ViewportParams *viewport )
 {
-    if ( !m_program ) {
-        initializeGL( glContext );
+    if ( m_glContext != glContext ) {
+        m_glContext = glContext;
+    }
+
+    if ( m_textureId == 0 ) {
+        QImage image( 16*16, 16*(GeoDataFeature::LastIndex/16 + 1), QImage::Format_ARGB32_Premultiplied );
+        image.fill( Qt::transparent );
+        QPainter painter( &image );
+
+        for ( int i = 0; i < GeoDataFeature::LastIndex; ++i ) {
+            GeoDataPlacemark placemark;
+            placemark.setVisualCategory( (GeoDataFeature::GeoDataVisualCategory)i );
+            const QImage symbol = placemark.style()->iconStyle().icon();
+            painter.drawImage( 16*(i%16), 16*(i/16), symbol );
+        }
+
+        glActiveTexture( GL_TEXTURE0 );
+        m_textureId = glContext->bindTexture( image, GL_TEXTURE_2D, GL_RGBA, QGLContext::LinearFilteringBindOption | QGLContext::PremultipliedAlphaBindOption );
+    }
+
+    if ( m_previousProjection != viewport->currentProjection() ) {
+        m_previousProjection = viewport->currentProjection();
+        delete m_program;
+        m_program = initializeGL( *viewport->currentProjection() );
     }
 
     m_program->bind();
 
-    const QMatrix4x4 viewportMatrix = viewport->viewportMatrix();
-    const QMatrix4x4 rotationMatrix = viewport->rotationMatrix();
-
-    m_program->setUniformValue( "projectionMatrix", viewportMatrix );
-    m_program->setUniformValue( "rotationMatrix", rotationMatrix );
+    m_program->setUniformValue( "viewportMatrix", viewport->viewportMatrix() );
+    m_program->setUniformValue( "centerLongitude", GLfloat(viewport->centerLongitude()) );
+    m_program->setUniformValue( "centerLatitude", GLfloat(viewport->centerLatitude()) );
+    m_program->setUniformValue( "radius", GLfloat(viewport->radius()) );
     m_program->setUniformValue( "texture", 0 );
 
     // blend placemarks on top of surface
@@ -193,7 +215,7 @@ void PlacemarkLayer::paintGL( QGLContext *glContext, const ViewportParams *viewp
                 indexData << positionData.size() + 0 << positionData.size() + 1 << positionData.size() + 2
                           << positionData.size() + 3 << positionData.size() + 2 << positionData.size() + 1;
                 const GeoDataCoordinates coordinates = placemark->coordinate();
-                const QVector3D position = viewport->currentProjection()->vertexCoordinates( coordinates );
+                const QVector3D position( coordinates.longitude(), coordinates.latitude(), coordinates.altitude() );
                 positionData << position << position << position << position;
                 cornerData << QVector2D(0, 0) << QVector2D(0, 1) << QVector2D(1, 0) << QVector2D(1, 1);
                 const int category = placemark->visualCategory();
@@ -324,41 +346,26 @@ bool PlacemarkLayer::testXBug()
     return true;
 }
 
-void PlacemarkLayer::initializeGL( QGLContext *glContext )
+QGLShaderProgram *PlacemarkLayer::initializeGL( const AbstractProjection &projection )
 {
-    m_glContext = glContext;
+    QGLShaderProgram *program = new QGLShaderProgram;
 
-    m_program = new QGLShaderProgram( this );
     // Overriding system locale until shaders are compiled
     QLocale::setDefault( QLocale::c() );
-    if ( !m_program->addShaderFromSourceFile( QGLShader::Vertex, MarbleDirs::path( "shaders/placemarklayer.vertex.glsl" ) ) ) {
-        qWarning() << Q_FUNC_INFO << m_program->log();
-        return;
+    const QString relativePath = QString( "shaders/placemarklayer.vertex-%1.glsl" ).arg( projection.nameId() );
+
+    const bool ok = program->addShaderFromSourceFile( QGLShader::Vertex, MarbleDirs::path( relativePath ) )
+            && program->addShaderFromSourceFile( QGLShader::Fragment, MarbleDirs::path( "shaders/placemarklayer.fragment.glsl" ) )
+            && program->link();
+
+    if ( !ok ) {
+        qWarning() << program->log();
     }
-    if ( !m_program->addShaderFromSourceFile( QGLShader::Fragment, MarbleDirs::path( "shaders/placemarklayer.fragment.glsl" ) ) ) {
-        qWarning() << Q_FUNC_INFO << m_program->log();
-        return;
-    }
-    if ( !m_program->link() ) {
-        qWarning() << Q_FUNC_INFO << m_program->log();
-        return;
-    }
+
     // Restore system locale
     QLocale::setDefault( QLocale::system() );
 
-    QImage image( 16*16, 16*(GeoDataFeature::LastIndex/16 + 1), QImage::Format_ARGB32_Premultiplied );
-    image.fill( Qt::transparent );
-    QPainter painter( &image );
-
-    for ( int i = 0; i < GeoDataFeature::LastIndex; ++i ) {
-        GeoDataPlacemark placemark;
-        placemark.setVisualCategory( (GeoDataFeature::GeoDataVisualCategory)i );
-        const QImage symbol = placemark.style()->iconStyle().icon();
-        painter.drawImage( 16*(i%16), 16*(i/16), symbol );
-    }
-
-    glActiveTexture( GL_TEXTURE0 );
-    m_textureId = glContext->bindTexture( image, GL_TEXTURE_2D, GL_RGBA, QGLContext::LinearFilteringBindOption | QGLContext::PremultipliedAlphaBindOption );
+    return program;
 }
 
 void PlacemarkLayer::clearTiles()

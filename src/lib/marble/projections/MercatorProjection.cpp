@@ -35,6 +35,11 @@ MercatorProjection::~MercatorProjection()
 {
 }
 
+QString MercatorProjection::nameId() const
+{
+    return "mercator";
+}
+
 QString MercatorProjection::name() const
 {
     return QObject::tr( "Mercator" );
@@ -60,13 +65,6 @@ qreal MercatorProjection::minValidLat() const
 {
     // This is the min value where gd( lat ) is defined.
     return -85.05113 * DEG2RAD;
-}
-
-QVector3D MercatorProjection::vertexCoordinates( const GeoDataCoordinates &coordinates ) const
-{
-    return QVector3D(  2 *        coordinates.longitude()  / M_PI,
-                      -2 * gdInv( coordinates.latitude() ) / M_PI,
-                       1 );
 }
 
 bool MercatorProjection::screenCoordinates( const GeoDataCoordinates &geopoint, 

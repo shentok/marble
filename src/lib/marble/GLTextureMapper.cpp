@@ -48,6 +48,7 @@ public:
 
     StackedTileLoader *const m_tileLoader;
 
+    const AbstractProjection *m_previousProjection;
     QGLContext *m_glContext;
     QGLShaderProgram *m_program;
     QMap<TileId, GlTile *> m_visibleTiles;
@@ -60,6 +61,7 @@ public:
 
 GLTextureMapper::Private::Private( StackedTileLoader *tileLoader )
     : m_tileLoader( tileLoader )
+    , m_previousProjection( 0 )
     , m_glContext( 0 )
     , m_program( 0 )
     , m_visibleTiles()
@@ -124,8 +126,14 @@ void GLTextureMapper::mapTexture( QGLContext *glContext, const ViewportParams *v
     if ( viewport->radius() <= 0 )
         return;
 
-    if ( !d->m_glContext ) {
-        initializeGL( glContext );
+    if ( d->m_glContext != glContext ) {
+        d->m_glContext = glContext;
+    }
+
+    if ( d->m_previousProjection != viewport->currentProjection() ) {
+        d->m_previousProjection = viewport->currentProjection();
+        delete d->m_program;
+        d->m_program = initializeGL( *d->m_previousProjection );
     }
 
     loadVisibleTiles( glContext, viewport, tileZoomLevel );
@@ -172,10 +180,10 @@ void GLTextureMapper::mapTexture( QGLContext *glContext, const ViewportParams *v
     }
 
 
-    const QMatrix4x4 viewportMatrix = viewport->viewportMatrix();
-    const QMatrix4x4 rotationMatrix = viewport->rotationMatrix();
-
-    d->m_program->setUniformValue( "rotationMatrix", viewportMatrix * rotationMatrix );
+    d->m_program->setUniformValue( "viewportMatrix", viewport->viewportMatrix() );
+    d->m_program->setUniformValue( "centerLongitude", GLfloat(viewport->centerLongitude()) );
+    d->m_program->setUniformValue( "centerLatitude", GLfloat(viewport->centerLatitude()) );
+    d->m_program->setUniformValue( "radius", GLfloat(viewport->radius()) );
 
     d->m_indexBuffer.bind();
     d->m_texCoordsBuffer.bind();
@@ -200,32 +208,27 @@ void GLTextureMapper::mapTexture( QGLContext *glContext, const ViewportParams *v
     d->m_program->release();
 }
 
-void GLTextureMapper::initializeGL( QGLContext *glContext )
+QGLShaderProgram *GLTextureMapper::initializeGL( const AbstractProjection &projection )
 {
-    Q_ASSERT( d->m_glContext == 0 );
-
-    d->m_glContext = glContext;
-
-    d->m_program = new QGLShaderProgram( this );
+    QGLShaderProgram *program = new QGLShaderProgram;
 
     // Overriding system locale until shaders are compiled
     QLocale::setDefault( QLocale::c() );
 
-    if ( !d->m_program->addShaderFromSourceFile( QGLShader::Vertex, MarbleDirs::path( "shaders/texturelayer.vertex.glsl" ) ) ) {
-        qWarning() << d->m_program->log();
-        return;
-    }
-    if ( !d->m_program->addShaderFromSourceFile( QGLShader::Fragment, MarbleDirs::path( "shaders/texturelayer.fragment.glsl" ) ) ) {
-        qWarning() << d->m_program->log();
-        return;
-    }
-    if ( !d->m_program->link() ) {
-        qWarning() << d->m_program->log();
-        return;
+    const QString relativePath = QString( "shaders/texturelayer.vertex-%1.glsl" ).arg( projection.nameId() );
+
+    const bool ok = program->addShaderFromSourceFile( QGLShader::Vertex, MarbleDirs::path( relativePath ) )
+            && program->addShaderFromSourceFile( QGLShader::Fragment, MarbleDirs::path( "shaders/texturelayer.fragment.glsl" ) )
+            && program->link();
+
+    if ( !ok ) {
+        qWarning() << program->log();
     }
 
     // Restore system locale
     QLocale::setDefault( QLocale::system() );
+
+    return program;
 }
 
 void GLTextureMapper::loadVisibleTiles( QGLContext *glContext, const ViewportParams *viewport, int tileZoomLevel )
@@ -277,7 +280,7 @@ void GLTextureMapper::loadVisibleTiles( QGLContext *glContext, const ViewportPar
                         const qreal y = (id.y() + row/qreal(d->m_numLatitudes -1)) / numYTiles;
 
                         const GeoDataCoordinates coordinates = geoCoordinates( x, y );
-                        vertices << viewport->currentProjection()->vertexCoordinates( coordinates );
+                        vertices << QVector3D( coordinates.longitude(), coordinates.latitude(), 0 );
                     }
                 }
 

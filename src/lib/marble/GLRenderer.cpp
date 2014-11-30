@@ -11,11 +11,11 @@
 // Self
 #include "GLRenderer.h"
 
+#include "GeoDataCoordinates.h"
 #include "GeoDataLinearRing.h"
 #include "GeoDataLineString.h"
 #include "GeoDataPolygon.h"
 #include "GeoDataStyle.h"
-#include "Quaternion.h"
 #include "triangulate.h"
 
 #include <QtGui/QColor>
@@ -120,8 +120,8 @@ void GLRenderer::addLineString( const GeoDataLineString &lineString, const GeoDa
     const GLuint firstIndex = d->lineVertices.size();
 
     for ( int i = 0; i < lineString.size(); ++i ) {
-        const Quaternion quat = lineString.at( i ).quaternion();
-        const QVector3D position( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
+        const GeoDataCoordinates coordinates = lineString.at( i );
+        const QVector3D position( coordinates.longitude(), coordinates.latitude(), coordinates.altitude() );
         d->lineVertices << Private::VertexData( position, color );
         if ( i > 0 ) {
             d->lineIndices << (firstIndex + (GLuint)i - 1) << (firstIndex + (GLuint)i);
@@ -138,8 +138,8 @@ void GLRenderer::addPolygon( const GeoDataPolygon &polygon, const GeoDataStyle &
     const int firstIndex = d->triangleVertices.size();
 
     for ( int i = 0; i < polygon.outerBoundary().size(); ++i ) {
-        const Quaternion quat = polygon.outerBoundary().at( i ).quaternion();
-        const QVector3D position( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
+        const GeoDataCoordinates coordinates = polygon.outerBoundary().at( i );
+        const QVector3D position( coordinates.longitude(), coordinates.latitude(), coordinates.altitude() );
         d->triangleVertices << Private::VertexData( position, color );
     }
 
@@ -155,8 +155,8 @@ void GLRenderer::addPolygon( const GeoDataLinearRing &ring, const GeoDataStyle &
     const int firstIndex = d->triangleVertices.size();
 
     for ( int i = 0; i < ring.size(); ++i ) {
-        const Quaternion quat = ring.at( i ).quaternion();
-        const QVector3D position( quat.v[Q_X], -quat.v[Q_Y], quat.v[Q_Z] );
+        const GeoDataCoordinates coordinates = ring.at( i );
+        const QVector3D position( coordinates.longitude(), coordinates.latitude(), coordinates.altitude() );
         d->triangleVertices << Private::VertexData( position, color );
     }
 

@@ -55,6 +55,11 @@ AzimuthalEquidistantProjection::~AzimuthalEquidistantProjection()
 {
 }
 
+QString AzimuthalEquidistantProjection::nameId() const
+{
+    return "azimuthalequidistant";
+}
+
 QString AzimuthalEquidistantProjection::name() const
 {
     return QObject::tr( "Azimuthal Equidistant" );
@@ -78,12 +83,6 @@ AzimuthalEquidistantProjectionPrivate::AzimuthalEquidistantProjectionPrivate( Az
 qreal AzimuthalEquidistantProjection::clippingRadius() const
 {
     return 1;
-}
-
-QVector3D AzimuthalEquidistantProjection::vertexCoordinates( const GeoDataCoordinates &coordinates ) const
-{
-#warning implement me
-    return QVector3D( 0, 0, 0 );
 }
 
 bool AzimuthalEquidistantProjection::screenCoordinates( const GeoDataCoordinates &coordinates,

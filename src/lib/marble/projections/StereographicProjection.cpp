@@ -55,6 +55,10 @@ StereographicProjection::~StereographicProjection()
 {
 }
 
+QString StereographicProjection::nameId() const
+{
+    return "stereographic";
+}
 
 StereographicProjectionPrivate::StereographicProjectionPrivate( StereographicProjection * parent )
         : AzimuthalProjectionPrivate( parent )
@@ -79,12 +83,6 @@ QIcon StereographicProjection::icon() const
 qreal StereographicProjection::clippingRadius() const
 {
     return 1;
-}
-
-QVector3D StereographicProjection::vertexCoordinates( const GeoDataCoordinates &coordinates ) const
-{
-#warning implement me
-    return QVector3D( 0, 0, 0 );
 }
 
 bool StereographicProjection::screenCoordinates( const GeoDataCoordinates &coordinates,

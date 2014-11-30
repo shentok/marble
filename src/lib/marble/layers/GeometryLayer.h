@@ -20,12 +20,14 @@
 
 class QAbstractItemModel;
 class QGLContext;
+class QGLShaderProgram;
 class QModelIndex;
 class QPoint;
 class QColor;
 
 namespace Marble
 {
+class AbstractProjection;
 class GeoPainter;
 class GeoDataFeature;
 class ViewportParams;
@@ -82,7 +84,7 @@ Q_SIGNALS:
     void highlightedPlacemarksChanged( const QVector<GeoDataPlacemark*>& clickedPlacemarks );
 
 private:
-    void initializeGL( QGLContext *glContext );
+    static QGLShaderProgram *initializeGL( const AbstractProjection &projection );
 
 private:
     friend class GeometryLayerPrivate;

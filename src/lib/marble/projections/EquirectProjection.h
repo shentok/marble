@@ -44,6 +44,8 @@ class EquirectProjection : public CylindricalProjection
 
     virtual ~EquirectProjection();
 
+    QString nameId() const;
+
     /**
      * @brief Returns the user-visible name of the projection.
      */
@@ -64,8 +66,6 @@ class EquirectProjection : public CylindricalProjection
     virtual qreal  minValidLat() const;
 
     virtual PreservationType preservationType() const { return NoPreservation; }
-
-    virtual QVector3D vertexCoordinates( const GeoDataCoordinates &coordinates ) const;
 
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.

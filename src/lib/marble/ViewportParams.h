@@ -103,8 +103,6 @@ class MARBLE_EXPORT ViewportParams
 
     QMatrix4x4 viewportMatrix() const;
 
-    QMatrix4x4 rotationMatrix() const;
-
     int width()  const;
     int height() const;
     QSize size() const;

@@ -40,6 +40,7 @@ class QString;
 namespace Marble
 {
 
+class AbstractProjection;
 class GeoPainter;
 class GeoSceneLayer;
 class MarbleClock;
@@ -105,7 +106,7 @@ class PlacemarkLayer : public QObject, public LayerInterface, public GlLayerInte
 
  private:
     static bool testXBug();
-    void initializeGL( QGLContext *glContext );
+    static QGLShaderProgram *initializeGL( const AbstractProjection &projection );
 
  private Q_SLOTS:
     void clearTiles();
@@ -116,6 +117,7 @@ class PlacemarkLayer : public QObject, public LayerInterface, public GlLayerInte
     struct GlTile;
 
     QGLContext *m_glContext;
+    const AbstractProjection *m_previousProjection;
     GLuint m_textureId;
     QGLShaderProgram *m_program;
     QMap<TileId, GlTile *> m_tileCache;

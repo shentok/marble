@@ -17,10 +17,12 @@
 #include "GeoDataCoordinates.h"
 
 class QGLContext;
+class QGLShaderProgram;
 
 namespace Marble
 {
 
+class AbstractProjection;
 class StackedTileLoader;
 class TextureColorizer;
 class TileId;
@@ -36,7 +38,7 @@ class GLTextureMapper : public QObject
     void mapTexture( QGLContext *glContext, const ViewportParams *viewport, int tileZoomLevel );
 
  private:
-    void initializeGL( QGLContext *glContext );
+    static QGLShaderProgram *initializeGL( const AbstractProjection &projection );
     void loadVisibleTiles( QGLContext *glContext, const ViewportParams *viewport, int tileZoomLevel );
     GeoDataCoordinates geoCoordinates( const qreal x, const qreal y ) const;
     QPointF projectionCoordinates( qreal lon, qreal lat ) const;

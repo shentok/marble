@@ -55,6 +55,10 @@ LambertAzimuthalProjection::~LambertAzimuthalProjection()
 {
 }
 
+QString LambertAzimuthalProjection::nameId() const
+{
+    return "lambertazimuthal";
+}
 
 LambertAzimuthalProjectionPrivate::LambertAzimuthalProjectionPrivate( LambertAzimuthalProjection * parent )
         : AzimuthalProjectionPrivate( parent )
@@ -79,12 +83,6 @@ QIcon LambertAzimuthalProjection::icon() const
 qreal LambertAzimuthalProjection::clippingRadius() const
 {
     return 1;
-}
-
-QVector3D LambertAzimuthalProjection::vertexCoordinates( const GeoDataCoordinates &coordinates ) const
-{
-#warning implement me
-    return QVector3D( 0, 0, 0 );
 }
 
 bool LambertAzimuthalProjection::screenCoordinates( const GeoDataCoordinates &coordinates,

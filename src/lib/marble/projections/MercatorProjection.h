@@ -43,6 +43,8 @@ class MercatorProjection : public CylindricalProjection
 
     virtual ~MercatorProjection();
 
+    QString nameId() const;
+
     /**
      * @brief Returns the user-visible name of the projection.
      */
@@ -63,8 +65,6 @@ class MercatorProjection : public CylindricalProjection
     virtual qreal  minValidLat() const;
 
     virtual PreservationType preservationType() const { return Conformal; }
-
-    virtual QVector3D vertexCoordinates( const GeoDataCoordinates &coordinates ) const;
 
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.

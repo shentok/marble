@@ -46,6 +46,8 @@ class SphericalProjection : public AzimuthalProjection
 
     virtual ~SphericalProjection();
 
+    QString nameId() const;
+
     /**
      * @brief Returns the user-visible name of the projection.
      */
@@ -61,8 +63,6 @@ class SphericalProjection : public AzimuthalProjection
      * @brief Returns an icon for the projection.
      */
     QIcon icon() const;
-
-    virtual QVector3D vertexCoordinates( const GeoDataCoordinates &coordinates ) const;
 
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.

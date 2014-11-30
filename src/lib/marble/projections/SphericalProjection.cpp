@@ -57,6 +57,11 @@ SphericalProjection::~SphericalProjection()
 {
 }
 
+QString SphericalProjection::nameId() const
+{
+    return "spherical";
+}
+
 SphericalProjectionPrivate::SphericalProjectionPrivate( SphericalProjection * parent )
         : AzimuthalProjectionPrivate( parent )
 {
@@ -75,13 +80,6 @@ QString SphericalProjection::description() const
 QIcon SphericalProjection::icon() const
 {
     return QIcon(":/icons/map-globe.png");
-}
-
-QVector3D SphericalProjection::vertexCoordinates( const GeoDataCoordinates &coordinates ) const
-{
-    const Quaternion p = coordinates.quaternion();
-
-    return QVector3D( p.v[Q_X], -p.v[Q_Y], p.v[Q_Z] );
 }
 
 bool SphericalProjection::screenCoordinates( const GeoDataCoordinates &coordinates,

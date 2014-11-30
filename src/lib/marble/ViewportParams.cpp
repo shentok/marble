@@ -20,6 +20,7 @@
 #include <QRegion>
 
 #include "MarbleDebug.h"
+#include "MarbleMath.h"
 #include "SphericalProjection.h"
 #include "EquirectProjection.h"
 #include "MercatorProjection.h"
@@ -281,30 +282,6 @@ QMatrix4x4 ViewportParams::viewportMatrix() const
     viewportMatrix.translate( d->m_size.width() / 2, d->m_size.height() / 2, 0 );
 
     return viewportMatrix;
-}
-
-QMatrix4x4 ViewportParams::rotationMatrix() const
-{
-    QMatrix4x4 matrix;
-
-    matrix.setToIdentity();
-    if ( d->m_projection == Spherical ) {
-        const qreal angle = 2 * acos( d->m_planetAxis.v[Q_W] ) * RAD2DEG;
-        const qreal ax = d->m_planetAxis.v[Q_X];
-        const qreal ay = -d->m_planetAxis.v[Q_Y];
-        const qreal az = d->m_planetAxis.v[Q_Z];
-
-        matrix.rotate( angle, ax, ay, az );
-    }
-    else {
-        // Calculate translation of center point
-        const GeoDataCoordinates coordinates( d->m_centerLongitude, d->m_centerLatitude );
-        const QVector3D center = d->m_currentProjection->vertexCoordinates( coordinates );
-        matrix.translate( -center.x() * d->m_radius, -center.y() * d->m_radius, 0 );
-    }
-    matrix.scale( d->m_radius );
-
-    return matrix;
 }
 
 int ViewportParams::width()  const

@@ -77,6 +77,7 @@ public:
     const QAbstractItemModel *const m_model;
     GeoGraphicsScene m_scene;
     QGLContext *m_glContext;
+    const AbstractProjection *m_previousProjection;
     QGLShaderProgram *m_program;
     QMap<TileId, GLRenderer *> m_glmap;
     QString m_runtimeTrace;
@@ -101,6 +102,7 @@ const int GeometryLayerPrivate::s_defaultZValue = 50;
 GeometryLayerPrivate::GeometryLayerPrivate( const QAbstractItemModel *model )
     : m_model( model ),
       m_glContext( 0 ),
+      m_previousProjection( 0 ),
       m_program( 0 )
 {
     initializeDefaultValues();
@@ -290,50 +292,51 @@ bool GeometryLayer::render( GeoPainter *painter, ViewportParams *viewport,
     return true;
 }
 
-void GeometryLayer::initializeGL( QGLContext *glContext )
+QGLShaderProgram *GeometryLayer::initializeGL( const AbstractProjection &projection )
 {
-    Q_ASSERT( d->m_glContext == 0 );
+    QGLShaderProgram *program = new QGLShaderProgram;
 
-    d->m_glContext = glContext;
-
-    d->m_program = new QGLShaderProgram( this );
+    const QString relativePath = QString( "shaders/geometrylayer.vertex-%1.glsl" ).arg( projection.nameId() );
 
     // Overriding system locale until shaders are compiled
     QLocale::setDefault( QLocale::c() );
 
-    if ( !d->m_program->addShaderFromSourceFile( QGLShader::Vertex, MarbleDirs::path( "shaders/geometrylayer.vertex.glsl" ) ) ) {
-        qWarning() << d->m_program->log();
-        return;
-    }
+    const bool ok = program->addShaderFromSourceFile( QGLShader::Vertex, MarbleDirs::path( relativePath ) )
+            && program->addShaderFromSourceFile( QGLShader::Fragment, MarbleDirs::path( "shaders/geometrylayer.fragment.glsl" ) )
+            && program->link();
 
-    if ( !d->m_program->addShaderFromSourceFile( QGLShader::Fragment, MarbleDirs::path( "shaders/geometrylayer.fragment.glsl" ) ) ) {
-        qWarning() << d->m_program->log();
-        return;
-    }
-
-    if ( !d->m_program->link() ) {
-        qWarning() << d->m_program->log();
-        return;
+    if ( !ok ) {
+        qWarning() << program->log();
     }
 
     // Restore system locale
     QLocale::setDefault( QLocale::system() );
+
+    return program;
 }
 
 void GeometryLayer::paintGL( QGLContext *glContext, const ViewportParams *viewport )
 {
-    if ( !d->m_glContext ) {
-        initializeGL( glContext );
+    if ( d->m_glContext != glContext ) {
+        Q_ASSERT( d->m_glContext == 0 );
+
+        d->m_glContext = glContext;
+    }
+
+    if ( d->m_previousProjection != viewport->currentProjection() ) {
+        d->m_previousProjection = viewport->currentProjection();
+        delete d->m_program;
+        d->m_program = initializeGL( *d->m_previousProjection );
     }
 
     if ( !d->m_program->bind() ) {
         return;
     }
 
-    const QMatrix4x4 viewportMatrix = viewport->viewportMatrix();
-    const QMatrix4x4 rotationMatrix = viewport->rotationMatrix();
-
-    d->m_program->setUniformValue( "rotationMatrix", viewportMatrix * rotationMatrix );
+    d->m_program->setUniformValue( "viewportMatrix", viewport->viewportMatrix() );
+    d->m_program->setUniformValue( "centerLongitude", GLfloat(viewport->centerLongitude()) );
+    d->m_program->setUniformValue( "centerLatitude", GLfloat(viewport->centerLatitude()) );
+    d->m_program->setUniformValue( "radius", GLfloat(viewport->radius()) );
 
     const int maxZoomLevel = qMin<int>( qLn( viewport->radius() *4 / 256 ) / qLn( 2.0 ), GeometryLayerPrivate::maximumZoomLevel() );
     const QList<TileId> tileIds = d->m_scene.tiles( viewport->viewLatLonAltBox(), maxZoomLevel );

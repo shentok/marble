@@ -37,6 +37,8 @@ class GnomonicProjection : public AzimuthalProjection
 
     virtual ~GnomonicProjection();
 
+    QString nameId() const;
+
     /**
      * @brief Returns the user-visible name of the projection.
      */
@@ -54,8 +56,6 @@ class GnomonicProjection : public AzimuthalProjection
     QIcon icon() const;
 
     virtual qreal clippingRadius() const;
-
-    QVector3D vertexCoordinates( const GeoDataCoordinates &coordinates ) const;
 
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.
