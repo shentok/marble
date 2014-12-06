@@ -162,8 +162,8 @@ void SphericalScanlineTextureMapper::RenderJob::run()
     // Calculate north pole position to decrease pole distortion later on
     Quaternion northPole = Quaternion::fromSpherical( 0.0, M_PI * 0.5 );
     northPole.rotateAroundAxis( m_viewport->planetAxis().inverse() );
-    const int northPoleX = imageWidth / 2 + (int)( radius * northPole.v[Q_X] );
-    const int northPoleY = imageHeight / 2 - (int)( radius * northPole.v[Q_Y] );
+    const int northPoleX = imageWidth / 2 + (int)( radius * northPole.x() );
+    const int northPoleY = imageHeight / 2 - (int)( radius * northPole.y() );
 
     // Calculate axis matrix to represent the planet's rotation.
     matrix  planetAxisMatrix;
@@ -213,7 +213,7 @@ void SphericalScanlineTextureMapper::RenderJob::run()
 
         // Decrease pole distortion due to linear approximation ( y-axis )
         bool crossingPoleArea = false;
-        if ( northPole.v[Q_Z] > 0
+        if ( northPole.z() > 0
              && northPoleY - ( n * 0.75 ) <= y
              && northPoleY + ( n * 0.75 ) >= y ) 
         {

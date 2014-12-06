@@ -20,29 +20,18 @@
 #define MARBLE_QUATERNION_H
 
 #include "marble_export.h"
-#include <cmath>
 
 namespace Marble
 {
 
-enum
-{
-    Q_X = 0,
-    Q_Y = 1,
-    Q_Z = 2,
-    Q_W = 3
-};
-
-
 typedef qreal    xmmfloat[4];
 typedef xmmfloat  matrix[3];
-
 
 class MARBLE_EXPORT Quaternion
 {
  public:
     Quaternion();
-    Quaternion(qreal w, qreal x, qreal y, qreal z);
+    Quaternion(qreal scalar, qreal x, qreal y, qreal z);
 
     /*!\brief used to generate Quaternion from longitude and latitude
      * 
@@ -67,6 +56,11 @@ class MARBLE_EXPORT Quaternion
 
     void        normalize();
 
+    qreal scalar() const;
+    qreal x() const;
+    qreal y() const;
+    qreal z() const;
+
     qreal       length() const;
 
     Quaternion  inverse() const;
@@ -83,8 +77,11 @@ class MARBLE_EXPORT Quaternion
     void        toMatrix(matrix &m) const;
     void        rotateAroundAxis(const matrix &m);
 
-    // TODO: Better add accessors...
-    xmmfloat    v;
+private:
+    qreal m_w;
+    qreal m_x;
+    qreal m_y;
+    qreal m_z;
 };
 
 }

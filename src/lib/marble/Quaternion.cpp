@@ -27,12 +27,12 @@ Quaternion::Quaternion()
 //    set( 1.0, 0.0, 0.0, 0.0 );
 }
 
-Quaternion::Quaternion(qreal w, qreal x, qreal y, qreal z)
+Quaternion::Quaternion(qreal scalar, qreal x, qreal y, qreal z) :
+    m_w(scalar),
+    m_x(x),
+    m_y(y),
+    m_z(z)
 {
-    v[Q_W] = w;
-    v[Q_X] = x;
-    v[Q_Y] = y;
-    v[Q_Z] = z;
 }
 
 Quaternion Quaternion::fromSpherical(qreal lon, qreal lat)
@@ -47,16 +47,16 @@ Quaternion Quaternion::fromSpherical(qreal lon, qreal lat)
 
 void Quaternion::getSpherical(qreal &lon, qreal &lat) const 
 {
-    qreal  y = v[Q_Y];
+    qreal y = m_y;
     if ( y > 1.0 )
         y = 1.0;
-    else if ( y < -1.0 )
+    else if ( m_y < -1.0 )
         y = -1.0;
 
     lat = asin( y );
 
-    if(v[Q_X] * v[Q_X] + v[Q_Z] * v[Q_Z] > 0.00005) 
-        lon = atan2(v[Q_X], v[Q_Z]);
+    if(m_x * m_x + m_z * m_z > 0.00005)
+        lon = atan2(m_x, m_z);
     else
         lon = 0.0;
 }
@@ -66,9 +66,29 @@ void Quaternion::normalize()
     (*this) *= 1.0 / length();
 }
 
+qreal Quaternion::scalar() const
+{
+    return m_w;
+}
+
+qreal Quaternion::x() const
+{
+    return m_x;
+}
+
+qreal Quaternion::y() const
+{
+    return m_y;
+}
+
+qreal Quaternion::z() const
+{
+    return m_z;
+}
+
 qreal Quaternion::length() const
 {
-    return sqrt(v[Q_W] * v[Q_W] + v[Q_X] * v[Q_X] + v[Q_Y] * v[Q_Y] + v[Q_Z] * v[Q_Z]);
+    return sqrt(m_w * m_w + m_x * m_x + m_y * m_y + m_z * m_z);
 }
 
 Quaternion& Quaternion::operator*=(qreal mult)
@@ -80,7 +100,7 @@ Quaternion& Quaternion::operator*=(qreal mult)
 
 Quaternion Quaternion::inverse() const
 {
-    Quaternion  inverse( v[Q_W], -v[Q_X], -v[Q_Y], -v[Q_Z] );
+    Quaternion  inverse( m_w, -m_x, -m_y, -m_z );
     inverse.normalize();
 
     return inverse;
@@ -89,17 +109,17 @@ Quaternion Quaternion::inverse() const
 Quaternion Quaternion::log() const
 {
     double const qlen = length();
-    double const vlen = sqrt(v[Q_X]*v[Q_X] + v[Q_Y]*v[Q_Y] + v[Q_Z]*v[Q_Z]);
-    double const a = acos(v[Q_W]/qlen) / vlen;
-    return Quaternion(std::log(qlen), v[Q_X] * a, v[Q_Y] * a, v[Q_Z] * a);
+    double const vlen = sqrt(m_x*m_x + m_y*m_y + m_z*m_z);
+    double const a = acos(m_w/qlen) / vlen;
+    return Quaternion(std::log(qlen), m_x * a, m_y * a, m_z * a);
 }
 
 Quaternion Quaternion::exp() const
 {
-    double const vlen = sqrt(v[Q_X]*v[Q_X] + v[Q_Y]*v[Q_Y] + v[Q_Z]*v[Q_Z]);
-    double const s = std::exp(v[Q_W]);
+    double const vlen = sqrt(m_x*m_x + m_y*m_y + m_z*m_z);
+    double const s = std::exp(m_w);
     double const a = s * sin(vlen) / vlen;
-    return Quaternion(s * cos(vlen), v[Q_X] * a, v[Q_Y] * a, v[Q_Z] * a);
+    return Quaternion(s * cos(vlen), m_x * a, m_y * a, m_z * a);
 }
 
 Quaternion Quaternion::fromEuler(qreal pitch, qreal yaw, qreal roll)
@@ -122,26 +142,26 @@ Quaternion Quaternion::fromEuler(qreal pitch, qreal yaw, qreal roll)
 
 qreal Quaternion::pitch() const // "heading", phi
 {
-    return atan2(         2.0*(v[Q_X]*v[Q_W]-v[Q_Y]*v[Q_Z]),
-                  ( 1.0 - 2.0*(v[Q_X]*v[Q_X]+v[Q_Z]*v[Q_Z]) ) );
+    return atan2(         2.0*(m_x*m_w-m_y*m_z),
+                  ( 1.0 - 2.0*(m_x*m_x+m_z*m_z) ) );
 }
 
 qreal Quaternion::yaw() const // "attitude", theta
 {
-    return atan2(         2.0*(v[Q_Y]*v[Q_W]-v[Q_X]*v[Q_Z]),
-                  ( 1.0 - 2.0*(v[Q_Y]*v[Q_Y]+v[Q_Z]*v[Q_Z]) ) );
+    return atan2(         2.0*(m_y*m_w-m_x*m_z),
+                  ( 1.0 - 2.0*(m_y*m_y+m_z*m_z) ) );
 }
 
 qreal Quaternion::roll() const // "bank", psi 
 {
-    return asin(2.0*(v[Q_X]*v[Q_Y]+v[Q_Z]*v[Q_W]));
+    return asin(2.0*(m_x*m_y+m_z*m_w));
 }
 
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, const Quaternion &q)
 {
     QString quatdisplay = QString("Quaternion: w= %1, x= %2, y= %3, z= %4, |q|= %5" )
-        .arg(q.v[Q_W]).arg(q.v[Q_X]).arg(q.v[Q_Y]).arg(q.v[Q_Z]).arg(q.length());
+        .arg(q.scalar()).arg(q.x()).arg(q.y()).arg(q.z()).arg(q.length());
 
     debug << quatdisplay;
 
@@ -159,41 +179,41 @@ Quaternion& Quaternion::operator*=(const Quaternion &q)
 bool Quaternion::operator==(const Quaternion &q) const
 {
 
-    return ( v[Q_W] == q.v[Q_W]
-         && v[Q_X] == q.v[Q_X]
-         && v[Q_Y] == q.v[Q_Y]
-         && v[Q_Z] == q.v[Q_Z] );
+    return ( m_w == q.m_w
+         && m_x == q.m_x
+         && m_y == q.m_y
+         && m_z == q.m_z );
 }
 
 Quaternion Quaternion::operator*(const Quaternion &q) const
 {
-    const qreal w = v[Q_W] * q.v[Q_W] - v[Q_X] * q.v[Q_X] - v[Q_Y] * q.v[Q_Y] - v[Q_Z] * q.v[Q_Z];
-    const qreal x = v[Q_W] * q.v[Q_X] + v[Q_X] * q.v[Q_W] + v[Q_Y] * q.v[Q_Z] - v[Q_Z] * q.v[Q_Y];
-    const qreal y = v[Q_W] * q.v[Q_Y] - v[Q_X] * q.v[Q_Z] + v[Q_Y] * q.v[Q_W] + v[Q_Z] * q.v[Q_X];
-    const qreal z = v[Q_W] * q.v[Q_Z] + v[Q_X] * q.v[Q_Y] - v[Q_Y] * q.v[Q_X] + v[Q_Z] * q.v[Q_W];
+    const qreal w = m_w * q.m_w - m_x * q.m_x - m_y * q.m_y - m_z * q.m_z;
+    const qreal x = m_w * q.m_x + m_x * q.m_w + m_y * q.m_z - m_z * q.m_y;
+    const qreal y = m_w * q.m_y - m_x * q.m_z + m_y * q.m_w + m_z * q.m_x;
+    const qreal z = m_w * q.m_z + m_x * q.m_y - m_y * q.m_x + m_z * q.m_w;
 
     return Quaternion( w, x, y, z );
 }
 
 Quaternion Quaternion::operator+(const Quaternion &q) const
 {
-    return Quaternion(v[Q_W] + q.v[Q_W],
-                      v[Q_X] + q.v[Q_X],
-                      v[Q_Y] + q.v[Q_Y],
-                      v[Q_Z] + q.v[Q_Z]);
+    return Quaternion(m_w + q.m_w,
+                      m_x + q.m_x,
+                      m_y + q.m_y,
+                      m_z + q.m_z);
 }
 
 Quaternion Quaternion::operator*(qreal factor) const
 {
-    return Quaternion( v[Q_W] * factor, v[Q_X] * factor, v[Q_Y] * factor, v[Q_Z] * factor );
+    return Quaternion( m_w * factor, m_x * factor, m_y * factor, m_z * factor );
 }
 
 void Quaternion::rotateAroundAxis(const Quaternion &q)
 {
-    const qreal w = + v[Q_X] * q.v[Q_X] + v[Q_Y] * q.v[Q_Y] + v[Q_Z] * q.v[Q_Z];
-    const qreal x = + v[Q_X] * q.v[Q_W] - v[Q_Y] * q.v[Q_Z] + v[Q_Z] * q.v[Q_Y];
-    const qreal y = + v[Q_X] * q.v[Q_Z] + v[Q_Y] * q.v[Q_W] - v[Q_Z] * q.v[Q_X];
-    const qreal z = - v[Q_X] * q.v[Q_Y] + v[Q_Y] * q.v[Q_X] + v[Q_Z] * q.v[Q_W];
+    const qreal w = + m_x * q.m_x + m_y * q.m_y + m_z * q.m_z;
+    const qreal x = + m_x * q.m_w - m_y * q.m_z + m_z * q.m_y;
+    const qreal y = + m_x * q.m_z + m_y * q.m_w - m_z * q.m_x;
+    const qreal z = - m_x * q.m_y + m_y * q.m_x + m_z * q.m_w;
 
     (*this) = q * Quaternion( w, x, y, z );
 }
@@ -204,10 +224,10 @@ Quaternion Quaternion::slerp(const Quaternion &q1, const Quaternion &q2, qreal t
     qreal  p2;
 
     // Let alpha be the angle between the two quaternions.
-    qreal  cosAlpha = ( q1.v[Q_X] * q2.v[Q_X]
-                         + q1.v[Q_Y] * q2.v[Q_Y]
-                         + q1.v[Q_Z] * q2.v[Q_Z]
-                         + q1.v[Q_W] * q2.v[Q_W] );
+    qreal  cosAlpha = ( q1.m_x * q2.m_x
+                         + q1.m_y * q2.m_y
+                         + q1.m_z * q2.m_z
+                         + q1.m_w * q2.m_w );
     qreal  alpha    = acos( cosAlpha );
     qreal  sinAlpha = sin( alpha );
 
@@ -220,10 +240,10 @@ Quaternion Quaternion::slerp(const Quaternion &q1, const Quaternion &q2, qreal t
         p2 = 0.0;
     }
 
-    const qreal w = p1 * q1.v[Q_W] + p2 * q2.v[Q_W];
-    const qreal x = p1 * q1.v[Q_X] + p2 * q2.v[Q_X];
-    const qreal y = p1 * q1.v[Q_Y] + p2 * q2.v[Q_Y];
-    const qreal z = p1 * q1.v[Q_Z] + p2 * q2.v[Q_Z];
+    const qreal w = p1 * q1.m_w + p2 * q2.m_w;
+    const qreal x = p1 * q1.m_x + p2 * q2.m_x;
+    const qreal y = p1 * q1.m_y + p2 * q2.m_y;
+    const qreal z = p1 * q1.m_z + p2 * q2.m_z;
 
     return Quaternion( w, x, y, z );
 }
@@ -232,10 +252,10 @@ Quaternion Quaternion::nlerp(const Quaternion &q1, const Quaternion &q2, qreal t
 {
     const qreal p1 = 1.0 - t;
 
-    const qreal w = p1 * q1.v[Q_W] + t * q2.v[Q_W];
-    const qreal x = p1 * q1.v[Q_X] + t * q2.v[Q_X];
-    const qreal y = p1 * q1.v[Q_Y] + t * q2.v[Q_Y];
-    const qreal z = p1 * q1.v[Q_Z] + t * q2.v[Q_Z];
+    const qreal w = p1 * q1.m_w + t * q2.m_w;
+    const qreal x = p1 * q1.m_x + t * q2.m_x;
+    const qreal y = p1 * q1.m_y + t * q2.m_y;
+    const qreal z = p1 * q1.m_z + t * q2.m_z;
 
     Quaternion result( w, x, y, z );
     result.normalize();
@@ -246,18 +266,18 @@ Quaternion Quaternion::nlerp(const Quaternion &q1, const Quaternion &q2, qreal t
 void Quaternion::toMatrix(matrix &m) const
 {
 
-    const qreal xy = v[Q_X] * v[Q_Y], xz = v[Q_X] * v[Q_Z];
-    const qreal yy = v[Q_Y] * v[Q_Y], yw = v[Q_Y] * v[Q_W];
-    const qreal zw = v[Q_Z] * v[Q_W], zz = v[Q_Z] * v[Q_Z];
+    const qreal xy = m_x * m_y, xz = m_x * m_z;
+    const qreal yy = m_y * m_y, yw = m_y * m_w;
+    const qreal zw = m_z * m_w, zz = m_z * m_z;
 
     m[0][0] = 1.0 - 2.0 * (yy + zz);
     m[0][1] = 2.0 * (xy + zw);
     m[0][2] = 2.0 * (xz - yw);
     m[0][3] = 0.0;
 
-    const qreal xx = v[Q_X] * v[Q_X];
-    const qreal xw = v[Q_X] * v[Q_W];
-    const qreal yz = v[Q_Y] * v[Q_Z];
+    const qreal xx = m_x * m_x;
+    const qreal xw = m_x * m_w;
+    const qreal yz = m_y * m_z;
 
     m[1][0] = 2.0 * (xy - zw);
     m[1][1] = 1.0 - 2.0 * (xx + zz);
@@ -272,12 +292,12 @@ void Quaternion::toMatrix(matrix &m) const
 
 void Quaternion::rotateAroundAxis(const matrix &m)
 {
-    const qreal x =  m[0][0] * v[Q_X] + m[1][0] * v[Q_Y] + m[2][0] * v[Q_Z];
-    const qreal y =  m[0][1] * v[Q_X] + m[1][1] * v[Q_Y] + m[2][1] * v[Q_Z];
-    const qreal z =  m[0][2] * v[Q_X] + m[1][2] * v[Q_Y] + m[2][2] * v[Q_Z];
+    const qreal x =  m[0][0] * m_x + m[1][0] * m_y + m[2][0] * m_z;
+    const qreal y =  m[0][1] * m_x + m[1][1] * m_y + m[2][1] * m_z;
+    const qreal z =  m[0][2] * m_x + m[1][2] * m_y + m[2][2] * m_z;
 
-    v[Q_W] = 1.0;
-    v[Q_X] = x;
-    v[Q_Y] = y;
-    v[Q_Z] = z;
+    m_w = 1.0;
+    m_x = x;
+    m_y = y;
+    m_z = z;
 }
