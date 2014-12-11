@@ -215,7 +215,7 @@ private:
                       SolarSystem &sys,
                       ViewportParams *viewport,
                       qreal skyRadius,
-                      matrix &skyAxisMatrix) const;
+                      const QMatrix4x4 &skyAxisMatrix) const;
     void createStarPixmaps();
     void loadStars();
     void loadConstellations();

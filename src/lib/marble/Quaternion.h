@@ -21,11 +21,10 @@
 
 #include "marble_export.h"
 
+class QMatrix4x4;
+
 namespace Marble
 {
-
-typedef qreal    xmmfloat[4];
-typedef xmmfloat  matrix[3];
 
 class MARBLE_EXPORT Quaternion
 {
@@ -74,8 +73,8 @@ class MARBLE_EXPORT Quaternion
 
     void        rotateAroundAxis(const Quaternion &q);
 
-    void        toMatrix(matrix &m) const;
-    void        rotateAroundAxis(const matrix &m);
+    void        toMatrix(QMatrix4x4 &m) const;
+    void        rotateAroundAxis(const QMatrix4x4 &m);
 
 private:
     qreal m_w;

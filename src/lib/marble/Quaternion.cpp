@@ -15,6 +15,7 @@
 #include <cmath>
 using namespace std;
 
+#include <QMatrix4x4>
 #include <QString>
 #include <QDebug>
 
@@ -263,38 +264,46 @@ Quaternion Quaternion::nlerp(const Quaternion &q1, const Quaternion &q2, qreal t
     return result;
 }
 
-void Quaternion::toMatrix(matrix &m) const
+void Quaternion::toMatrix(QMatrix4x4 &m) const
 {
-
-    const qreal xy = m_x * m_y, xz = m_x * m_z;
-    const qreal yy = m_y * m_y, yw = m_y * m_w;
-    const qreal zw = m_z * m_w, zz = m_z * m_z;
-
-    m[0][0] = 1.0 - 2.0 * (yy + zz);
-    m[0][1] = 2.0 * (xy + zw);
-    m[0][2] = 2.0 * (xz - yw);
-    m[0][3] = 0.0;
-
     const qreal xx = m_x * m_x;
+    const qreal xy = m_x * m_y;
+    const qreal xz = m_x * m_z;
     const qreal xw = m_x * m_w;
+    const qreal yy = m_y * m_y;
     const qreal yz = m_y * m_z;
+    const qreal yw = m_y * m_w;
+    const qreal zz = m_z * m_z;
+    const qreal zw = m_z * m_w;
 
-    m[1][0] = 2.0 * (xy - zw);
-    m[1][1] = 1.0 - 2.0 * (xx + zz);
-    m[1][2] = 2.0 * (yz + xw);
-    m[1][3] = 0.0;
+    const qreal m00 = 1.0 - 2.0 * (yy + zz);
+    const qreal m01 = 2.0 * (xy + zw);
+    const qreal m02 = 2.0 * (xz - yw);
+    const qreal m03 = 0.0;
 
-    m[2][0] = 2.0 * (xz + yw);
-    m[2][1] = 2.0 * (yz - xw);
-    m[2][2] = 1.0 - 2.0 * (xx + yy);
-    m[2][3] = 0.0;
+    const qreal m10 = 2.0 * (xy - zw);
+    const qreal m11 = 1.0 - 2.0 * (xx + zz);
+    const qreal m12 = 2.0 * (yz + xw);
+    const qreal m13 = 0.0;
+
+    const qreal m20 = 2.0 * (xz + yw);
+    const qreal m21 = 2.0 * (yz - xw);
+    const qreal m22 = 1.0 - 2.0 * (xx + yy);
+    const qreal m23 = 0.0;
+
+    const qreal m30 = 0;
+    const qreal m31 = 0;
+    const qreal m32 = 0;
+    const qreal m33 = 1;
+
+    m = QMatrix4x4( m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33 );
 }
 
-void Quaternion::rotateAroundAxis(const matrix &m)
+void Quaternion::rotateAroundAxis(const QMatrix4x4 &m)
 {
-    const qreal x =  m[0][0] * m_x + m[1][0] * m_y + m[2][0] * m_z;
-    const qreal y =  m[0][1] * m_x + m[1][1] * m_y + m[2][1] * m_z;
-    const qreal z =  m[0][2] * m_x + m[1][2] * m_y + m[2][2] * m_z;
+    const qreal x =  m(0, 0) * m_x + m(1, 0) * m_y + m(2, 0) * m_z;
+    const qreal y =  m(0, 1) * m_x + m(1, 1) * m_y + m(2, 1) * m_z;
+    const qreal z =  m(0, 2) * m_x + m(1, 2) * m_y + m(2, 2) * m_z;
 
     m_w = 1.0;
     m_x = x;

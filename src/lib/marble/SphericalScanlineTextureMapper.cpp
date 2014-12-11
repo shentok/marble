@@ -14,6 +14,7 @@
 
 #include <cmath>
 
+#include <QMatrix4x4>
 #include <QtCore/qmath.h>
 #include <QRunnable>
 
@@ -166,7 +167,7 @@ void SphericalScanlineTextureMapper::RenderJob::run()
     const int northPoleY = imageHeight / 2 - (int)( radius * northPole.y() );
 
     // Calculate axis matrix to represent the planet's rotation.
-    matrix  planetAxisMatrix;
+    QMatrix4x4 planetAxisMatrix;
     m_viewport->planetAxis().toMatrix( planetAxisMatrix );
 
     // initialize needed variables that are modified during texture mapping:

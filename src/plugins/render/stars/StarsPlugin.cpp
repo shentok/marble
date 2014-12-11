@@ -20,6 +20,7 @@
 #include <QMenu>
 #include <QColorDialog>
 #include <qmath.h>
+#include <QMatrix4x4>
 
 #include "MarbleClock.h"
 #include "MarbleDebug.h"
@@ -857,7 +858,7 @@ bool StarsPlugin::render( GeoPainter *painter, ViewportParams *viewport,
 
 
         const Quaternion skyAxis = Quaternion::fromEuler( -centerLat , centerLon + skyRotationAngle, 0.0 );
-        matrix skyAxisMatrix;
+        QMatrix4x4 skyAxisMatrix;
         skyAxis.inverse().toMatrix( skyAxisMatrix );
 
         if ( m_renderCelestialPole ) {
@@ -891,7 +892,7 @@ bool StarsPlugin::render( GeoPainter *painter, ViewportParams *viewport,
 
         if( m_renderEcliptic ) {
             const Quaternion eclipticAxis = Quaternion::fromEuler( 0.0, 0.0, -marbleModel()->planet()->epsilon() );
-            matrix eclipticAxisMatrix;
+            QMatrix4x4 eclipticAxisMatrix;
             (eclipticAxis * skyAxis).inverse().toMatrix( eclipticAxisMatrix );
 
             painter->setPen(eclipticPen);
@@ -1263,7 +1264,7 @@ void StarsPlugin::renderPlanet(const QString &planetId,
                                SolarSystem &sys,
                                ViewportParams *viewport,
                                qreal skyRadius,
-                               matrix &skyAxisMatrix) const
+                               const QMatrix4x4 &skyAxisMatrix) const
 {
     double ra(.0), decl(.0), diam(.0), mag(.0), phase(.0);
     int color=0;

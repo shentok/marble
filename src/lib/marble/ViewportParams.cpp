@@ -13,10 +13,10 @@
 
 #include "ViewportParams.h"
 
-#include <QRect>
-
+#include <QMatrix4x4>
 #include <QPainterPath>
 #include <QPainterPathStroker>
+#include <QRect>
 #include <QRegion>
 
 #include "MarbleDebug.h"
@@ -52,7 +52,7 @@ public:
     qreal                m_centerLongitude;
     qreal                m_centerLatitude;
     Quaternion           m_planetAxis;   // Position, coded in a quaternion
-    matrix               m_planetAxisMatrix;
+    QMatrix4x4           m_planetAxisMatrix;
     int                  m_radius;       // Zoom level (pixels / globe radius)
     qreal                m_angularResolution;
 
@@ -267,7 +267,7 @@ Quaternion ViewportParams::planetAxis() const
     return d->m_planetAxis;
 }
 
-const matrix &ViewportParams::planetAxisMatrix() const
+const QMatrix4x4 &ViewportParams::planetAxisMatrix() const
 {
     return d->m_planetAxisMatrix;
 }
