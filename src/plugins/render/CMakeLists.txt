@@ -15,7 +15,7 @@ add_subdirectory( routing )
 add_subdirectory( speedometer )
 
 # Display geographical information on the map
-add_subdirectory( annotate )
+#add_subdirectory( annotate )
 add_subdirectory( crosshairs )
 add_subdirectory( eclipses )
 add_subdirectory( elevationprofilemarker )

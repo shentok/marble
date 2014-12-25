@@ -13,9 +13,12 @@
 
 #include <QObject>
 #include "LayerInterface.h"
+#include "GlLayerInterface.h"
 
 #include <QList>
 #include <QRegion>
+
+class QGLFramebufferObject;
 
 namespace Marble
 {
@@ -23,7 +26,7 @@ namespace Marble
 class AbstractFloatItem;
 class RenderPlugin;
 
-class FloatItemsLayer : public QObject, public LayerInterface
+class FloatItemsLayer : public QObject, public LayerInterface, public GlLayerInterface
 {
     Q_OBJECT
 
@@ -34,6 +37,8 @@ class FloatItemsLayer : public QObject, public LayerInterface
 
     bool render( GeoPainter *painter, ViewportParams *viewport,
        const QString &renderPos = "NONE", GeoSceneLayer *layer = 0 );
+
+    void paintGL( QGLContext *glContext, const ViewportParams *viewport );
 
     void addFloatItem( AbstractFloatItem *floatItem );
 
@@ -65,6 +70,7 @@ class FloatItemsLayer : public QObject, public LayerInterface
 
  private:
     QList<AbstractFloatItem *> m_floatItems;
+    QGLFramebufferObject *m_frameBuffer;
 };
 
 }

@@ -22,6 +22,7 @@
 #include "DialogConfigurationInterface.h"
 #include "GeoPainter.h"
 #include "MarbleDebug.h"
+#include "ViewportParams.h"
 
 namespace Marble
 {
@@ -29,7 +30,8 @@ namespace Marble
 class AbstractFloatItemPrivate
 {
   public:
-    AbstractFloatItemPrivate() : m_contextMenu( 0 )
+    AbstractFloatItemPrivate() :
+        m_contextMenu( 0 )
     {
     }
 

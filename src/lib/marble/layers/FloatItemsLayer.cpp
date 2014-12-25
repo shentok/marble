@@ -14,12 +14,15 @@
 #include "GeoPainter.h"
 #include "ViewportParams.h"
 
+#include <QGLFramebufferObject>
+
 namespace Marble
 {
 
 FloatItemsLayer::FloatItemsLayer( QObject *parent ) :
     QObject( parent ),
-    m_floatItems()
+    m_floatItems(),
+    m_frameBuffer( 0 )
 {
 }
 
@@ -51,6 +54,33 @@ bool FloatItemsLayer::render( GeoPainter *painter,
     }
 
     return true;
+}
+
+void FloatItemsLayer::paintGL( QGLContext *glContext, const ViewportParams *viewport )
+{
+    if ( m_frameBuffer == 0 || m_frameBuffer->size() != viewport->size() ) {
+        delete m_frameBuffer;
+        m_frameBuffer = new QGLFramebufferObject( viewport->size() );
+        m_frameBuffer->bind();
+        QPainter painter( m_frameBuffer );
+        painter.setPen( Qt::transparent );
+        painter.drawRect( 0, 0, viewport->size().width(), viewport->size().height() );
+        painter.end();
+        m_frameBuffer->release();
+    }
+
+    {
+        m_frameBuffer->bind();
+        QPainter painter( m_frameBuffer );
+        foreach ( AbstractFloatItem *item, m_floatItems ) {
+            item->paintEvent( &painter, viewport );
+        }
+        painter.end();
+        m_frameBuffer->release();
+    }
+
+    m_frameBuffer->bind();
+    glContext->drawTexture( QPointF( 0, 0 ), m_frameBuffer->texture() );
 }
 
 void FloatItemsLayer::addFloatItem( AbstractFloatItem *floatItem )
