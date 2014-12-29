@@ -14,9 +14,12 @@
 #include "MarbleDebug.h"
 #include "RemoteIconLoader.h"
 
+#include "AbstractProjection.h"
 #include "GeoDataFeature.h"
 #include "GeoDataStyle.h"
+#include "GeoPainter.h"
 #include "PlacemarkLayer.h"
+#include "ViewportParams.h"
 
 #include <QApplication>
 #include <QPainter>
@@ -24,11 +27,11 @@
 
 using namespace Marble;
 
-VisiblePlacemark::VisiblePlacemark( const GeoDataFeature *feature )
-    : m_feature( feature ),
-      m_selected( false )
+VisiblePlacemark::VisiblePlacemark( const GeoDataFeature *feature ) :
+    GeoGraphicsItem( feature ),
+    m_selected( false )
 {
-    const GeoDataStyle *style = m_feature->style();
+    const GeoDataStyle *style = feature->style();
     const RemoteIconLoader *remoteLoader = style->iconStyle().remoteIconLoader();
     QObject::connect( remoteLoader, SIGNAL(iconReady()),
                      this, SLOT(setSymbolPixmap()) );
@@ -36,20 +39,40 @@ VisiblePlacemark::VisiblePlacemark( const GeoDataFeature *feature )
     drawLabelPixmap();
 }
 
-const GeoDataFeature *VisiblePlacemark::feature() const
+void VisiblePlacemark::paint( GeoPainter *painter, const ViewportParams *viewport )
 {
-    return m_feature;
-}
-
-const QPixmap& VisiblePlacemark::symbolPixmap() const
-{    
-    const GeoDataStyle* style = m_feature->style();
+    const GeoDataStyle* style = feature()->style();
     if ( style ) {
         m_symbolPixmap = QPixmap::fromImage( style->iconStyle().icon() );
+        m_symbolRect.setSize( m_symbolPixmap.size() );
     } else {
         mDebug() << "Style pointer null";
     }
-    return  m_symbolPixmap;
+
+    QRect labelRect = this->labelRect().toRect();
+    QPoint symbolPos = m_symbolRect.topLeft();
+
+    // when the map is such zoomed out that a given place
+    // appears many times, we draw one placemark at each
+    if ( viewport->currentProjection()->repeatableX() ) {
+        const int symbolX = m_symbolRect.left();
+        const int textX =   this->labelRect().x();
+
+        for ( int i = symbolX % ( 4 * viewport->radius() );
+             i <= viewport->width();
+             i += 4 * viewport->radius() )
+        {
+            labelRect.moveLeft(i - symbolX + textX );
+            symbolPos.setX( i );
+
+            painter->drawPixmap( symbolPos, m_symbolPixmap );
+            painter->drawPixmap( labelRect, m_labelPixmap );
+        }
+    }
+    else { // simple case, one draw per placemark
+        painter->drawPixmap( symbolPos, m_symbolPixmap );
+        painter->drawPixmap( labelRect, m_labelPixmap );
+    }
 }
 
 bool VisiblePlacemark::selected() const
@@ -63,18 +86,18 @@ void VisiblePlacemark::setSelected( bool selected )
     drawLabelPixmap();
 }
 
-const QPoint& VisiblePlacemark::symbolPosition() const
+const QRect& VisiblePlacemark::symbolRect() const
 {
-    return m_symbolPosition;
+    return m_symbolRect;
 }
 
 const QPointF VisiblePlacemark::hotSpot() const
 {
-    const QSize iconSize = m_feature->style()->iconStyle().icon().size();
+    const QSize iconSize = feature()->style()->iconStyle().icon().size();
 
     GeoDataHotSpot::Units xunits;
     GeoDataHotSpot::Units yunits;
-    QPointF pixelHotSpot = m_feature->style()->iconStyle().hotSpot( xunits, yunits );
+    QPointF pixelHotSpot = feature()->style()->iconStyle().hotSpot( xunits, yunits );
 
     switch ( xunits ) {
     case GeoDataHotSpot::Fraction:
@@ -105,17 +128,12 @@ const QPointF VisiblePlacemark::hotSpot() const
 
 void VisiblePlacemark::setSymbolPosition( const QPoint& position )
 {
-    m_symbolPosition = position;
-}
-
-const QPixmap& VisiblePlacemark::labelPixmap() const
-{
-    return m_labelPixmap;
+    m_symbolRect.setTopLeft( position );
 }
 
 void VisiblePlacemark::setSymbolPixmap()
 {
-    const GeoDataStyle *style = m_feature->style();
+    const GeoDataStyle *style = feature()->style();
     if ( style ) {
         m_symbolPixmap = QPixmap::fromImage( style->iconStyle().icon() );
         emit updateNeeded();
@@ -137,9 +155,9 @@ void VisiblePlacemark::setLabelRect( const QRectF& labelRect )
 
 void VisiblePlacemark::drawLabelPixmap()
 {
-    const GeoDataStyle* style = m_feature->style();
+    const GeoDataStyle* style = feature()->style();
 
-    QString labelName = m_feature->name();
+    QString labelName = feature()->name();
     if ( labelName.isEmpty() ) {
         m_labelPixmap = QPixmap();
         return;

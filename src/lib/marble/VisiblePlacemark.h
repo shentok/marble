@@ -17,6 +17,8 @@
 #define MARBLE_VISIBLEPLACEMARK_H
 
 #include <QObject>
+#include "GeoGraphicsItem.h"
+
 #include <QPixmap>
 #include <QPoint>
 #include <QRectF>
@@ -35,23 +37,14 @@ static const qreal s_labelOutlineWidth = 2.5;
  * This class is used by PlacemarkLayout to pass the visible place marks
  * to the PlacemarkPainter.
  */
-class VisiblePlacemark : public QObject
+class VisiblePlacemark : public QObject, public GeoGraphicsItem
 {
  Q_OBJECT
 
  public:
     explicit VisiblePlacemark( const GeoDataFeature *feature );
 
-    /**
-     * Returns the index of the place mark model which
-     * is associated with this visible place mark.
-     */
-    const GeoDataFeature *feature() const;
-
-    /**
-     * Returns the pixmap of the place mark symbol.
-     */
-    const QPixmap& symbolPixmap() const;
+    void paint( GeoPainter *painter, const ViewportParams *viewport );
 
     /**
      * Returns the state of the place mark.
@@ -64,9 +57,9 @@ class VisiblePlacemark : public QObject
     void setSelected( bool selected );
 
     /**
-     * Returns the position of the place mark symbol on the map.
+     * Returns the area covered by the placemark symbol on the map.
      */
-    const QPoint& symbolPosition() const;
+    const QRect &symbolRect() const;
 
     /**
      * Returns the top left corner of the place mark symbol's hot spot
@@ -77,11 +70,6 @@ class VisiblePlacemark : public QObject
      * Sets the @p position of the place mark symbol on the map.
      */
     void setSymbolPosition( const QPoint& position );
-
-    /**
-     * Returns the pixmap of the place mark name label.
-     */
-    const QPixmap& labelPixmap() const;
 
     /**
      * Returns the area covered by the place mark name label on the map.
@@ -109,10 +97,8 @@ private Q_SLOTS:
     static void drawLabelText( QPainter &labelPainter, const QString &text, const QFont &labelFont, LabelStyle labelStyle, const QColor &color );
     void drawLabelPixmap();
 
-    const GeoDataFeature *m_feature;
-
     // View stuff
-    QPoint      m_symbolPosition; // position of the placemark's symbol
+    QRect       m_symbolRect;     // bounding box of the placemark's symbol
     bool        m_selected;       // state of the placemark
     QPixmap     m_labelPixmap;    // the text label (most often name)
     QRectF      m_labelRect;      // bounding box of label

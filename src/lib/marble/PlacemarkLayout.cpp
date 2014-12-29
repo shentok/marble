@@ -236,7 +236,7 @@ QVector<const GeoDataFeature*> PlacemarkLayout::whichPlacemarkAt( const QPoint& 
 
     foreach( VisiblePlacemark* mark, m_paintOrder ) {
         if ( mark->labelRect().contains( curpos )
-             || QRect( mark->symbolPosition(), mark->symbolPixmap().size() ).contains( curpos ) ) {
+             || mark->symbolRect().contains( curpos ) ) {
             ret.append( mark->feature() );
         }
     }
