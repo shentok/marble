@@ -14,7 +14,7 @@
 #include "MarbleDebug.h"
 #include "RemoteIconLoader.h"
 
-#include "GeoDataPlacemark.h"
+#include "GeoDataFeature.h"
 #include "GeoDataStyle.h"
 #include "PlacemarkLayer.h"
 
@@ -24,11 +24,11 @@
 
 using namespace Marble;
 
-VisiblePlacemark::VisiblePlacemark( const GeoDataPlacemark *placemark )
-    : m_placemark( placemark ),
+VisiblePlacemark::VisiblePlacemark( const GeoDataFeature *feature )
+    : m_feature( feature ),
       m_selected( false )
 {
-    const GeoDataStyle *style = m_placemark->style();
+    const GeoDataStyle *style = m_feature->style();
     const RemoteIconLoader *remoteLoader = style->iconStyle().remoteIconLoader();
     QObject::connect( remoteLoader, SIGNAL(iconReady()),
                      this, SLOT(setSymbolPixmap()) );
@@ -36,14 +36,14 @@ VisiblePlacemark::VisiblePlacemark( const GeoDataPlacemark *placemark )
     drawLabelPixmap();
 }
 
-const GeoDataPlacemark* VisiblePlacemark::placemark() const
+const GeoDataFeature *VisiblePlacemark::feature() const
 {
-    return m_placemark;
+    return m_feature;
 }
 
 const QPixmap& VisiblePlacemark::symbolPixmap() const
 {    
-    const GeoDataStyle* style = m_placemark->style();
+    const GeoDataStyle* style = m_feature->style();
     if ( style ) {
         m_symbolPixmap = QPixmap::fromImage( style->iconStyle().icon() );
     } else {
@@ -70,11 +70,11 @@ const QPoint& VisiblePlacemark::symbolPosition() const
 
 const QPointF VisiblePlacemark::hotSpot() const
 {
-    const QSize iconSize = m_placemark->style()->iconStyle().icon().size();
+    const QSize iconSize = m_feature->style()->iconStyle().icon().size();
 
     GeoDataHotSpot::Units xunits;
     GeoDataHotSpot::Units yunits;
-    QPointF pixelHotSpot = m_placemark->style()->iconStyle().hotSpot( xunits, yunits );
+    QPointF pixelHotSpot = m_feature->style()->iconStyle().hotSpot( xunits, yunits );
 
     switch ( xunits ) {
     case GeoDataHotSpot::Fraction:
@@ -115,7 +115,7 @@ const QPixmap& VisiblePlacemark::labelPixmap() const
 
 void VisiblePlacemark::setSymbolPixmap()
 {
-    const GeoDataStyle *style = m_placemark->style();
+    const GeoDataStyle *style = m_feature->style();
     if ( style ) {
         m_symbolPixmap = QPixmap::fromImage( style->iconStyle().icon() );
         emit updateNeeded();
@@ -137,9 +137,9 @@ void VisiblePlacemark::setLabelRect( const QRectF& labelRect )
 
 void VisiblePlacemark::drawLabelPixmap()
 {
-    const GeoDataStyle* style = m_placemark->style();
+    const GeoDataStyle* style = m_feature->style();
 
-    QString labelName = m_placemark->name();
+    QString labelName = m_feature->name();
     if ( labelName.isEmpty() ) {
         m_labelPixmap = QPixmap();
         return;

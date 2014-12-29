@@ -25,7 +25,7 @@
 namespace Marble
 {
 
-class GeoDataPlacemark;
+class GeoDataFeature;
 
 static const qreal s_labelOutlineWidth = 2.5;
 
@@ -40,13 +40,13 @@ class VisiblePlacemark : public QObject
  Q_OBJECT
 
  public:
-    explicit VisiblePlacemark( const GeoDataPlacemark *placemark );
+    explicit VisiblePlacemark( const GeoDataFeature *feature );
 
     /**
      * Returns the index of the place mark model which
      * is associated with this visible place mark.
      */
-    const GeoDataPlacemark* placemark() const;
+    const GeoDataFeature *feature() const;
 
     /**
      * Returns the pixmap of the place mark symbol.
@@ -109,7 +109,7 @@ private Q_SLOTS:
     static void drawLabelText( QPainter &labelPainter, const QString &text, const QFont &labelFont, LabelStyle labelStyle, const QColor &color );
     void drawLabelPixmap();
 
-    const GeoDataPlacemark *m_placemark;
+    const GeoDataFeature *m_feature;
 
     // View stuff
     QPoint      m_symbolPosition; // position of the placemark's symbol
