@@ -98,6 +98,7 @@ class PlacemarkLayer : public QObject, public LayerInterface
     static bool testXBug();
 
     PlacemarkLayout m_layout;
+    QString m_runtimeTrace;
 };
 
 }

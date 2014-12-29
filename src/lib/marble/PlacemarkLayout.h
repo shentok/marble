@@ -79,8 +79,6 @@ class PlacemarkLayout : public QObject
      */
     QVector<const GeoDataFeature *> whichPlacemarkAt( const QPoint &pos );
 
-    QString runtimeTrace() const;
-
  public Q_SLOTS:
     // earth
     void setShowPlaces( bool show );
@@ -136,7 +134,6 @@ class PlacemarkLayout : public QObject
     MarbleClock *const m_clock;
 
     QVector<VisiblePlacemark*> m_paintOrder;
-    QString m_runtimeTrace;
     int m_labelArea;
     QHash<const GeoDataPlacemark*, VisiblePlacemark*> m_visiblePlacemarks;
     QVector< QVector< VisiblePlacemark* > >  m_rowsection;

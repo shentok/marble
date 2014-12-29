@@ -61,6 +61,8 @@ bool PlacemarkLayer::render( GeoPainter *painter, ViewportParams *viewport,
     Q_UNUSED( renderPos )
     Q_UNUSED( layer )
 
+    m_runtimeTrace.clear();
+
     QVector<VisiblePlacemark*> visiblePlacemarks = m_layout.generateLayout( viewport );
     // draw placemarks less important first
     QVector<VisiblePlacemark*>::const_iterator visit = visiblePlacemarks.constEnd();
@@ -73,6 +75,8 @@ bool PlacemarkLayer::render( GeoPainter *painter, ViewportParams *viewport,
         mark->paint( painter, viewport );
     }
 
+    m_runtimeTrace = QString( "Placemarks: %1" ).arg( visiblePlacemarks.size() );
+
     return true;
 }
 
@@ -83,7 +87,7 @@ RenderState PlacemarkLayer::renderState() const
 
 QString PlacemarkLayer::runtimeTrace() const
 {
-    return m_layout.runtimeTrace();
+    return m_runtimeTrace;
 }
 
 QVector<const GeoDataFeature *> PlacemarkLayer::whichPlacemarkAt( const QPoint &pos )

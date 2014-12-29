@@ -370,7 +370,6 @@ QSet<TileId> PlacemarkLayout::visibleTiles( const ViewportParams *viewport )
 
 QVector<VisiblePlacemark *> PlacemarkLayout::generateLayout( const ViewportParams *viewport )
 {
-    m_runtimeTrace.clear();
     if ( m_placemarkModel.rowCount() <= 0 )
         return QVector<VisiblePlacemark *>();
 
@@ -520,13 +519,7 @@ QVector<VisiblePlacemark *> PlacemarkLayout::generateLayout( const ViewportParam
         }
     }
 
-    m_runtimeTrace = QString("Placemarks: %1 Drawn: %2").arg( placemarkList.count() ).arg( m_paintOrder.size() );
     return m_paintOrder;
-}
-
-QString PlacemarkLayout::runtimeTrace() const
-{
-    return m_runtimeTrace;
 }
 
 bool PlacemarkLayout::layoutPlacemark( const GeoDataPlacemark *placemark, qreal x, qreal y, bool selected )
