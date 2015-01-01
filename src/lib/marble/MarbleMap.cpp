@@ -66,6 +66,7 @@
 #include "MarbleDebug.h"
 #include "MarbleDirs.h"
 #include "MarbleModel.h"
+#include "PluginManager.h"
 #include "RenderPlugin.h"
 #include "SunLocator.h"
 #include "TileCoordsPyramid.h"
@@ -126,6 +127,8 @@ public:
 
     void setDocument( QString key );
 
+    void addPlugins();
+
     MarbleMap *const q;
 
     // The model we are showing.
@@ -158,7 +161,7 @@ MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model ) :
     m_model( model ),
     m_viewParams(),
     m_showFrameRate( false ),
-    m_layerManager( model, parent ),
+    m_layerManager( parent ),
     m_customPaintLayer( parent ),
     m_geometryLayer( model->treeModel() ),
     m_textureLayer( model->downloadManager(), model->sunLocator(), model->groundOverlayModel() ),
@@ -213,6 +216,10 @@ MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model ) :
 
     QObject::connect( parent, SIGNAL(visibleLatLonAltBoxChanged(GeoDataLatLonAltBox)),
                       parent, SIGNAL(repaintNeeded()) );
+
+    addPlugins();
+    QObject::connect( model->pluginManager(), SIGNAL(renderPluginsChanged()),
+                      parent, SLOT(addPlugins()) );
 }
 
 void MarbleMapPrivate::updateProperty( const QString &name, bool show )
@@ -254,6 +261,27 @@ void MarbleMapPrivate::updateProperty( const QString &name, bool show )
     }
 }
 
+void MarbleMapPrivate::addPlugins()
+{
+    foreach ( const RenderPlugin *factory, m_model->pluginManager()->renderPlugins() ) {
+        bool alreadyCreated = false;
+        foreach( const RenderPlugin* existing, m_layerManager.renderPlugins() ) {
+            if ( existing->nameId() == factory->nameId() ) {
+                alreadyCreated = true;
+                break;
+            }
+        }
+
+        if ( alreadyCreated ) {
+            continue;
+        }
+
+        RenderPlugin *const renderPlugin = factory->newInstance( m_model );
+        Q_ASSERT( renderPlugin && "Plugin must not return null when requesting a new instance." );
+        m_layerManager.addRenderPlugin( renderPlugin );
+    }
+}
+
 // ----------------------------------------------------------------
 
 
@@ -291,6 +319,7 @@ MarbleMap::~MarbleMap()
     d->m_layerManager.removeLayer( &d->m_placemarkLayer );
     d->m_layerManager.removeLayer( &d->m_textureLayer );
     d->m_layerManager.removeLayer( &d->m_groundLayer );
+    qDeleteAll( d->m_layerManager.renderPlugins() );
     delete d;
 
     delete model;  // delete the model after private data
