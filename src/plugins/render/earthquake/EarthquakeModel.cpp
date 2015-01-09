@@ -55,7 +55,7 @@ void EarthquakeModel::setEndDate( const QDateTime& endDate )
     m_endDate = endDate;
 }
 
-void EarthquakeModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qint32 number )
+void EarthquakeModel::getAdditionalItems( const GeoDataLatLonBox& box, qint32 number, const TileId& tileId )
 {
     if( marbleModel()->planetId() != "earth" ) {
         return;
@@ -70,10 +70,10 @@ void EarthquakeModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qint32
     geonamesUrl += "&maxRows=" + QString::number( number );
     geonamesUrl += "&username=marble";
     geonamesUrl += "&formatted=true";
-    downloadDescriptionFile( QUrl( geonamesUrl ) );
+    downloadDescriptionFile( QUrl( geonamesUrl ), tileId );
 }
 
-void EarthquakeModel::parseFile( const QByteArray& file )
+void EarthquakeModel::parseFile( const QByteArray& file, const TileId &tileId )
 {
     QScriptValue data;
     QScriptEngine engine;
@@ -112,7 +112,7 @@ void EarthquakeModel::parseFile( const QByteArray& file )
             }
         }
 
-        addItemsToList( items );
+        addItemsToList( items, tileId );
     }
 }
 

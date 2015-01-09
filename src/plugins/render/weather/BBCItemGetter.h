@@ -14,6 +14,7 @@
 // Marble
 #include "AbstractWorkerThread.h"
 #include "GeoDataLatLonBox.h"
+#include "TileId.h"
 
 // Qt
 #include <QList>
@@ -35,6 +36,7 @@ class BBCItemGetter : public AbstractWorkerThread
     ~BBCItemGetter();
 
     void setSchedule( const GeoDataLatLonBox& box,
+                      const TileId &tileId,
                       qint32 number );
 
     void setStationList( const QList<BBCStation>& items );
@@ -46,12 +48,13 @@ class BBCItemGetter : public AbstractWorkerThread
     void work();
 
  Q_SIGNALS:
-    void foundStation( BBCStation );
+    void foundStation( BBCStation, TileId );
 
  public:
     QList<BBCStation> m_items;
     QMutex m_scheduleMutex;
     GeoDataLatLonBox m_scheduledBox;
+    TileId m_scheduledTileId;
     qint32 m_scheduledNumber;
 };
 

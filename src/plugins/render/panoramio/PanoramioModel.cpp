@@ -15,8 +15,9 @@
 #include "PanoramioParser.h"
 
 // Marble
-#include "GeoDataLatLonAltBox.h"
+#include "GeoDataLatLonBox.h"
 #include "MarbleModel.h"
+#include "TileId.h"
 
 // Qt
 #include <QUrl>
@@ -35,7 +36,7 @@ void PanoramioModel::setMarbleWidget( MarbleWidget *widget )
     m_marbleWidget = widget;
 }
 
-void PanoramioModel::getAdditionalItems( const GeoDataLatLonAltBox &box, qint32 number )
+void PanoramioModel::getAdditionalItems( const GeoDataLatLonBox &box, qint32 number, const TileId &tileId )
 {
     if ( marbleModel()->planetId() != "earth" ) {
         return;
@@ -55,10 +56,10 @@ void PanoramioModel::getAdditionalItems( const GeoDataLatLonAltBox &box, qint32 
                   + "&maxy=" + QString::number( box.north() * RAD2DEG )
                   + "&size=small");
 
-    downloadDescriptionFile( jsonUrl );
+    downloadDescriptionFile( jsonUrl, tileId );
 }
 
-void PanoramioModel::parseFile( const QByteArray &file )
+void PanoramioModel::parseFile( const QByteArray &file, const TileId &tileId )
 {
     PanoramioParser panoramioJsonParser;
     QList<panoramioDataStructure> list
@@ -72,7 +73,7 @@ void PanoramioModel::parseFile( const QByteArray &file )
                                         (*it).latitude,
                                         0,
                                         GeoDataCoordinates::Degree );
-                                        
+
         if( itemExists( QString::number( (*it).photo_id ) ) ) {
             continue;
         }
@@ -87,7 +88,7 @@ void PanoramioModel::parseFile( const QByteArray &file )
                             standardImageSize,
                             item );
 
-        addItemToList( item );
+        addItemToList( item, tileId );
     }
 }
 

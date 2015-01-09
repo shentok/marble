@@ -53,9 +53,10 @@ QStringList AbstractWeatherService::favoriteItems() const
     return m_favoriteItems;
 }
 
-void AbstractWeatherService::parseFile( const QByteArray& file )
+void AbstractWeatherService::parseFile( const QByteArray& file, const TileId &tileId )
 {
     Q_UNUSED( file );
+    Q_UNUSED( tileId )
 }
 
 } // namespace Marble

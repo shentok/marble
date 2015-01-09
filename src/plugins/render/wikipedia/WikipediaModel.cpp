@@ -20,6 +20,7 @@
 #include "MarbleWidget.h"
 #include "MarbleModel.h"
 #include "MarbleDirs.h"
+#include "TileId.h"
 #include "WikipediaItem.h"
 #include "MarbleLocale.h"
 #include "MarbleDebug.h"
@@ -57,8 +58,9 @@ void WikipediaModel::setShowThumbnail( bool show )
     m_showThumbnail = show;
 }
 
-void WikipediaModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
-                                         qint32 number )
+void WikipediaModel::getAdditionalItems( const GeoDataLatLonBox& box,
+                                         qint32 number,
+                                         const TileId& tileId )
 {
     // Geonames only supports wikipedia articles for earth
     if ( marbleModel()->planetId() != "earth" ) {
@@ -86,13 +88,13 @@ void WikipediaModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
     geonamesUrl.setQuery( urlQuery );
 #endif
 
-    downloadDescriptionFile( geonamesUrl );
+    downloadDescriptionFile( geonamesUrl, tileId );
 }
 
-void WikipediaModel::parseFile( const QByteArray& file )
+void WikipediaModel::parseFile( const QByteArray& file, const TileId &tileId )
 {
     QList<WikipediaItem*> list;
-    GeonamesParser parser( m_marbleWidget, &list, this );
+    GeonamesParser parser( m_marbleWidget, tileId.zoomLevel(), &list, this );
     
     parser.read( file );
     
@@ -115,7 +117,7 @@ void WikipediaModel::parseFile( const QByteArray& file )
         }
     }
 
-    addItemsToList( items );
+    addItemsToList( items, tileId );
 }
 
 void WikipediaModel::setMarbleWidget(MarbleWidget *widget)

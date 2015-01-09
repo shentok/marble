@@ -57,12 +57,13 @@ WikipediaItem::~WikipediaItem()
 
 QString WikipediaItem::name() const
 {
-    return id();
+    return m_name;
 }
 
 void WikipediaItem::setName( const QString& name )
 {
-    setId( name );
+    m_name = name;
+    setId( name + QString::number( coordinate().detail() ) );
     updateToolTip();
 }
 

@@ -25,8 +25,9 @@ class FakeWeatherService : public AbstractWeatherService
     ~FakeWeatherService();
     
  public Q_SLOTS:
-    void getAdditionalItems( const GeoDataLatLonAltBox& box,
-                             qint32 number = 10 );
+    void getAdditionalItems( const GeoDataLatLonBox& box,
+                             qint32 number,
+                             const TileId &tileId );
     virtual void getItem( const QString &id );
 };
 

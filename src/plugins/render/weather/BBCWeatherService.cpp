@@ -57,8 +57,9 @@ void BBCWeatherService::setFavoriteItems( const QStringList& favorite )
     }
 }
 
-void BBCWeatherService::getAdditionalItems( const GeoDataLatLonAltBox& box,
-                                            qint32 number )
+void BBCWeatherService::getAdditionalItems( const GeoDataLatLonBox& box,
+                                            qint32 number,
+                                            const TileId &tileId )
 {
     if ( !m_parsingStarted ) {
         m_parsingStarted = true;
@@ -72,7 +73,7 @@ void BBCWeatherService::getAdditionalItems( const GeoDataLatLonAltBox& box,
         }
     }
 
-    m_itemGetter->setSchedule( box, number );
+    m_itemGetter->setSchedule( box, tileId, number );
 }
 
 void BBCWeatherService::getItem( const QString &id )
@@ -80,7 +81,7 @@ void BBCWeatherService::getItem( const QString &id )
     if ( id.startsWith( QLatin1String( "bbc" ) ) ) {
         BBCStation const station = m_itemGetter->station( id );
         if ( station.bbcId() > 0 ) {
-            createItem( station );
+            createItem( station, TileId( 0, 0, 0, 0 ) );
         }
     }
 }
@@ -92,9 +93,9 @@ void BBCWeatherService::fetchStationList()
     }
 
     connect( m_itemGetter,
-             SIGNAL(foundStation(BBCStation)),
+             SIGNAL(foundStation(BBCStation,TileId)),
              this,
-             SLOT(createItem(BBCStation)) );
+             SLOT(createItem(BBCStation,TileId)) );
 
     m_stationList = m_parser->stationList();
     m_itemGetter->setStationList( m_stationList );
@@ -103,7 +104,7 @@ void BBCWeatherService::fetchStationList()
     m_parser = 0;
 }
 
-void BBCWeatherService::createItem( BBCStation station )
+void BBCWeatherService::createItem( BBCStation station, TileId tileId )
 {
     BBCWeatherItem *item = new BBCWeatherItem( this );
     item->setMarbleWidget( marbleWidget() );
@@ -112,8 +113,8 @@ void BBCWeatherService::createItem( BBCStation station )
     item->setPriority( station.priority() );
     item->setStationName( station.name() );
 
-    emit requestedDownload( item->observationUrl(), "bbcobservation", item );
-    emit requestedDownload( item->forecastUrl(),    "bbcforecast",    item );
+    emit requestedDownload( item->observationUrl(), "bbcobservation", item, tileId );
+    emit requestedDownload( item->forecastUrl(),    "bbcforecast",    item, tileId );
 }
 
 #include "BBCWeatherService.moc"

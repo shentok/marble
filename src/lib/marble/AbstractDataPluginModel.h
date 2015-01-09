@@ -27,9 +27,10 @@ namespace Marble
     
 class AbstractDataPluginModelPrivate;
 class AbstractDataPluginItem;
-class GeoDataLatLonAltBox;
+class GeoDataLatLonBox;
 class MarbleModel;
 class ViewportParams;
+class TileId;
 
 /**
  * @short An abstract data model (not based on QAbstractModel) for a AbstractDataPlugin.
@@ -101,12 +102,12 @@ public Q_SLOTS:
      * Adds the @p items to the list of initialized items. It checks if items with the same id are
      * already in the list and ignores and deletes them in this case.
      */
-    void addItemsToList( const QList<AbstractDataPluginItem*> &items );
+    void addItemsToList( const QList<AbstractDataPluginItem*> &items, const TileId &tileId );
 
     /**
      * Convenience method to add one item to the list. See addItemsToList
      */
-    void addItemToList( AbstractDataPluginItem *item );
+    void addItemToList( AbstractDataPluginItem *item, const TileId &tileId );
 
     /**
      * Removes all items
@@ -119,8 +120,9 @@ public Q_SLOTS:
      * downloading the corresponding file.
      * This method has to be implemented in a subclass.
      **/
-    virtual void getAdditionalItems( const GeoDataLatLonAltBox& box,
-                                     qint32 number = 10 ) = 0;
+    virtual void getAdditionalItems( const GeoDataLatLonBox& box,
+                                     qint32 number,
+                                     const TileId& tileId ) = 0;
 
     /**
      * @brief Retrieve data for a specific item
@@ -133,7 +135,7 @@ public Q_SLOTS:
      * starts additionally needed downloads.
      * This method has to be implemented in a subclass.
      **/
-    virtual void parseFile( const QByteArray& file );
+    virtual void parseFile( const QByteArray& file, const TileId &tileId ) = 0;
         
     /**
      * Downloads the file from @p url. @p item -> addDownloadedFile() will be called when the
@@ -145,16 +147,11 @@ public Q_SLOTS:
     /**
      * Download the description file from the @p url.
      */
-    void downloadDescriptionFile( const QUrl& url );
+    void downloadDescriptionFile( const QUrl& url, const TileId& tileId );
 
     void registerItemProperties( const QMetaObject& item );
     
  private Q_SLOTS:
-    /**
-     * @brief Get new items with getAdditionalItems if it is reasonable.
-     */
-    void handleChangedViewport();
-    
     /**
      * @brief This method will assign downloaded files to the corresponding items
      * @param relativeUrlString The string containing the relative (to the downloader path)

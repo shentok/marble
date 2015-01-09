@@ -14,7 +14,7 @@
 #include "AbstractDataPluginModel.h"
 
 #include "WeatherData.h"
-#include "GeoDataLatLonAltBox.h"
+#include "GeoDataLatLonBox.h"
 #include "MarbleWidget.h"
 
 #include <QStringList>
@@ -26,7 +26,7 @@ namespace Marble
 {
 
 class AbstractWeatherService;
-class GeoDataLatLonAltBox;
+class GeoDataLatLonBox;
 class MarbleModel;
     
 class WeatherModel : public AbstractDataPluginModel
@@ -48,9 +48,9 @@ class WeatherModel : public AbstractDataPluginModel
      * after the download.
      * @param: The type of the download
      **/
-    void downloadItemData( const QUrl& url, const QString& type, AbstractDataPluginItem *item );
+    void downloadItemData( const QUrl& url, const QString& type, AbstractDataPluginItem *item, const TileId &tileId );
     
-    void downloadDescriptionFileRequested( const QUrl& url );
+    void downloadDescriptionFileRequested( const QUrl& url, const TileId& tileId );
 
     void setMarbleWidget(MarbleWidget *widget);
 
@@ -58,10 +58,11 @@ class WeatherModel : public AbstractDataPluginModel
     void favoriteItemChanged( const QString& id, bool isFavorite );
 
  protected:
-    void getAdditionalItems( const GeoDataLatLonAltBox& box,
-                             qint32 number = 10 );
+    void getAdditionalItems( const GeoDataLatLonBox& box,
+                             qint32 number,
+                             const TileId& tileId );
     virtual void getItem( const QString &id );
-    void parseFile( const QByteArray& file );
+    void parseFile( const QByteArray& file, const TileId &tileId );
 
  private:
     void addService( AbstractWeatherService *service );

@@ -20,9 +20,10 @@ namespace Marble
 {
 
 class AbstractDataPluginItem;
-class GeoDataLatLonAltBox;
+class GeoDataLatLonBox;
 class MarbleModel;
 class MarbleWidget;
+class TileId;
 
 class AbstractWeatherService : public QObject
 {
@@ -37,15 +38,16 @@ class AbstractWeatherService : public QObject
     virtual void setFavoriteItems( const QStringList& favorite );
     QStringList favoriteItems() const;
 
-    virtual void getAdditionalItems( const GeoDataLatLonAltBox& box,
-                                     qint32 number = 10 ) = 0;
+    virtual void getAdditionalItems( const GeoDataLatLonBox& box,
+                                     qint32 number,
+                                     const TileId &tileId ) = 0;
     virtual void getItem( const QString &id ) = 0;
-    virtual void parseFile( const QByteArray& file );
+    virtual void parseFile( const QByteArray& file, const TileId &tileId );
     
  Q_SIGNALS:
-    void requestedDownload( const QUrl& url, const QString& type, AbstractDataPluginItem *item );
-    void createdItems( QList<AbstractDataPluginItem*> items );
-    void downloadDescriptionFileRequested( const QUrl& );
+    void requestedDownload( const QUrl& url, const QString& type, AbstractDataPluginItem *item, const TileId &tileId );
+    void createdItems( QList<AbstractDataPluginItem*> items, const TileId &tileId );
+    void downloadDescriptionFileRequested( const QUrl&, const TileId &tileId );
 
 protected:
     const MarbleModel* marbleModel() const;

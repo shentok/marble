@@ -86,15 +86,6 @@ class MARBLE_EXPORT AbstractDataPluginItem : public QObject, public BillboardGra
    void toggleFavorite();
 
  private:
-    friend class AbstractDataPluginModel;
-
-    /**
-     * Returning the angular resolution of the viewport when the item was added to it the last
-     * time.
-     */
-    qreal addedAngularResolution() const;
-    void setAddedAngularResolution( qreal resolution );
-
     AbstractDataPluginItemPrivate * const d;
 };
 

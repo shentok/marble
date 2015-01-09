@@ -40,7 +40,7 @@ void OpenDesktopModel::setMarbleWidget(MarbleWidget *widget)
     m_marbleWidget = widget;
 }
  
-void OpenDesktopModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qint32 number )
+void OpenDesktopModel::getAdditionalItems( const GeoDataLatLonBox& box, qint32 number, const TileId& tileId )
 {
     Q_UNUSED( number )
   
@@ -54,10 +54,10 @@ void OpenDesktopModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qint3
     openDesktopUrl += "&longitude=" + QString::number(coords.longitude() * RAD2DEG);
     openDesktopUrl += "&format=json";
     
-    downloadDescriptionFile( QUrl( openDesktopUrl ) );
+    downloadDescriptionFile( QUrl( openDesktopUrl ), tileId );
 }
 
-void OpenDesktopModel::parseFile( const QByteArray& file )
+void OpenDesktopModel::parseFile( const QByteArray& file, const TileId &tileId )
 {
     QScriptValue data;
     QScriptEngine engine;
@@ -86,7 +86,7 @@ void OpenDesktopModel::parseFile( const QByteArray& file )
             if( !itemExists( personid ) )
             {
                 // If it does not exists, create it
-                GeoDataCoordinates coor(longitude * DEG2RAD, latitude * DEG2RAD);
+                GeoDataCoordinates coor(longitude, latitude, 0, GeoDataCoordinates::Degree);
                 OpenDesktopItem *item = new OpenDesktopItem( this );
                 item->setMarbleWidget(m_marbleWidget);
                 item->setId( personid );
@@ -99,7 +99,7 @@ void OpenDesktopModel::parseFile( const QByteArray& file )
             }
         }
 
-        addItemsToList( items );
+        addItemsToList( items, tileId );
     }
 }
  

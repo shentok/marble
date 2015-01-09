@@ -89,6 +89,7 @@ class WikipediaItem : public AbstractDataPluginItem
     MarbleWidget * m_marbleWidget;
     QUrl m_url;
     QUrl m_thumbnailImageUrl;
+    QString m_name;
     QString m_summary;
     double m_rank;
     TinyWebBrowser *m_browser;

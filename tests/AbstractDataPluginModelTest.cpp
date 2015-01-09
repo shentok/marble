@@ -14,6 +14,7 @@
 
 #include "AbstractDataPluginItem.h"
 #include "MarbleModel.h"
+#include "TileId.h"
 #include "ViewportParams.h"
 
 #include <QTimer>
@@ -50,10 +51,17 @@ public:
     {}
 
 protected:
-    void getAdditionalItems(const GeoDataLatLonAltBox &box, qint32 number)
+    void getAdditionalItems(const GeoDataLatLonBox &box, qint32 number, const TileId &tileId)
     {
         Q_UNUSED( box )
         Q_UNUSED( number )
+        Q_UNUSED( tileId )
+    }
+
+    virtual void parseFile( const QByteArray& file, const TileId &tileId )
+    {
+        Q_UNUSED( file );
+        Q_UNUSED( tileId );
     }
 };
 
@@ -121,7 +129,7 @@ void AbstractDataPluginModelTest::destructor()
 
     {
         TestDataPluginModel model( &m_marbleModel );
-        model.addItemToList( item );
+        model.addItemToList( item, TileId( 0, 0, 0, 0 ) );
 
         QVERIFY( model.itemExists( "foo" ) );
     }
@@ -158,7 +166,7 @@ void AbstractDataPluginModelTest::addItemToList()
 
     QSignalSpy itemsUpdatedSpy( &model, SIGNAL(itemsUpdated()) );
 
-    model.addItemToList( item );
+    model.addItemToList( item, TileId( 0, 0, 0, 0 ) );
 
     QVERIFY( model.itemExists( "foo" ) );
     QCOMPARE( model.findItem( "foo" ), item );
@@ -189,7 +197,7 @@ void AbstractDataPluginModelTest::addItemToList_keepExisting()
     QPointer<TestDataPluginItem> item( new TestDataPluginItem() );
     item->setId( "foo" );
     item->setInitialized( itemInitialized );
-    model.addItemToList( item );
+    model.addItemToList( item, TileId( 0, 0, 0, 0 ) );
 
     QPointer<TestDataPluginItem> rejectedItem( new TestDataPluginItem() );
     rejectedItem->setId( "foo" );
@@ -200,7 +208,7 @@ void AbstractDataPluginModelTest::addItemToList_keepExisting()
 
     QSignalSpy itemsUpdatedSpy( &model, SIGNAL(itemsUpdated()) );
 
-    model.addItemToList( rejectedItem );
+    model.addItemToList( rejectedItem, TileId( 0, 0, 0, 0 ) );
 
     QTimer::singleShot( 5000, &loop, SLOT(quit()) ); // watchdog timer
     loop.exec();
@@ -234,7 +242,7 @@ void AbstractDataPluginModelTest::switchMapTheme()
 
     TestDataPluginItem *const item = new TestDataPluginItem();
     item->setId( "foo" );
-    model.addItemToList( item );
+    model.addItemToList( item, TileId( 0, 0, 0, 0 ) );
 
     QCOMPARE( model.findItem( "foo" ), item );
 
@@ -272,7 +280,7 @@ void AbstractDataPluginModelTest::setFavoriteItemsOnly()
 
     TestDataPluginModel model( &m_marbleModel );
     model.setFavoriteItemsOnly( favoriteItemsOnly );
-    model.addItemToList( item );
+    model.addItemToList( item, TileId( 0, 0, 0, 0 ) );
 
     QVERIFY( model.findItem( item->id() ) == item );
 
@@ -325,7 +333,7 @@ void AbstractDataPluginModelTest::itemsVersusSetSticky()
     item->setSticky( false );
 
     TestDataPluginModel model( &m_marbleModel );
-    model.addItemToList( item );
+    model.addItemToList( item, TileId( 0, 6, 32, 32 ) );
 
     QVERIFY( model.items( &zoomedViewport, 1 ).contains( item ) );
     QVERIFY( !model.items( &fullViewport, 1 ).contains( item ) );

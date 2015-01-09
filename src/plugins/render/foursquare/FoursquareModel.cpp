@@ -37,7 +37,7 @@ FoursquareModel::~FoursquareModel()
 {
 }
 
-void FoursquareModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qint32 number )
+void FoursquareModel::getAdditionalItems( const GeoDataLatLonBox& box, qint32 number, const TileId& tileId )
 {
     if( marbleModel()->planetId() != "earth" ) {
         return;
@@ -66,10 +66,10 @@ void FoursquareModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qint32
     apiUrl += "&client_id=" + clientId;
     apiUrl += "&client_secret=" + clientSecret;
     apiUrl += "&v=20120601";
-    downloadDescriptionFile( QUrl( apiUrl ) );
+    downloadDescriptionFile( QUrl( apiUrl ), tileId );
 }
 
-void FoursquareModel::parseFile( const QByteArray& file )
+void FoursquareModel::parseFile( const QByteArray& file, const TileId &tileId )
 {
     QScriptValue data;
     QScriptEngine engine;
@@ -125,7 +125,7 @@ void FoursquareModel::parseFile( const QByteArray& file )
             }
         }
         while ( iterator.hasNext() );
-        addItemsToList( items );
+        addItemsToList( items, tileId );
     }
 }
 

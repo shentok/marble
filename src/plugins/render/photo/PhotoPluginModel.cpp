@@ -19,7 +19,7 @@
 
 // Marble
 #include "AbstractDataPluginItem.h"
-#include "GeoDataLatLonAltBox.h"
+#include "GeoDataLatLonBox.h"
 #include "MarbleModel.h"
 #include "MarbleDebug.h"
 #include "MarbleWidget.h"
@@ -68,8 +68,8 @@ QUrl PhotoPluginModel::generateUrl( const QString& service,
     return QUrl( url );
 }
 
-void PhotoPluginModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
-                                           qint32 number )
+void PhotoPluginModel::getAdditionalItems( const GeoDataLatLonBox& box,
+                                           qint32 number, const TileId& tileId )
 {
     // Flickr only supports images for earth
     if( marbleModel()->planetId() != "earth" ) {
@@ -89,7 +89,7 @@ void PhotoPluginModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
         options.insert( "sort",     "interestingness-desc" );
         options.insert( "license", m_licenses );
     
-        downloadDescriptionFile( generateUrl( "flickr", "flickr.photos.search", options ) );
+        downloadDescriptionFile( generateUrl( "flickr", "flickr.photos.search", options ), tileId );
     }
     else {
         // Flickr api doesn't support bboxes with west > east so we have to split in two boxes
@@ -105,7 +105,7 @@ void PhotoPluginModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
         optionsWest.insert( "sort",     "interestingness-desc" );
         optionsWest.insert( "license", m_licenses );
 
-        downloadDescriptionFile( generateUrl( "flickr", "flickr.photos.search", optionsWest ) );
+        downloadDescriptionFile( generateUrl( "flickr", "flickr.photos.search", optionsWest ), tileId );
         
         
         QString bboxEast( "" );
@@ -120,11 +120,11 @@ void PhotoPluginModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
         optionsEast.insert( "sort",     "interestingness-desc" );
         optionsEast.insert( "license", m_licenses );
 
-        downloadDescriptionFile( generateUrl( "flickr", "flickr.photos.search", optionsEast ) );
+        downloadDescriptionFile( generateUrl( "flickr", "flickr.photos.search", optionsEast ), tileId );
     }
 }
 
-void PhotoPluginModel::parseFile( const QByteArray& file )
+void PhotoPluginModel::parseFile( const QByteArray& file, const TileId &tileId )
 {
     QList<PhotoPluginItem*> list;
     FlickrParser parser( m_marbleWidget, &list, this );
@@ -144,7 +144,7 @@ void PhotoPluginModel::parseFile( const QByteArray& file )
         downloadItem( (*it)->infoUrl(),  "info",      (*it) );
         items << *it;
     }
-    addItemsToList( items );
+    addItemsToList( items, tileId );
 }
 
 void PhotoPluginModel::setMarbleWidget( MarbleWidget *widget )

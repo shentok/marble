@@ -32,10 +32,12 @@ BBCItemGetter::~BBCItemGetter()
 }
 
 void BBCItemGetter::setSchedule( const GeoDataLatLonBox& box,
+                                 const TileId &tileId,
                                  qint32 number )
 {
     m_scheduleMutex.lock();
     m_scheduledBox = box;
+    m_scheduledTileId = tileId;
     m_scheduledNumber = number;
     m_scheduleMutex.unlock();
     ensureRunning();
@@ -75,6 +77,7 @@ void BBCItemGetter::work()
 
     m_scheduleMutex.lock();
     GeoDataLatLonBox box = m_scheduledBox;
+    const TileId tileId = m_scheduledTileId;
     qint32 number = m_scheduledNumber;
     m_scheduledBox = GeoDataLatLonBox();
     m_scheduledNumber = 0;
@@ -86,7 +89,7 @@ void BBCItemGetter::work()
 
     while ( fetched < number && it != end ) {
         if ( box.contains( it->coordinate() ) ) {
-            emit foundStation( (*it) );
+            emit foundStation( (*it), tileId );
             fetched++;
         }
         ++it;

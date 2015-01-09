@@ -27,6 +27,7 @@ class GeonamesParser : public QXmlStreamReader
 {
 public:
     GeonamesParser( MarbleWidget* widget,
+                    int zoomLevel,
                     QList<WikipediaItem *> *list,
                     QObject *parent );
 
@@ -45,6 +46,7 @@ private:
     void readRank( WikipediaItem *item );
 
     MarbleWidget* m_marbleWidget;
+    int m_zoomLevel;
     QList<WikipediaItem *> *m_list;
     QObject *m_parent;
 };

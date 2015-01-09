@@ -13,7 +13,7 @@
 
 #include "MarbleGlobal.h"
 #include "MarbleModel.h"
-#include "GeoDataCoordinates.h"
+#include "GeoDataLatLonBox.h"
 #include "MarbleDebug.h"
 
 #include <QDebug>
@@ -53,7 +53,7 @@ OpenCachingComModel::~OpenCachingComModel()
 {
 }
 
-void OpenCachingComModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qint32 number )
+void OpenCachingComModel::getAdditionalItems( const GeoDataLatLonBox& box, qint32 number, const TileId& tileId )
 {
     if( marbleModel()->planetId() != "earth" )
     {
@@ -70,10 +70,10 @@ void OpenCachingComModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qi
     // TODO Limit to user set tags/types/difficulty - when there is a config dialog...
 
 //     qDebug()<<"Fetching more caches: "<<url;
-    downloadDescriptionFile( QUrl( url ) );
+    downloadDescriptionFile( QUrl( url ), tileId );
 }
 
-void OpenCachingComModel::parseFile( const QByteArray& file )
+void OpenCachingComModel::parseFile( const QByteArray& file, const TileId &tileId )
 {
     QScriptEngine engine;
 
@@ -88,10 +88,11 @@ void OpenCachingComModel::parseFile( const QByteArray& file )
         QVariantMap map = caches.takeFirst().toMap();
         if ( !findItem( map["oxcode"].toString() ) )
         {
-            items << new OpenCachingComItem( map, this );
+            OpenCachingComItem *item = new OpenCachingComItem( map, this );
+            items << item;
         }
     }
-    addItemsToList(items);
+    addItemsToList(items, tileId);
 }
 
 void OpenCachingComModel::fetchData(const QString& url, const QString &type, OpenCachingComItem *item)

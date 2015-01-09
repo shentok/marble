@@ -12,9 +12,8 @@
 #define OPENCACHINGCOMMODEL_H
 
 #include "AbstractDataPluginModel.h"
-#include "GeoDataLatLonAltBox.h"
 
-#include <QDateTime>
+#include "GeoDataCoordinates.h"
 
 // Please note and respect that this key is for use ONLY within this plugin.
 #define AUTHKEY "mJg2Q5fD3qczP7M8"
@@ -51,14 +50,15 @@ protected:
      * Generates the download url for the description file from the web service depending on
      * the @p box surrounding the view and the @p number of files to show.
      **/
-    virtual void getAdditionalItems( const GeoDataLatLonAltBox& box,
-                                     qint32 number = numberOfItemsOnScreen );
+    virtual void getAdditionalItems( const GeoDataLatLonBox& box,
+                                     qint32 number,
+                                     const TileId& tileId );
 
     /**
      * Parses the @p file which getAdditionalItems downloads and
      * prepares the data for usage.
      **/
-    void parseFile( const QByteArray& file );
+    void parseFile( const QByteArray& file, const TileId &tileId );
 };
 
 }

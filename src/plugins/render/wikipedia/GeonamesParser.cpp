@@ -22,9 +22,11 @@
 using namespace Marble;
 
 GeonamesParser::GeonamesParser( MarbleWidget * widget,
+                                int zoomLevel,
                                 QList<WikipediaItem *> *list,
                                 QObject *parent )
     : m_marbleWidget( widget ),
+      m_zoomLevel( zoomLevel ),
       m_list( list ),
       m_parent( parent )
 {

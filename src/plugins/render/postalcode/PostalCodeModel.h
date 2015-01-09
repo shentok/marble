@@ -28,14 +28,15 @@ class PostalCodeModel : public AbstractDataPluginModel
      * Generates the download url for the description file from the web service depending on
      * the @p box surrounding the view and the @p number of files to show.
      **/
-    void getAdditionalItems( const GeoDataLatLonAltBox& box,
-                             qint32 number = 10 );
+    void getAdditionalItems( const GeoDataLatLonBox& box,
+                             qint32 number,
+                             const TileId& tileId );
 
     /**
      * Parses the @p file which getAdditionalItems downloads and
      * prepares the data for usage.
      **/
-    void parseFile( const QByteArray& file );
+    void parseFile( const QByteArray& file, const TileId &tileId );
 
 private:
     static void addLine( QString* string, const QString &line );

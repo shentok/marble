@@ -34,14 +34,14 @@ class PanoramioModel : public AbstractDataPluginModel
      * Generates the download url for the description file from the web service depending on
      * the @p box surrounding the view and the @p number of files to show.
      **/
-    void getAdditionalItems( const GeoDataLatLonAltBox &box, qint32 number = 10 );
+    void getAdditionalItems( const GeoDataLatLonBox &box, qint32 number, const TileId &tileId );
 
     /**
      * The reimplementation has to parse the @p file and should generate widgets. This widgets
      * have to be scheduled to downloadWidgetData or could be directly added to the list,
      * depending on if they have to download information to be shown.
      **/
-    void parseFile( const QByteArray &file );
+    void parseFile( const QByteArray &file, const TileId &tileId );
 
 private:
     MarbleWidget *m_marbleWidget;

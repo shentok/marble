@@ -29,10 +29,11 @@ public:
 
 Q_SIGNALS:
     /** Additional items for the given bound box (in degrees) are requested */
-    void dataRequest( qreal north, qreal south, qreal east, qreal west );
+    void dataRequest( qreal north, qreal south, qreal east, qreal west, const TileId& tileId );
 
 protected:
-    void getAdditionalItems( const GeoDataLatLonAltBox& box, qint32 number = 10 );
+    void getAdditionalItems( const GeoDataLatLonBox& box, qint32 number, const TileId& tileId );
+    void parseFile( const QByteArray& file, const TileId &tileId );
 };
 
 }

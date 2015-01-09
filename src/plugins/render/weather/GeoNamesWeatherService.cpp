@@ -15,6 +15,7 @@
 #include "GeoDataLatLonAltBox.h"
 #include "MarbleModel.h"
 #include "MarbleDebug.h"
+#include "TileId.h"
 
 #include <QUrl>
 #include <QDateTime>
@@ -43,8 +44,9 @@ GeoNamesWeatherService::~GeoNamesWeatherService()
 {
 }
 
-void GeoNamesWeatherService::getAdditionalItems( const GeoDataLatLonAltBox& box,
-                                            qint32 number )
+void GeoNamesWeatherService::getAdditionalItems( const GeoDataLatLonBox& box,
+                                                 qint32 number,
+                                                 const TileId &tileId )
 {
     if( marbleModel()->planetId() != "earth" ) {
         return;
@@ -69,7 +71,7 @@ void GeoNamesWeatherService::getAdditionalItems( const GeoDataLatLonAltBox& box,
     geonamesUrl.setQuery( urlQuery );
 #endif
 
-    emit downloadDescriptionFileRequested( geonamesUrl );
+    emit downloadDescriptionFileRequested( geonamesUrl, tileId );
 }
 
 void GeoNamesWeatherService::getItem( const QString &id )
@@ -89,11 +91,11 @@ void GeoNamesWeatherService::getItem( const QString &id )
         urlQuery.addQueryItem( "username", "marble" );
         geonamesUrl.setQuery( urlQuery );
 #endif
-        emit downloadDescriptionFileRequested( geonamesUrl );
+        emit downloadDescriptionFileRequested( geonamesUrl, TileId( 0, 0, 0, 0 ) );
     }
 }
 
-void GeoNamesWeatherService::parseFile( const QByteArray& file )
+void GeoNamesWeatherService::parseFile( const QByteArray &file, const TileId &tileId )
 {
     QScriptValue data;
     QScriptEngine engine;
@@ -120,7 +122,7 @@ void GeoNamesWeatherService::parseFile( const QByteArray& file )
         }
     }
 
-    emit createdItems( items );
+    emit createdItems( items, tileId );
 }
 
 AbstractDataPluginItem *GeoNamesWeatherService::parse( const QScriptValue &value )

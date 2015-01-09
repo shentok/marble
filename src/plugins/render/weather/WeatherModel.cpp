@@ -23,6 +23,7 @@
 #include "WeatherItem.h"
 #include "MarbleDebug.h"
 #include "MarbleModel.h"
+#include "TileId.h"
 
 using namespace Marble;
 
@@ -67,7 +68,8 @@ void WeatherModel::setUpdateInterval( quint32 hours )
 
 void WeatherModel::downloadItemData( const QUrl& url,
                                      const QString& type,
-                                     AbstractDataPluginItem *item )
+                                     AbstractDataPluginItem *item,
+                                     const TileId &tileId )
 {
     AbstractDataPluginItem *existingItem = findItem( item->id() );
     if ( !existingItem ) {
@@ -77,7 +79,7 @@ void WeatherModel::downloadItemData( const QUrl& url,
         }
 
         downloadItem( url, type, item );
-        addItemToList( item );
+        addItemToList( item, tileId );
     } else {
         if ( existingItem != item )
             item->deleteLater();
@@ -85,16 +87,16 @@ void WeatherModel::downloadItemData( const QUrl& url,
         WeatherItem *existingWeatherItem = qobject_cast<WeatherItem*>( existingItem );
         if( existingWeatherItem && existingWeatherItem->request( type ) ) {
             downloadItem( url, type, existingItem );
-            addItemToList( existingItem );
+            addItemToList( existingItem, tileId );
         }
     }
 }
 
-void WeatherModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
-                               qint32 number )
+void WeatherModel::getAdditionalItems( const GeoDataLatLonBox& box,
+                               qint32 number, const TileId& tileId )
 {
     foreach ( AbstractWeatherService *service, m_services ) {
-        service->getAdditionalItems( box, number );
+        service->getAdditionalItems( box, number, tileId );
     }
 }
 
@@ -105,16 +107,16 @@ void WeatherModel::getItem( const QString &id )
     }
 }
 
-void WeatherModel::parseFile( const QByteArray& file )
+void WeatherModel::parseFile( const QByteArray& file, const TileId &tileId )
 {
     foreach ( AbstractWeatherService *service, m_services ) {
-        service->parseFile( file );
+        service->parseFile( file, tileId );
     }
 }
 
-void WeatherModel::downloadDescriptionFileRequested( const QUrl& url )
+void WeatherModel::downloadDescriptionFileRequested( const QUrl& url, const TileId& tileId )
 {
-    downloadDescriptionFile( url );
+    downloadDescriptionFile( url, tileId );
 }
 
 void WeatherModel::setMarbleWidget(MarbleWidget *widget)
@@ -128,12 +130,12 @@ void WeatherModel::addService( AbstractWeatherService *service )
 {
     service->setFavoriteItems( favoriteItems() );
 
-    connect( service, SIGNAL(createdItems(QList<AbstractDataPluginItem*>)),
-             this, SLOT(addItemsToList(QList<AbstractDataPluginItem*>)) );
-    connect( service, SIGNAL(requestedDownload(QUrl,QString,AbstractDataPluginItem*)),
-             this, SLOT(downloadItemData(QUrl,QString,AbstractDataPluginItem*)) );
-    connect( service, SIGNAL(downloadDescriptionFileRequested(QUrl)),
-             this, SLOT(downloadDescriptionFileRequested(QUrl)) );
+    connect( service, SIGNAL(createdItems(QList<AbstractDataPluginItem*>,TileId)),
+             this, SLOT(addItemsToList(QList<AbstractDataPluginItem*>,TileId)) );
+    connect( service, SIGNAL(requestedDownload(QUrl,QString,AbstractDataPluginItem*,TileId)),
+             this, SLOT(downloadItemData(QUrl,QString,AbstractDataPluginItem*,TileId)) );
+    connect( service, SIGNAL(downloadDescriptionFileRequested(QUrl,TileId)),
+             this, SLOT(downloadDescriptionFileRequested(QUrl,TileId)) );
 
     m_services.append( service );
 }

@@ -16,6 +16,7 @@
 
 #include "MarbleDebug.h"
 #include "MarbleModel.h"
+#include "TileId.h"
 
 #include <QAbstractListModel>
 #include <QMetaObject>
@@ -175,7 +176,7 @@ Marble::RenderPlugin *DeclarativeDataPlugin::newInstance(const Marble::MarbleMod
     instance->setFavoriteItemsOnly( isFavoriteItemsOnly() );
 
     DeclarativeDataPluginModel* dataModel = new DeclarativeDataPluginModel( marbleModel );
-    dataModel->addItemsToList( d->m_items );
+    dataModel->addItemsToList( d->m_items, Marble::TileId( 0, 0, 0, 0 ) );
     instance->setModel( dataModel );
     connect( dataModel, SIGNAL(dataRequest(qreal,qreal,qreal,qreal)), this, SIGNAL(dataRequest(qreal,qreal,qreal,qreal)) );
     d->m_modelInstances << dataModel;
@@ -376,7 +377,7 @@ void DeclarativeDataPlugin::setDeclarativeModel( const QVariant &model )
     /** @todo: Listen for and reflect changes to the items in the model */
 
     foreach( DeclarativeDataPluginModel* model, d->m_modelInstances ) {
-        model->addItemsToList( d->m_items );
+        model->addItemsToList( d->m_items, Marble::TileId( 0, 0, 0, 0 ) );
     }
 
     emit declarativeModelChanged();
