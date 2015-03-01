@@ -9,6 +9,7 @@ add_subdirectory( gosmore-reversegeocoding )
 
 # Routing
 add_subdirectory( gosmore-routing )
+add_subdirectory( graphhopper-routing )
 add_subdirectory( mapquest )
 add_subdirectory( monav )
 add_subdirectory( openrouteservice )
