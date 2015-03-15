@@ -138,42 +138,31 @@ GeoDataLineString *GraphhopperRoutingRunner::decodePolyline( const QString &geom
     return lineString;
 }
 
-RoutingInstruction::TurnType GraphhopperRoutingRunner::parseTurnType( const QString &instruction )
+RoutingInstruction::TurnType GraphhopperRoutingRunner::parseTurnType( int graphHopperTurnType )
 {   
-    if ( instruction == "1" ) {
-        return RoutingInstruction::Straight;
-    } else if ( instruction == "2" ) {
-        return RoutingInstruction::SlightRight;
-    } else if ( instruction == "3" ) {
-        return RoutingInstruction::Right;
-    } else if ( instruction == "4" ) {
-        return RoutingInstruction::SharpRight;
-    } else if ( instruction == "5" ) {
-        return RoutingInstruction::TurnAround;
-    } else if ( instruction == "6" ) {
+    switch ( graphHopperTurnType )
+    {
+    case -3:
         return RoutingInstruction::SharpLeft;
-    } else if ( instruction == "7" ) {
+    case -2:
         return RoutingInstruction::Left;
-    } else if ( instruction == "8" ) {
+    case -1:
         return RoutingInstruction::SlightLeft;
-    } else if ( instruction == "10" ) {
-        return RoutingInstruction::Continue;
-    } else if ( instruction.startsWith( QLatin1String( "11-" ) ) ) {
-        int const exit = instruction.mid( 3 ).toInt();
-        switch ( exit ) {
-        case 1: return RoutingInstruction::RoundaboutFirstExit; break;
-        case 2: return RoutingInstruction::RoundaboutSecondExit; break;
-        case 3: return RoutingInstruction::RoundaboutThirdExit; break;
-        default: return RoutingInstruction::RoundaboutExit;
-        }
-    } else if ( instruction == "12" ) {
+    case 0:
+        return RoutingInstruction::Straight;
+    case 1:
+        return RoutingInstruction::SlightRight;
+    case 2:
+        return RoutingInstruction::Right;
+    case 3:
+        return RoutingInstruction::SharpRight;
+    case 6:
         return RoutingInstruction::RoundaboutExit;
+    case 4:
+    case 5:
+    default:
+        break;
     }
-
-    // ignoring ReachViaPoint = 9;
-    // ignoring StayOnRoundAbout = 13;
-    // ignoring StartAtEndOfStreet = 14;
-    // ignoring ReachedYourDestination = 15;
 
     return RoutingInstruction::Unknown;
 }
@@ -224,7 +213,8 @@ GeoDataDocument *GraphhopperRoutingRunner::parse( const QByteArray &input ) cons
             iterator.next();
             const QVariantMap details = iterator.value().toVariant().toMap();
             const QString text = details.value( "text" ).toString();
-            const QString road = ""; //details.at( 1 ).toString();
+            const int graphHopperTurnType = details.value( "sign" ).toInt();
+            qDebug() << details;
 
             const QVariantList interval = details.value( "interval" ).toList();
             if ( interval.size() != 2 ) {
@@ -247,15 +237,9 @@ GeoDataDocument *GraphhopperRoutingRunner::parse( const QByteArray &input ) cons
                 GeoDataExtendedData extendedData;
                 GeoDataData turnTypeData;
                 turnTypeData.setName( "turnType" );
-                RoutingInstruction::TurnType turnType = parseTurnType( text );
+                RoutingInstruction::TurnType turnType = parseTurnType( graphHopperTurnType );
                 turnTypeData.setValue( turnType );
                 extendedData.addValue( turnTypeData );
-                if (!road.isEmpty()) {
-                    GeoDataData roadName;
-                    roadName.setName( "roadName" );
-                    roadName.setValue( road );
-                    extendedData.addValue( roadName );
-                }
 
                 if ( first ) {
                     turnType = RoutingInstruction::Continue;
@@ -264,8 +248,6 @@ GeoDataDocument *GraphhopperRoutingRunner::parse( const QByteArray &input ) cons
 
                 if ( turnType == RoutingInstruction::Unknown ) {
                     instruction->setName( text );
-                } else {
-                    instruction->setName( RoutingInstruction::generateRoadInstruction( turnType, road ) );
                 }
                 instruction->setExtendedData( extendedData );
 

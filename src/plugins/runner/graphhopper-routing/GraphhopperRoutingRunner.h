@@ -51,7 +51,7 @@ private:
 
     static GeoDataLineString* decodePolyline( const QString &geometry );
 
-    static RoutingInstruction::TurnType parseTurnType( const QString &instruction );
+    static RoutingInstruction::TurnType parseTurnType( int graphHopperTurnType );
 
     GeoDataDocument* parse( const QByteArray &input ) const;
 
