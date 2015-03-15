@@ -214,7 +214,7 @@ GeoDataDocument *GraphhopperRoutingRunner::parse( const QByteArray &input ) cons
             const QVariantMap details = iterator.value().toVariant().toMap();
             const QString text = details.value( "text" ).toString();
             const int graphHopperTurnType = details.value( "sign" ).toInt();
-            qDebug() << details;
+//            qDebug() << details;
 
             const QVariantList interval = details.value( "interval" ).toList();
             if ( interval.size() != 2 ) {
