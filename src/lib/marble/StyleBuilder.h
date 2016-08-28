@@ -19,19 +19,23 @@
 #include <QHash>
 #include <QPair>
 
+#include <boost/icl/interval_map.hpp>
+
 class QFont;
 class QColor;
 
 namespace Marble {
 class OsmPlacemarkData;
 
-class MARBLE_EXPORT StyleParameters
+class StyleParameters
 {
 public:
-    explicit StyleParameters(const GeoDataPlacemark *placemark_ = nullptr, int tileLevel = 0);
+    StyleParameters(const boost::icl::interval_map<int, GeoDataStyle::ConstPtr> &styleMap = boost::icl::interval_map<int, GeoDataStyle::ConstPtr>());
+    StyleParameters(GeoDataStyle::ConstPtr style);
+    GeoDataStyle::ConstPtr style(int zoomLevel) const;
 
-    const GeoDataPlacemark *placemark;
-    int tileLevel;
+private:
+    boost::icl::interval_map<int, GeoDataStyle::ConstPtr> m_styleMap;
 };
 
 class MARBLE_EXPORT StyleBuilder
@@ -51,7 +55,7 @@ public:
     QColor defaultLabelColor() const;
     void setDefaultLabelColor( const QColor& color );
 
-    GeoDataStyle::ConstPtr createStyle(const StyleParameters &parameters) const;
+    StyleParameters createStyle(const GeoDataPlacemark &placemark) const;
 
     /**
      * @brief Returns the order in which the visual categories used in the theme shall be painted on the map.

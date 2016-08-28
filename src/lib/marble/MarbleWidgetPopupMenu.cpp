@@ -343,7 +343,7 @@ void MarbleWidgetPopupMenu::Private::setupDialogOsm( PopupLayer *popup, const Ge
         doc[QStringLiteral("facilitiesVisibility")] = none;
     }
 
-    const QString flagPath = m_widget->styleBuilder()->createStyle(StyleParameters(placemark))->iconStyle().iconPath();
+    const QString flagPath = m_widget->styleBuilder()->createStyle(*placemark).style(0)->iconStyle().iconPath();
     doc["flag"] = flagPath;
     popup->setContent(doc.finalText());
 }

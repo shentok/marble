@@ -30,7 +30,26 @@
 #include <QSet>
 #include <QScreen>
 
+#include <limits>
+
 namespace Marble {
+
+StyleParameters::StyleParameters(const boost::icl::interval_map<int, GeoDataStyle::ConstPtr> &styleMap) :
+    m_styleMap(styleMap)
+{
+}
+
+StyleParameters::StyleParameters(GeoDataStyle::ConstPtr style) :
+    m_styleMap()
+{
+    auto i1 = boost::icl::interval<int>::closed(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+    m_styleMap.insert(std::make_pair(i1, style));
+}
+
+GeoDataStyle::ConstPtr StyleParameters::style(int zoomLevel) const
+{
+    return m_styleMap(zoomLevel);
+}
 
 class StyleBuilder::Private
 {
@@ -1226,26 +1245,19 @@ void StyleBuilder::setDefaultLabelColor( const QColor& color )
     reset();
 }
 
-GeoDataStyle::ConstPtr StyleBuilder::createStyle(const StyleParameters &parameters) const
+StyleParameters StyleBuilder::createStyle(const GeoDataPlacemark &placemark) const
 {
-    const GeoDataPlacemark *const placemark = parameters.placemark;
-
-    if (!placemark) {
-        Q_ASSERT(false && "Must not pass a null placemark to StyleBuilder::createStyle");
-        return GeoDataStyle::Ptr();
+    if (placemark.customStyle()) {
+        return placemark.customStyle();
     }
 
-    if (placemark->customStyle()) {
-        return placemark->customStyle();
-    }
-
-    auto const visualCategory = placemark->visualCategory();
+    auto const visualCategory = placemark.visualCategory();
     GeoDataStyle::ConstPtr style = d->presetStyle(visualCategory);
 
-    OsmPlacemarkData const & osmData = placemark->osmData();
-    if (placemark->geometry()->nodeType() == GeoDataTypes::GeoDataPointType) {
+    OsmPlacemarkData const &osmData = placemark.osmData();
+    if (placemark.geometry()->nodeType() == GeoDataTypes::GeoDataPointType) {
         if (visualCategory == GeoDataPlacemark::NaturalTree) {
-            GeoDataCoordinates const coordinates = placemark->coordinate();
+            GeoDataCoordinates const coordinates = placemark.coordinate();
             qreal const lat = coordinates.latitude(GeoDataCoordinates::Degree);
             if (qAbs(lat) > 15) {
                 /** @todo Should maybe auto-adjust to MarbleClock at some point */
@@ -1266,7 +1278,7 @@ GeoDataStyle::ConstPtr StyleBuilder::createStyle(const StyleParameters &paramete
                 }
             }
         }
-    } else if (placemark->geometry()->nodeType() == GeoDataTypes::GeoDataLinearRingType) {
+    } else if (placemark.geometry()->nodeType() == GeoDataTypes::GeoDataLinearRingType) {
         bool adjustStyle = false;
 
         GeoDataPolyStyle polyStyle = style->polyStyle();
@@ -1323,7 +1335,7 @@ GeoDataStyle::ConstPtr StyleBuilder::createStyle(const StyleParameters &paramete
                 style = newStyle;
             }
         }
-    } else if (placemark->geometry()->nodeType() == GeoDataTypes::GeoDataLineStringType) {
+    } else if (placemark.geometry()->nodeType() == GeoDataTypes::GeoDataLineStringType) {
         GeoDataPolyStyle polyStyle = style->polyStyle();
         GeoDataLineStyle lineStyle = style->lineStyle();
         GeoDataLabelStyle labelStyle = style->labelStyle();
@@ -1365,19 +1377,47 @@ GeoDataStyle::ConstPtr StyleBuilder::createStyle(const StyleParameters &paramete
                 lineStyle.setColor(lineStyle.color().lighter(115));
             }
 
-            if (parameters.tileLevel <= 8) {
+            boost::icl::interval_map<int, GeoDataStyle::ConstPtr> result;
+            {
                 /** @todo: Dummy implementation for dynamic style changes based on tile level, replace with sane values */
                 lineStyle.setPhysicalWidth(0.0);
                 lineStyle.setWidth(2.0);
-            } else if (parameters.tileLevel <= 10) {
+
+                GeoDataStyle::Ptr newStyle(new GeoDataStyle(*style));
+                newStyle->setPolyStyle(polyStyle);
+                newStyle->setLineStyle(lineStyle);
+                newStyle->setLabelStyle(labelStyle);
+
+                auto interval = boost::icl::interval<int>::closed(std::numeric_limits<int>::min(), 8);
+                result.insert(std::make_pair(interval, newStyle));
+            }
+            {
                 /** @todo: Dummy implementation for dynamic style changes based on tile level, replace with sane values */
                 lineStyle.setPhysicalWidth(0.0);
                 lineStyle.setWidth(3.0);
-            } else if (parameters.tileLevel <= 12) {
+
+                GeoDataStyle::Ptr newStyle(new GeoDataStyle(*style));
+                newStyle->setPolyStyle(polyStyle);
+                newStyle->setLineStyle(lineStyle);
+                newStyle->setLabelStyle(labelStyle);
+
+                auto interval = boost::icl::interval<int>::left_open(8, 10);
+                result.insert(std::make_pair(interval, newStyle));
+            }
+            {
                 /** @todo: Dummy implementation for dynamic style changes based on tile level, replace with sane values */
                 lineStyle.setPhysicalWidth(0.0);
                 lineStyle.setWidth(4.0);
-            }else {
+
+                GeoDataStyle::Ptr newStyle(new GeoDataStyle(*style));
+                newStyle->setPolyStyle(polyStyle);
+                newStyle->setLineStyle(lineStyle);
+                newStyle->setLabelStyle(labelStyle);
+
+                auto interval = boost::icl::interval<int>::left_open(10, 12);
+                result.insert(std::make_pair(interval, newStyle));
+            }
+            {
                 auto tagIter = osmData.findTag(QStringLiteral("width"));
                 if (tagIter != osmData.tagsEnd()) {
                     QString const widthValue = QString(tagIter.value()).remove(QStringLiteral(" meters")).remove(QStringLiteral(" m"));
@@ -1393,21 +1433,58 @@ GeoDataStyle::ConstPtr StyleBuilder::createStyle(const StyleParameters &paramete
                     double const physicalWidth = margins + lanes * laneWidth;
                     lineStyle.setPhysicalWidth(physicalWidth);
                 }
+
+                GeoDataStyle::Ptr newStyle(new GeoDataStyle(*style));
+                newStyle->setPolyStyle(polyStyle);
+                newStyle->setLineStyle(lineStyle);
+                newStyle->setLabelStyle(labelStyle);
+
+                auto interval = boost::icl::interval<int>::left_open(9, std::numeric_limits<int>::max());
+                result.insert(std::make_pair(interval, newStyle));
             }
+            return result;
 
         } else if (visualCategory == GeoDataPlacemark::NaturalWater) {
-            if (parameters.tileLevel <= 3) {
+            boost::icl::interval_map<int, GeoDataStyle::ConstPtr> result;
+            {
                 lineStyle.setWidth(1);
                 lineStyle.setPhysicalWidth(0.0);
-            } else if (parameters.tileLevel <= 7) {
+
+                GeoDataStyle::Ptr newStyle(new GeoDataStyle(*style));
+                newStyle->setPolyStyle(polyStyle);
+                newStyle->setLineStyle(lineStyle);
+                newStyle->setLabelStyle(labelStyle);
+
+                auto interval = boost::icl::interval<int>::closed(std::numeric_limits<int>::min(), 3);
+                result.insert(std::make_pair(interval, newStyle));
+            }
+            {
                 lineStyle.setWidth(2);
                 lineStyle.setPhysicalWidth(0.0);
-            } else {
+
+                GeoDataStyle::Ptr newStyle(new GeoDataStyle(*style));
+                newStyle->setPolyStyle(polyStyle);
+                newStyle->setLineStyle(lineStyle);
+                newStyle->setLabelStyle(labelStyle);
+
+                auto interval = boost::icl::interval<int>::left_open(3, 7);
+                result.insert(std::make_pair(interval, newStyle));
+            }
+            {
                 QString const widthValue = osmData.tagValue(QStringLiteral("width")).remove(QStringLiteral(" meters")).remove(QStringLiteral(" m"));
                 bool ok;
                 float const width = widthValue.toFloat(&ok);
                 lineStyle.setPhysicalWidth(ok ? qBound(0.1f, width, 200.0f) : 0.0f);
+
+                GeoDataStyle::Ptr newStyle(new GeoDataStyle(*style));
+                newStyle->setPolyStyle(polyStyle);
+                newStyle->setLineStyle(lineStyle);
+                newStyle->setLabelStyle(labelStyle);
+
+                auto interval = boost::icl::interval<int>::left_open(7, std::numeric_limits<int>::max());
+                result.insert(std::make_pair(interval, newStyle));
             }
+            return result;
         }
         GeoDataStyle::Ptr newStyle(new GeoDataStyle(*style));
         newStyle->setPolyStyle(polyStyle);
@@ -1415,7 +1492,7 @@ GeoDataStyle::ConstPtr StyleBuilder::createStyle(const StyleParameters &paramete
         newStyle->setLabelStyle(labelStyle);
 
         style = newStyle;
-    } else if (placemark->geometry()->nodeType() == GeoDataTypes::GeoDataPolygonType) {
+    } else if (placemark.geometry()->nodeType() == GeoDataTypes::GeoDataPolygonType) {
         GeoDataPolyStyle polyStyle = style->polyStyle();
         GeoDataLineStyle lineStyle = style->lineStyle();
         bool adjustStyle = false;
@@ -2080,13 +2157,6 @@ GeoDataPlacemark::GeoDataVisualCategory StyleBuilder::determineVisualCategory(co
     }
 
     return GeoDataPlacemark::None;
-}
-
-StyleParameters::StyleParameters(const GeoDataPlacemark *placemark_, int tileLevel_) :
-    placemark(placemark_),
-    tileLevel(tileLevel_)
-{
-    // nothing to do
 }
 
 }

@@ -42,7 +42,7 @@ class GeoGraphicsItemPrivate
     const GeoDataFeature *m_feature;
     RenderContext m_renderContext;
     GeoDataStyle::ConstPtr m_style;
-    const StyleBuilder *m_styleBuilder;
+    StyleParameters m_styleParameters;
 
     QStringList m_paintLayers;
 

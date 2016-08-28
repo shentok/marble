@@ -523,11 +523,8 @@ bool PlacemarkLayout::layoutPlacemark( const GeoDataPlacemark *placemark, const 
     if ( !mark ) {
         // If there is no visible placemark yet for this index,
         // create a new one...
-        StyleParameters parameters;
-        // @todo: Set / adjust to tile level
-        parameters.placemark = placemark;
 
-        auto style = m_styleBuilder->createStyle(parameters);
+        auto style = m_styleBuilder->createStyle(*placemark).style(0);
         mark = new VisiblePlacemark(placemark, coordinates, style);
         m_visiblePlacemarks.insert( placemark, mark );
         connect( mark, SIGNAL(updateNeeded()), this, SIGNAL(repaintNeeded()) );
@@ -577,9 +574,7 @@ GeoDataCoordinates PlacemarkLayout::placemarkIconCoordinates( const GeoDataPlace
 {
     GeoDataCoordinates coordinates = placemark->coordinate( m_clock->dateTime());
     if (!m_acceptedVisualCategories.contains(placemark->visualCategory())) {
-        StyleParameters parameters;
-        parameters.placemark = placemark;
-        auto style = m_styleBuilder->createStyle(parameters);
+        auto style = m_styleBuilder->createStyle(*placemark).style(0);
         if (style->iconStyle().icon().isNull()) {
             return GeoDataCoordinates();
         }

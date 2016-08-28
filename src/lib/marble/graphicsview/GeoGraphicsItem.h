@@ -25,7 +25,7 @@ class GeoDataFeature;
 class GeoDataLatLonAltBox;
 class GeoGraphicsItemPrivate;
 class GeoPainter;
-class StyleBuilder;
+class StyleParameters;
 class ViewportParams;
 
 class RenderContext
@@ -106,7 +106,7 @@ class MARBLE_EXPORT GeoGraphicsItem
     /**
      * Set the style for the item.
      */
-    void setStyleBuilder(const StyleBuilder *styleBuilder);
+    void setStyle(const StyleParameters &styleParameters);
 
     /**
      * Set the style which will be used when
