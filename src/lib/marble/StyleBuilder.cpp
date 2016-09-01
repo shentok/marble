@@ -1326,16 +1326,6 @@ StyleParameters StyleBuilder::createStyle(const GeoDataPlacemark &placemark) con
             newStyle->setLineStyle(lineStyle);
             style = newStyle;
         }
-
-        if (style->iconStyle().iconPath().isEmpty()) {
-            const GeoDataPlacemark::GeoDataVisualCategory category = determineVisualCategory(osmData);
-            const GeoDataStyle::ConstPtr categoryStyle = d->presetStyle(category);
-            if (category != GeoDataPlacemark::None && !categoryStyle->iconStyle().icon().isNull()) {
-                GeoDataStyle::Ptr newStyle(new GeoDataStyle(*style));
-                newStyle->setIconStyle(categoryStyle->iconStyle());
-                style = newStyle;
-            }
-        }
     } else if (placemark.geometry()->nodeType() == GeoDataTypes::GeoDataLineStringType) {
         GeoDataPolyStyle polyStyle = style->polyStyle();
         GeoDataLineStyle lineStyle = style->lineStyle();
