@@ -244,7 +244,7 @@ void PlacemarkLayout::addPlacemarks( const QModelIndex& parent, int first, int l
             }
         }
 
-        int zoomLevel = placemark->zoomLevel();
+        const int zoomLevel = m_styleBuilder->minimumZoomLevel(*placemark);
         TileId key = TileId::fromCoordinates( coordinates, zoomLevel );
         m_placemarkCache[key].append( placemark );
     }
@@ -264,7 +264,7 @@ void PlacemarkLayout::removePlacemarks( const QModelIndex& parent, int first, in
             continue;
         }
 
-        int zoomLevel = placemark->zoomLevel();
+        const int zoomLevel = m_styleBuilder->minimumZoomLevel(*placemark);
         TileId key = TileId::fromCoordinates( coordinates, zoomLevel );
         m_placemarkCache[key].removeAll( placemark );
         if (placemark->hasOsmData()) {
@@ -409,7 +409,7 @@ QVector<VisiblePlacemark *> PlacemarkLayout::generateLayout( const ViewportParam
             continue;
         }
 
-        int zoomLevel = placemark->zoomLevel();
+        const int zoomLevel = m_styleBuilder->minimumZoomLevel(*placemark);
         if ( zoomLevel > 20 ) {
             break;
         }

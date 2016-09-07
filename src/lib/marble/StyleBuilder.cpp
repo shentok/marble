@@ -1576,6 +1576,10 @@ void StyleBuilder::reset()
 
 int StyleBuilder::minimumZoomLevel(const GeoDataPlacemark &placemark) const
 {
+    if (placemark.geometry()->nodeType() == GeoDataTypes::GeoDataPointType) {
+        return placemark.zoomLevel();
+    }
+
     return d->m_defaultMinZoomLevels[placemark.visualCategory()];
 }
 
