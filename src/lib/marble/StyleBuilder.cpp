@@ -78,6 +78,8 @@ public:
 
     static QString createPaintLayerItem(const QString &itemType, GeoDataPlacemark::GeoDataVisualCategory visualCategory, const QString &subType = QString());
 
+    static int populationIndex(qint64 population);
+
     static void initializeOsmVisualCategories();
 
     int m_defaultMinZoomLevels[GeoDataPlacemark::LastIndex];
@@ -860,6 +862,21 @@ QString StyleBuilder::Private::createPaintLayerItem(const QString &itemType, Geo
     }
 }
 
+int StyleBuilder::Private::populationIndex(qint64 population)
+{
+    int popidx = 3;
+
+    if (population < 2500)        popidx=10;
+    else if (population < 5000)    popidx=9;
+    else if (population < 25000)   popidx=8;
+    else if (population < 75000)   popidx=7;
+    else if (population < 250000)  popidx=6;
+    else if (population < 750000)  popidx=5;
+    else if (population < 2500000) popidx=4;
+
+    return popidx;
+}
+
 void StyleBuilder::Private::initializeOsmVisualCategories()
 {
     // Only initialize the map once
@@ -1577,7 +1594,20 @@ void StyleBuilder::reset()
 int StyleBuilder::minimumZoomLevel(const GeoDataPlacemark &placemark) const
 {
     if (placemark.geometry()->nodeType() == GeoDataTypes::GeoDataPointType) {
-        return placemark.zoomLevel();
+        const OsmPlacemarkData &osmData = placemark.osmData();
+
+        if (osmData.isEmpty()) {
+            return placemark.zoomLevel();
+        }
+
+        if (osmData.containsTagKey(QLatin1String("marbleZoomLevel"))) {
+            return osmData.tagValue(QLatin1String("marbleZoomLevel")).toInt();
+        }
+
+        if (osmData.containsTagKey(QStringLiteral("population"))) {
+            const int population = osmData.tagValue(QStringLiteral("population")).toInt();
+            return Private::populationIndex(population);
+        }
     }
 
     return d->m_defaultMinZoomLevels[placemark.visualCategory()];

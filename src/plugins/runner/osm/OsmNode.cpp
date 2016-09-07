@@ -63,66 +63,16 @@ void OsmNode::create(GeoDataDocument *document) const
     }
     placemark->setVisualCategory(category);
     placemark->setStyle( GeoDataStyle::Ptr() );
-    placemark->setZoomLevel(zoomLevelFor(category, 18));
     placemark->setPopularity(popularityFor(category, 100));
 
-    if (category >= GeoDataPlacemark::PlaceCity && category <= GeoDataPlacemark::PlaceVillageCapital) {
-        int const population = m_osmData.tagValue(QStringLiteral("population")).toInt();
-        placemark->setPopulation(qMax(0, population));
-        if (population > 0) {
-            placemark->setZoomLevel(populationIndex(population));
-            placemark->setPopularity(population);
-        }
-    }
-
-    if (m_osmData.containsTagKey(QLatin1String("marbleZoomLevel"))) {
-        int const zoomLevel = m_osmData.tagValue(QLatin1String("marbleZoomLevel")).toInt();
-        placemark->setZoomLevel(zoomLevel);
+    int const population = m_osmData.tagValue(QStringLiteral("population")).toInt();
+    placemark->setPopulation(qMax(0, population));
+    if (population > 0) {
+        placemark->setPopularity(population);
     }
 
     OsmObjectManager::registerId(m_osmData.id());
     document->append(placemark);
-}
-
-int OsmNode::populationIndex(qint64 population) const
-{
-    int popidx = 3;
-
-    if ( population < 2500 )        popidx=10;
-    else if ( population < 5000)    popidx=9;
-    else if ( population < 25000)   popidx=8;
-    else if ( population < 75000)   popidx=7;
-    else if ( population < 250000)  popidx=6;
-    else if ( population < 750000)  popidx=5;
-    else if ( population < 2500000) popidx=4;
-
-    return popidx;
-}
-
-int OsmNode::zoomLevelFor(GeoDataPlacemark::GeoDataVisualCategory category, int defaultValue)
-{
-    if (m_zoomLevels.isEmpty()) {
-        m_zoomLevels[GeoDataPlacemark::PlaceCityCapital] = 9;
-        m_zoomLevels[GeoDataPlacemark::PlaceCity] = 9;
-
-        m_zoomLevels[GeoDataPlacemark::PlaceTownCapital] = 11;
-        m_zoomLevels[GeoDataPlacemark::PlaceTown] = 11;
-        m_zoomLevels[GeoDataPlacemark::NaturalPeak] = 11;
-
-        m_zoomLevels[GeoDataPlacemark::PlaceSuburb] = 13;
-        m_zoomLevels[GeoDataPlacemark::PlaceVillageCapital] = 13;
-        m_zoomLevels[GeoDataPlacemark::PlaceVillage] = 13;
-
-        m_zoomLevels[GeoDataPlacemark::PlaceHamlet] = 15;
-        m_zoomLevels[GeoDataPlacemark::HealthHospital] = 15;
-        m_zoomLevels[GeoDataPlacemark::PlaceLocality] = 15;
-
-        m_zoomLevels[GeoDataPlacemark::AmenityBench] = 19;
-        m_zoomLevels[GeoDataPlacemark::AmenityWasteBasket] = 19;
-        m_zoomLevels[GeoDataPlacemark::PowerTower] = 19;
-    }
-
-    return m_zoomLevels.value(category, defaultValue);
 }
 
 qint64 OsmNode::popularityFor(GeoDataPlacemark::GeoDataVisualCategory category, qint64 defaultValue)

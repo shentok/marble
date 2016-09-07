@@ -33,12 +33,9 @@ public:
 
     void create(GeoDataDocument* document) const;
 
-    static int zoomLevelFor(GeoDataPlacemark::GeoDataVisualCategory category, int defaultValue);
     static qint64 popularityFor(GeoDataPlacemark::GeoDataVisualCategory category, qint64 defaultValue);
 
 private:
-    int populationIndex(qint64 population) const;
-
     OsmPlacemarkData m_osmData;
     GeoDataCoordinates m_coordinates;
     static QHash<GeoDataPlacemark::GeoDataVisualCategory, qint64> m_popularities;
