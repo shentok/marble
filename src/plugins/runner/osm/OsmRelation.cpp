@@ -88,11 +88,8 @@ void OsmRelation::create(GeoDataDocument *document, OsmWays &ways, const OsmNode
 
     foreach(qint64 wayId, outerWays) {
         Q_ASSERT(ways.contains(wayId));
-        GeoDataPlacemark::GeoDataVisualCategory const category = StyleBuilder::determineVisualCategory(ways[wayId].osmData());
-        if (category == GeoDataPlacemark::None || category == outerCategory) {
-            // Schedule way for removal: It's a non-styled way only used to create the outer boundary in this polygon
-            usedWays << wayId;
-        } // else we keep it
+        // Schedule way for removal: It's a non-styled way only used to create the outer boundary in this polygon
+        usedWays << wayId;
 
         foreach(qint64 nodeId, ways[wayId].references()) {
             ways[wayId].osmData().addNodeReference(nodes[nodeId].coordinates(), nodes[nodeId].osmData());
@@ -108,10 +105,9 @@ void OsmRelation::create(GeoDataDocument *document, OsmWays &ways, const OsmNode
     int index = 0;
     foreach(qint64 wayId, innerWays) {
         Q_ASSERT(ways.contains(wayId));
-        if (StyleBuilder::determineVisualCategory(ways[wayId].osmData()) == GeoDataPlacemark::None) {
-            // Schedule way for removal: It's a non-styled way only used to create the inner boundary in this polygon
-            usedWays << wayId;
-        }
+        // Schedule way for removal: It's a non-styled way only used to create the inner boundary in this polygon
+        usedWays << wayId;
+
         foreach(qint64 nodeId, ways[wayId].references()) {
             ways[wayId].osmData().addNodeReference(nodes[nodeId].coordinates(), nodes[nodeId].osmData());
         }
