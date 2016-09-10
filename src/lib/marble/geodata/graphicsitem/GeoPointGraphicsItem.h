@@ -19,11 +19,12 @@ namespace Marble
 
 class GeoDataPlacemark;
 class GeoDataPoint;
+class StyleBuilder;
 
 class MARBLE_EXPORT GeoPointGraphicsItem : public GeoGraphicsItem
 {
 public:
-    explicit GeoPointGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPoint *point);
+    explicit GeoPointGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPoint *point, const StyleBuilder &styleBuilder);
 
     virtual void paint(GeoPainter* painter, const ViewportParams *viewport, const QString &layer);
 

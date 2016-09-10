@@ -27,11 +27,12 @@ namespace Marble
 {
 
 GeoLineStringGraphicsItem::GeoLineStringGraphicsItem(const GeoDataPlacemark *placemark,
+                                                     const StyleBuilder &styleBuilder,
                                                      const GeoDataLineString *lineString) :
     GeoGraphicsItem(placemark),
     m_lineString(lineString)
 {
-    QString const category = StyleBuilder::visualCategoryName(*placemark);
+    QString const category = styleBuilder.visualCategoryName(*placemark);
     QStringList paintLayers;
     paintLayers << QLatin1String("LineString/") + category + QLatin1String("/outline");
     paintLayers << QLatin1String("LineString/") + category + QLatin1String("/inline");

@@ -17,40 +17,40 @@
 namespace Marble
 {
 
-AbstractGeoPolygonGraphicsItem *GeoPolygonGraphicsItem::createGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPolygon *polygon)
+AbstractGeoPolygonGraphicsItem *GeoPolygonGraphicsItem::createGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPolygon *polygon, const StyleBuilder &styleBuilder)
 {
     if (placemark->visualCategory() == GeoDataPlacemark::Building) {
         return new BuildingGeoPolygonGraphicsItem(placemark, polygon);
     }
-    return new GeoPolygonGraphicsItem(placemark, polygon);
+    return new GeoPolygonGraphicsItem(placemark, polygon, styleBuilder);
 }
 
-AbstractGeoPolygonGraphicsItem *GeoPolygonGraphicsItem::createGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataLinearRing *ring)
+AbstractGeoPolygonGraphicsItem *GeoPolygonGraphicsItem::createGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataLinearRing *ring, const StyleBuilder &styleBuilder)
 {
     if (placemark->visualCategory() == GeoDataPlacemark::Building) {
         return new BuildingGeoPolygonGraphicsItem(placemark, ring);
     }
-    return new GeoPolygonGraphicsItem(placemark, ring);
+    return new GeoPolygonGraphicsItem(placemark, ring, styleBuilder);
 }
 
 
-GeoPolygonGraphicsItem::GeoPolygonGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPolygon *polygon) :
+GeoPolygonGraphicsItem::GeoPolygonGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPolygon *polygon, const StyleBuilder &styleBuilder) :
     AbstractGeoPolygonGraphicsItem(placemark, polygon)
 {
     const int elevation = extractElevation(*placemark);
     setZValue(zValue() + elevation);
 
-    const QString paintLayer = QLatin1String("Polygon/") + StyleBuilder::visualCategoryName(*placemark);
+    const QString paintLayer = QLatin1String("Polygon/") + styleBuilder.visualCategoryName(*placemark);
     setPaintLayers(QStringList(paintLayer));
 }
 
-GeoPolygonGraphicsItem::GeoPolygonGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataLinearRing *ring) :
+GeoPolygonGraphicsItem::GeoPolygonGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataLinearRing *ring, const StyleBuilder &styleBuilder) :
     AbstractGeoPolygonGraphicsItem(placemark, ring)
 {
     const int elevation = extractElevation(*placemark);
     setZValue(zValue() + elevation);
 
-    const QString paintLayer = QLatin1String("Polygon/") + StyleBuilder::visualCategoryName(*placemark);
+    const QString paintLayer = QLatin1String("Polygon/") + styleBuilder.visualCategoryName(*placemark);
     setPaintLayers(QStringList(paintLayer));
 }
 

@@ -18,12 +18,12 @@
 namespace Marble
 {
 
-GeoPointGraphicsItem::GeoPointGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPoint *point) :
+GeoPointGraphicsItem::GeoPointGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPoint *point, const StyleBuilder &styleBuilder) :
     GeoGraphicsItem(placemark),
     m_point(point)
 {
     if (placemark) {
-        QString const paintLayer = QLatin1String("Point/") + StyleBuilder::visualCategoryName(*placemark);
+        QString const paintLayer = QLatin1String("Point/") + styleBuilder.visualCategoryName(*placemark);
         setPaintLayers(QStringList() << paintLayer);
     }
 }

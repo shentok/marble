@@ -96,7 +96,7 @@ public:
     void initializeDefaultStyles();
 
     static QString visualCategoryName(GeoDataPlacemark::GeoDataVisualCategory visualCategory);
-    static QString createPaintLayerItem(const QString &itemType, GeoDataPlacemark::GeoDataVisualCategory visualCategory, const QString &subType = QString());
+    QString createPaintLayerItem(const QString &itemType, GeoDataPlacemark::GeoDataVisualCategory visualCategory, const QString &subType = QString()) const;
 
     static int populationIndex(qint64 population);
 
@@ -872,7 +872,7 @@ void StyleBuilder::Private::initializeDefaultStyles()
     m_defaultStyle[GeoDataPlacemark::LargeNationCapital]->labelStyle().setFont( tmp );
 }
 
-QString StyleBuilder::Private::createPaintLayerItem(const QString &itemType, GeoDataPlacemark::GeoDataVisualCategory visualCategory, const QString &subType)
+QString StyleBuilder::Private::createPaintLayerItem(const QString &itemType, GeoDataPlacemark::GeoDataVisualCategory visualCategory, const QString &subType) const
 {
     QString const category = visualCategoryName(visualCategory);
     if (subType.isEmpty()) {
@@ -1540,118 +1540,118 @@ QStringList StyleBuilder::renderOrder() const
     static QStringList paintLayerOrder;
 
     if (paintLayerOrder.isEmpty()) {
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::Landmass);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::UrbanArea);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::Landmass);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::UrbanArea);
         for ( int i = GeoDataPlacemark::LanduseAllotments; i <= GeoDataPlacemark::LanduseVineyard; i++ ) {
             if ((GeoDataPlacemark::GeoDataVisualCategory)i != GeoDataPlacemark::LanduseGrass) {
-                paintLayerOrder << Private::createPaintLayerItem("Polygon", (GeoDataPlacemark::GeoDataVisualCategory)i);
+                paintLayerOrder << d->createPaintLayerItem("Polygon", (GeoDataPlacemark::GeoDataVisualCategory)i);
             }
         }
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::Bathymetry);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalBeach);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalWetland);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalGlacier);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalIceShelf);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalCliff);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalPeak);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::MilitaryDangerArea);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::LeisurePark);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::LeisurePitch);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::LeisureSportsCentre);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::LeisureStadium);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalWood);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::LanduseGrass);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::HighwayPedestrian);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::LeisurePlayground);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalScrub);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::LeisureTrack);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::TransportParking);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::TransportParkingSpace);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::ManmadeBridge);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::BarrierCityWall);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::Bathymetry);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalBeach);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalWetland);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalGlacier);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalIceShelf);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalCliff);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalPeak);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::MilitaryDangerArea);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::LeisurePark);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::LeisurePitch);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::LeisureSportsCentre);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::LeisureStadium);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalWood);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::LanduseGrass);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::HighwayPedestrian);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::LeisurePlayground);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalScrub);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::LeisureTrack);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::TransportParking);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::TransportParkingSpace);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::ManmadeBridge);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::BarrierCityWall);
 
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::AmenityGraveyard);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::AmenityGraveyard);
 
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::AmenityKindergarten);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::EducationCollege);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::EducationSchool);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::EducationUniversity);
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::HealthHospital);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::AmenityKindergarten);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::EducationCollege);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::EducationSchool);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::EducationUniversity);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::HealthHospital);
 
-        paintLayerOrder << Private::createPaintLayerItem("LineString", GeoDataPlacemark::Landmass);
+        paintLayerOrder << d->createPaintLayerItem("LineString", GeoDataPlacemark::Landmass);
 
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalWater);
-        paintLayerOrder << Private::createPaintLayerItem("LineString", GeoDataPlacemark::NaturalWater, "outline");
-        paintLayerOrder << Private::createPaintLayerItem("LineString", GeoDataPlacemark::NaturalWater, "inline");
-        paintLayerOrder << Private::createPaintLayerItem("LineString", GeoDataPlacemark::NaturalWater, "label");
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::NaturalWater);
+        paintLayerOrder << d->createPaintLayerItem("LineString", GeoDataPlacemark::NaturalWater, "outline");
+        paintLayerOrder << d->createPaintLayerItem("LineString", GeoDataPlacemark::NaturalWater, "inline");
+        paintLayerOrder << d->createPaintLayerItem("LineString", GeoDataPlacemark::NaturalWater, "label");
 
 
-        paintLayerOrder << Private::createPaintLayerItem("LineString", GeoDataPlacemark::NaturalReef, "outline");
-        paintLayerOrder << Private::createPaintLayerItem("LineString", GeoDataPlacemark::NaturalReef, "inline");
-        paintLayerOrder << Private::createPaintLayerItem("LineString", GeoDataPlacemark::NaturalReef, "label");
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::LeisureMarina);
+        paintLayerOrder << d->createPaintLayerItem("LineString", GeoDataPlacemark::NaturalReef, "outline");
+        paintLayerOrder << d->createPaintLayerItem("LineString", GeoDataPlacemark::NaturalReef, "inline");
+        paintLayerOrder << d->createPaintLayerItem("LineString", GeoDataPlacemark::NaturalReef, "label");
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::LeisureMarina);
 
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::TransportAirportApron);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::TransportAirportApron);
 
         for ( int i = GeoDataPlacemark::HighwaySteps; i <= GeoDataPlacemark::HighwayMotorway; i++ ) {
-            paintLayerOrder << Private::createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "outline");
+            paintLayerOrder << d->createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "outline");
         }
         for ( int i = GeoDataPlacemark::HighwaySteps; i <= GeoDataPlacemark::HighwayMotorway; i++ ) {
-            paintLayerOrder << Private::createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "inline");
+            paintLayerOrder << d->createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "inline");
         }
         for ( int i = GeoDataPlacemark::RailwayRail; i <= GeoDataPlacemark::RailwayFunicular; i++ ) {
-            paintLayerOrder << Private::createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "outline");
+            paintLayerOrder << d->createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "outline");
         }
         for ( int i = GeoDataPlacemark::RailwayRail; i <= GeoDataPlacemark::RailwayFunicular; i++ ) {
-            paintLayerOrder << Private::createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "inline");
+            paintLayerOrder << d->createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "inline");
         }
         for ( int i = GeoDataPlacemark::HighwaySteps; i <= GeoDataPlacemark::HighwayMotorway; i++ ) {
-            paintLayerOrder << Private::createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "label");
+            paintLayerOrder << d->createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "label");
         }
         for ( int i = GeoDataPlacemark::RailwayRail; i <= GeoDataPlacemark::RailwayFunicular; i++ ) {
-            paintLayerOrder << Private::createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "label");
+            paintLayerOrder << d->createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "label");
         }
 
-        paintLayerOrder << Private::createPaintLayerItem("Polygon", GeoDataPlacemark::TransportPlatform);
+        paintLayerOrder << d->createPaintLayerItem("Polygon", GeoDataPlacemark::TransportPlatform);
 
         for ( int i = GeoDataPlacemark::AdminLevel1; i <= GeoDataPlacemark::AdminLevel11; i++ ) {
-            paintLayerOrder << Private::createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "outline");
+            paintLayerOrder << d->createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "outline");
         }
         for ( int i = GeoDataPlacemark::AdminLevel1; i <= GeoDataPlacemark::AdminLevel11; i++ ) {
-            paintLayerOrder << Private::createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "inline");
+            paintLayerOrder << d->createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "inline");
         }
         for ( int i = GeoDataPlacemark::AdminLevel1; i <= GeoDataPlacemark::AdminLevel11; i++ ) {
-            paintLayerOrder << Private::createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "label");
+            paintLayerOrder << d->createPaintLayerItem("LineString", (GeoDataPlacemark::GeoDataVisualCategory)i, "label");
         }
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::Bathymetry);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::AmenityGraveyard);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::NaturalWood);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::NaturalBeach);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::NaturalWetland);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::NaturalGlacier);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::NaturalIceShelf);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::NaturalScrub);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::LeisureMarina);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::LeisurePark);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::LeisurePlayground);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::LeisurePitch);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::LeisureSportsCentre);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::LeisureStadium);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::LeisureTrack);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::TransportParking);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::ManmadeBridge);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::BarrierCityWall);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::NaturalWater);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::NaturalReef);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::Landmass);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::NaturalCliff);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::NaturalPeak);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::AmenityKindergarten);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::EducationCollege);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::EducationSchool);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::EducationUniversity);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::HealthHospital);
-        paintLayerOrder << Private::createPaintLayerItem("Point", GeoDataPlacemark::MilitaryDangerArea);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::Bathymetry);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::AmenityGraveyard);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::NaturalWood);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::NaturalBeach);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::NaturalWetland);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::NaturalGlacier);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::NaturalIceShelf);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::NaturalScrub);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::LeisureMarina);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::LeisurePark);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::LeisurePlayground);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::LeisurePitch);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::LeisureSportsCentre);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::LeisureStadium);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::LeisureTrack);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::TransportParking);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::ManmadeBridge);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::BarrierCityWall);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::NaturalWater);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::NaturalReef);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::Landmass);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::NaturalCliff);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::NaturalPeak);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::AmenityKindergarten);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::EducationCollege);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::EducationSchool);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::EducationUniversity);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::HealthHospital);
+        paintLayerOrder << d->createPaintLayerItem("Point", GeoDataPlacemark::MilitaryDangerArea);
 
         paintLayerOrder << QStringLiteral("Polygon/Building/frame");
         paintLayerOrder << QStringLiteral("Polygon/Building/roof");
@@ -1696,7 +1696,7 @@ int StyleBuilder::maximumZoomLevel() const
     return d->m_maximumZoomLevel;
 }
 
-QString StyleBuilder::visualCategoryName(const GeoDataPlacemark &placemark)
+QString StyleBuilder::visualCategoryName(const GeoDataPlacemark &placemark) const
 {
     return Private::visualCategoryName(placemark.visualCategory());
 }

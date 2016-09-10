@@ -18,12 +18,12 @@
 
 using namespace Marble;
 
-GeoTrackGraphicsItem::GeoTrackGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataTrack *track) :
-    GeoLineStringGraphicsItem(placemark, track->lineString())
+GeoTrackGraphicsItem::GeoTrackGraphicsItem(const GeoDataPlacemark *placemark, const StyleBuilder &styleBuilder, const GeoDataTrack *track) :
+    GeoLineStringGraphicsItem(placemark, styleBuilder, track->lineString())
 {
     setTrack( track );
     if (placemark) {
-        QString const paintLayer = QLatin1String("Track/") + StyleBuilder::visualCategoryName(*placemark);
+        QString const paintLayer = QLatin1String("Track/") + styleBuilder.visualCategoryName(*placemark);
         setPaintLayers(QStringList() << paintLayer);
     }
 }

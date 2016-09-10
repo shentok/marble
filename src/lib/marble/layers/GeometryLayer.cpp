@@ -234,7 +234,7 @@ void GeometryLayerPrivate::createGraphicsItemFromGeometry(const GeoDataGeometry*
     if ( object->nodeType() == GeoDataTypes::GeoDataLineStringType )
     {
         const GeoDataLineString* line = static_cast<const GeoDataLineString*>( object );
-        item = new GeoLineStringGraphicsItem( placemark, line );
+        item = new GeoLineStringGraphicsItem(placemark, *m_styleBuilder, line);
     }
     else if ( object->nodeType() == GeoDataTypes::GeoDataLinearRingType )
     {
@@ -249,7 +249,7 @@ void GeometryLayerPrivate::createGraphicsItemFromGeometry(const GeoDataGeometry*
         }
 
         const GeoDataLinearRing *ring = static_cast<const GeoDataLinearRing*>( object );
-        item = GeoPolygonGraphicsItem::createGraphicsItem(placemark, ring);
+        item = GeoPolygonGraphicsItem::createGraphicsItem(placemark, ring, *m_styleBuilder);
     }
     else if ( object->nodeType() == GeoDataTypes::GeoDataPolygonType )
     {
@@ -264,7 +264,7 @@ void GeometryLayerPrivate::createGraphicsItemFromGeometry(const GeoDataGeometry*
         }
 
         const GeoDataPolygon *poly = static_cast<const GeoDataPolygon*>( object );
-        item = GeoPolygonGraphicsItem::createGraphicsItem(placemark, poly);
+        item = GeoPolygonGraphicsItem::createGraphicsItem(placemark, poly, *m_styleBuilder);
         if (item->zValue() == 0) {
              item->setZValue(poly->renderOrder());
         }
@@ -290,7 +290,7 @@ void GeometryLayerPrivate::createGraphicsItemFromGeometry(const GeoDataGeometry*
     else if ( object->nodeType() == GeoDataTypes::GeoDataTrackType )
     {
         const GeoDataTrack *track = static_cast<const GeoDataTrack*>( object );
-        item = new GeoTrackGraphicsItem( placemark, track );
+        item = new GeoTrackGraphicsItem(placemark, *m_styleBuilder, track);
     }
     if ( !item )
         return;

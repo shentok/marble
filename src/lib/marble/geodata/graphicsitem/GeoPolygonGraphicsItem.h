@@ -18,15 +18,16 @@ namespace Marble
 
 class GeoDataLinearRing;
 class GeoDataPolygon;
+class StyleBuilder;
 
 class MARBLE_EXPORT GeoPolygonGraphicsItem : public AbstractGeoPolygonGraphicsItem
 {
 public:
-    static AbstractGeoPolygonGraphicsItem *createGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPolygon *polygon);
-    static AbstractGeoPolygonGraphicsItem *createGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataLinearRing *ring);
+    static AbstractGeoPolygonGraphicsItem *createGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPolygon *polygon, const StyleBuilder &styleBuilder);
+    static AbstractGeoPolygonGraphicsItem *createGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataLinearRing *ring, const StyleBuilder &styleBuilder);
 
-    explicit GeoPolygonGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPolygon *polygon);
-    explicit GeoPolygonGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataLinearRing *ring);
+    explicit GeoPolygonGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataPolygon *polygon, const StyleBuilder &styleBuilder);
+    explicit GeoPolygonGraphicsItem(const GeoDataPlacemark *placemark, const GeoDataLinearRing *ring, const StyleBuilder &styleBuilder);
 };
 
 }

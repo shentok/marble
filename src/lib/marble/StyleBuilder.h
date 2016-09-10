@@ -78,7 +78,7 @@ public:
      */
     int maximumZoomLevel() const;
 
-    static QString visualCategoryName(const GeoDataPlacemark &placemark);
+    QString visualCategoryName(const GeoDataPlacemark &placemark) const;
 
     /**
      * @brief begin and end provide an stl style iterator for the preset map
