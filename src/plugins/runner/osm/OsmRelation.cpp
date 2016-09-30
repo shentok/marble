@@ -126,7 +126,7 @@ void OsmRelation::create(GeoDataDocument *document, OsmWays &ways, const OsmNode
         const OsmPlacemarkData &outerWayData = ways[*outerWays.begin()].osmData();
         auto tagIter = outerWayData.findTag(ele);
         if (tagIter != outerWayData.tagsEnd()) {
-            osmData.addTag(ele, tagIter.value());
+            osmData.insertTag(ele, tagIter.value());
         }
     }
 

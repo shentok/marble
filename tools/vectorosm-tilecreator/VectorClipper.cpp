@@ -307,7 +307,7 @@ void VectorClipper::copyTags(const GeoDataPlacemark &source, GeoDataPlacemark &t
 void VectorClipper::copyTags(const OsmPlacemarkData &originalPlacemarkData, OsmPlacemarkData &targetOsmData) const
 {
     for (auto iter=originalPlacemarkData.tagsBegin(), end=originalPlacemarkData.tagsEnd(); iter != end; ++iter) {
-        targetOsmData.addTag(iter.key(), iter.value());
+        targetOsmData.insertTag(iter.key(), iter.value());
     }
 }
 

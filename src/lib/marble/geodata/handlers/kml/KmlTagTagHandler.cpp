@@ -27,7 +27,7 @@ GeoNode* KmltagTagHandler::parse( GeoParser& parser ) const
         QString key = parser.attribute( "k" );
         QString value = parser.attribute( "v" );
         OsmPlacemarkData *osmData = parser.parentElement().nodeAs<OsmPlacemarkData>();
-        osmData->addTag( key, value );
+        osmData->insertTag( key, value );
     }
 
     return 0;

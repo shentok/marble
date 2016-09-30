@@ -77,7 +77,7 @@ OsmPlacemarkData OsmTagEditorWidget::placemarkData() const
 
     for (int index = 0; index < d->m_currentTagsList->topLevelItemCount(); ++index) {
         const QTreeWidgetItem *item = d->m_currentTagsList->topLevelItem( index );
-        osmData.addTag(item->text(0), item->text(1));
+        osmData.insertTag(item->text(0), item->text(1));
     }
 
     return osmData;
@@ -104,7 +104,7 @@ void OsmTagEditorWidget::addSelectedTag()
         d->m_currentTagsList->setCurrentItem( adderItem );
     }
     else {
-        d->m_placemark->osmData().addTag( key, value );
+        d->m_placemark->osmData().insertTag( key, value );
 
         QTreeWidgetItem *newItem = d->tagWidgetItem( OsmTagEditorWidgetPrivate::OsmTag( key, value ) );
         newItem->setFlags( newItem->flags() | Qt::ItemIsUserCheckable );
@@ -142,7 +142,7 @@ void OsmTagEditorWidget::handleItemChanged( QTreeWidgetItem *item, int column )
         return;
     }
 
-    d->m_placemark->osmData().addTag( key, value );
+    d->m_placemark->osmData().insertTag( key, value );
 
     update();
 }

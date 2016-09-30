@@ -80,11 +80,11 @@ public:
     QString tagValue( const QString &key ) const;
 
     /**
-     * @brief addTag this function inserts a string key=value mapping,
+     * @brief inserts a string key=value mapping,
      * equivalent to the <tag k="@p key" v="@p value"> osm core data
      * element
      */
-    void addTag( const QString& key, const QString& value );
+    void insertTag(const QString &key, const QString &value);
 
     /**
      * @brief removeTag removes the tag from the tag hash

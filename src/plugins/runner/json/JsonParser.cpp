@@ -263,7 +263,7 @@ bool JsonParser::read( QIODevice* device )
                         }
 
                         // pass value through QVariant to also get bool & numbers
-                        osmData.addTag(it.key(), it.value().toVariant().toString());
+                        osmData.insertTag(it.key(), it.value().toVariant().toString());
                     }
 
                     // If the property read, is the features name

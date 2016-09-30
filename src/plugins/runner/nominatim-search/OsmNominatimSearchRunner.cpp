@@ -149,9 +149,9 @@ void OsmNominatimRunner::handleResult( QNetworkReply* reply )
             administrative = place.firstChildElement(QStringLiteral("region")).text();
             if( administrative.isEmpty() ) {
                 administrative = place.firstChildElement(QStringLiteral("state")).text();
-                data.addTag(QStringLiteral("addr:state"), administrative);
+                data.insertTag(QStringLiteral("addr:state"), administrative);
             } else {
-                data.addTag(QStringLiteral("district"), administrative);
+                data.insertTag(QStringLiteral("district"), administrative);
             }
         }
 
@@ -176,14 +176,14 @@ void OsmNominatimRunner::handleResult( QNetworkReply* reply )
                     placemarkName += QLatin1String(", ");
                 }
                 placemarkName += road;
-                data.addTag(QStringLiteral("addr:street"), road);
+                data.insertTag(QStringLiteral("addr:street"), road);
             }
             if (!city.isEmpty() && !placemarkName.contains(QLatin1Char(',')) && city != placemarkName) {
                 if( !placemarkName.isEmpty() ) {
                     placemarkName += QLatin1String(", ");
                 }
                 placemarkName += city;
-                data.addTag(QStringLiteral("addr:city"), city);
+                data.insertTag(QStringLiteral("addr:city"), city);
             }
             if (!administrative.isEmpty() && !placemarkName.contains(QLatin1Char(',')) && administrative != placemarkName) {
                 if( !placemarkName.isEmpty() ) {
@@ -196,7 +196,7 @@ void OsmNominatimRunner::handleResult( QNetworkReply* reply )
                     placemarkName += QLatin1String(", ");
                 }
                 placemarkName += country;
-                data.addTag(QStringLiteral("addr:country"), country);
+                data.insertTag(QStringLiteral("addr:country"), country);
             }
             if (placemarkName.isEmpty()) {
                 placemarkName = desc;

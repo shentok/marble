@@ -108,14 +108,12 @@ void OsmPlacemarkData::setAction( const QString& action )
     m_action = action;
 }
 
-
-
 QString OsmPlacemarkData::tagValue( const QString& key ) const
 {
     return m_tags.value( key );
 }
 
-void OsmPlacemarkData::addTag( const QString& key, const QString& value )
+void OsmPlacemarkData::insertTag(const QString &key, const QString &value)
 {
     m_tags.insert( key, value );
 }

@@ -76,7 +76,7 @@ GeoDataDocument* OsmParser::parseO5m(const QString &filename, QString &error)
             while ((innerState = o5mreader_iterateTags(reader, &key, &value)) == O5MREADER_ITERATE_RET_NEXT) {
                 const QString keyString = *stringPool.insert(QString::fromUtf8(key));
                 const QString valueString = *stringPool.insert(QString::fromUtf8(value));
-                node.osmData().addTag(keyString, valueString);
+                node.osmData().insertTag(keyString, valueString);
             }
         }
             break;
@@ -91,7 +91,7 @@ GeoDataDocument* OsmParser::parseO5m(const QString &filename, QString &error)
             while ((innerState = o5mreader_iterateTags(reader, &key, &value)) == O5MREADER_ITERATE_RET_NEXT) {
                 const QString keyString = *stringPool.insert(QString::fromUtf8(key));
                 const QString valueString = *stringPool.insert(QString::fromUtf8(value));
-                way.osmData().addTag(keyString, valueString);
+                way.osmData().insertTag(keyString, valueString);
             }
         }
             break;
@@ -109,7 +109,7 @@ GeoDataDocument* OsmParser::parseO5m(const QString &filename, QString &error)
             while ((innerState = o5mreader_iterateTags(reader, &key, &value)) == O5MREADER_ITERATE_RET_NEXT) {
                 const QString keyString = *stringPool.insert(QString::fromUtf8(key));
                 const QString valueString = *stringPool.insert(QString::fromUtf8(value));
-                relation.osmData().addTag(keyString, valueString);
+                relation.osmData().insertTag(keyString, valueString);
             }
         }
             break;
@@ -185,7 +185,7 @@ GeoDataDocument* OsmParser::parseXml(const QString &filename, QString &error)
             const QXmlStreamAttributes &attributes = parser.attributes();
             const QString keyString = *stringPool.insert(attributes.value(QLatin1String("k")).toString());
             const QString valueString = *stringPool.insert(attributes.value(QLatin1String("v")).toString());
-            osmData->addTag(keyString, valueString);
+            osmData->insertTag(keyString, valueString);
         } else if (tagName == osm::osmTag_nd && parentTag == osm::osmTag_way) {
             m_ways[parentId].addReference(parser.attributes().value(QLatin1String("ref")).toLongLong());
         } else if (tagName == osm::osmTag_member && parentTag == osm::osmTag_relation) {

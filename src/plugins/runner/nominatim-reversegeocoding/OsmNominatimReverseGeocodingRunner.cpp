@@ -141,7 +141,7 @@ void OsmNominatimRunner::extractChildren(const QDomNode &node, GeoDataPlacemark 
 
         if (tagTranslator.contains(child.nodeName())) {
             QString const key = tagTranslator[child.nodeName()];
-            osmData.addTag(key, child.toElement().text());
+            osmData.insertTag(key, child.toElement().text());
         }
     }
     placemark.setExtendedData(data);
