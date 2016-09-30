@@ -24,14 +24,26 @@ namespace Marble {
 
 void OsmNode::parseCoordinates(const QXmlStreamAttributes &attributes)
 {
-    qreal const lon = attributes.value(QLatin1String("lon")).toDouble();
-    qreal const lat = attributes.value(QLatin1String("lat")).toDouble();
-    setCoordinates(GeoDataCoordinates(lon, lat, 0, GeoDataCoordinates::Degree));
+    static const QString latKey = QLatin1String("lat");
+    static const QString lonKey = QLatin1String("lon");
+
+    const QString lonValue = attributes.value(lonKey).toString();
+    const QString latValue = attributes.value(latKey).toString();
+
+    m_osmData.insertTag(latKey, latValue);
+    m_osmData.insertTag(lonKey, lonValue);
 }
 
 void OsmNode::setCoordinates(const GeoDataCoordinates &coordinates)
 {
-    m_coordinates = coordinates;
+    static const QString latKey = QLatin1String("lat");
+    static const QString lonKey = QLatin1String("lon");
+
+    const QString latValue = QString::number(coordinates.latitude(GeoDataCoordinates::Degree), 'f', 7);
+    const QString lonValue = QString::number(coordinates.longitude(GeoDataCoordinates::Degree), 'f', 7);
+
+    m_osmData.insertTag(latKey, latValue);
+    m_osmData.insertTag(lonKey, lonValue);
 }
 
 void OsmNode::create(GeoDataDocument *document) const
@@ -44,7 +56,7 @@ void OsmNode::create(GeoDataDocument *document) const
 
     GeoDataPlacemark* placemark = new GeoDataPlacemark;
     placemark->setOsmData(m_osmData);
-    placemark->setCoordinate(m_coordinates);
+    placemark->setCoordinate(coordinates());
 
     QHash<QString, QString>::const_iterator tagIter;
     if ((category == GeoDataFeature::TransportCarShare || category == GeoDataFeature::MoneyAtm)
@@ -114,9 +126,16 @@ int OsmNode::populationIndex(qint64 population) const
     return popidx;
 }
 
-const GeoDataCoordinates &OsmNode::coordinates() const
+const GeoDataCoordinates OsmNode::coordinates() const
 {
-    return m_coordinates;
+    if (!m_osmData.containsTagKey("lon") || !m_osmData.containsTagKey("lat")) {
+        return GeoDataCoordinates();
+    }
+
+    const qreal lon = m_osmData.tagValue(QLatin1String("lon")).toDouble();
+    const qreal lat = m_osmData.tagValue(QLatin1String("lat")).toDouble();
+
+    return GeoDataCoordinates(lon, lat, 0, GeoDataCoordinates::Degree);
 }
 
 OsmPlacemarkData &OsmNode::osmData()

@@ -23,11 +23,12 @@ class GeoDataDocument;
 
 class OsmNode {
 public:
-    OsmPlacemarkData & osmData();
     void parseCoordinates(const QXmlStreamAttributes &attributes);
     void setCoordinates(const GeoDataCoordinates &coordinates);
 
-    const GeoDataCoordinates & coordinates() const;
+    const GeoDataCoordinates coordinates() const;
+
+    OsmPlacemarkData & osmData();
     const OsmPlacemarkData & osmData() const;
 
     void create(GeoDataDocument* document) const;
@@ -36,7 +37,6 @@ private:
     int populationIndex(qint64 population) const;
 
     OsmPlacemarkData m_osmData;
-    GeoDataCoordinates m_coordinates;
 };
 
 typedef QHash<qint64,OsmNode> OsmNodes;
