@@ -48,9 +48,9 @@ bool OsmDocumentTagTranslator::write( const GeoNode *node, GeoWriter& writer ) c
 
     qint64 lastId = 0;
     foreach(const auto &way, converter.ways()) {
-        if (way.second.id() != lastId) {
-            OsmWayTagWriter::writeWay(*way.first, way.second, writer);
-            lastId = way.second.id();
+        if (way.osmData().id() != lastId) {
+            OsmWayTagWriter::writeWay(way.lineString(), way.osmData(), writer);
+            lastId = way.osmData().id();
         }
     }
 

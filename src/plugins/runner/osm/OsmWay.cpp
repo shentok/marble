@@ -23,6 +23,19 @@ namespace Marble {
 
 QSet<StyleBuilder::OsmTag> OsmWay::s_areaTags;
 
+OsmWay OsmWay::fromOsmData(const OsmPlacemarkData &osmData)
+{
+    OsmWay result;
+
+    const auto itEnd = osmData.nodeReferencesEnd();
+
+    for (auto it = osmData.nodeReferencesBegin(); it != itEnd; ++it) {
+        result.addReference(it->id());
+    }
+
+    return result;
+}
+
 void OsmWay::create(GeoDataDocument *document, const OsmNodes &nodes, QSet<qint64> &usedNodes) const
 {
     OsmPlacemarkData osmData = m_osmData;
@@ -82,6 +95,18 @@ void OsmWay::create(GeoDataDocument *document, const OsmNodes &nodes, QSet<qint6
 const QVector<qint64> &OsmWay::references() const
 {
     return m_references;
+}
+
+GeoDataLinearRing OsmWay::linearRing() const
+{
+#warning implement me
+    return GeoDataLinearRing();
+}
+
+GeoDataLineString OsmWay::lineString() const
+{
+#warning implement me
+    return GeoDataLineString();
 }
 
 OsmPlacemarkData &OsmWay::osmData()

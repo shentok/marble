@@ -106,13 +106,13 @@ void O5mWriter::writeWays(const OsmConverter::Ways &ways, QDataStream &stream) c
     qint64 lastReferenceId = 0;
 
     foreach(const auto & way, ways) {
-        Q_ASSERT(way.first);
-        if (way.second.id() == lastId) {
+        Q_ASSERT(!way.lineString().isEmpty());
+        if (way.osmData().id() == lastId) {
             continue;
         }
 
         stream << qint8(0x11); // way start indicator
-        OsmPlacemarkData const & osmData = way.second;
+        OsmPlacemarkData const & osmData = way.osmData();
 
         QBuffer buffer;
         buffer.open(QIODevice::WriteOnly);
@@ -126,7 +126,7 @@ void O5mWriter::writeWays(const OsmConverter::Ways &ways, QDataStream &stream) c
         QBuffer referencesBuffer;
         referencesBuffer.open(QIODevice::WriteOnly);
         QDataStream referencesStream(&referencesBuffer);
-        writeReferences(*way.first, lastReferenceId, osmData, referencesStream);
+        writeReferences(way.lineString(), lastReferenceId, osmData, referencesStream);
         writeUnsigned(referencesBuffer.size(), bufferStream);
         bufferStream.writeRawData(referencesBuffer.data().constData(), referencesBuffer.size());
 

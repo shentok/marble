@@ -12,6 +12,9 @@
 #define MARBLE_OSMWAY
 
 #include "OsmNode.h"
+
+#include <GeoDataLinearRing.h>
+#include <GeoDataLineString.h>
 #include <osm/OsmPlacemarkData.h>
 #include <StyleBuilder.h>
 
@@ -25,11 +28,17 @@ class GeoDataDocument;
 class OsmWay
 {
 public:
-    OsmPlacemarkData & osmData();
     void addReference(qint64 id);
 
+    OsmPlacemarkData & osmData();
     const OsmPlacemarkData & osmData() const;
+
     const QVector<qint64> &references() const;
+
+    GeoDataLinearRing linearRing() const;
+    GeoDataLineString lineString() const;
+
+    static OsmWay fromOsmData(const OsmPlacemarkData &osmData);
 
     void create(GeoDataDocument* document, const OsmNodes &nodes, QSet<qint64> &usedNodes) const;
 
