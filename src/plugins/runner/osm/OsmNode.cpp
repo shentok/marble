@@ -22,6 +22,18 @@
 
 namespace Marble {
 
+OsmNode OsmNode::fromOsmData(const OsmPlacemarkData &osmData)
+{
+    Q_ASSERT(osmData.containsTagKey("lat"));
+    Q_ASSERT(osmData.containsTagKey("lon"));
+
+    OsmNode result;
+
+    result.osmData() = osmData;
+
+    return result;
+}
+
 void OsmNode::parseCoordinates(const QXmlStreamAttributes &attributes)
 {
     static const QString latKey = QLatin1String("lat");

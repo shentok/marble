@@ -45,17 +45,17 @@ void OsmConverter::read(const GeoDataDocument *document)
         const OsmPlacemarkData osmData = placemark->osmData();
 
         if ( placemark->geometry()->nodeType() == GeoDataTypes::GeoDataPointType ) {
-            m_nodes << OsmConverter::Node(placemark->coordinate(), osmData);
+            m_nodes << OsmConverter::Node::fromOsmData(osmData);
         } else if ( placemark->geometry()->nodeType() == GeoDataTypes::GeoDataLineStringType ) {
             const GeoDataLineString* lineString = static_cast<const GeoDataLineString*>( placemark->geometry() );
             foreach(const GeoDataCoordinates &coordinates, *lineString) {
-                m_nodes << OsmConverter::Node(coordinates, osmData.nodeReference(coordinates));
+                m_nodes << OsmConverter::Node::fromOsmData(osmData.nodeReference(coordinates));
             }
             m_ways << OsmConverter::Way(lineString, osmData);
         } else if ( placemark->geometry()->nodeType() == GeoDataTypes::GeoDataLinearRingType ) {
             const GeoDataLinearRing* linearRing = static_cast<const GeoDataLinearRing*>( placemark->geometry() );
             foreach(const GeoDataCoordinates &coordinates, *linearRing) {
-                m_nodes << OsmConverter::Node(coordinates, osmData.nodeReference(coordinates));
+                m_nodes << OsmConverter::Node::fromOsmData(osmData.nodeReference(coordinates));
             }
             m_ways << OsmConverter::Way(linearRing, osmData);
         } else if ( placemark->geometry()->nodeType() == GeoDataTypes::GeoDataPolygonType ) {
@@ -66,7 +66,7 @@ void OsmConverter::read(const GeoDataDocument *document)
             const GeoDataLinearRing &outerRing = polygon->outerBoundary();
             const OsmPlacemarkData outerRingOsmData = osmData.memberReference( index );
             foreach(const GeoDataCoordinates &coordinates, outerRing) {
-                m_nodes << OsmConverter::Node(coordinates, outerRingOsmData.nodeReference(coordinates));
+                m_nodes << OsmConverter::Node::fromOsmData(outerRingOsmData.nodeReference(coordinates));
             }
             m_ways << OsmConverter::Way(&outerRing, outerRingOsmData);
 
@@ -75,7 +75,7 @@ void OsmConverter::read(const GeoDataDocument *document)
                 ++index;
                 const OsmPlacemarkData innerRingOsmData = osmData.memberReference( index );
                 foreach(const GeoDataCoordinates &coordinates, innerRing) {
-                    m_nodes << OsmConverter::Node(coordinates, innerRingOsmData.nodeReference(coordinates));
+                    m_nodes << OsmConverter::Node::fromOsmData(innerRingOsmData.nodeReference(coordinates));
                 }
                 m_ways << OsmConverter::Way(&innerRing, innerRingOsmData);
             }
@@ -84,7 +84,7 @@ void OsmConverter::read(const GeoDataDocument *document)
     }
 
     // Sort by id ascending since some external tools rely on that
-    qSort(m_nodes.begin(), m_nodes.end(), [] (const Node &a, const Node &b) { return a.second.id() < b.second.id(); });
+    qSort(m_nodes.begin(), m_nodes.end(), [] (const Node &a, const Node &b) { return a.osmData().id() < b.osmData().id(); });
     qSort(m_ways.begin(), m_ways.end(), [] (const Way &a, const Way &b) { return a.second.id() < b.second.id(); });
     qSort(m_polygons.begin(), m_polygons.end(), [] (const Polygon &a, const Polygon &b) { return a.second.id() < b.second.id(); });
 }

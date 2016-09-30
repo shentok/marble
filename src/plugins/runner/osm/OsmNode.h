@@ -31,6 +31,8 @@ public:
     OsmPlacemarkData & osmData();
     const OsmPlacemarkData & osmData() const;
 
+    static OsmNode fromOsmData(const OsmPlacemarkData &osmData);
+
     void create(GeoDataDocument* document) const;
 
 private:

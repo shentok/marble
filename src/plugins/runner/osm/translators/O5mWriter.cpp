@@ -64,7 +64,7 @@ void O5mWriter::writeNodes(const OsmConverter::Nodes &nodes, QDataStream &stream
     double lastLat = 0.0;
 
     foreach(const auto & node, nodes) {
-        if (node.second.id() == lastId) {
+        if (node.osmData().id() == lastId) {
             continue;
         }
 
@@ -74,11 +74,11 @@ void O5mWriter::writeNodes(const OsmConverter::Nodes &nodes, QDataStream &stream
         buffer.open(QIODevice::WriteOnly);
         QDataStream bufferStream(&buffer);
 
-        OsmPlacemarkData const & osmData = node.second;
+        OsmPlacemarkData const & osmData = node.osmData();
         qint64 idDiff = osmData.id() - lastId;
         writeSigned(idDiff, bufferStream);
         writeVersion(osmData, bufferStream);
-        GeoDataCoordinates const coordinates = node.first;
+        GeoDataCoordinates const coordinates = node.coordinates();
         double const lon = coordinates.longitude(GeoDataCoordinates::Degree);
         double const lat = coordinates.latitude(GeoDataCoordinates::Degree);
         writeSigned(deltaTo(lon, lastLon), bufferStream);

@@ -11,6 +11,7 @@
 #ifndef MARBLE_OSMCONVERTER_H
 #define MARBLE_OSMCONVERTER_H
 
+#include "OsmNode.h"
 #include <GeoDataCoordinates.h>
 
 namespace Marble
@@ -25,7 +26,7 @@ class OsmConverter
 {
 public:
     typedef QPair<QString, QString> Tag;
-    typedef QPair<GeoDataCoordinates, OsmPlacemarkData > Node;
+    typedef OsmNode Node;
     typedef QPair<const GeoDataLineString*, OsmPlacemarkData > Way;
     typedef QPair<const GeoDataPolygon*, OsmPlacemarkData > Polygon;
 
