@@ -18,6 +18,7 @@
 #include "OsmWay.h"
 #include "OsmRelation.h"
 
+#include <QSet>
 #include <QString>
 
 namespace Marble {
@@ -33,6 +34,12 @@ private:
     static GeoDataDocument* parseXml(const QString &filename, QString &error);
     static GeoDataDocument* parseO5m(const QString &filename, QString &error);
     static GeoDataDocument *createDocument(OsmNodes &nodes, OsmWays &way, OsmRelations &relations);
+
+    static void createNode(GeoDataDocument *document, const OsmNode &node);
+    static void createWay(GeoDataDocument *document, const OsmWay &way, const OsmNodes &nodes, QSet<qint64> &usedNodes);
+    static void createRelation(GeoDataDocument *document, const OsmRelation &relation, OsmWays &ways, const OsmNodes &nodes, QSet<qint64> &usedNodes, QSet<qint64> &usedWays);
+
+    static int populationIndex(qint64 population);
 };
 
 }

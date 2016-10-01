@@ -38,13 +38,11 @@ public:
     GeoDataLinearRing linearRing() const;
     GeoDataLineString lineString() const;
 
-    static OsmWay fromOsmData(const OsmPlacemarkData &osmData);
-
-    void create(GeoDataDocument* document, const OsmNodes &nodes, QSet<qint64> &usedNodes) const;
-
-private:
     bool isArea() const;
 
+    static OsmWay fromOsmData(const OsmPlacemarkData &osmData);
+
+private:
     static bool isAreaTag(const StyleBuilder::OsmTag &keyValue);
 
     OsmPlacemarkData m_osmData;

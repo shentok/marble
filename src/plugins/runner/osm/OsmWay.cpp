@@ -10,7 +10,6 @@
 
 #include <OsmRelation.h>
 #include <MarbleDebug.h>
-#include <GeoDataPlacemark.h>
 #include <GeoDataLineStyle.h>
 #include <GeoDataPolyStyle.h>
 #include <GeoDataStyle.h>
@@ -34,62 +33,6 @@ OsmWay OsmWay::fromOsmData(const OsmPlacemarkData &osmData)
     }
 
     return result;
-}
-
-void OsmWay::create(GeoDataDocument *document, const OsmNodes &nodes, QSet<qint64> &usedNodes) const
-{
-    OsmPlacemarkData osmData = m_osmData;
-    GeoDataGeometry *geometry = 0;
-
-    if (isArea()) {
-        GeoDataLinearRing linearRing;
-
-        foreach(qint64 nodeId, m_references) {
-            auto const nodeIter = nodes.constFind(nodeId);
-            if (nodeIter == nodes.constEnd()) {
-                return;
-            }
-
-            OsmNode const & node = nodeIter.value();
-            osmData.addNodeReference(node.coordinates(), node.osmData());
-            linearRing.append(node.coordinates());
-            usedNodes << nodeId;
-        }
-
-        geometry = new GeoDataLinearRing(linearRing.optimized());
-    } else {
-        GeoDataLineString lineString;
-
-        foreach(qint64 nodeId, m_references) {
-            auto const nodeIter = nodes.constFind(nodeId);
-            if (nodeIter == nodes.constEnd()) {
-                return;
-            }
-
-            OsmNode const & node = nodeIter.value();
-            osmData.addNodeReference(node.coordinates(), node.osmData());
-            lineString.append(node.coordinates());
-            usedNodes << nodeId;
-        }
-
-        geometry = new GeoDataLineString(lineString.optimized());
-    }
-
-    Q_ASSERT(geometry != nullptr);
-
-    OsmObjectManager::registerId(m_osmData.id());
-
-    GeoDataPlacemark *placemark = new GeoDataPlacemark;
-    placemark->setGeometry(geometry);
-    placemark->setVisualCategory(StyleBuilder::determineVisualCategory(m_osmData));
-    placemark->setName(m_osmData.tagValue(QStringLiteral("name")));
-    if (placemark->name().isEmpty()) {
-        placemark->setName(m_osmData.tagValue(QStringLiteral("ref")));
-    }
-    placemark->setOsmData(osmData);
-    placemark->setVisible(placemark->visualCategory() != GeoDataFeature::None);
-
-    document->append(placemark);
 }
 
 const QVector<qint64> &OsmWay::references() const

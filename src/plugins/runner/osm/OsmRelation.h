@@ -36,7 +36,7 @@ public:
 
     QSet<GeoDataPolygon> polygons() const;
 
-    void create(GeoDataDocument* document, OsmWays &ways, const OsmNodes &nodes, QSet<qint64> &usedNodes, QSet<qint64> &usedWays) const;
+    QList<GeoDataLinearRing> rings(const QStringList &roles, const OsmWays &ways, const OsmNodes &nodes, QSet<qint64> &usedNodes, QSet<qint64> &usedWays) const;
 
     static OsmRelation fromOsmData(const OsmPlacemarkData &osmData);
 
@@ -49,8 +49,6 @@ private:
 
         OsmMember();
     };
-
-    QList<GeoDataLinearRing> rings(const QStringList &roles, const OsmWays &ways, const OsmNodes &nodes, QSet<qint64> &usedNodes, QSet<qint64> &usedWays) const;
 
     OsmPlacemarkData m_osmData;
     QVector<OsmMember> m_members;
