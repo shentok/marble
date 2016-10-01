@@ -79,14 +79,14 @@ void OsmConverter::read(const GeoDataDocument *document)
                 }
                 m_ways << OsmConverter::Way::fromOsmData(innerRingOsmData);
             }
-            m_polygons.append(OsmConverter::Polygon(polygon, osmData));
+            m_polygons.append(OsmConverter::Polygon::fromOsmData(osmData));
         }
     }
 
     // Sort by id ascending since some external tools rely on that
     qSort(m_nodes.begin(), m_nodes.end(), [] (const Node &a, const Node &b) { return a.osmData().id() < b.osmData().id(); });
     qSort(m_ways.begin(), m_ways.end(), [] (const Way &a, const Way &b) { return a.osmData().id() < b.osmData().id(); });
-    qSort(m_polygons.begin(), m_polygons.end(), [] (const Polygon &a, const Polygon &b) { return a.second.id() < b.second.id(); });
+    qSort(m_polygons.begin(), m_polygons.end(), [] (const Polygon &a, const Polygon &b) { return a.osmData().id() < b.osmData().id(); });
 }
 
 const OsmConverter::Nodes &OsmConverter::nodes() const

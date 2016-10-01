@@ -56,7 +56,7 @@ bool OsmDocumentTagTranslator::write( const GeoNode *node, GeoWriter& writer ) c
 
     // Writing polygons
     foreach (const auto& polygon, converter.polygons()) {
-        OsmRelationTagWriter::writeMultipolygon(*polygon.first, polygon.second, writer );
+        OsmRelationTagWriter::writeMultipolygon(polygon.osmData(), writer );
     }
 
     return true;

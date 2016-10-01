@@ -26,8 +26,7 @@
 namespace Marble
 {
 
-void OsmRelationTagWriter::writeMultipolygon( const GeoDataPolygon& polygon,
-                                              const OsmPlacemarkData& osmData, GeoWriter& writer )
+void OsmRelationTagWriter::writeMultipolygon(const OsmPlacemarkData &osmData, GeoWriter &writer)
 {
     writer.writeStartElement( osm::osmTag_relation );
 

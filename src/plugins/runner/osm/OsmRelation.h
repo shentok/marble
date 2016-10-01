@@ -15,6 +15,7 @@
 #include "OsmWay.h"
 #include <osm/OsmPlacemarkData.h>
 #include <GeoDataLinearRing.h>
+#include <GeoDataPolygon.h>
 
 #include <QString>
 #include <QXmlStreamAttributes>
@@ -27,13 +28,17 @@ class GeoDataDocument;
 class OsmRelation
 {
 public:
-    OsmPlacemarkData & osmData();
     void parseMember(const QXmlStreamAttributes &attributes);
     void addMember(qint64 reference, const QString &role, const QString &type);
 
+    OsmPlacemarkData & osmData();
     const OsmPlacemarkData & osmData() const;
 
+    QSet<GeoDataPolygon> polygons() const;
+
     void create(GeoDataDocument* document, OsmWays &ways, const OsmNodes &nodes, QSet<qint64> &usedNodes, QSet<qint64> &usedWays) const;
+
+    static OsmRelation fromOsmData(const OsmPlacemarkData &osmData);
 
 private:
     struct OsmMember

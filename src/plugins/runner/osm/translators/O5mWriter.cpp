@@ -149,12 +149,12 @@ void O5mWriter::writePolygons(const OsmConverter::Polygons &polygons, QDataStrea
     qint64 lastReferenceId = 0;
 
     foreach(const auto & polygon, polygons) {
-        if (polygon.second.id() == lastId) {
+        if (polygon.osmData().id() == lastId) {
             continue;
         }
 
         stream << qint8(0x12); // relation start indicator
-        OsmPlacemarkData const & osmData = polygon.second;
+        OsmPlacemarkData const & osmData = polygon.osmData();
 
         QBuffer buffer;
         buffer.open(QIODevice::WriteOnly);
@@ -168,7 +168,7 @@ void O5mWriter::writePolygons(const OsmConverter::Polygons &polygons, QDataStrea
         QBuffer referencesBuffer;
         referencesBuffer.open(QIODevice::WriteOnly);
         QDataStream referencesStream(&referencesBuffer);
-        writeRelationMembers(*polygon.first, lastReferenceId, osmData, stringTable, referencesStream);
+        writeRelationMembers(polygon.polygon(), lastReferenceId, osmData, stringTable, referencesStream);
         writeUnsigned(referencesBuffer.size(), bufferStream);
         bufferStream.writeRawData(referencesBuffer.data().constData(), referencesBuffer.size());
 

@@ -13,6 +13,7 @@
 
 #include "OsmNode.h"
 #include "OsmWay.h"
+#include "OsmRelation.h"
 
 #include <GeoDataCoordinates.h>
 
@@ -30,7 +31,7 @@ public:
     typedef QPair<QString, QString> Tag;
     typedef OsmNode Node;
     typedef OsmWay Way;
-    typedef QPair<const GeoDataPolygon*, OsmPlacemarkData > Polygon;
+    typedef OsmRelation Polygon;
 
     typedef QVector<Node> Nodes;
     typedef QVector<Tag> Tags;

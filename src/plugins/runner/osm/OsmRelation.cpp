@@ -34,6 +34,12 @@ const OsmPlacemarkData &OsmRelation::osmData() const
     return m_osmData;
 }
 
+QSet<GeoDataPolygon> OsmRelation::polygons() const
+{
+#warning implement me
+    return QSet<GeoDataPolygon>();
+}
+
 void OsmRelation::parseMember(const QXmlStreamAttributes &attributes)
 {
     addMember(attributes.value(QLatin1String("ref")).toLongLong(),
@@ -158,6 +164,15 @@ void OsmRelation::create(GeoDataDocument *document, OsmWays &ways, const OsmNode
 
         document->append(placemark);
     }
+}
+
+OsmRelation OsmRelation::fromOsmData(const OsmPlacemarkData &osmData)
+{
+    OsmRelation result;
+
+    result.osmData() = osmData;
+
+    return result;
 }
 
 QList<GeoDataLinearRing> OsmRelation::rings(const QStringList &roles, const OsmWays &ways, const OsmNodes &nodes, QSet<qint64> &usedNodes, QSet<qint64> &usedWays) const
