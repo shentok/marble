@@ -40,8 +40,7 @@ GeoPolygonGraphicsItem::GeoPolygonGraphicsItem(const GeoDataPlacemark *placemark
     const int elevation = extractElevation(*placemark);
     setZValue(zValue() + elevation);
 
-    const GeoDataPlacemark::GeoDataVisualCategory visualCategory = placemark->visualCategory();
-    const QString paintLayer = QLatin1String("Polygon/") + StyleBuilder::visualCategoryName(visualCategory);
+    const QString paintLayer = QLatin1String("Polygon/") + StyleBuilder::visualCategoryName(*placemark);
     setPaintLayers(QStringList(paintLayer));
 }
 
@@ -51,8 +50,7 @@ GeoPolygonGraphicsItem::GeoPolygonGraphicsItem(const GeoDataPlacemark *placemark
     const int elevation = extractElevation(*placemark);
     setZValue(zValue() + elevation);
 
-    const GeoDataPlacemark::GeoDataVisualCategory visualCategory = placemark->visualCategory();
-    const QString paintLayer = QLatin1String("Polygon/") + StyleBuilder::visualCategoryName(visualCategory);
+    const QString paintLayer = QLatin1String("Polygon/") + StyleBuilder::visualCategoryName(*placemark);
     setPaintLayers(QStringList(paintLayer));
 }
 

@@ -95,6 +95,7 @@ public:
 
     void initializeDefaultStyles();
 
+    static QString visualCategoryName(GeoDataPlacemark::GeoDataVisualCategory visualCategory);
     static QString createPaintLayerItem(const QString &itemType, GeoDataPlacemark::GeoDataVisualCategory visualCategory, const QString &subType = QString());
 
     static int populationIndex(qint64 population);
@@ -1695,7 +1696,12 @@ int StyleBuilder::maximumZoomLevel() const
     return d->m_maximumZoomLevel;
 }
 
-QString StyleBuilder::visualCategoryName(GeoDataPlacemark::GeoDataVisualCategory category)
+QString StyleBuilder::visualCategoryName(const GeoDataPlacemark &placemark)
+{
+    return Private::visualCategoryName(placemark.visualCategory());
+}
+
+QString StyleBuilder::Private::visualCategoryName(GeoDataPlacemark::GeoDataVisualCategory category)
 {
     static QHash<GeoDataPlacemark::GeoDataVisualCategory, QString> visualCategoryNames;
 

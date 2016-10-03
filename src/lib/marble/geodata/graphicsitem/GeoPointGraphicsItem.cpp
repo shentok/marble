@@ -23,7 +23,7 @@ GeoPointGraphicsItem::GeoPointGraphicsItem(const GeoDataPlacemark *placemark, co
     m_point(point)
 {
     if (placemark) {
-        QString const paintLayer = QLatin1String("Point/") + StyleBuilder::visualCategoryName(placemark->visualCategory());
+        QString const paintLayer = QLatin1String("Point/") + StyleBuilder::visualCategoryName(*placemark);
         setPaintLayers(QStringList() << paintLayer);
     }
 }

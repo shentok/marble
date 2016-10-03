@@ -23,7 +23,7 @@ GeoTrackGraphicsItem::GeoTrackGraphicsItem(const GeoDataPlacemark *placemark, co
 {
     setTrack( track );
     if (placemark) {
-        QString const paintLayer = QLatin1String("Track/") + StyleBuilder::visualCategoryName(placemark->visualCategory());
+        QString const paintLayer = QLatin1String("Track/") + StyleBuilder::visualCategoryName(*placemark);
         setPaintLayers(QStringList() << paintLayer);
     }
 }

@@ -31,7 +31,7 @@ GeoLineStringGraphicsItem::GeoLineStringGraphicsItem(const GeoDataPlacemark *pla
     GeoGraphicsItem(placemark),
     m_lineString(lineString)
 {
-    QString const category = StyleBuilder::visualCategoryName(placemark->visualCategory());
+    QString const category = StyleBuilder::visualCategoryName(*placemark);
     QStringList paintLayers;
     paintLayers << QLatin1String("LineString/") + category + QLatin1String("/outline");
     paintLayers << QLatin1String("LineString/") + category + QLatin1String("/inline");
