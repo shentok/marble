@@ -28,6 +28,10 @@
 namespace Marble
 {
 
+class FileLoaderPrivate;
+class GeoDataTreeModel;
+class GeoWriter;
+
 /**
  * @short A shared base class between GeoDataDocument/GeoSourceDocument
  */
@@ -51,6 +55,17 @@ class GEODATA_EXPORT GeoNode
 public:
     GeoNode();
     virtual ~GeoNode();
+
+protected:
+    friend class FileLoaderPrivate;
+    friend class GeoDataTreeModel;
+    friend class GeoWriter;
+
+    template<typename T>
+    friend T *geodata_cast(GeoNode *node);
+
+    template<typename T>
+    friend const T *geodata_cast(const GeoNode *node);
 
     /// Provides type information for downcasting a GeoNode
     virtual const char* nodeType() const = 0;
