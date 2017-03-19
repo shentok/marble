@@ -11,7 +11,9 @@
 #include <QTest>
 
 #include "routing/RouteRequest.h"
+#include "GeoDataFolder.h"
 #include "GeoDataPlacemark.h"
+#include "GeoDataTreeModel.h"
 
 namespace Marble
 {
@@ -27,7 +29,9 @@ private Q_SLOTS:
 
 void RouteRequestTest::defaultConstructor()
 {
-    const RouteRequest request;
+    GeoDataTreeModel treeModel;
+    GeoDataFolder folder;
+    const RouteRequest request( &treeModel, &folder );
 
     QCOMPARE( request.size(), 0 );
     QCOMPARE( request.source(), GeoDataCoordinates() );
@@ -38,13 +42,17 @@ void RouteRequestTest::defaultConstructor()
 void RouteRequestTest::reverse()
 {
     {
-        RouteRequest request;
+        GeoDataTreeModel treeModel;
+        GeoDataFolder folder;
+        RouteRequest request( &treeModel, &folder );
         request.reverse(); // should not crash
         QCOMPARE( request.size(), 0 );
     }
 
     {
-        RouteRequest request;
+        GeoDataTreeModel treeModel;
+        GeoDataFolder folder;
+        RouteRequest request( &treeModel, &folder );
         request.append( GeoDataCoordinates(), "A" );
         request.reverse();
         QCOMPARE( request.size(), 1 );
@@ -52,7 +60,9 @@ void RouteRequestTest::reverse()
     }
 
     {
-        RouteRequest request;
+        GeoDataTreeModel treeModel;
+        GeoDataFolder folder;
+        RouteRequest request( &treeModel, &folder );
         request.append( GeoDataCoordinates(), "A" );
         request.append( GeoDataCoordinates(), "B" );
         request.reverse();
@@ -62,7 +72,9 @@ void RouteRequestTest::reverse()
     }
 
     {
-        RouteRequest request;
+        GeoDataTreeModel treeModel;
+        GeoDataFolder folder;
+        RouteRequest request( &treeModel, &folder );
         request.append( GeoDataCoordinates(), "A" );
         request.append( GeoDataCoordinates(), "B" );
         request.append( GeoDataCoordinates(), "C" );

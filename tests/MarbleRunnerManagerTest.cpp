@@ -17,7 +17,9 @@
 #include "ReverseGeocodingRunnerManager.h"
 #include "RoutingRunnerManager.h"
 #include "SearchRunnerManager.h"
+#include "GeoDataFolder.h"
 #include "GeoDataPlacemark.h"
+#include "GeoDataTreeModel.h"
 #include "routing/RouteRequest.h"
 #include "TestUtils.h"
 
@@ -33,6 +35,9 @@ namespace Marble
 class MarbleRunnerManagerTest : public QObject
 {
     Q_OBJECT
+
+public:
+    MarbleRunnerManagerTest();
 
 private Q_SLOTS:
     void initTestCase();// will be called before the first testfunction is executed.
@@ -67,9 +72,18 @@ public:
     QString m_name;
     GeoDataCoordinates m_coords;
     GeoDataCoordinates m_coords2;
+    GeoDataTreeModel m_treeModel;
+    GeoDataFolder m_requestFolder;
     RouteRequest m_request;
     QTime t;
 };
+
+MarbleRunnerManagerTest::MarbleRunnerManagerTest() :
+    m_treeModel(),
+    m_requestFolder(),
+    m_request( &m_treeModel, &m_requestFolder )
+{
+}
 
 void MarbleRunnerManagerTest::initTestCase()
 {
@@ -263,7 +277,9 @@ void MarbleRunnerManagerTest::testAsyncRouting()
              &loop, SLOT(quit()), Qt::QueuedConnection );
 
     QFETCH( QVector<GeoDataCoordinates>, coordinatesList );
-    RouteRequest request;
+    GeoDataTreeModel treeModel;
+    GeoDataFolder requestFolder;
+    RouteRequest request(&treeModel, &requestFolder);
     foreach( const GeoDataCoordinates &coordinates, coordinatesList ) {
         request.append( coordinates );
     }

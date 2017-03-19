@@ -19,8 +19,11 @@
 namespace Marble
 {
 
+class GeoDataContainer;
 class GeoDataCoordinates;
+class GeoDataFolder;
 class GeoDataPlacemark;
+class GeoDataTreeModel;
 class RouteRequestPrivate;
 
 /**
@@ -35,7 +38,7 @@ class MARBLE_EXPORT RouteRequest: public QObject
 public:
 
     /** Constructor */
-    explicit RouteRequest( QObject *parent = 0 );
+    explicit RouteRequest(GeoDataTreeModel *treeModel, GeoDataContainer *parentContainer, QObject *parent = 0);
 
     /** Destructor */
     ~RouteRequest() override;
@@ -62,11 +65,11 @@ public:
 
     void insert(int index, const GeoDataPlacemark &placemark);
 
-    /** Swaps the given elements at the given positions*/
-    void swap( int index1, int index2 );
-
     /** Change the value of the element at the given position */
     void setPosition( int index, const GeoDataCoordinates &position, const QString &name = QString() );
+
+    /** Swaps the given elements at the given positions*/
+    void swap( int index1, int index2 );
 
     /** Remove the element at the given position */
     void remove( int index );
@@ -104,6 +107,8 @@ public:
     RoutingProfile routingProfile() const;
 
     GeoDataPlacemark const & operator[] ( int index ) const;
+
+    const GeoDataFolder &document() const;
 
 Q_SIGNALS:
     /** The value of the n-th element was changed */

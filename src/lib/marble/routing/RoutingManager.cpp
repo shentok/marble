@@ -112,8 +112,6 @@ public:
 
     RoutingManagerPrivate(MarbleModel *marbleModel, RoutingManager *manager);
 
-    GeoDataFolder* routeRequest() const;
-
     static QString stateFile( const QString &name = QString( "route.kml" ) );
 
     void saveRoute( const QString &filename );
@@ -135,7 +133,7 @@ RoutingManagerPrivate::RoutingManagerPrivate(MarbleModel *model, RoutingManager 
         q( manager ),
         m_document(),
         m_documentInitializer(model->treeModel(), &m_document, QStringLiteral("Routing")),
-        m_routeRequest( manager ),
+        m_routeRequest(model->treeModel(), &m_document, manager),
         m_routingModel(&m_routeRequest, model->positionTracking(), manager),
         m_profilesModel( model->pluginManager() ),
         m_state( RoutingManager::Retrieved ),
@@ -155,18 +153,6 @@ RoutingManagerPrivate::RoutingManagerPrivate(MarbleModel *model, RoutingManager 
     m_routeColorStandard.setAlpha( 200 );
     m_routeColorHighlighted.setAlpha( 200 );
     m_routeColorAlternative.setAlpha( 200 );
-}
-
-GeoDataFolder* RoutingManagerPrivate::routeRequest() const
-{
-    GeoDataFolder* result = new GeoDataFolder;
-    result->setName(QStringLiteral("Route Request"));
-    for ( int i=0; i<m_routeRequest.size(); ++i ) {
-        GeoDataPlacemark* placemark = new GeoDataPlacemark( m_routeRequest[i] );
-        result->append( placemark );
-    }
-
-    return result;
 }
 
 QString RoutingManagerPrivate::stateFile( const QString &name)
@@ -202,10 +188,7 @@ void RoutingManagerPrivate::saveRoute(const QString &filename)
 
     GeoDataDocument container;
     container.setName(QStringLiteral("Route"));
-    GeoDataFolder* request = routeRequest();
-    if ( request ) {
-        container.append( request );
-    }
+    container.append(new GeoDataFolder(m_routeRequest.document()));
 
     GeoDataDocument *route = m_alternativeRoutesModel.currentRoute();
     if ( route ) {

@@ -91,7 +91,7 @@ class GEODATA_EXPORT GeoDataContainer : public GeoDataFeature
     /**
      * @brief  returns the requested child item
      */
-    GeoDataFeature* child( int );
+    GeoDataFeature *&child(int);
 
     /**
      * @brief  returns the requested child item

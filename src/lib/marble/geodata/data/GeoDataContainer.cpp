@@ -169,10 +169,10 @@ QVector<GeoDataFeature*> GeoDataContainer::featureList() const
 /**
  * @brief  returns the requested child item
  */
-GeoDataFeature* GeoDataContainer::child( int i )
+GeoDataFeature *&GeoDataContainer::child(int i)
 {
     Q_D(GeoDataContainer);
-    return d->m_vector.at(i);
+    return d->m_vector[i];
 }
 
 const GeoDataFeature* GeoDataContainer::child( int i ) const
