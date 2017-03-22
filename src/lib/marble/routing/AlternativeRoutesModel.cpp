@@ -383,6 +383,17 @@ void AlternativeRoutesModel::addRestrainedRoutes()
 
 void AlternativeRoutesModel::addRoute( GeoDataDocument* document, WritePolicy policy )
 {
+    QVector<GeoDataFolder*> folders = document->folderList();
+    for (auto folder : folders) {
+        for (auto placemark : folder->placemarkList()) {
+            placemark->setStyleUrl("alternativeRouteStyle");
+        }
+    }
+
+    for (auto placemark : document->placemarkList()) {
+        placemark->setStyleUrl("alternativeRouteStyle");
+    }
+
     if ( policy == Instant ) {
         int affected = d->m_routes.size();
         beginInsertRows( QModelIndex(), affected, affected );
@@ -437,7 +448,38 @@ const GeoDataLineString* AlternativeRoutesModel::waypoints( const GeoDataDocumen
 void AlternativeRoutesModel::setCurrentRoute( int index )
 {
     if ( index >= 0 && index < rowCount() && d->m_currentIndex != index ) {
+        d->m_treeModel->removeFeature(&d->m_routes);
+
+        if ( 0 <= d->m_currentIndex && d->m_currentIndex < rowCount() ) {
+            GeoDataContainer *document = static_cast<GeoDataContainer *>(d->m_routes.child(d->m_currentIndex));
+            QVector<GeoDataFolder*> folders = document->folderList();
+            for (auto folder : folders) {
+                for (auto placemark : folder->placemarkList()) {
+                    placemark->setStyleUrl("alternativeRouteStyle");
+                }
+            }
+
+            for (auto placemark : document->placemarkList()) {
+                placemark->setStyleUrl("alternativeRouteStyle");
+            }
+        }
+
         d->m_currentIndex = index;
+
+        GeoDataContainer *document = static_cast<GeoDataContainer *>(d->m_routes.child(d->m_currentIndex));
+        QVector<GeoDataFolder*> folders = document->folderList();
+        for (auto folder : folders) {
+            for (auto placemark : folder->placemarkList()) {
+                placemark->setStyleUrl("standardRouteStyle");
+            }
+        }
+
+        for (auto placemark : document->placemarkList()) {
+            placemark->setStyleUrl("standardRouteStyle");
+        }
+
+        d->m_treeModel->addFeature(static_cast<GeoDataContainer *>(d->m_routes.parent()), &d->m_routes);
+
         emit currentRouteChanged( currentRoute() );
         emit currentRouteChanged( d->m_currentIndex );
     }

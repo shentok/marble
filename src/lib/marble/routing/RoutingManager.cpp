@@ -21,8 +21,10 @@
 #include "GeoDataExtendedData.h"
 #include "GeoDataData.h"
 #include "GeoDataFolder.h"
+#include "GeoDataLineStyle.h"
 #include "GeoDataParser.h"
 #include "GeoDataPlacemark.h"
+#include "GeoDataStyle.h"
 #include "GeoDataTreeModel.h"
 #include "MarbleDirs.h"
 #include "MarbleDebug.h"
@@ -104,11 +106,11 @@ public:
 
     QString m_lastSavePath;
 
-    QColor m_routeColorStandard;
+    GeoDataStyle m_routeStyleStandard;
 
     QColor m_routeColorHighlighted;
 
-    QColor m_routeColorAlternative;
+    GeoDataStyle m_routeStyleAlternative;
 
     RoutingManagerPrivate(MarbleModel *marbleModel, RoutingManager *manager);
 
@@ -146,13 +148,27 @@ RoutingManagerPrivate::RoutingManagerPrivate(MarbleModel *model, RoutingManager 
         m_guidanceModeEnabled( false ),
         m_shutdownPositionTracking( false ),
         m_guidanceModeWarning( true ),
-        m_routeColorStandard( Oxygen::skyBlue4 ),
+        m_routeStyleStandard(),
         m_routeColorHighlighted( Oxygen::skyBlue1 ),
-        m_routeColorAlternative( Oxygen::aluminumGray4 )
+        m_routeStyleAlternative()
 {
-    m_routeColorStandard.setAlpha( 200 );
+    QColor routeColorStandard(Oxygen::skyBlue4);
+    routeColorStandard.setAlpha(200);
     m_routeColorHighlighted.setAlpha( 200 );
-    m_routeColorAlternative.setAlpha( 200 );
+    QColor routeColorAlternative(Oxygen::aluminumGray4);
+    routeColorAlternative.setAlpha(200);
+
+    GeoDataLineStyle standardLineStyle;
+    standardLineStyle.setWidth(5);
+    standardLineStyle.setColor(routeColorStandard);
+    m_routeStyleStandard.setId("standardRouteStyle");
+    m_routeStyleStandard.setLineStyle(standardLineStyle);
+
+    GeoDataLineStyle alternativeLineStyle;
+    alternativeLineStyle.setWidth(5);
+    alternativeLineStyle.setColor(routeColorAlternative);
+    m_routeStyleAlternative.setId("alternativeRouteStyle");
+    m_routeStyleAlternative.setLineStyle(alternativeLineStyle);
 }
 
 QString RoutingManagerPrivate::stateFile( const QString &name)
@@ -338,6 +354,9 @@ void RoutingManager::retrieveRoute()
 void RoutingManagerPrivate::addRoute( GeoDataDocument* route )
 {
     if ( route ) {
+        route->addStyle(GeoDataStyle::Ptr(new GeoDataStyle(m_routeStyleStandard)));
+        route->addStyle(GeoDataStyle::Ptr(new GeoDataStyle(m_routeStyleAlternative)));
+
         m_alternativeRoutesModel.addRoute( route );
     }
 
@@ -620,12 +639,12 @@ QString RoutingManager::lastSavePath() const
 
 void RoutingManager::setRouteColorStandard( const QColor& color )
 {
-    d->m_routeColorStandard = color;
+    d->m_routeStyleStandard.lineStyle().setColor(color);
 }
 
 QColor RoutingManager::routeColorStandard() const
 {
-    return d->m_routeColorStandard;
+    return d->m_routeStyleStandard.lineStyle().color();
 }
 
 void RoutingManager::setRouteColorHighlighted( const QColor& color )
@@ -640,12 +659,12 @@ QColor RoutingManager::routeColorHighlighted() const
 
 void RoutingManager::setRouteColorAlternative( const QColor& color )
 {
-    d->m_routeColorAlternative = color;
+    d->m_routeStyleAlternative.lineStyle().setColor(color);
 }
 
 QColor RoutingManager::routeColorAlternative() const
 {
-    return d->m_routeColorAlternative;
+    return d->m_routeStyleAlternative.lineStyle().color();
 }
 
 bool RoutingManager::guidanceModeEnabled() const
