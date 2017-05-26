@@ -328,13 +328,12 @@ void RoutingManager::retrieveRoute()
 
 void RoutingManagerPrivate::addRoute( GeoDataDocument* route )
 {
-    if ( route ) {
-        m_alternativeRoutesModel.addRoute( route );
+    if (route == nullptr) {
+        return;
     }
 
-    if ( !m_haveRoute ) {
-        m_haveRoute = route != 0;
-    }
+    m_alternativeRoutesModel.addRoute(route);
+    m_haveRoute = true;
 
     emit q->routeRetrieved( route );
 }
