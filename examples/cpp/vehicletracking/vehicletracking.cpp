@@ -34,7 +34,7 @@ CarWorker::CarWorker(const GeoDataCoordinates &city, qreal radius, qreal speed) 
     m_city(city),
     m_radius(radius),
     m_speed(speed),
-    m_alpha(0.0)
+    m_alpha(GeoDataAngle::null)
 {}
 
 void CarWorker::startWork()
@@ -46,13 +46,13 @@ void CarWorker::startWork()
 
 void CarWorker::iterate()
 {
-    qreal lon = m_city.longitude(GeoDataCoordinates::Degree) + m_radius * qCos(m_alpha * DEG2RAD);
-    qreal lat = m_city.latitude(GeoDataCoordinates::Degree) + m_radius * qSin(m_alpha * DEG2RAD);
+    const GeoDataLongitude lon = m_city.longitude() + GeoDataLongitude::fromDegrees(m_radius * qCos(m_alpha.toRadian()));
+    const GeoDataLatitude lat = m_city.latitude() + GeoDataLatitude::fromDegrees(m_radius * qSin(m_alpha.toRadian()));
 
-    GeoDataCoordinates coord(lon, lat, 0.0, GeoDataCoordinates::Degree);
+    GeoDataCoordinates coord(lon, lat);
     emit coordinatesChanged(coord);
 
-    m_alpha += m_speed;
+    m_alpha += GeoDataAngle::fromDegrees(m_speed);
 }
 
 void CarWorker::finishWork()
@@ -72,8 +72,8 @@ Window::Window(QWidget *parent) :
     m_marbleWidget->setMapThemeId(QStringLiteral("earth/openstreetmap/openstreetmap.dgml"));
     m_marbleWidget->setProjection( Mercator );
     setGeometry(80, 60, 1000, 800);
-    GeoDataCoordinates Kiev(30.523333, 50.45, 0.0, GeoDataCoordinates::Degree);
-    m_marbleWidget->centerOn(Kiev);
+    const GeoDataCoordinates kiev(GeoDataLongitude::fromDegrees(30.523333), GeoDataLatitude::fromDegrees(50.45));
+    m_marbleWidget->centerOn(kiev);
     m_marbleWidget->setZoom(2300);
 
     m_carFirst = new GeoDataPlacemark(QStringLiteral("Bus"));
@@ -91,17 +91,17 @@ Window::Window(QWidget *parent) :
 
 void Window::startCars()
 {
-    GeoDataCoordinates Kiev(30.523333, 50.45, 0.0, GeoDataCoordinates::Degree);
+    const GeoDataCoordinates kiev(GeoDataLongitude::fromDegrees(30.523333), GeoDataLatitude::fromDegrees(50.45));
 
     m_threadFirst = new QThread;
-    m_firstWorker = new CarWorker(Kiev, (qreal)0.1, (qreal)0.7);
+    m_firstWorker = new CarWorker(kiev, (qreal)0.1, (qreal)0.7);
     m_firstWorker->moveToThread(m_threadFirst);
 
     connect(m_firstWorker, SIGNAL(coordinatesChanged(GeoDataCoordinates)),
             this, SLOT(setCarCoordinates(GeoDataCoordinates)), Qt::BlockingQueuedConnection);
 
     m_threadSecond = new QThread;
-    m_secondWorker = new CarWorker(Kiev, (qreal)0.2, (qreal)-0.5);
+    m_secondWorker = new CarWorker(kiev, (qreal)0.2, (qreal)-0.5);
     m_secondWorker->moveToThread(m_threadSecond);
 
     connect(m_secondWorker, SIGNAL(coordinatesChanged(GeoDataCoordinates)),

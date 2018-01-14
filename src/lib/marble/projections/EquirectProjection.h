@@ -99,10 +99,7 @@ class EquirectProjection : public CylindricalProjection
      * @return @c true  if the pixel (x, y) is within the map
      *         @c false if the pixel (x, y) is above or underneath the map
      */
-    bool geoCoordinates( const int x, const int y,
-                         const ViewportParams *params,
-                         qreal& lon, qreal& lat,
-                         GeoDataCoordinates::Unit unit = GeoDataCoordinates::Degree ) const override;
+    bool geoCoordinates(int x, int y, const ViewportParams *viewport, GeoDataLongitude &lon, GeoDataLatitude &lat) const override;
 
     GeoDataLatLonAltBox latLonAltBox( const QRect& screenRect,
                                       const ViewportParams *viewport ) const override;

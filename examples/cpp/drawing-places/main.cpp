@@ -19,21 +19,20 @@
 
 using namespace Marble;
 
-void addPoints( GeoDataLinearRing &linearRing ) {
-
-    linearRing << GeoDataCoordinates(25.97226722704463, 44.43497647488007, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(26.04711276456992, 44.4420741223712, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(25.99712510557899, 44.48015825036597, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(26.11268978668501, 44.53902366720936, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(26.12777496065434, 44.48972441010599, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(26.17769825773425, 44.47685689461117, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(26.16489863910029, 44.45366647920105, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(26.23394105442375, 44.43247765101769, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(26.23388161223319, 44.40720014793351, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(26.18689640043445, 44.40683215952335, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(26.1462530009004, 44.36252655873379, 0, GeoDataCoordinates::Degree )
-                    << GeoDataCoordinates(25.97226722704463, 44.43497647488007, 0, GeoDataCoordinates::Degree );
-
+void addPoints(GeoDataLinearRing &linearRing)
+{
+    linearRing << GeoDataCoordinates(GeoDataLongitude::fromDegrees(25.97226722704463), GeoDataLatitude::fromDegrees(44.43497647488007))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(26.04711276456992), GeoDataLatitude::fromDegrees(44.4420741223712))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(25.99712510557899), GeoDataLatitude::fromDegrees(44.48015825036597))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(26.11268978668501), GeoDataLatitude::fromDegrees(44.53902366720936))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(26.12777496065434), GeoDataLatitude::fromDegrees(44.48972441010599))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(26.17769825773425), GeoDataLatitude::fromDegrees(44.47685689461117))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(26.16489863910029), GeoDataLatitude::fromDegrees(44.45366647920105))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(26.23394105442375), GeoDataLatitude::fromDegrees(44.43247765101769))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(26.23388161223319), GeoDataLatitude::fromDegrees(44.40720014793351))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(26.18689640043445), GeoDataLatitude::fromDegrees(44.40683215952335))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(26.1462530009004), GeoDataLatitude::fromDegrees(44.36252655873379))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(25.97226722704463), GeoDataLatitude::fromDegrees(44.43497647488007));
 }
 
 void createStyleBucharest( GeoDataStyle &style ) {
@@ -72,7 +71,7 @@ int main(int argc, char** argv) {
 
     //Create the placemark representing the Arch of Triumph
     GeoDataPlacemark *placemarkArch = new GeoDataPlacemark( "Arch of Triumph" );
-    placemarkArch->setCoordinate( 26.0783, 44.4671, 0, GeoDataCoordinates::Degree );
+    placemarkArch->setCoordinate(GeoDataLongitude::fromDegrees(26.0783), GeoDataLatitude::fromDegrees(44.4671));
 
 
     //Add styles (icons, colors, etc.) to the two placemarks
@@ -95,7 +94,7 @@ int main(int argc, char** argv) {
     mapWidget->model()->treeModel()->addDocument( document );
 
         // Center the map on Bucharest and set the zoom
-    mapWidget->centerOn( GeoDataCoordinates( 26.0783, 44.4671, 0, GeoDataCoordinates::Degree ) );
+    mapWidget->centerOn(GeoDataCoordinates(GeoDataLongitude::fromDegrees(26.0783), GeoDataLatitude::fromDegrees(44.4671)));
     mapWidget->zoomView( 2400 );
 
 

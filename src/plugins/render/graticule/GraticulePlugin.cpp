@@ -309,13 +309,13 @@ void GraticulePlugin::renderGrid( GeoPainter *painter, ViewportParams *viewport,
         mainPosition = LineCenter;
     }
     // Render the equator
-    renderLatitudeLine( painter, 0.0, viewLatLonAltBox, tr( "Equator" ), mainPosition );
+    renderLatitudeLine(painter, GeoDataLatitude::null, viewLatLonAltBox, tr("Equator"), mainPosition);
 
     // Render the Prime Meridian and Antimeridian
     GeoDataCoordinates::Notation notation = GeoDataCoordinates::defaultNotation();
     if (marbleModel()->planet()->id() != QLatin1String("sky") && notation != GeoDataCoordinates::Astro) {
-        renderLongitudeLine( painter, 0.0, viewLatLonAltBox, 0.0, 0.0, tr( "Prime Meridian" ), mainPosition );
-        renderLongitudeLine( painter, 180.0, viewLatLonAltBox, 0.0, 0.0, tr( "Antimeridian" ), mainPosition );
+        renderLongitudeLine(painter, GeoDataLongitude::null, viewLatLonAltBox, GeoDataLatitude::null, GeoDataLatitude::null, tr("Prime Meridian"), mainPosition);
+        renderLongitudeLine(painter, GeoDataLongitude::halfCircle, viewLatLonAltBox, GeoDataLatitude::null, GeoDataLatitude::null, tr("Antimeridian"), mainPosition);
     }
 
     painter->setPen( gridCirclePen );
@@ -323,24 +323,28 @@ void GraticulePlugin::renderGrid( GeoPainter *painter, ViewportParams *viewport,
 
     // Render UTM grid zones
     if ( m_currentNotation == GeoDataCoordinates::UTM ) {
-        renderLatitudeLine( painter, 84.0, viewLatLonAltBox );
+        renderLatitudeLine(painter, GeoDataLatitude::fromDegrees(84.0), viewLatLonAltBox);
 
         renderLongitudeLines( painter, viewLatLonAltBox,
-                    6.0, 0.0,
-                    18.0, 154.0, LineEnd | IgnoreXMargin );
+                    GeoDataLongitude::fromDegrees(6.0), 0.0,
+                    GeoDataLatitude::fromDegrees(18.0), GeoDataLatitude::fromDegrees(154.0),
+                    LineEnd | IgnoreXMargin );
         renderLongitudeLines( painter, viewLatLonAltBox,
-                    6.0, 0.0,
-                    34.0, 10.0, LineStart | IgnoreXMargin );
+                    GeoDataLongitude::fromDegrees(6.0), 0.0,
+                    GeoDataLatitude::fromDegrees(34.0), GeoDataLatitude::fromDegrees(10.0),
+                    LineStart | IgnoreXMargin );
 
         // Paint longitudes with exceptions
         renderLongitudeLines( painter, viewLatLonAltBox,
-                    6.0, 0.0,
-                    6.0, 162.0, LineEnd | IgnoreXMargin );
+                    GeoDataLongitude::fromDegrees(6.0), 0.0,
+                    GeoDataLatitude::fromDegrees(6.0), GeoDataLatitude::fromDegrees(162.0),
+                    LineEnd | IgnoreXMargin );
         renderLongitudeLines( painter, viewLatLonAltBox,
-                    6.0, 0.0,
-                    26.0, 146.0, LineEnd | IgnoreXMargin  );
+                    GeoDataLongitude::fromDegrees(6.0), 0.0,
+                    GeoDataLatitude::fromDegrees(26.0), GeoDataLatitude::fromDegrees(146.0),
+                    LineEnd | IgnoreXMargin  );
 
-        renderLatitudeLines( painter, viewLatLonAltBox, 8.0, 0.0 /*,
+        renderLatitudeLines(painter, viewLatLonAltBox, GeoDataLatitude::fromDegrees(8.0), 0.0 /*,
                              LineStart | IgnoreYMargin */ );
 
         return;
@@ -358,15 +362,14 @@ void GraticulePlugin::renderGrid( GeoPainter *painter, ViewportParams *viewport,
     }
     qreal boldDegreeStep = 360.0 / m_boldLineMap.lowerBound(viewport->radius()).value();
     renderLongitudeLines( painter, viewLatLonAltBox,
-                          normalDegreeStep, boldDegreeStep,
-                          normalDegreeStep, normalDegreeStep,
+                          GeoDataLongitude::fromDegrees(normalDegreeStep), boldDegreeStep,
+                          GeoDataLatitude::fromDegrees(normalDegreeStep), GeoDataLatitude::fromDegrees(normalDegreeStep),
                           labelXPosition );
-    renderLatitudeLines(  painter, viewLatLonAltBox, normalDegreeStep, boldDegreeStep,
-                          labelYPosition );
+    renderLatitudeLines(painter, viewLatLonAltBox, GeoDataLatitude::fromDegrees(normalDegreeStep), boldDegreeStep, labelYPosition );
 
     // Render some non-cut off longitude lines ..
-    renderLongitudeLine( painter, +90.0, viewLatLonAltBox );
-    renderLongitudeLine( painter, -90.0, viewLatLonAltBox );
+    renderLongitudeLine(painter, +GeoDataLongitude::halfCircle / 2, viewLatLonAltBox);
+    renderLongitudeLine(painter, -GeoDataLongitude::halfCircle / 2, viewLatLonAltBox);
 
     // Render the bold grid
 
@@ -381,13 +384,12 @@ void GraticulePlugin::renderGrid( GeoPainter *painter, ViewportParams *viewport,
     // calculate the angular distance between coordinate lines of the bold grid
 
     renderLongitudeLines( painter, viewLatLonAltBox,
-                        boldDegreeStep, 0.0,
-                        normalDegreeStep, normalDegreeStep,
+                        GeoDataLongitude::fromDegrees(boldDegreeStep), 0.0,
+                        GeoDataLatitude::fromDegrees(normalDegreeStep), GeoDataLatitude::fromDegrees(normalDegreeStep),
                         NoLabel
                         );
 
-    renderLatitudeLines(  painter, viewLatLonAltBox, boldDegreeStep, 0.0,
-                        NoLabel );
+    renderLatitudeLines(painter, viewLatLonAltBox, GeoDataLatitude::fromDegrees(boldDegreeStep), 0.0, NoLabel );
 
     QPen tropicsPen = tropicsCirclePen;
     if (   painter->mapQuality() != OutlineQuality
@@ -397,26 +399,26 @@ void GraticulePlugin::renderGrid( GeoPainter *painter, ViewportParams *viewport,
     painter->setPen( tropicsPen );
 
     // Determine the planet's axial tilt
-    qreal axialTilt = RAD2DEG * marbleModel()->planet()->epsilon();
+    const GeoDataLatitude axialTilt = GeoDataLatitude::fromRadians(marbleModel()->planet()->epsilon());
 
-    if ( axialTilt > 0 ) {
+    if (axialTilt > GeoDataLatitude::null) {
         // Render the tropics
         renderLatitudeLine( painter, +axialTilt, viewLatLonAltBox, tr( "Tropic of Cancer" ), mainPosition  );
         renderLatitudeLine( painter, -axialTilt, viewLatLonAltBox, tr( "Tropic of Capricorn" ), mainPosition );
 
         // Render the arctics
-        renderLatitudeLine( painter, +90.0 - axialTilt, viewLatLonAltBox, tr( "Arctic Circle" ), mainPosition );
-        renderLatitudeLine( painter, -90.0 + axialTilt, viewLatLonAltBox, tr( "Antarctic Circle" ), mainPosition );
-    }    
+        renderLatitudeLine(painter, +GeoDataLatitude::quaterCircle - axialTilt, viewLatLonAltBox, tr("Arctic Circle"), mainPosition);
+        renderLatitudeLine(painter, -GeoDataLatitude::quaterCircle + axialTilt, viewLatLonAltBox, tr("Antarctic Circle"), mainPosition);
+    }
 }
 
-void GraticulePlugin::renderLatitudeLine( GeoPainter *painter, qreal latitude,
+void GraticulePlugin::renderLatitudeLine( GeoPainter *painter, GeoDataLatitude latitude,
                                           const GeoDataLatLonAltBox& viewLatLonAltBox,
                                           const QString& lineLabel,
                                           LabelPositionFlags labelPositionFlags )
 {
-    qreal fromSouthLat = viewLatLonAltBox.south( GeoDataCoordinates::Degree );
-    qreal toNorthLat   = viewLatLonAltBox.north( GeoDataCoordinates::Degree );
+    const GeoDataLatitude fromSouthLat = viewLatLonAltBox.south();
+    const GeoDataLatitude toNorthLat   = viewLatLonAltBox.north();
 
     // Coordinate line is not displayed inside the viewport
     if ( latitude < fromSouthLat || toNorthLat < latitude ) {
@@ -426,67 +428,67 @@ void GraticulePlugin::renderLatitudeLine( GeoPainter *painter, qreal latitude,
 
     GeoDataLineString line( Tessellate | RespectLatitudeCircle ) ;
 
-    qreal fromWestLon = viewLatLonAltBox.west( GeoDataCoordinates::Degree );
-    qreal toEastLon   = viewLatLonAltBox.east( GeoDataCoordinates::Degree );
+    const GeoDataLongitude fromWestLon = viewLatLonAltBox.west();
+    const GeoDataLongitude toEastLon   = viewLatLonAltBox.east();
 
     if ( fromWestLon < toEastLon ) {
-        qreal step = ( toEastLon - fromWestLon ) * 0.25;
+        const GeoDataLongitude step = (toEastLon - fromWestLon) * 0.25;
 
         for ( int i = 0; i < 5; ++i ) {
-            line << GeoDataCoordinates( fromWestLon + i * step, latitude, 0.0, GeoDataCoordinates::Degree );
+            line << GeoDataCoordinates(fromWestLon + i * step, latitude);
         }
     }
     else {
-        qreal step = ( +180.0 - toEastLon ) * 0.25;
+        GeoDataLongitude step = (+GeoDataLongitude::halfCircle - toEastLon) * 0.25;
 
         for ( int i = 0; i < 5; ++i ) {
-            line << GeoDataCoordinates( toEastLon + i * step, latitude, 0.0, GeoDataCoordinates::Degree );
+            line << GeoDataCoordinates(toEastLon + i * step, latitude);
         }
 
-        step = ( +180 + fromWestLon ) * 0.25;
+        step = (+GeoDataLongitude::halfCircle + fromWestLon) * 0.25;
 
         for ( int i = 0; i < 5; ++i ) {
-            line << GeoDataCoordinates( -180 + i * step, latitude, 0.0, GeoDataCoordinates::Degree );
+            line << GeoDataCoordinates(-GeoDataLongitude::halfCircle + i * step, latitude);
         }
     }
 
     painter->drawPolyline( line, lineLabel, labelPositionFlags, painter->pen().color() );
 }
 
-void GraticulePlugin::renderLongitudeLine( GeoPainter *painter, qreal longitude,
+void GraticulePlugin::renderLongitudeLine( GeoPainter *painter, GeoDataLongitude longitude,
                                            const GeoDataLatLonAltBox& viewLatLonAltBox, 
-                                           qreal northPolarGap, qreal southPolarGap,
+                                           GeoDataLatitude northPolarGap, GeoDataLatitude southPolarGap,
                                            const QString& lineLabel,
                                            LabelPositionFlags labelPositionFlags )
 {
-    const qreal fromWestLon = viewLatLonAltBox.west();
-    const qreal toEastLon   = viewLatLonAltBox.east();
+    const GeoDataLongitude fromWestLon = viewLatLonAltBox.west();
+    const GeoDataLongitude toEastLon   = viewLatLonAltBox.east();
 
     // Coordinate line is not displayed inside the viewport
     if ( ( !viewLatLonAltBox.crossesDateLine() 
-           && ( longitude * DEG2RAD < fromWestLon || toEastLon < longitude * DEG2RAD ) ) ||
+           && (longitude < fromWestLon || toEastLon < longitude)) ||
          (  viewLatLonAltBox.crossesDateLine() &&
-            longitude * DEG2RAD < toEastLon && fromWestLon < longitude * DEG2RAD &&
-            fromWestLon != -M_PI && toEastLon != +M_PI )
+            longitude < toEastLon && fromWestLon < longitude &&
+            fromWestLon != -GeoDataLongitude::halfCircle && toEastLon != +GeoDataLongitude::halfCircle)
        ) {
         // mDebug() << "Lon: Out of View:" << viewLatLonAltBox.toString() << " Crossing: "<< viewLatLonAltBox.crossesDateLine() << "Longitude: " << longitude;
         return;
     }
 
-    qreal fromSouthLat = viewLatLonAltBox.south( GeoDataCoordinates::Degree );
-    qreal toNorthLat   = viewLatLonAltBox.north( GeoDataCoordinates::Degree );
-    
-    qreal southLat = ( fromSouthLat < -90.0 + southPolarGap ) ? -90.0 + southPolarGap : fromSouthLat;
-    qreal northLat = ( toNorthLat   > +90.0 - northPolarGap ) ? +90.0 - northPolarGap : toNorthLat;
+    const GeoDataLatitude fromSouthLat = viewLatLonAltBox.south();
+    const GeoDataLatitude toNorthLat   = viewLatLonAltBox.north();
 
-    GeoDataCoordinates n1( longitude, southLat, 0.0, GeoDataCoordinates::Degree );
-    GeoDataCoordinates n3( longitude, northLat, 0.0, GeoDataCoordinates::Degree );
+    const GeoDataLatitude southLat = (fromSouthLat < -GeoDataLatitude::quaterCircle + southPolarGap) ? -GeoDataLatitude::quaterCircle + southPolarGap : fromSouthLat;
+    const GeoDataLatitude northLat = (toNorthLat   > +GeoDataLatitude::quaterCircle - northPolarGap) ? +GeoDataLatitude::quaterCircle - northPolarGap : toNorthLat;
+
+    const GeoDataCoordinates n1(longitude, southLat);
+    const GeoDataCoordinates n3(longitude, northLat);
 
     GeoDataLineString line( Tessellate );
 
-    if ( northLat > 0 && southLat < 0 )
+    if (northLat > GeoDataLatitude::null && southLat < GeoDataLatitude::null)
     {
-        GeoDataCoordinates n2( longitude, 0.0, 0.0, GeoDataCoordinates::Degree );
+        const GeoDataCoordinates n2(longitude, GeoDataLatitude::null);
         line << n1 << n2 << n3;
     }
     else {
@@ -498,47 +500,46 @@ void GraticulePlugin::renderLongitudeLine( GeoPainter *painter, qreal longitude,
 
 void GraticulePlugin::renderLatitudeLines( GeoPainter *painter,
                                            const GeoDataLatLonAltBox& viewLatLonAltBox,
-                                           qreal step, qreal skipStep,
+                                           GeoDataLatitude step, qreal skipStep,
                                            LabelPositionFlags labelPositionFlags
                                          )
 {
-    if ( step <= 0 ) {
+    if (step <= GeoDataLatitude::null) {
         return;
     }
 
     // Latitude
-    qreal southLat = viewLatLonAltBox.south( GeoDataCoordinates::Degree );
-    qreal northLat = viewLatLonAltBox.north( GeoDataCoordinates::Degree );
+    const GeoDataLatitude southLat = viewLatLonAltBox.south();
+    const GeoDataLatitude northLat = viewLatLonAltBox.north();
 
-    qreal southLineLat = step * static_cast<int>( southLat / step ); 
-    qreal northLineLat = step * ( static_cast<int>( northLat / step ) + 1 );
-    
+    GeoDataLatitude southLineLat = GeoDataLatitude::fromDegrees(step.toDegree() * static_cast<int>(southLat.toDegree() / step.toDegree()));
+    GeoDataLatitude northLineLat = GeoDataLatitude::fromDegrees(step.toDegree() * static_cast<int>(northLat.toDegree() / step.toDegree()) + 1);
+
     if ( m_currentNotation == GeoDataCoordinates::UTM ) {
-        if ( northLineLat > 84.0 ) {
-            northLineLat = 76.0;
+        if (northLineLat > GeoDataLatitude::fromDegrees(84.0)) {
+            northLineLat = GeoDataLatitude::fromDegrees(76.0);
         }
 
-        if ( southLineLat < -80.0 ) {
-            southLineLat = -80.0;
+        if (southLineLat < -GeoDataLatitude::fromDegrees(80.0)) {
+            southLineLat = -GeoDataLatitude::fromDegrees(80.0);
         }
     }
 
-    qreal itStep = southLineLat;
+    GeoDataLatitude itStep = southLineLat;
 
     GeoDataCoordinates::Notation notation = GeoDataCoordinates::defaultNotation();
 
     while ( itStep < northLineLat ) {
         // Create a matching label
-        QString label = GeoDataCoordinates::latToString( itStep, notation,
-                                 GeoDataCoordinates::Degree, -1, 'g' );
+        QString label = GeoDataCoordinates::latToString(itStep, notation, -1, 'g');
 
         // No additional labels for the equator
-        if ( labelPositionFlags.testFlag( LineCenter ) && itStep == 0.0 ) {
+        if (labelPositionFlags.testFlag(LineCenter) && itStep == GeoDataLatitude::null) {
             label.clear();
         }
 
         // Paint all latitude coordinate lines except for the equator
-        if ( itStep != 0.0 && fmod(itStep, skipStep) != 0 ) {
+        if (itStep != GeoDataLatitude::null && fmod(itStep.toDegree(), skipStep) != 0) {
             renderLatitudeLine( painter, itStep, viewLatLonAltBox, label, labelPositionFlags );
         }
 
@@ -549,21 +550,21 @@ void GraticulePlugin::renderLatitudeLines( GeoPainter *painter,
 
 void GraticulePlugin::renderUtmExceptions( GeoPainter *painter,
                                             const GeoDataLatLonAltBox& viewLatLonAltBox,
-                                            qreal itStep, qreal northPolarGap, qreal southPolarGap,
+                                            GeoDataLongitude itStep, GeoDataLatitude northPolarGap, GeoDataLatitude southPolarGap,
                                             const QString & label,
                                             LabelPositionFlags labelPositionFlags )
 {
     // This code renders the so called "exceptions" in the UTM coordinate grid
     // See: https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system#Exceptions
-    if ( northPolarGap == 6.0 && southPolarGap == 162.0) {
+    if (northPolarGap == GeoDataLatitude::fromDegrees(6.0) && southPolarGap == GeoDataLatitude::fromDegrees(162.0)) {
         if (label == QLatin1String("33")) {
-            renderLongitudeLine( painter, itStep-3.0, viewLatLonAltBox, northPolarGap,
+            renderLongitudeLine(painter, itStep - GeoDataLongitude::fromDegrees(3.0), viewLatLonAltBox, northPolarGap,
             southPolarGap, label, labelPositionFlags );
         } else if (label == QLatin1String("35")) {
-            renderLongitudeLine( painter, itStep-3.0, viewLatLonAltBox, northPolarGap,
+            renderLongitudeLine(painter, itStep - GeoDataLongitude::fromDegrees(3.0), viewLatLonAltBox, northPolarGap,
             southPolarGap, label, labelPositionFlags );
         } else if (label == QLatin1String("37")) {
-            renderLongitudeLine( painter, itStep-3.0, viewLatLonAltBox, northPolarGap,
+            renderLongitudeLine(painter, itStep - GeoDataLongitude::fromDegrees(3.0), viewLatLonAltBox, northPolarGap,
             southPolarGap, label, labelPositionFlags );
         } else if (label == QLatin1String("32") || label == QLatin1String("34") || label == QLatin1String("36")) {
             // paint nothing
@@ -572,9 +573,9 @@ void GraticulePlugin::renderUtmExceptions( GeoPainter *painter,
             southPolarGap, label, labelPositionFlags );
         }
     }
-    else if ( northPolarGap == 26.0 && southPolarGap == 146.0 ) {
+    else if (northPolarGap == GeoDataLatitude::fromDegrees(26.0) && southPolarGap == GeoDataLatitude::fromDegrees(146.0)) {
         if (label == QLatin1String("32")) {
-            renderLongitudeLine( painter, itStep-3.0, viewLatLonAltBox, northPolarGap,
+            renderLongitudeLine(painter, itStep - GeoDataLongitude::fromDegrees(3.0), viewLatLonAltBox, northPolarGap,
             southPolarGap, label, labelPositionFlags );
         } else {
             renderLongitudeLine( painter, itStep, viewLatLonAltBox, northPolarGap,
@@ -589,11 +590,11 @@ void GraticulePlugin::renderUtmExceptions( GeoPainter *painter,
 
 void GraticulePlugin::renderLongitudeLines( GeoPainter *painter, 
                                             const GeoDataLatLonAltBox& viewLatLonAltBox, 
-                                            qreal step, qreal skipStep,
-                                            qreal northPolarGap, qreal southPolarGap,
+                                            GeoDataLongitude step, qreal skipStep,
+                                            GeoDataLatitude northPolarGap, GeoDataLatitude southPolarGap,
                                             LabelPositionFlags labelPositionFlags) const
 {
-    if ( step <= 0 ) {
+    if (step <= GeoDataLongitude::null) {
         return;
     }
 
@@ -604,25 +605,23 @@ void GraticulePlugin::renderLongitudeLines( GeoPainter *painter,
     int precision = (notation == GeoDataCoordinates::UTM) ? 0 : -1;
 
     // Longitude
-    qreal westLon = viewLatLonAltBox.west( GeoDataCoordinates::Degree );
-    qreal eastLon = viewLatLonAltBox.east( GeoDataCoordinates::Degree );
+    const GeoDataLongitude westLon = viewLatLonAltBox.west();
+    const GeoDataLongitude eastLon = viewLatLonAltBox.east();
 
-    qreal westLineLon = step * static_cast<int>( westLon / step );
-    qreal eastLineLon = step * ( static_cast<int>( eastLon / step ) + 1 );
+    const GeoDataLongitude westLineLon = GeoDataLongitude::fromDegrees(step.toDegree() * static_cast<int>(westLon.toDegree() / step.toDegree()));
+    const GeoDataLongitude eastLineLon = GeoDataLongitude::fromDegrees(step.toDegree() * (static_cast<int>(eastLon.toDegree() / step.toDegree()) + 1));
 
     if ( !viewLatLonAltBox.crossesDateLine() ||
-         ( westLon == -180.0 && eastLon == +180.0 ) ) {
-        qreal itStep = westLineLon;
+         (westLon == -GeoDataLongitude::halfCircle && eastLon == +GeoDataLongitude::halfCircle)) {
+        GeoDataLongitude itStep = westLineLon;
 
         while ( itStep < eastLineLon ) {
             // Create a matching label
-            QString label = GeoDataCoordinates::lonToString( itStep,
-                                  notation, GeoDataCoordinates::Degree,
-                                  precision, 'g' );
+            QString label = GeoDataCoordinates::lonToString(itStep, notation, precision, 'g');
 
             // No additional labels for the prime meridian and the antimeridian
 
-            if ( labelPositionFlags.testFlag( LineCenter ) && ( itStep == 0.0 || itStep == 180.0 || itStep == -180.0 ) )
+            if (labelPositionFlags.testFlag(LineCenter) && (itStep == GeoDataLongitude::null || itStep == GeoDataLongitude::halfCircle || itStep == -GeoDataLongitude::halfCircle))
             {
                 label.clear();
             }
@@ -631,8 +630,8 @@ void GraticulePlugin::renderLongitudeLines( GeoPainter *painter,
             if (notation == GeoDataCoordinates::UTM ) {
                 renderUtmExceptions( painter, viewLatLonAltBox, itStep, northPolarGap,
                 southPolarGap, label, labelPositionFlags );
-            } else if ( itStep != 0.0 && itStep != 180.0 && itStep != -180.0 ) {
-                if (fmod(itStep, skipStep) != 0 || skipStep == 0.0) {
+            } else if (itStep != GeoDataLongitude::null && itStep != GeoDataLongitude::halfCircle && itStep != -GeoDataLongitude::halfCircle) {
+                if (fmod(itStep.toDegree(), skipStep) != 0 || skipStep == 0.0) {
                     renderLongitudeLine( painter, itStep, viewLatLonAltBox, northPolarGap,
                     southPolarGap, label, labelPositionFlags );
                 }
@@ -641,17 +640,15 @@ void GraticulePlugin::renderLongitudeLines( GeoPainter *painter,
         }
     }
     else {
-        qreal itStep = eastLineLon;
+        GeoDataLongitude itStep = eastLineLon;
 
-        while ( itStep < 180.0 ) {
+        while (itStep < GeoDataLongitude::halfCircle) {
             // Create a matching label
-            QString label = GeoDataCoordinates::lonToString( itStep,
-                                  notation, GeoDataCoordinates::Degree,
-                                  precision, 'g' );
+            QString label = GeoDataCoordinates::lonToString(itStep, notation, precision, 'g');
 
             // No additional labels for the prime meridian and the antimeridian
 
-            if ( labelPositionFlags.testFlag( LineCenter ) && ( itStep == 0.0 || itStep == 180.0 || itStep == -180.0 ) )
+            if (labelPositionFlags.testFlag(LineCenter) && (itStep == GeoDataLongitude::null || itStep == GeoDataLongitude::halfCircle || itStep == -GeoDataLongitude::halfCircle))
             {
                 label.clear();
             }
@@ -660,8 +657,8 @@ void GraticulePlugin::renderLongitudeLines( GeoPainter *painter,
             if (notation == GeoDataCoordinates::UTM ) {
                 renderUtmExceptions( painter, viewLatLonAltBox, itStep, northPolarGap,
                 southPolarGap, label, labelPositionFlags );
-            } else if ( itStep != 0.0 && itStep != 180.0 && itStep != -180.0 ) {
-                if (fmod((itStep), skipStep) != 0 || skipStep == 0.0) {
+            } else if (itStep != GeoDataLongitude::null && itStep != GeoDataLongitude::halfCircle && itStep != -GeoDataLongitude::halfCircle) {
+                if (fmod(itStep.toDegree(), skipStep) != 0 || skipStep == 0.0) {
                     renderLongitudeLine( painter, itStep, viewLatLonAltBox, northPolarGap,
                     southPolarGap, label, labelPositionFlags );
                 }
@@ -669,16 +666,14 @@ void GraticulePlugin::renderLongitudeLines( GeoPainter *painter,
             itStep += step;
         }
 
-        itStep = -180.0;
+        itStep = -GeoDataLongitude::halfCircle;
 
         while ( itStep < westLineLon ) {
             // Create a matching label
-            QString label = GeoDataCoordinates::lonToString( itStep,
-                                  notation, GeoDataCoordinates::Degree,
-                                  precision, 'g' );
+            QString label = GeoDataCoordinates::lonToString(itStep, notation, precision, 'g');
 
             // No additional labels for the prime meridian and the antimeridian
-            if ( labelPositionFlags.testFlag( LineCenter ) && ( itStep == 0.0 || itStep == 180.0 || itStep == -180.0 ) )
+            if (labelPositionFlags.testFlag(LineCenter) && (itStep == GeoDataLongitude::null || itStep == GeoDataLongitude::halfCircle || itStep == -GeoDataLongitude::halfCircle))
             {
                 label.clear();
             }
@@ -687,8 +682,8 @@ void GraticulePlugin::renderLongitudeLines( GeoPainter *painter,
             if (notation == GeoDataCoordinates::UTM ) {
                 renderUtmExceptions( painter, viewLatLonAltBox, itStep, northPolarGap,
                 southPolarGap, label, labelPositionFlags );
-            } else if ( itStep != 0.0 && itStep != 180.0 && itStep != -180.0 ) {
-                if (fmod((itStep+180), skipStep) != 0 || skipStep == 0.0) {
+            } else if (itStep != GeoDataLongitude::null && itStep != GeoDataLongitude::halfCircle && itStep != -GeoDataLongitude::halfCircle) {
+                if (fmod((itStep + GeoDataLongitude::halfCircle).toDegree(), skipStep) != 0 || skipStep == 0.0) {
                     renderLongitudeLine( painter, itStep, viewLatLonAltBox, northPolarGap,
                     southPolarGap, label, labelPositionFlags );
                 }

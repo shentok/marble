@@ -65,14 +65,14 @@ void TestGeoDataTrack::interpolate()
 
     const QDateTime date1( QDate( 2014, 8, 16 ), QTime( 4, 57, 26 ) );
     const QDateTime date2( QDate( 2014, 8, 16 ), QTime( 12, 47, 16 ) );
-    const GeoDataCoordinates coordinates1( 13.592294, 52.675926, 71, GeoDataCoordinates::Degree );
-    const GeoDataCoordinates coordinates2( 13.572776, 53.517952, 97, GeoDataCoordinates::Degree );
+    const GeoDataCoordinates coordinates1(GeoDataLongitude::fromDegrees(13.592294), GeoDataLatitude::fromDegrees(52.675926), 71);
+    const GeoDataCoordinates coordinates2(GeoDataLongitude::fromDegrees(13.572776), GeoDataLatitude::fromDegrees(53.517952), 97);
     track.addPoint( date1, coordinates1 );
     track.addPoint( date2, coordinates2 );
 
     const GeoDataCoordinates interpolated = track.coordinatesAt( QDateTime( QDate( 2014, 8, 16 ), QTime( 8, 0, 0 ) ) );
-    QCOMPARE( interpolated.longitude( GeoDataCoordinates::Degree ), 13.5848002666755789391572761815 );
-    QCOMPARE( interpolated.latitude( GeoDataCoordinates::Degree ), 53.0031187444621139093214878812 );
+    QCOMPARE(interpolated.longitude(), GeoDataLongitude::fromDegrees(13.5848002666755789391572761815));
+    QCOMPARE(interpolated.latitude(), GeoDataLatitude::fromDegrees(53.0031187444621139093214878812));
 
     const GeoDataCoordinates beforeStart = track.coordinatesAt( QDateTime( QDate( 2014, 8, 16 ), QTime( 0, 0, 0 ) ) );
     QCOMPARE( beforeStart, GeoDataCoordinates() );
@@ -123,14 +123,14 @@ void TestGeoDataTrack::simpleParseTest()
     }
     {
         GeoDataCoordinates coord = track->coordinatesList().at( 0 );
-        QCOMPARE( coord.longitude( GeoDataCoordinates::Degree ), -122.207881 );
-        QCOMPARE( coord.latitude( GeoDataCoordinates::Degree ), 37.371915 );
+        QCOMPARE(coord.longitude(), GeoDataLongitude::fromDegrees(-122.207881));
+        QCOMPARE(coord.latitude(), GeoDataLatitude::fromDegrees(37.371915));
         QCOMPARE( coord.altitude(), 156.000000 );
     }
     {
         GeoDataCoordinates coord = track->coordinatesAt( QDateTime( QDate( 2010, 5, 28 ), QTime( 2, 2, 9 ), Qt::UTC ) );
-        QCOMPARE( coord.longitude( GeoDataCoordinates::Degree ), -122.207881 );
-        QCOMPARE( coord.latitude( GeoDataCoordinates::Degree ), 37.371915 );
+        QCOMPARE(coord.longitude(), GeoDataLongitude::fromDegrees(-122.207881));
+        QCOMPARE(coord.latitude(), GeoDataLatitude::fromDegrees(37.371915));
         QCOMPARE( coord.altitude(), 156.000000 );
     }
 
@@ -158,8 +158,8 @@ void TestGeoDataTrack::removeBeforeTest()
     }
     {
         GeoDataCoordinates coord = track->coordinatesList().at( 0 );
-        QCOMPARE( coord.longitude( GeoDataCoordinates::Degree ), -122.203451 );
-        QCOMPARE( coord.latitude( GeoDataCoordinates::Degree ), 37.374706 );
+        QCOMPARE(coord.longitude(), GeoDataLongitude::fromDegrees(-122.203451));
+        QCOMPARE(coord.latitude(), GeoDataLatitude::fromDegrees(37.374706));
         QCOMPARE( coord.altitude(), 141.800003 );
     }
 
@@ -187,8 +187,8 @@ void TestGeoDataTrack::removeAfterTest()
     }
     {
         GeoDataCoordinates coord = track->coordinatesList().at( 0 );
-        QCOMPARE( coord.longitude( GeoDataCoordinates::Degree ), -122.207881 );
-        QCOMPARE( coord.latitude( GeoDataCoordinates::Degree ), 37.371915 );
+        QCOMPARE(coord.longitude(), GeoDataLongitude::fromDegrees(-122.207881));
+        QCOMPARE(coord.latitude(), GeoDataLatitude::fromDegrees(37.371915));
         QCOMPARE( coord.altitude(), 156.000000 );
     }
 
@@ -340,8 +340,8 @@ void TestGeoDataTrack::withoutTimeTest()
     QCOMPARE( track->size(), 7 );
     {
         GeoDataCoordinates coord = track->coordinatesList().at( 0 );
-        QCOMPARE( coord.longitude( GeoDataCoordinates::Degree ), -122.207881 );
-        QCOMPARE( coord.latitude( GeoDataCoordinates::Degree ), 37.371915 );
+        QCOMPARE(coord.longitude(), GeoDataLongitude::fromDegrees(-122.207881));
+        QCOMPARE(coord.latitude(), GeoDataLatitude::fromDegrees(37.371915));
         QCOMPARE( coord.altitude(), 156.000000 );
     }
 
@@ -349,8 +349,8 @@ void TestGeoDataTrack::withoutTimeTest()
         const GeoDataLineString *lineString = track->lineString();
         QCOMPARE( lineString->size(), 7 );
         GeoDataCoordinates coord = lineString->at( 0 );
-        QCOMPARE( coord.longitude( GeoDataCoordinates::Degree ), -122.207881 );
-        QCOMPARE( coord.latitude( GeoDataCoordinates::Degree ), 37.371915 );
+        QCOMPARE(coord.longitude(), GeoDataLongitude::fromDegrees(-122.207881));
+        QCOMPARE(coord.latitude(), GeoDataLatitude::fromDegrees(37.371915));
         QCOMPARE( coord.altitude(), 156.000000 );
     }
 

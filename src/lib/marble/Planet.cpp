@@ -10,9 +10,11 @@
 //
 #include "Planet.h"
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include "PlanetFactory.h"
 #include "MarbleDebug.h"
-#include "MarbleGlobal.h"
 #include "MarbleColors.h"
 
 #include "src/lib/astro/solarsystem.h"
@@ -161,7 +163,7 @@ QString Planet::id() const
     return d->id;
 }
 
-void Planet::sunPosition(qreal &lon, qreal &lat, const QDateTime &dateTime) const
+void Planet::sunPosition(GeoDataLongitude &lon, GeoDataLatitude &lat, const QDateTime &dateTime) const
 {
     SolarSystem sys;
     sys.setCurrentMJD(
@@ -180,8 +182,8 @@ void Planet::sunPosition(qreal &lon, qreal &lat, const QDateTime &dateTime) cons
     double _lat = 0.0;
     sys.getPlanetographic(ra, decl, _lon, _lat);
 
-    lon = _lon * DEG2RAD;
-    lat = _lat * DEG2RAD;
+    lon = GeoDataLongitude::fromDegrees(_lon);
+    lat = GeoDataLatitude::fromDegrees(_lat);
 }
 
     /* Setter functions */

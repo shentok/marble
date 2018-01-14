@@ -27,14 +27,14 @@
 namespace Marble
 {
 
-LonLatParser::LonLatParser()
-    : m_lon(0.0)
-    , m_lat(0.0)
-    , m_north(QStringLiteral("n"))
-    , m_east( QStringLiteral("e"))
-    , m_south(QStringLiteral("s"))
-    , m_west( QStringLiteral("w"))
-    , m_decimalPointExp(createDecimalPointExp())
+LonLatParser::LonLatParser() :
+    m_lon(GeoDataLongitude::null),
+    m_lat(GeoDataLatitude::null),
+    m_north(QStringLiteral("n")),
+    m_east( QStringLiteral("e")),
+    m_south(QStringLiteral("s")),
+    m_west( QStringLiteral("w")),
+    m_decimalPointExp(createDecimalPointExp())
 {
 }
 
@@ -137,8 +137,8 @@ bool LonLatParser::parse(const QString& string)
         const QRegularExpression regex(numberCapExp);
         QRegularExpressionMatch match = regex.match(input);
         if (match.hasMatch()) {
-            m_lon = parseDouble(match.captured(2));
-            m_lat = parseDouble(match.captured(1));
+            m_lon = GeoDataLongitude::fromDegrees(parseDouble(match.captured(2)));
+            m_lat = GeoDataLatitude::fromDegrees(parseDouble(match.captured(1)));
 
             return true;
         }
@@ -216,10 +216,10 @@ bool LonLatParser::tryMatchFromDms(const QString& input, DirPosition dirPosition
 
     const int valueStartIndex1 = (dirPosition == PostfixDir ? 1 : 2);
     const int valueStartIndex2 = (dirPosition == PostfixDir ? 6 : 7);
-    m_lon = degreeValueFromDMS(match, isDir1LonDir ? valueStartIndex1 : valueStartIndex2,
-                               isLonDirPosHemisphere);
-    m_lat = degreeValueFromDMS(match, isDir1LonDir ? valueStartIndex2 : valueStartIndex1,
-                               isLatDirPosHemisphere);
+    m_lon = GeoDataLongitude::fromDegrees(degreeValueFromDMS(match, isDir1LonDir ? valueStartIndex1 : valueStartIndex2,
+                               isLonDirPosHemisphere));
+    m_lat = GeoDataLatitude::fromDegrees(degreeValueFromDMS(match, isDir1LonDir ? valueStartIndex2 : valueStartIndex1,
+                               isLatDirPosHemisphere));
 
     return true;
 }
@@ -262,10 +262,10 @@ bool LonLatParser::tryMatchFromDm(const QString& input, DirPosition dirPosition)
 
     const int valueStartIndex1 = (dirPosition == PostfixDir ? 1 : 2);
     const int valueStartIndex2 = (dirPosition == PostfixDir ? 5 : 6);
-    m_lon = degreeValueFromDM(match, isDir1LonDir ? valueStartIndex1 : valueStartIndex2,
-                              isLonDirPosHemisphere);
-    m_lat = degreeValueFromDM(match, isDir1LonDir ? valueStartIndex2 : valueStartIndex1,
-                              isLatDirPosHemisphere);
+    m_lon = GeoDataLongitude::fromDegrees(degreeValueFromDM(match, isDir1LonDir ? valueStartIndex1 : valueStartIndex2,
+                              isLonDirPosHemisphere));
+    m_lat = GeoDataLatitude::fromDegrees(degreeValueFromDM(match, isDir1LonDir ? valueStartIndex2 : valueStartIndex1,
+                              isLatDirPosHemisphere));
 
     return true;
 }
@@ -310,10 +310,10 @@ bool LonLatParser::tryMatchFromD(const QString& input, DirPosition dirPosition)
 
     const int valueStartIndex1 = (dirPosition == PostfixDir ? 1 : 2);
     const int valueStartIndex2 = (dirPosition == PostfixDir ? 3 : 4);
-    m_lon = degreeValueFromD(match, isDir1LonDir ? valueStartIndex1 : valueStartIndex2,
-                             isLonDirPosHemisphere);
-    m_lat = degreeValueFromD(match, isDir1LonDir ? valueStartIndex2 : valueStartIndex1,
-                             isLatDirPosHemisphere);
+    m_lon = GeoDataLongitude::fromDegrees(degreeValueFromD(match, isDir1LonDir ? valueStartIndex1 : valueStartIndex2,
+                             isLonDirPosHemisphere));
+    m_lat = GeoDataLatitude::fromDegrees(degreeValueFromD(match, isDir1LonDir ? valueStartIndex2 : valueStartIndex1,
+                             isLatDirPosHemisphere));
 
     return true;
 }

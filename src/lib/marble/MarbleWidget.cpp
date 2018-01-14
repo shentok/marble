@@ -248,8 +248,8 @@ void MarbleWidgetPrivate::construct()
 
     m_map.addLayer( &m_customPaintLayer );
 
-    m_widget->connect( m_inputhandler, SIGNAL(mouseClickGeoPosition(qreal,qreal,GeoDataCoordinates::Unit)),
-                       m_widget, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)) );
+    m_widget->connect( m_inputhandler, SIGNAL(mouseClickGeoPosition(GeoDataLongitude,GeoDataLatitude)),
+                       m_widget, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)) );
     m_widget->setHighlightEnabled( true );
 
 }
@@ -401,13 +401,13 @@ RenderState MarbleWidget::renderState() const
 void MarbleWidget::setHighlightEnabled(bool enabled)
 {
     if ( enabled ) {
-        connect( this, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)),
-                 &d->m_map, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)),
+        connect( this, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)),
+                 &d->m_map, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)),
                  Qt::UniqueConnection );
     }
     else {
-        disconnect( this, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)),
-                 &d->m_map, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)) );
+        disconnect( this, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)),
+                 &d->m_map, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)) );
     }
 }
 
@@ -566,7 +566,7 @@ void MarbleWidget::rotateBy( const qreal deltaLon, const qreal deltaLat, FlyToMo
 }
 
 
-void MarbleWidget::centerOn( const qreal lon, const qreal lat, bool animated )
+void MarbleWidget::centerOn(const GeoDataLongitude lon, const GeoDataLatitude lat, bool animated)
 {
     d->m_inputhandler->stopInertialEarthRotation();
     d->m_presenter.centerOn( lon, lat, animated );
@@ -590,13 +590,13 @@ void MarbleWidget::centerOn( const GeoDataPlacemark& placemark, bool animated )
     d->m_presenter.centerOn( placemark, animated );
 }
 
-void MarbleWidget::setCenterLatitude( qreal lat, FlyToMode mode )
+void MarbleWidget::setCenterLatitude(GeoDataLatitude lat, FlyToMode mode)
 {
     d->m_inputhandler->stopInertialEarthRotation();
     d->m_presenter.setCenterLatitude( lat, mode );
 }
 
-void MarbleWidget::setCenterLongitude( qreal lon, FlyToMode mode )
+void MarbleWidget::setCenterLongitude(GeoDataLongitude lon, FlyToMode mode)
 {
     d->m_inputhandler->stopInertialEarthRotation();
     d->m_presenter.setCenterLongitude( lon, mode );
@@ -669,25 +669,22 @@ void MarbleWidget::disconnectNotify( const QMetaMethod &signal )
     }
 }
 
-bool MarbleWidget::screenCoordinates( qreal lon, qreal lat,
-                                      qreal& x, qreal& y ) const
+bool MarbleWidget::screenCoordinates(GeoDataLongitude lon, GeoDataLatitude lat, qreal &x, qreal &y) const
 {
     return d->m_map.screenCoordinates( lon, lat, x, y );
 }
 
-bool MarbleWidget::geoCoordinates( int x, int y,
-                                   qreal& lon, qreal& lat,
-                                   GeoDataCoordinates::Unit unit ) const
+bool MarbleWidget::geoCoordinates(int x, int y, GeoDataLongitude &lon, GeoDataLatitude &lat) const
 {
-    return d->m_map.geoCoordinates( x, y, lon, lat, unit );
+    return d->m_map.geoCoordinates(x, y, lon, lat);
 }
 
-qreal MarbleWidget::centerLatitude() const
+GeoDataLatitude MarbleWidget::centerLatitude() const
 {
     return d->m_map.centerLatitude();
 }
 
-qreal MarbleWidget::centerLongitude() const
+GeoDataLongitude MarbleWidget::centerLongitude() const
 {
     return d->m_map.centerLongitude();
 }
@@ -984,13 +981,13 @@ void MarbleWidget::setShowTileId( bool visible )
 
 void MarbleWidget::notifyMouseClick( int x, int y)
 {
-    qreal  lon   = 0;
-    qreal  lat   = 0;
+    GeoDataLongitude lon = GeoDataLongitude::null;
+    GeoDataLatitude lat = GeoDataLatitude::null;
 
-    bool const valid = geoCoordinates( x, y, lon, lat, GeoDataCoordinates::Radian );
+    bool const valid = geoCoordinates(x, y, lon, lat);
 
     if ( valid ) {
-        emit mouseClickGeoPosition( lon, lat, GeoDataCoordinates::Radian );
+        emit mouseClickGeoPosition(lon, lat);
     }
 }
 
@@ -1245,12 +1242,12 @@ const StyleBuilder* MarbleWidget::styleBuilder() const
     return d->m_map.styleBuilder();
 }
 
-void MarbleWidget::setHeading( qreal heading )
+void MarbleWidget::setHeading(GeoDataAngle heading)
 {
     d->m_map.setHeading( heading );
 }
 
-qreal MarbleWidget::heading() const
+GeoDataAngle MarbleWidget::heading() const
 {
     return d->m_map.heading();
 }

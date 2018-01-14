@@ -496,9 +496,10 @@ namespace Marble
 
     void MarbleQuickItem::reverseGeocoding(const QPoint &point)
     {
-        qreal lon, lat;
+        GeoDataLongitude lon;
+        GeoDataLatitude lat;
         d->m_map.viewport()->geoCoordinates(point.x(), point.y(), lon, lat);
-        auto const coordinates = GeoDataCoordinates(lon, lat, 0.0, GeoDataCoordinates::Degree);
+        auto const coordinates = GeoDataCoordinates(lon, lat);
         delete d->m_placemarkItem;
         d->m_placemarkItem = nullptr;
         delete d->m_placemark;
@@ -519,9 +520,9 @@ namespace Marble
         bool onRoute = !d->m_model.routingManager()->routingModel()->deviatedFromRoute();
         if ( routeExists && onRoute) {
             GeoDataCoordinates curPoint = d->m_model.positionTracking()->positionProviderPlugin()->position();
-            return d->m_model.routingManager()->routingModel()->route().currentSegment().projectedDirection(curPoint);
+            return d->m_model.routingManager()->routingModel()->route().currentSegment().projectedDirection(curPoint).toDegree();
         } else {
-            return d->m_model.positionTracking()->direction();
+            return d->m_model.positionTracking()->direction().toDegree();
         }
     }
 
@@ -538,13 +539,13 @@ namespace Marble
     qreal MarbleQuickItem::distanceFromPointToCurrentLocation(const QPoint & position) const
     {
         if ( positionAvailable() ) {
-            qreal lon1;
-            qreal lat1;
-            d->m_map.viewport()->geoCoordinates(position.x(), position.y(), lon1, lat1, GeoDataCoordinates::Radian );
+            GeoDataLongitude lon1;
+            GeoDataLatitude lat1;
+            d->m_map.viewport()->geoCoordinates(position.x(), position.y(), lon1, lat1);
 
             GeoDataCoordinates currentCoordinates = d->m_model.positionTracking()->currentLocation();
-            qreal lon2 = currentCoordinates.longitude();
-            qreal lat2 = currentCoordinates.latitude();
+            const GeoDataLongitude lon2 = currentCoordinates.longitude();
+            const GeoDataLatitude lat2 = currentCoordinates.latitude();
 
             return distanceSphere(lon1, lat1, lon2, lat2) * d->m_model.planetRadius();
         }
@@ -623,10 +624,11 @@ namespace Marble
 
     void MarbleQuickItem::centerOn(qreal longitude, qreal latitude)
     {
-        d->m_presenter.centerOn(longitude, latitude);
+        d->m_presenter.centerOn(GeoDataLongitude::fromDegrees(longitude), GeoDataLatitude::fromDegrees(latitude));
     }
 
-    void MarbleQuickItem::centerOnCoordinates(qreal longitude, qreal latitude) {
+    void MarbleQuickItem::centerOnCoordinates(qreal longitude, qreal latitude)
+    {
         centerOn(longitude, latitude);
     }
 
@@ -1045,8 +1047,8 @@ namespace Marble
     {
         QSettings settings;
         settings.beginGroup(QStringLiteral("MarbleQuickItem"));
-        settings.setValue(QStringLiteral("centerLon"), QVariant(d->m_map.centerLongitude()));
-        settings.setValue(QStringLiteral("centerLat"), QVariant(d->m_map.centerLatitude()));
+        settings.setValue(QStringLiteral("centerLon"), QVariant(d->m_map.centerLongitude().toDegree()));
+        settings.setValue(QStringLiteral("centerLat"), QVariant(d->m_map.centerLatitude().toDegree()));
         settings.setValue(QStringLiteral("zoom"), QVariant(zoom()));
         QStringList enabledRoutes;
         QMap<GeoDataRelation::RelationType, QString> relationConverter;

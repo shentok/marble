@@ -109,13 +109,11 @@ void EquirectScanlineTextureMapper::mapTexture( const ViewportParams *viewport, 
 
     const int imageHeight = m_canvasImage.height();
     const qint64  radius      = viewport->radius();
-    // Calculate how many degrees are being represented per pixel.
-    const float rad2Pixel = (float)( 2 * radius ) / M_PI;
 
     // Calculate translation of center point
-    const qreal centerLat = viewport->centerLatitude();
+    const GeoDataLatitude centerLat = viewport->centerLatitude();
 
-    int yCenterOffset = (int)( centerLat * rad2Pixel );
+    int yCenterOffset = (int)(centerLat / GeoDataLatitude::quaterCircle * radius);
 
     // Calculate y-range the represented by the center point, yTop and
     // what actually can be painted
@@ -165,6 +163,8 @@ void EquirectScanlineTextureMapper::RenderJob::run()
     // Calculate how many degrees are being represented per pixel.
     const qreal rad2Pixel = (qreal)( 2 * radius ) / M_PI;
     const float pixel2Rad = 1.0/rad2Pixel;  // FIXME changing to qreal may crash Marble when the equator is visible
+    const GeoDataLatitude pixel2Lat = GeoDataLatitude::fromRadians(pixel2Rad);
+    const GeoDataLongitude pixel2Lon = GeoDataLongitude::fromRadians(pixel2Rad);
 
     const bool interlaced   = ( m_mapQuality == LowQuality );
     const bool highQuality  = ( m_mapQuality == HighQuality
@@ -175,16 +175,14 @@ void EquirectScanlineTextureMapper::RenderJob::run()
     const int n = ScanlineTextureMapperContext::interpolationStep( m_viewport, m_mapQuality );
 
     // Calculate translation of center point
-    const qreal centerLon = m_viewport->centerLongitude();
-    const qreal centerLat = m_viewport->centerLatitude();
+    const GeoDataLongitude centerLon = m_viewport->centerLongitude();
+    const GeoDataLatitude centerLat = m_viewport->centerLatitude();
 
-    const int yCenterOffset = (int)( centerLat * rad2Pixel );
+    const int yCenterOffset = (int)(centerLat / pixel2Lat);
 
     const int yTop = imageHeight / 2 - radius + yCenterOffset;
 
-    qreal leftLon = + centerLon - ( imageWidth / 2 * pixel2Rad );
-    while ( leftLon < -M_PI ) leftLon += 2 * M_PI;
-    while ( leftLon >  M_PI ) leftLon -= 2 * M_PI;
+    const GeoDataLongitude leftLon = GeoDataCoordinates::normalizeLon(+ centerLon - (imageWidth / 2 * pixel2Lon));
 
     const int maxInterpolationPointX = n * (int)( imageWidth / n - 1 ) + 1;
 
@@ -200,8 +198,8 @@ void EquirectScanlineTextureMapper::RenderJob::run()
 
         QRgb * scanLine = (QRgb*)( m_canvasImage->scanLine( y ) );
 
-        qreal lon = leftLon;
-        const qreal lat = M_PI/2 - (y - yTop )* pixel2Rad;
+        GeoDataLongitude lon = leftLon;
+        const GeoDataLatitude lat = GeoDataLatitude::quaterCircle - (y - yTop) * pixel2Lat;
 
         for ( int x = 0; x < imageWidth; ++x ) {
 
@@ -209,15 +207,19 @@ void EquirectScanlineTextureMapper::RenderJob::run()
             bool interpolate = false;
             if ( x > 0 && x <= maxInterpolationPointX ) {
                 x += n - 1;
-                lon += (n - 1) * pixel2Rad;
+                lon += (n - 1) * pixel2Lon;
                 interpolate = !printQuality;
             }
             else {
                 interpolate = false;
             }
 
-            if ( lon < -M_PI ) lon += 2 * M_PI;
-            if ( lon >  M_PI ) lon -= 2 * M_PI;
+            if (lon < -GeoDataLongitude::halfCircle) {
+                lon += 2 * GeoDataLongitude::halfCircle;
+            }
+            if (lon > GeoDataLongitude::halfCircle) {
+                lon -= 2 * GeoDataLongitude::halfCircle;
+            }
 
             if ( interpolate ) {
                 if (highQuality)
@@ -236,7 +238,7 @@ void EquirectScanlineTextureMapper::RenderJob::run()
             }
 
             ++scanLine;
-            lon += pixel2Rad;
+            lon += pixel2Lon;
         }
 
         // copy scanline to improve performance

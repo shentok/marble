@@ -45,19 +45,19 @@ GeoNode* GPXtrkptTagHandler::parse(GeoParser& parser) const
 
         QXmlStreamAttributes attributes = parser.attributes();
         QStringRef tmp;
-        qreal lat = 0;
-        qreal lon = 0;
+        GeoDataLatitude lat = GeoDataLatitude::null;
+        GeoDataLongitude lon = GeoDataLongitude::null;
         tmp = attributes.value(QLatin1String(gpxTag_lat));
         if ( !tmp.isEmpty() )
         {
-            lat = tmp.toString().toDouble();
+            lat = GeoDataLatitude::fromDegrees(tmp.toString().toDouble());
         }
         tmp = attributes.value(QLatin1String(gpxTag_lon));
         if ( !tmp.isEmpty() )
         {
-            lon = tmp.toString().toDouble();
+            lon = GeoDataLongitude::fromDegrees(tmp.toString().toDouble());
         }
-        coord.set(lon, lat, 0, GeoDataCoordinates::Degree);
+        coord.set(lon, lat);
         track->appendCoordinates( coord );
 
         return track;

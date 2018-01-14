@@ -123,7 +123,7 @@ class GraticulePlugin : public RenderPlugin, public DialogConfigurationInterface
      * @param latitude the latitude of the coordinate line measured in degree .
      * @param viewLatLonAltBox the latitude longitude bounding box that is covered by the view.
      */
-    static void renderLatitudeLine( GeoPainter *painter, qreal latitude,
+    static void renderLatitudeLine( GeoPainter *painter, GeoDataLatitude latitude,
                                     const GeoDataLatLonAltBox& viewLatLonAltBox = GeoDataLatLonAltBox(),
                                     const QString& lineLabel = QString(),
                                     LabelPositionFlags labelPositionFlags = LineCenter );
@@ -139,9 +139,10 @@ class GraticulePlugin : public RenderPlugin, public DialogConfigurationInterface
      *        The radius of the polarGap area is measured in degrees. 
      * @param lineLabel draws a label using the font and color properties set for the painter.
      */
-    static void renderLongitudeLine( GeoPainter *painter, qreal longitude,
+    static void renderLongitudeLine( GeoPainter *painter, GeoDataLongitude longitude,
                                      const GeoDataLatLonAltBox& viewLatLonAltBox = GeoDataLatLonAltBox(),
-                                     qreal northPolarGap = 0.0, qreal southPolarGap = 0.0,
+                                     GeoDataLatitude northPolarGap = GeoDataLatitude::null,
+                                     GeoDataLatitude southPolarGap = GeoDataLatitude::null,
                                      const QString& lineLabel = QString(),
                                      LabelPositionFlags labelPositionFlags = LineCenter );
 
@@ -151,9 +152,9 @@ class GraticulePlugin : public RenderPlugin, public DialogConfigurationInterface
      * @param viewLatLonAltBox the latitude longitude bounding box that is covered by the view.
      * @param step the angular distance between the lines measured in degrees .
      */
-    void renderLatitudeLines( GeoPainter *painter, 
+    void renderLatitudeLines( GeoPainter *painter,
                               const GeoDataLatLonAltBox& viewLatLonAltBox,
-                              qreal step, qreal skipStep,
+                              GeoDataLatitude step, qreal skipStep,
                               LabelPositionFlags labelPositionFlags = LineCenter
                             );
 
@@ -173,8 +174,9 @@ class GraticulePlugin : public RenderPlugin, public DialogConfigurationInterface
      */
     void renderLongitudeLines( GeoPainter *painter, 
                               const GeoDataLatLonAltBox& viewLatLonAltBox, 
-                              qreal step, qreal skipStep,
-                              qreal northPolarGap = 0.0, qreal southPolarGap = 0.0,
+                              GeoDataLongitude step, qreal skipStep,
+                              GeoDataLatitude northPolarGap = GeoDataLatitude::null,
+                              GeoDataLatitude southPolarGap = GeoDataLatitude::null,
                               LabelPositionFlags labelPositionFlags = LineCenter
                              ) const;
 
@@ -194,8 +196,8 @@ class GraticulePlugin : public RenderPlugin, public DialogConfigurationInterface
      */
     static void renderUtmExceptions( GeoPainter *painter,
                                      const GeoDataLatLonAltBox& viewLatLonAltBox,
-                                     qreal step,
-                                     qreal northPolarGap, qreal southPolarGap,
+                                     GeoDataLongitude step,
+                                     GeoDataLatitude northPolarGap, GeoDataLatitude southPolarGap,
                                      const QString & label,
                                      LabelPositionFlags labelPositionFlags );
 

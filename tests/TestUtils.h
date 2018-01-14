@@ -11,6 +11,9 @@
 #ifndef MARBLE_TESTUTILS_H
 #define MARBLE_TESTUTILS_H
 
+#include "GeoDataAngle.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataDocument.h"
 #include "GeoDataParser.h"
 #include "GeoDataCoordinates.h"
@@ -22,11 +25,50 @@
 namespace QTest
 {
 
+template<>
+char *toString(const Marble::GeoDataAngle &angle)
+{
+    return toString<qreal>(angle.toDegree());
+}
+
+template<>
+char *toString(const Marble::GeoDataLatitude &latitude)
+{
+    return toString(latitude.toDegree());
+}
+
+template<>
+char *toString(const Marble::GeoDataLongitude &longitude)
+{
+    return toString(longitude.toDegree());
+}
+
 bool qCompare(qreal val1, qreal val2, qreal epsilon, const char *actual, const char *expected, const char *file, int line)
 {
     return ( qAbs( val1 - val2 ) < epsilon )
         ? compare_helper( true, "COMPARE()", toString( val1 ), toString( val2 ), actual, expected, file, line )
         : compare_helper( false, "Compared qreals are not the same", toString( val1 ), toString( val2 ), actual, expected, file, line );
+}
+
+bool qCompare(Marble::GeoDataAngle val1, Marble::GeoDataAngle val2, Marble::GeoDataAngle epsilon, const char *actual, const char *expected, const char *file, int line)
+{
+    return ( qAbs( val1 - val2 ) < epsilon )
+        ? compare_helper( true, "COMPARE()", toString( val1 ), toString( val2 ), actual, expected, file, line )
+        : compare_helper( false, "Compared angles are not the same", toString( val1 ), toString( val2 ), actual, expected, file, line );
+}
+
+bool qCompare(Marble::GeoDataLatitude val1, Marble::GeoDataLatitude val2, Marble::GeoDataLatitude epsilon, const char *actual, const char *expected, const char *file, int line)
+{
+    return ( qAbs( val1 - val2 ) < epsilon )
+        ? compare_helper( true, "COMPARE()", toString( val1 ), toString( val2 ), actual, expected, file, line )
+        : compare_helper( false, "Compared latitudes are not the same", toString( val1 ), toString( val2 ), actual, expected, file, line );
+}
+
+bool qCompare(Marble::GeoDataLongitude val1, Marble::GeoDataLongitude val2, Marble::GeoDataLongitude epsilon, const char *actual, const char *expected, const char *file, int line)
+{
+    return ( qAbs( val1 - val2 ) < epsilon )
+        ? compare_helper( true, "COMPARE()", toString( val1 ), toString( val2 ), actual, expected, file, line )
+        : compare_helper( false, "Compared longitudes are not the same", toString( val1 ), toString( val2 ), actual, expected, file, line );
 }
 
 template<>
@@ -39,10 +81,10 @@ template<>
 char *toString(const Marble::GeoDataLatLonBox &box)
 {
     const QString string = QString( "North: %1, West: %2, South: %3, East: %4" )
-        .arg( box.north( Marble::GeoDataCoordinates::Degree ) )
-        .arg( box.west( Marble::GeoDataCoordinates::Degree ) )
-        .arg( box.south( Marble::GeoDataCoordinates::Degree ) )
-        .arg( box.east( Marble::GeoDataCoordinates::Degree ) );
+        .arg(box.north().toDegree())
+        .arg(box.west().toDegree())
+        .arg(box.south().toDegree())
+        .arg(box.east().toDegree());
 
     return qstrdup( string.toLatin1().data() );
 }
@@ -51,10 +93,10 @@ template<>
 char *toString(const Marble::GeoDataLatLonAltBox &box)
 {
     const QString string = QString( "North: %1, West: %2, South: %3, East: %4, MinAlt: %5, MaxAlt: %6" )
-        .arg( box.north( Marble::GeoDataCoordinates::Degree ) )
-        .arg( box.west( Marble::GeoDataCoordinates::Degree ) )
-        .arg( box.south( Marble::GeoDataCoordinates::Degree ) )
-        .arg( box.east( Marble::GeoDataCoordinates::Degree ) )
+        .arg(box.north().toDegree())
+        .arg(box.west().toDegree())
+        .arg(box.south().toDegree())
+        .arg(box.east().toDegree())
         .arg( box.minAltitude() )
         .arg( box.maxAltitude() );
 

@@ -68,15 +68,15 @@ void TestGeoDataLatLonAltBox::testDefaultConstruction()
 {
     GeoDataLatLonBox const latLonBox;
 
-    QCOMPARE( latLonBox.north(), 0.0 );
-    QCOMPARE( latLonBox.south(), 0.0 );
-    QCOMPARE( latLonBox.east(), 0.0 );
-    QCOMPARE( latLonBox.west(), 0.0 );
-    QCOMPARE( latLonBox.rotation(), 0.0 );
-    QCOMPARE( latLonBox.width(), 0.0 );
-    QCOMPARE( latLonBox.height(), 0.0 );
+    QCOMPARE( latLonBox.north(), GeoDataLatitude::null );
+    QCOMPARE( latLonBox.south(), GeoDataLatitude::null );
+    QCOMPARE( latLonBox.east(), GeoDataLongitude::null );
+    QCOMPARE( latLonBox.west(), GeoDataLongitude::null );
+    QCOMPARE( latLonBox.rotation(), GeoDataAngle::null );
+    QCOMPARE( latLonBox.width(), GeoDataLongitude::null );
+    QCOMPARE( latLonBox.height(), GeoDataLatitude::null );
     QVERIFY( !latLonBox.crossesDateLine() );
-    QCOMPARE( latLonBox.center(), GeoDataCoordinates( 0, 0 ) );
+    QCOMPARE(latLonBox.center(), GeoDataCoordinates(GeoDataLongitude::null, GeoDataLatitude::null));
     QVERIFY( latLonBox.isNull() );
     QVERIFY( latLonBox.isEmpty() );
 
@@ -87,15 +87,15 @@ void TestGeoDataLatLonAltBox::testDefaultConstruction()
 
     GeoDataLatLonAltBox const latLonAltBox;
 
-    QCOMPARE( latLonAltBox.north(), 0.0 );
-    QCOMPARE( latLonAltBox.south(), 0.0 );
-    QCOMPARE( latLonAltBox.east(), 0.0 );
-    QCOMPARE( latLonAltBox.west(), 0.0 );
-    QCOMPARE( latLonAltBox.rotation(), 0.0 );
-    QCOMPARE( latLonAltBox.width(), 0.0 );
-    QCOMPARE( latLonAltBox.height(), 0.0 );
+    QCOMPARE( latLonAltBox.north(), GeoDataLatitude::null );
+    QCOMPARE( latLonAltBox.south(), GeoDataLatitude::null );
+    QCOMPARE( latLonAltBox.east(), GeoDataLongitude::null );
+    QCOMPARE( latLonAltBox.west(), GeoDataLongitude::null );
+    QCOMPARE( latLonAltBox.rotation(), GeoDataAngle::null );
+    QCOMPARE( latLonAltBox.width(), GeoDataLongitude::null );
+    QCOMPARE( latLonAltBox.height(), GeoDataLatitude::null );
     QVERIFY( !latLonAltBox.crossesDateLine() );
-    QCOMPARE( latLonAltBox.center(), GeoDataCoordinates( 0, 0, 0 ) );
+    QCOMPARE(latLonAltBox.center(), GeoDataCoordinates(GeoDataLongitude::null, GeoDataLatitude::null, 0));
     QVERIFY( latLonAltBox.isNull() );
     QVERIFY( latLonAltBox.isEmpty() );
     QCOMPARE( latLonAltBox.minAltitude(), 0.0 );
@@ -129,8 +129,8 @@ void TestGeoDataLatLonAltBox::testConstructionFromLatLonBox_data()
     QTest::addColumn<qreal>("minAltitude");
     QTest::addColumn<qreal>("maxAltitude");
 
-    QTest::newRow("deg") << GeoDataLatLonBox(15.0, 180.0, 90.0, 118.0, GeoDataCoordinates::Degree) << qreal(143.0) << qreal(356.0);
-    QTest::newRow("rad") << GeoDataLatLonBox(1.0, 2.2, 1.8, 1.4, GeoDataCoordinates::Radian) << qreal(112.0) << qreal(120.0);
+    QTest::newRow("deg") << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(15.0), GeoDataLatitude::fromDegrees(180.0), GeoDataLongitude::fromDegrees(90.0), GeoDataLongitude::fromDegrees(118.0)) << qreal(143.0) << qreal(356.0);
+    QTest::newRow("rad") << GeoDataLatLonBox(GeoDataLatitude::fromRadians(1.0), GeoDataLatitude::fromRadians(2.2), GeoDataLongitude::fromDegrees(1.8), GeoDataLongitude::fromDegrees(1.4)) << qreal(112.0) << qreal(120.0);
 }
 
 void TestGeoDataLatLonAltBox::testConstructionFromLatLonBox()
@@ -154,8 +154,8 @@ void TestGeoDataLatLonAltBox::testAssignment_data()
 {
     QTest::addColumn<GeoDataLatLonAltBox>("expected");
 
-    QTest::newRow("deg") << GeoDataLatLonAltBox(GeoDataLatLonBox( 15.0, 180.0, 90.0, 118.0, GeoDataCoordinates::Degree), 143.0, 356.0);
-    QTest::newRow("rad") << GeoDataLatLonAltBox(GeoDataLatLonBox( 1.0, 2.2, 1.8, 1.4, GeoDataCoordinates::Radian ), 112.0, 120.0);
+    QTest::newRow("deg") << GeoDataLatLonAltBox(GeoDataLatLonBox(GeoDataLatitude::fromDegrees(15.0), GeoDataLatitude::fromDegrees(180.0), GeoDataLongitude::fromDegrees(90.0), GeoDataLongitude::fromDegrees(118.0)), 143.0, 356.0);
+    QTest::newRow("rad") << GeoDataLatLonAltBox(GeoDataLatLonBox(GeoDataLatitude::fromRadians(1.0), GeoDataLatitude::fromRadians(2.2), GeoDataLongitude::fromDegrees(1.8), GeoDataLongitude::fromDegrees(1.4)), 112.0, 120.0);
 }
 
 void TestGeoDataLatLonAltBox::testAssignment()
@@ -171,8 +171,8 @@ void TestGeoDataLatLonAltBox::testContstructionFromCoordinates_data()
 {
     QTest::addColumn<GeoDataCoordinates>("coordinates");
 
-    QTest::newRow("deg") << GeoDataCoordinates(90.0, 15.0, 10.0, GeoDataCoordinates::Degree);
-    QTest::newRow("rad") << GeoDataCoordinates(1.8, 1.0, 61.0, GeoDataCoordinates::Radian);
+    QTest::newRow("deg") << GeoDataCoordinates(GeoDataLongitude::fromDegrees(90.0), GeoDataLatitude::fromDegrees(15.0), 10.0);
+    QTest::newRow("rad") << GeoDataCoordinates(GeoDataLongitude::fromRadians(1.8), GeoDataLatitude::fromRadians(1.0), 61.0);
 }
 
 void TestGeoDataLatLonAltBox::testContstructionFromCoordinates()
@@ -212,16 +212,16 @@ void TestGeoDataLatLonAltBox::testAltitude()
 void TestGeoDataLatLonAltBox::testSetNorthRadian_data()
 {
     QTest::addColumn<GeoDataLatLonAltBox>("box");
-    QTest::addColumn<qreal>("north");
+    QTest::addColumn<GeoDataLatitude>("north");
 
-    QTest::newRow("deg") << GeoDataLatLonAltBox(GeoDataLatLonBox( 15.0, 180.0, 90.0, 118.0, GeoDataCoordinates::Degree), 143.0, 356.0) << qreal(0.1);
-    QTest::newRow("rad") << GeoDataLatLonAltBox(GeoDataLatLonBox( 1.0, 2.2, 1.8, 1.4, GeoDataCoordinates::Radian ), 112.0, 120.0) << qreal(0.1);
+    QTest::newRow("deg") << GeoDataLatLonAltBox(GeoDataLatLonBox(GeoDataLatitude::fromDegrees(15.0), GeoDataLatitude::fromDegrees(180.0), GeoDataLongitude::fromDegrees(90.0), GeoDataLongitude::fromDegrees(118.0)), 143.0, 356.0) << GeoDataLatitude::fromRadians(0.1);
+    QTest::newRow("rad") << GeoDataLatLonAltBox(GeoDataLatLonBox(GeoDataLatitude::fromRadians(1.0), GeoDataLatitude::fromRadians(2.2), GeoDataLongitude::fromDegrees(1.8), GeoDataLongitude::fromDegrees(1.4)), 112.0, 120.0) << GeoDataLatitude::fromRadians(0.1);
 }
 
 void TestGeoDataLatLonAltBox::testSetNorthRadian()
 {
     QFETCH(GeoDataLatLonAltBox, box);
-    QFETCH(qreal, north);
+    QFETCH(GeoDataLatitude, north);
 
     box.setNorth( north );
 
@@ -231,16 +231,16 @@ void TestGeoDataLatLonAltBox::testSetNorthRadian()
 void TestGeoDataLatLonAltBox::testSetSouthRadian_data()
 {
     QTest::addColumn<GeoDataLatLonAltBox>("box");
-    QTest::addColumn<qreal>("south");
+    QTest::addColumn<GeoDataLatitude>("south");
 
-    QTest::newRow("deg") << GeoDataLatLonAltBox(GeoDataLatLonBox( 15.0, 180.0, 90.0, 118.0, GeoDataCoordinates::Degree), 143.0, 356.0) << qreal(1.4);
-    QTest::newRow("rad") << GeoDataLatLonAltBox(GeoDataLatLonBox( 1.0, 2.2, 1.8, 1.4, GeoDataCoordinates::Radian ), 112.0, 120.0) << qreal(1.4);
+    QTest::newRow("deg") << GeoDataLatLonAltBox(GeoDataLatLonBox(GeoDataLatitude::fromDegrees(15.0), GeoDataLatitude::fromDegrees(180.0), GeoDataLongitude::fromDegrees(90.0), GeoDataLongitude::fromDegrees(118.0)), 143.0, 356.0) << qreal(1.4);
+    QTest::newRow("rad") << GeoDataLatLonAltBox(GeoDataLatLonBox(GeoDataLatitude::fromRadians(1.0), GeoDataLatitude::fromRadians(2.2), GeoDataLongitude::fromDegrees(1.8), GeoDataLongitude::fromDegrees(1.4)), 112.0, 120.0) << qreal(1.4);
 }
 
 void TestGeoDataLatLonAltBox::testSetSouthRadian()
 {
     QFETCH(GeoDataLatLonAltBox, box);
-    QFETCH(qreal, south);
+    QFETCH(GeoDataLatitude, south);
 
     box.setSouth( south );
 
@@ -250,23 +250,23 @@ void TestGeoDataLatLonAltBox::testSetSouthRadian()
 void TestGeoDataLatLonAltBox::testContains()
 {
     GeoDataLatLonAltBox const largeBox = GeoDataLatLonAltBox::fromLineString( GeoDataLineString()
-            << GeoDataCoordinates( -20.0, +10.0, 15.0, GeoDataCoordinates::Degree )
-            << GeoDataCoordinates( +20.0, -10.0, 25.0, GeoDataCoordinates::Degree ) );
+            << GeoDataCoordinates( GeoDataLongitude::fromDegrees(-20.0), GeoDataLatitude::fromDegrees(+10.0), 15.0)
+            << GeoDataCoordinates( GeoDataLongitude::fromDegrees(+20.0), GeoDataLatitude::fromDegrees(-10.0), 25.0) );
     GeoDataLatLonAltBox const smallBox = GeoDataLatLonAltBox::fromLineString( GeoDataLineString()
-            << GeoDataCoordinates( -2.0, +1.0, 18.0, GeoDataCoordinates::Degree )
-            << GeoDataCoordinates( +2.0, -1.0, 22.0, GeoDataCoordinates::Degree ) );
+            << GeoDataCoordinates( GeoDataLongitude::fromDegrees(-2.0), GeoDataLatitude::fromDegrees(+1.0), 18.0)
+            << GeoDataCoordinates( GeoDataLongitude::fromDegrees(+2.0), GeoDataLatitude::fromDegrees(-1.0), 22.0) );
 
-    QVERIFY( largeBox.contains( GeoDataCoordinates( 5.0, 5.0, 20.0, GeoDataCoordinates::Degree ) ) );
+    QVERIFY( largeBox.contains( GeoDataCoordinates( GeoDataLongitude::fromDegrees(5.0), GeoDataLatitude::fromDegrees(5.0), 20.0) ) );
     QVERIFY( largeBox.contains( smallBox ) );
     QVERIFY( largeBox.contains( largeBox ) );
     QVERIFY( !smallBox.contains( largeBox ) );
-    QVERIFY(  smallBox.contains( GeoDataCoordinates(    0.0,   0.0, 20.0, GeoDataCoordinates::Degree ) ) );
-    QVERIFY( !largeBox.contains( GeoDataCoordinates(   5.0,   5.0, 30.0, GeoDataCoordinates::Degree ) ) );
-    QVERIFY( !largeBox.contains( GeoDataCoordinates(   5.0,   5.0, 10.0, GeoDataCoordinates::Degree ) ) );
-    QVERIFY( !largeBox.contains( GeoDataCoordinates(  35.0,   5.0, 20.0, GeoDataCoordinates::Degree ) ) );
-    QVERIFY( !largeBox.contains( GeoDataCoordinates( -35.0,   5.0, 20.0, GeoDataCoordinates::Degree ) ) );
-    QVERIFY( !largeBox.contains( GeoDataCoordinates(   5.0,  35.0, 20.0, GeoDataCoordinates::Degree ) ) );
-    QVERIFY( !largeBox.contains( GeoDataCoordinates(   5.0, -35.0, 20.0, GeoDataCoordinates::Degree ) ) );
+    QVERIFY(  smallBox.contains( GeoDataCoordinates(   GeoDataLongitude::fromDegrees(0.0),   GeoDataLatitude::fromDegrees(0.0), 20.0) ) );
+    QVERIFY( !largeBox.contains( GeoDataCoordinates(   GeoDataLongitude::fromDegrees(5.0),   GeoDataLatitude::fromDegrees(5.0), 30.0) ) );
+    QVERIFY( !largeBox.contains( GeoDataCoordinates(   GeoDataLongitude::fromDegrees(5.0),   GeoDataLatitude::fromDegrees(5.0), 10.0) ) );
+    QVERIFY( !largeBox.contains( GeoDataCoordinates(  GeoDataLongitude::fromDegrees(35.0),   GeoDataLatitude::fromDegrees(5.0), 20.0) ) );
+    QVERIFY( !largeBox.contains( GeoDataCoordinates( GeoDataLongitude::fromDegrees(-35.0),   GeoDataLatitude::fromDegrees(5.0), 20.0) ) );
+    QVERIFY( !largeBox.contains( GeoDataCoordinates(   GeoDataLongitude::fromDegrees(5.0),  GeoDataLatitude::fromDegrees(35.0), 20.0) ) );
+    QVERIFY( !largeBox.contains( GeoDataCoordinates(   GeoDataLongitude::fromDegrees(5.0), GeoDataLatitude::fromDegrees(-35.0), 20.0) ) );
 }
 
 void TestGeoDataLatLonAltBox::testIntersects_data()
@@ -279,20 +279,20 @@ void TestGeoDataLatLonAltBox::testIntersects_data()
     QTest::addColumn<qreal>( "box2maxAltitude" );
     QTest::addColumn<bool>( "intersects" );
 
-    QTest::newRow( "empty1" ) << GeoDataLatLonBox( 0.5, 0.4, 0.3, 0.2 ) << qreal(0.0) << qreal(0.0)
+    QTest::newRow( "empty1" ) << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.5), GeoDataLatitude::fromRadians(0.4), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2)) << qreal(0.0) << qreal(0.0)
                               << GeoDataLatLonBox() << qreal(0.0) << qreal(0.0)
                               << false;
     QTest::newRow( "empty2" ) << GeoDataLatLonBox() << qreal(0.0) << qreal(0.0)
-                              << GeoDataLatLonBox( 0.5, 0.4, 0.3, 0.2 ) << qreal(0.0) << qreal(0.0)
+                              << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.5), GeoDataLatitude::fromRadians(0.4), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2)) << qreal(0.0) << qreal(0.0)
                               << false;
-    QTest::newRow( "same" ) << GeoDataLatLonBox( 56.0, 40.0, 11.0, 0.0, GeoDataCoordinates::Degree ) << qreal(10.0) << qreal(12.0)
-                            << GeoDataLatLonBox( 56.0, 40.0, 11.0, 0.0, GeoDataCoordinates::Degree ) << qreal(10.0) << qreal(12.0)
+    QTest::newRow( "same" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(56.0), GeoDataLatitude::fromDegrees(40.0), GeoDataLongitude::fromDegrees(11.0), GeoDataLongitude::fromDegrees(0.0)) << qreal(10.0) << qreal(12.0)
+                            << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(56.0), GeoDataLatitude::fromDegrees(40.0), GeoDataLongitude::fromDegrees(11.0), GeoDataLongitude::fromDegrees(0.0)) << qreal(10.0) << qreal(12.0)
                             << true;
-    QTest::newRow( "dateLineFalse" ) << GeoDataLatLonBox( 30.0, -30.0,  170.0, -170.0, GeoDataCoordinates::Degree ) << qreal(0.0) << qreal(0.0)
-                                     << GeoDataLatLonBox( 30.0, -30.0, -171.0,  171.0, GeoDataCoordinates::Degree ) << qreal(0.0) << qreal(0.0)
+    QTest::newRow( "dateLineFalse" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0),  GeoDataLongitude::fromDegrees(170.0), GeoDataLongitude::fromDegrees(-170.0)) << qreal(0.0) << qreal(0.0)
+                                     << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-171.0),  GeoDataLongitude::fromDegrees(171.0)) << qreal(0.0) << qreal(0.0)
                                      << false;
-    QTest::newRow( "dateLineTrue" ) << GeoDataLatLonBox( 20.0,   0.0,  171.0, -171.0, GeoDataCoordinates::Degree ) << qreal(0.0) << qreal(0.0)
-                                    << GeoDataLatLonBox( 30.0, -30.0, -170.0,  170.0, GeoDataCoordinates::Degree ) << qreal(0.0) << qreal(0.0)
+    QTest::newRow( "dateLineTrue" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(20.0),   GeoDataLatitude::fromDegrees(0.0),  GeoDataLongitude::fromDegrees(171.0), GeoDataLongitude::fromDegrees(-171.0)) << qreal(0.0) << qreal(0.0)
+                                    << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-170.0),  GeoDataLongitude::fromDegrees(170.0)) << qreal(0.0) << qreal(0.0)
                                     << true;
 }
 
@@ -317,12 +317,12 @@ void TestGeoDataLatLonAltBox::testCrossesDateline_data()
     QTest::addColumn<GeoDataLatLonBox>("box");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("all") << GeoDataLatLonBox(90, -90, 179.999, -180, GeoDataCoordinates::Degree) << false;
+    QTest::newRow("all") << GeoDataLatLonBox(GeoDataLatitude::quaterCircle, -GeoDataLatitude::quaterCircle, GeoDataLongitude::fromDegrees(179.999), -GeoDataLongitude::halfCircle) << false;
 
-    QTest::newRow("left")  << GeoDataLatLonBox(90, -90,   0, -180, GeoDataCoordinates::Degree) << false;
-    QTest::newRow("front") << GeoDataLatLonBox(90, -90,  90,  -90, GeoDataCoordinates::Degree) << false;
-    QTest::newRow("right") << GeoDataLatLonBox(90, -90, 180,    0, GeoDataCoordinates::Degree) << false;
-    QTest::newRow("back")  << GeoDataLatLonBox(90, -90, -90,   90, GeoDataCoordinates::Degree) << true;
+    QTest::newRow("left")  << GeoDataLatLonBox(GeoDataLatitude::quaterCircle, -GeoDataLatitude::quaterCircle,        GeoDataLongitude::null,       -      GeoDataLongitude::halfCircle) << false;
+    QTest::newRow("front") << GeoDataLatLonBox(GeoDataLatitude::quaterCircle, -GeoDataLatitude::quaterCircle,  0.5 * GeoDataLongitude::halfCircle, -0.5 * GeoDataLongitude::halfCircle) << false;
+    QTest::newRow("right") << GeoDataLatLonBox(GeoDataLatitude::quaterCircle, -GeoDataLatitude::quaterCircle,        GeoDataLongitude::halfCircle,        GeoDataLongitude::null      ) << false;
+    QTest::newRow("back")  << GeoDataLatLonBox(GeoDataLatitude::quaterCircle, -GeoDataLatitude::quaterCircle, -0.5 * GeoDataLongitude::halfCircle,  0.5 * GeoDataLongitude::halfCircle) << true;
 }
 
 void TestGeoDataLatLonAltBox::testCrossesDateline()
@@ -340,20 +340,20 @@ void TestGeoDataLatLonAltBox::testCenter_data()
     QTest::addColumn<GeoDataLatLonBox>( "box" );
     QTest::addColumn<GeoDataCoordinates>( "center" );
 
-    QTest::newRow( "N-E" ) << GeoDataLatLonBox( 60.0, 40.0, 30.0, 10.0, GeoDataCoordinates::Degree )
-                           << GeoDataCoordinates( 20.0, 50.0, 0, GeoDataCoordinates::Degree );
+    QTest::newRow( "N-E" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(60.0), GeoDataLatitude::fromDegrees(40.0), GeoDataLongitude::fromDegrees(30.0), GeoDataLongitude::fromDegrees(10.0))
+                           << GeoDataCoordinates( GeoDataLongitude::fromDegrees(20.0), GeoDataLatitude::fromDegrees(50.0), 0);
 
-    QTest::newRow( "N-GW" ) << GeoDataLatLonBox( 60.0, 40.0, 10.0, -30.0, GeoDataCoordinates::Degree )
-                            << GeoDataCoordinates( -10.0, 50.0, 0, GeoDataCoordinates::Degree );
+    QTest::newRow( "N-GW" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(60.0), GeoDataLatitude::fromDegrees(40.0), GeoDataLongitude::fromDegrees(10.0), GeoDataLongitude::fromDegrees(-30.0))
+                            << GeoDataCoordinates( GeoDataLongitude::fromDegrees(-10.0), GeoDataLatitude::fromDegrees(50.0), 0);
 
-    QTest::newRow( "N-W" ) << GeoDataLatLonBox( 60.0, 40.0, -10.0, -30.0, GeoDataCoordinates::Degree )
-                           << GeoDataCoordinates( -20.0, 50.0, 0, GeoDataCoordinates::Degree );
+    QTest::newRow( "N-W" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(60.0), GeoDataLatitude::fromDegrees(40.0), GeoDataLongitude::fromDegrees(-10.0), GeoDataLongitude::fromDegrees(-30.0))
+                           << GeoDataCoordinates( GeoDataLongitude::fromDegrees(-20.0), GeoDataLatitude::fromDegrees(50.0), 0);
 
-    QTest::newRow( "NS-W" ) << GeoDataLatLonBox( 30.0, -30.0, -10.0, -30.0, GeoDataCoordinates::Degree )
-                            << GeoDataCoordinates( -20.0, 0.0, 0, GeoDataCoordinates::Degree );
+    QTest::newRow( "NS-W" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-10.0), GeoDataLongitude::fromDegrees(-30.0))
+                            << GeoDataCoordinates( GeoDataLongitude::fromDegrees(-20.0), GeoDataLatitude::fromDegrees(0.0), 0);
 
-    QTest::newRow( "N-IDL" ) << GeoDataLatLonBox( 30.0, -30.0, -150.0, 170.0, GeoDataCoordinates::Degree )
-                             << GeoDataCoordinates( -170.0, 0.0, 0, GeoDataCoordinates::Degree );
+    QTest::newRow( "N-IDL" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0), GeoDataLongitude::fromDegrees(170.0))
+                             << GeoDataCoordinates( GeoDataLongitude::fromDegrees(-170.0), GeoDataLatitude::fromDegrees(0.0), 0);
 }
 
 void TestGeoDataLatLonAltBox::testCenter()
@@ -371,76 +371,76 @@ void TestGeoDataLatLonAltBox::testUnited_data()
     QTest::addColumn<GeoDataLatLonBox>( "box2" );
     QTest::addColumn<GeoDataLatLonBox>( "expected" );
 
-    QTest::newRow( "emptyRight" ) << GeoDataLatLonBox( 0.5, 0.4, 0.3, 0.2 )
+    QTest::newRow( "emptyRight" ) << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.5), GeoDataLatitude::fromRadians(0.4), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2))
                                   << GeoDataLatLonBox()
-                                  << GeoDataLatLonBox( 0.5, 0.4, 0.3, 0.2 );
+                                  << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.5), GeoDataLatitude::fromRadians(0.4), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2));
 
     QTest::newRow( "emptyLeft" ) << GeoDataLatLonBox()
-                                 << GeoDataLatLonBox( 0.5, 0.4, 0.3, 0.2 )
-                                 << GeoDataLatLonBox( 0.5, 0.4, 0.3, 0.2 );
+                                 << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.5), GeoDataLatitude::fromRadians(0.4), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2))
+                                 << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.5), GeoDataLatitude::fromRadians(0.4), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2));
 
-    QTest::newRow( "same" ) << GeoDataLatLonBox( 56.0, 40.0, 11.0, 0.0, GeoDataCoordinates::Degree )
-                            << GeoDataLatLonBox( 56.0, 40.0, 11.0, 0.0, GeoDataCoordinates::Degree )
-                            << GeoDataLatLonBox( 56.0, 40.0, 11.0, 0.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "same" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(56.0), GeoDataLatitude::fromDegrees(40.0), GeoDataLongitude::fromDegrees(11.0), GeoDataLongitude::fromDegrees(0.0))
+                            << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(56.0), GeoDataLatitude::fromDegrees(40.0), GeoDataLongitude::fromDegrees(11.0), GeoDataLongitude::fromDegrees(0.0))
+                            << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(56.0), GeoDataLatitude::fromDegrees(40.0), GeoDataLongitude::fromDegrees(11.0), GeoDataLongitude::fromDegrees(0.0));
 
     // 2 boxes in West, result stays west
-    QTest::newRow( "bigWest" ) << GeoDataLatLonBox( 30.0, -30.0,  -10.0,  -30.0, GeoDataCoordinates::Degree )
-                               << GeoDataLatLonBox( 30.0, -30.0, -150.0, -170.0, GeoDataCoordinates::Degree )
-                               << GeoDataLatLonBox( 30.0, -30.0,  -10.0, -170.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "bigWest" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0),  GeoDataLongitude::fromDegrees(-10.0),  GeoDataLongitude::fromDegrees(-30.0))
+                               << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0), GeoDataLongitude::fromDegrees(-170.0))
+                               << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0),  GeoDataLongitude::fromDegrees(-10.0), GeoDataLongitude::fromDegrees(-170.0));
 
     // 2 boxes each side of greenwich, result crosses greenwich
-    QTest::newRow( "aroundGreenwich" ) << GeoDataLatLonBox( 30.0, -30.0, -10.0, -30.0, GeoDataCoordinates::Degree )
-                                       << GeoDataLatLonBox( 30.0, -30.0,  30.0,  10.0, GeoDataCoordinates::Degree )
-                                       << GeoDataLatLonBox( 30.0, -30.0,  30.0, -30.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "aroundGreenwich" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-10.0), GeoDataLongitude::fromDegrees(-30.0))
+                                       << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0),  GeoDataLongitude::fromDegrees(30.0),  GeoDataLongitude::fromDegrees(10.0))
+                                       << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0),  GeoDataLongitude::fromDegrees(30.0), GeoDataLongitude::fromDegrees(-30.0));
 
     // 2 boxes crossing greenwich, result crosses greenwich
-    QTest::newRow( "aroundGreenwich" ) << GeoDataLatLonBox( 30.0, -30.0, 10.0, -30.0, GeoDataCoordinates::Degree )
-                                       << GeoDataLatLonBox( 30.0, -30.0, 30.0, -10.0, GeoDataCoordinates::Degree )
-                                       << GeoDataLatLonBox( 30.0, -30.0, 30.0, -30.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "aroundGreenwich" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(10.0), GeoDataLongitude::fromDegrees(-30.0))
+                                       << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(30.0), GeoDataLongitude::fromDegrees(-10.0))
+                                       << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(30.0), GeoDataLongitude::fromDegrees(-30.0));
 
     // 2 boxes each side of IDL, result crosses IDL as smaller box
-    QTest::newRow( "aroundIDL" ) << GeoDataLatLonBox( 30.0, -30.0, -150.0, -170.0, GeoDataCoordinates::Degree )
-                                 << GeoDataLatLonBox( 30.0, -30.0,  170.0,  150.0, GeoDataCoordinates::Degree )
-                                 << GeoDataLatLonBox( 30.0, -30.0, -150.0,  150.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "aroundIDL" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0), GeoDataLongitude::fromDegrees(-170.0))
+                                 << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0),  GeoDataLongitude::fromDegrees(170.0),  GeoDataLongitude::fromDegrees(150.0))
+                                 << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0),  GeoDataLongitude::fromDegrees(150.0));
 
     // reciprocical, so independent of side
-    QTest::newRow( "aroundIDL2" ) << GeoDataLatLonBox( 30.0, -30.0,  170.0,  150.0, GeoDataCoordinates::Degree )
-                                  << GeoDataLatLonBox( 30.0, -30.0, -150.0, -170.0, GeoDataCoordinates::Degree )
-                                  << GeoDataLatLonBox( 30.0, -30.0, -150.0,  150.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "aroundIDL2" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0),  GeoDataLongitude::fromDegrees(170.0),  GeoDataLongitude::fromDegrees(150.0))
+                                  << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0), GeoDataLongitude::fromDegrees(-170.0))
+                                  << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0),  GeoDataLongitude::fromDegrees(150.0));
 
     // 1 box crossing IDL, the 2 centers are close together, result crosses IDL
-    QTest::newRow( "crossingIDLclose" ) << GeoDataLatLonBox( 30.0, -30.0, -130.0, -150.0, GeoDataCoordinates::Degree )
-                                        << GeoDataLatLonBox( 30.0, -30.0, -150.0,  170.0, GeoDataCoordinates::Degree )
-                                        << GeoDataLatLonBox( 30.0, -30.0, -130.0,  170.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "crossingIDLclose" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-130.0), GeoDataLongitude::fromDegrees(-150.0))
+                                        << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0),  GeoDataLongitude::fromDegrees(170.0))
+                                        << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-130.0),  GeoDataLongitude::fromDegrees(170.0));
 
     // reciprocical
-    QTest::newRow( "crossingIDLclose2" ) << GeoDataLatLonBox( 30.0, -30.0, -160.0,  170.0, GeoDataCoordinates::Degree )
-                                         << GeoDataLatLonBox( 30.0, -30.0, -140.0, -150.0, GeoDataCoordinates::Degree )
-                                         << GeoDataLatLonBox( 30.0, -30.0, -140.0,  170.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "crossingIDLclose2" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-160.0),  GeoDataLongitude::fromDegrees(170.0))
+                                         << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-140.0), GeoDataLongitude::fromDegrees(-150.0))
+                                         << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-140.0),  GeoDataLongitude::fromDegrees(170.0));
 
     // 1 box crossing IDL, the 2 centers are across IDL, result crosses IDL
-    QTest::newRow( "crossingIDLfar" ) << GeoDataLatLonBox( 30.0, -30.0, -150.0, -170.0, GeoDataCoordinates::Degree )
-                                      << GeoDataLatLonBox( 30.0, -30.0, -170.0,  150.0, GeoDataCoordinates::Degree )
-                                      << GeoDataLatLonBox( 30.0, -30.0, -150.0,  150.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "crossingIDLfar" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0), GeoDataLongitude::fromDegrees(-170.0))
+                                      << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-170.0),  GeoDataLongitude::fromDegrees(150.0))
+                                      << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0),  GeoDataLongitude::fromDegrees(150.0));
 
     // reciprocical
-    QTest::newRow( "crossingIDLfar2" ) << GeoDataLatLonBox( 30.0, -30.0, -170.0,  150.0, GeoDataCoordinates::Degree )
-                                       << GeoDataLatLonBox( 30.0, -30.0, -150.0, -170.0, GeoDataCoordinates::Degree )
-                                       << GeoDataLatLonBox( 30.0, -30.0, -150.0,  150.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "crossingIDLfar2" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-170.0),  GeoDataLongitude::fromDegrees(150.0))
+                                       << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0), GeoDataLongitude::fromDegrees(-170.0))
+                                       << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0),  GeoDataLongitude::fromDegrees(150.0));
 
     // 2 box crossing IDL, the 2 centers are close together, result crosses IDL
-    QTest::newRow( "crossingsIDLclose" ) << GeoDataLatLonBox( 30.0, -30.0, -140.0, 160.0, GeoDataCoordinates::Degree )
-                                         << GeoDataLatLonBox( 30.0, -30.0, -160.0, 170.0, GeoDataCoordinates::Degree )
-                                         << GeoDataLatLonBox( 30.0, -30.0, -140.0, 160.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "crossingsIDLclose" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-140.0), GeoDataLongitude::fromDegrees(160.0))
+                                         << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-160.0), GeoDataLongitude::fromDegrees(170.0))
+                                         << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-140.0), GeoDataLongitude::fromDegrees(160.0));
 
     // 2 box crossing IDL, the 2 centers are across IDL, result crosses IDL
-    QTest::newRow( "crossingsIDLfar" ) << GeoDataLatLonBox( 30.0, -30.0, -150.0, -170.0, GeoDataCoordinates::Degree )
-                                       << GeoDataLatLonBox( 30.0, -30.0, -170.0,  150.0, GeoDataCoordinates::Degree )
-                                       << GeoDataLatLonBox( 30.0, -30.0, -150.0,  150.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "crossingsIDLfar" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0), GeoDataLongitude::fromDegrees(-170.0))
+                                       << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-170.0),  GeoDataLongitude::fromDegrees(150.0))
+                                       << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-30.0), GeoDataLongitude::fromDegrees(-150.0),  GeoDataLongitude::fromDegrees(150.0));
 
-    QTest::newRow( "bug299959" ) << GeoDataLatLonBox( 90.0, -90.0, 180.0, -180.0, GeoDataCoordinates::Degree )
-                                 << GeoDataLatLonBox( 18.0, -18.0,  30.0,   20.0, GeoDataCoordinates::Degree )
-                                 << GeoDataLatLonBox( 90.0, -90.0, 180.0, -180.0, GeoDataCoordinates::Degree );
+    QTest::newRow( "bug299959" ) << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(90.0), GeoDataLatitude::fromDegrees(-90.0), GeoDataLongitude::fromDegrees(180.0), GeoDataLongitude::fromDegrees(-180.0))
+                                 << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(18.0), GeoDataLatitude::fromDegrees(-18.0),  GeoDataLongitude::fromDegrees(30.0),   GeoDataLongitude::fromDegrees(20.0))
+                                 << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(90.0), GeoDataLatitude::fromDegrees(-90.0), GeoDataLongitude::fromDegrees(180.0), GeoDataLongitude::fromDegrees(-180.0));
 }
 
 void TestGeoDataLatLonAltBox::testUnited()
@@ -451,10 +451,10 @@ void TestGeoDataLatLonAltBox::testUnited()
 
     GeoDataLatLonBox const result = box1 | box2;
 
-    QCOMPARE( result.north( GeoDataCoordinates::Degree ), expected.north( GeoDataCoordinates::Degree ) );
-    QCOMPARE( result.south( GeoDataCoordinates::Degree ), expected.south( GeoDataCoordinates::Degree ) );
-    QCOMPARE( result.west( GeoDataCoordinates::Degree ), expected.west( GeoDataCoordinates::Degree ) );
-    QCOMPARE( result.east( GeoDataCoordinates::Degree ), expected.east( GeoDataCoordinates::Degree ) );
+    QCOMPARE( result.north(), expected.north() );
+    QCOMPARE( result.south(), expected.south() );
+    QCOMPARE( result.west(), expected.west() );
+    QCOMPARE( result.east(), expected.east() );
 }
 
 void TestGeoDataLatLonAltBox::testFromLineString_data() 
@@ -462,23 +462,23 @@ void TestGeoDataLatLonAltBox::testFromLineString_data()
     QTest::addColumn<GeoDataLineString>("string");
     QTest::addColumn<GeoDataLatLonBox>("expected");
 
-    QTest::newRow("empty") << GeoDataLineString() << GeoDataLatLonBox(0, 0, 0, 0);
+    QTest::newRow("empty") << GeoDataLineString() << GeoDataLatLonBox(GeoDataLatitude::null, GeoDataLatitude::null, GeoDataLongitude::null, GeoDataLongitude::null);
 
     QTest::newRow("bug 299527")
             << (GeoDataLineString()
-                 << GeoDataCoordinates(   0, 0, 200, GeoDataCoordinates::Degree)
-                 << GeoDataCoordinates( 180, 0, 200, GeoDataCoordinates::Degree)
-                 << GeoDataCoordinates(-180, 0, 200, GeoDataCoordinates::Degree)
-                 << GeoDataCoordinates(   0, 0, 200, GeoDataCoordinates::Degree))
-            << GeoDataLatLonBox(90.0, 0.0, 180, -180, GeoDataCoordinates::Degree);
+                 << GeoDataCoordinates(       GeoDataLongitude::null, GeoDataLatitude::null, 200)
+                 << GeoDataCoordinates( GeoDataLongitude::halfCircle, GeoDataLatitude::null, 200)
+                 << GeoDataCoordinates(-GeoDataLongitude::halfCircle, GeoDataLatitude::null, 200)
+                 << GeoDataCoordinates(       GeoDataLongitude::null, GeoDataLatitude::null, 200))
+            << GeoDataLatLonBox(GeoDataLatitude::quaterCircle, GeoDataLatitude::null, GeoDataLongitude::halfCircle, -GeoDataLongitude::halfCircle);
 
     QTest::newRow("around south pole")
             << (GeoDataLineString()
-                 << GeoDataCoordinates(   0, -10, 200, GeoDataCoordinates::Degree)
-                 << GeoDataCoordinates( 180, -10, 200, GeoDataCoordinates::Degree)
-                 << GeoDataCoordinates(-180, -10, 200, GeoDataCoordinates::Degree)
-                 << GeoDataCoordinates(   0, -10, 200, GeoDataCoordinates::Degree))
-            << GeoDataLatLonBox(-10.0, -90.0, 180, -180, GeoDataCoordinates::Degree);
+                 << GeoDataCoordinates(       GeoDataLongitude::null, -GeoDataLatitude::fromDegrees(10), 200)
+                 << GeoDataCoordinates( GeoDataLongitude::halfCircle, -GeoDataLatitude::fromDegrees(10), 200)
+                 << GeoDataCoordinates(-GeoDataLongitude::halfCircle, -GeoDataLatitude::fromDegrees(10), 200)
+                 << GeoDataCoordinates(       GeoDataLongitude::null, -GeoDataLatitude::fromDegrees(10), 200))
+            << GeoDataLatLonBox(-GeoDataLatitude::fromDegrees(10.0), -GeoDataLatitude::quaterCircle, GeoDataLongitude::halfCircle, -GeoDataLongitude::halfCircle);
 }
 
 void TestGeoDataLatLonAltBox::testFromLineString() {
@@ -504,8 +504,8 @@ void TestGeoDataLatLonAltBox::testToString() {
 void TestGeoDataLatLonAltBox::testPack_data() {
     QTest::addColumn<GeoDataCoordinates>("coordinates");
 
-    QTest::newRow("rad1") << GeoDataCoordinates( 1.0, 2.2, 1.8, GeoDataCoordinates::Radian );
-    QTest::newRow("rad2") << GeoDataCoordinates( 0.2, 3.1, 2.9, GeoDataCoordinates::Radian );
+    QTest::newRow("rad1") << GeoDataCoordinates(GeoDataLongitude::fromRadians(1.0), GeoDataLatitude::fromRadians(2.2), 1.8);
+    QTest::newRow("rad2") << GeoDataCoordinates(GeoDataLongitude::fromRadians(0.2), GeoDataLatitude::fromRadians(3.1), 2.9);
 }
 
 void TestGeoDataLatLonAltBox::testPack() {
@@ -546,29 +546,29 @@ void TestGeoDataLatLonAltBox::testPack() {
 }
 
 void TestGeoDataLatLonAltBox::testContainerBox_data() {
-    QTest::addColumn<qreal>("lon1");
-    QTest::addColumn<qreal>("lat1");
-    QTest::addColumn<qreal>("lon2");
-    QTest::addColumn<qreal>("lat2");
-    QTest::addColumn<qreal>("lon3");
-    QTest::addColumn<qreal>("lat3");
+    QTest::addColumn<GeoDataLongitude>("lon1");
+    QTest::addColumn<GeoDataLatitude>("lat1");
+    QTest::addColumn<GeoDataLongitude>("lon2");
+    QTest::addColumn<GeoDataLatitude>("lat2");
+    QTest::addColumn<GeoDataLongitude>("lon3");
+    QTest::addColumn<GeoDataLatitude>("lat3");
 
-    QTest::newRow("rad1") << qreal(2.4) << qreal(0.1) << qreal(1.0) << qreal(1.2) << qreal(-1.8) << qreal(-0.7) ;
-    QTest::newRow("rad2") << qreal(-1.3) << qreal(-0.1) << qreal(0.2) << qreal(1.1) << qreal(2.9) << qreal(0.9) ;
+    QTest::newRow("rad1") << GeoDataLongitude::fromRadians(2.4) << GeoDataLatitude::fromRadians(0.1) << GeoDataLongitude::fromRadians(1.0) << GeoDataLatitude::fromRadians(1.2) << GeoDataLongitude::fromRadians(-1.8) << GeoDataLatitude::fromRadians(-0.7) ;
+    QTest::newRow("rad2") << GeoDataLongitude::fromRadians(-1.3) << GeoDataLatitude::fromRadians(-0.1) << GeoDataLongitude::fromRadians(0.2) << GeoDataLatitude::fromRadians(1.1) << GeoDataLongitude::fromRadians(2.9) << GeoDataLatitude::fromRadians(0.9) ;
 }
 
 void TestGeoDataLatLonAltBox::testContainerBox() {
-    QFETCH(qreal, lon1);
-    QFETCH(qreal, lat1);
-    QFETCH(qreal, lon2);
-    QFETCH(qreal, lat2);
-    QFETCH(qreal, lon3);
-    QFETCH(qreal, lat3);
+    QFETCH(GeoDataLongitude, lon1);
+    QFETCH(GeoDataLatitude, lat1);
+    QFETCH(GeoDataLongitude, lon2);
+    QFETCH(GeoDataLatitude, lat2);
+    QFETCH(GeoDataLongitude, lon3);
+    QFETCH(GeoDataLatitude, lat3);
 
     GeoDataPlacemark p1, p2, p3;
-    p1.setCoordinate(lon1, lat1, GeoDataCoordinates::Degree);
-    p2.setCoordinate(lon2, lat2, GeoDataCoordinates::Degree);
-    p3.setCoordinate(lon3, lat3, GeoDataCoordinates::Degree);
+    p1.setCoordinate(lon1, lat1);
+    p2.setCoordinate(lon2, lat2);
+    p3.setCoordinate(lon3, lat3);
     GeoDataFolder f1, f2;
     f1.append(new GeoDataPlacemark(p1));
     f2.append(new GeoDataPlacemark(p2));
@@ -589,22 +589,22 @@ void TestGeoDataLatLonAltBox::testScale_data()
     QTest::addColumn<qreal>( "horizontalScale" );
     QTest::addColumn<GeoDataLatLonBox>( "expected" );
 
-    QTest::newRow( "void" ) << GeoDataLatLonBox( 0.5, 0.4, 0.3, 0.2 )
+    QTest::newRow( "void" ) << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.5), GeoDataLatitude::fromRadians(0.4), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2))
                             << qreal(1.0)
                             << qreal(1.0)
-                            << GeoDataLatLonBox( 0.5, 0.4, 0.3, 0.2 );
-    QTest::newRow( "simple vertical" ) << GeoDataLatLonBox( 0.5, 0.4, 0.3, 0.2 )
+                            << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.5), GeoDataLatitude::fromRadians(0.4), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2));
+    QTest::newRow( "simple vertical" ) << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.5), GeoDataLatitude::fromRadians(0.4), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2))
                                        << qreal(1.5)
                                        << qreal(1.0)
-                                       << GeoDataLatLonBox( 0.525, 0.375, 0.3, 0.2 );
-    QTest::newRow( "simple horizontal" ) << GeoDataLatLonBox( 0.7, 0.6, 0.3, 0.2 )
+                                       << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.525), GeoDataLatitude::fromRadians(0.375), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2));
+    QTest::newRow( "simple horizontal" ) << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.7), GeoDataLatitude::fromRadians(0.6), GeoDataLongitude::fromRadians(0.3), GeoDataLongitude::fromRadians(0.2))
                                          << qreal(1.0)
                                          << qreal(2.0)
-                                         << GeoDataLatLonBox( 0.7, 0.6, 0.35, 0.15 );
-    QTest::newRow( "crosses dateline" )  << GeoDataLatLonBox( 20.0,   0.0, -170.0, 170.0, GeoDataCoordinates::Degree )
+                                         << GeoDataLatLonBox(GeoDataLatitude::fromRadians(0.7), GeoDataLatitude::fromRadians(0.6), GeoDataLongitude::fromRadians(0.35), GeoDataLongitude::fromRadians(0.15));
+    QTest::newRow( "crosses dateline" )  << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(20.0),   GeoDataLatitude::fromDegrees(0.0), GeoDataLongitude::fromDegrees(-170.0), GeoDataLongitude::fromDegrees(170.0))
                                          << qreal(2.0)
                                          << qreal(2.0)
-                                         << GeoDataLatLonBox( 30.0, -10.0, -160.0, 160.0, GeoDataCoordinates::Degree );
+                                         << GeoDataLatLonBox(GeoDataLatitude::fromDegrees(30.0), GeoDataLatitude::fromDegrees(-10.0), GeoDataLongitude::fromDegrees(-160.0), GeoDataLongitude::fromDegrees(160.0));
 }
 
 void TestGeoDataLatLonAltBox::testScale()

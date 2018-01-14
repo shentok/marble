@@ -247,8 +247,8 @@ int main(int argc, char *argv[])
         const GeoDataCoordinates coordinates = GeoDataCoordinates::fromString(coordinatesString, success);
         if ( success ) {
             QVariantList lonLat;
-            lonLat << QVariant( coordinates.longitude(GeoDataCoordinates::Degree) )
-                   << QVariant( coordinates.latitude(GeoDataCoordinates::Degree) );
+            lonLat << QVariant( coordinates.longitude().toDegree() )
+                   << QVariant( coordinates.latitude().toDegree() );
             cmdLineSettings.insert( QLatin1String("lonlat"), QVariant(lonLat) );
         }
     }

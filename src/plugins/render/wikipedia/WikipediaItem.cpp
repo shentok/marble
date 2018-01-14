@@ -104,24 +104,24 @@ void WikipediaItem::paint( QPainter *painter )
     }
 }
 
-qreal WikipediaItem::longitude() const
+GeoDataLongitude WikipediaItem::longitude() const
 {
     return coordinate().longitude();
 }
-    
-void WikipediaItem::setLongitude( qreal longitude )
+
+void WikipediaItem::setLongitude(GeoDataLongitude longitude)
 {
     GeoDataCoordinates updatedCoordinates = coordinate();
     updatedCoordinates.setLongitude( longitude );
     setCoordinate( updatedCoordinates );
 }
-    
-qreal WikipediaItem::latitude() const
+
+GeoDataLatitude WikipediaItem::latitude() const
 {
     return coordinate().latitude();
 }
 
-void WikipediaItem::setLatitude( qreal latitude )
+void WikipediaItem::setLatitude(GeoDataLatitude latitude)
 {
     GeoDataCoordinates updatedCoordinates = coordinate();
     updatedCoordinates.setLatitude( latitude );

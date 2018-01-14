@@ -630,8 +630,8 @@ void MainWindow::lookAtBookmark( QAction *action)
 
     GeoDataLookAt temp = qvariant_cast<GeoDataLookAt>( action->data() ) ;
     m_controlView->marbleWidget()->flyTo( temp ) ;
-    mDebug() << " looking at bookmark having longitude : "<< temp.longitude(GeoDataCoordinates::Degree)
-             << " latitude :  "<< temp.latitude(GeoDataCoordinates::Degree)
+    mDebug() << " looking at bookmark having longitude : "<< temp.longitude()
+             << " latitude :  "<< temp.latitude()
              << " distance : " << temp.range();
 
 
@@ -781,13 +781,11 @@ void MainWindow::showFullScreen( bool isChecked )
 
 void MainWindow::copyCoordinates()
 {
-    qreal lon = m_controlView->marbleWidget()->centerLongitude();
-    qreal lat = m_controlView->marbleWidget()->centerLatitude();
+    const auto lon = m_controlView->marbleWidget()->centerLongitude();
+    const auto lat = m_controlView->marbleWidget()->centerLatitude();
+    const auto positionString = GeoDataCoordinates(lon, lat).toString();
 
-    QString  positionString = GeoDataCoordinates( lon, lat, 0.0, GeoDataCoordinates::Degree ).toString();
-    QClipboard  *clipboard = QApplication::clipboard();
-
-    clipboard->setText( positionString );
+    QApplication::clipboard()->setText(positionString);
 }
 
 void MainWindow::copyMap()
@@ -1163,8 +1161,8 @@ void MainWindow::readSettings(const QVariantMap& overrideSettings)
 
          // Set home position
          m_controlView->marbleModel()->setHome(
-            settings.value("homeLongitude", 9.4).toDouble(),
-            settings.value("homeLatitude", 54.8).toDouble(),
+            GeoDataLongitude::fromDegrees(settings.value("homeLongitude", 9.4).toDouble()),
+            GeoDataLatitude::fromDegrees(settings.value("homeLatitude", 54.8).toDouble()),
             settings.value("homeZoom", 1050 ).toInt()
          );
 
@@ -1175,13 +1173,13 @@ void MainWindow::readSettings(const QVariantMap& overrideSettings)
          const QVariantMap::ConstIterator lonLatIt = overrideSettings.find(QLatin1String("lonlat"));
          if ( lonLatIt != overrideSettings.constEnd() ) {
             const QVariantList lonLat = lonLatIt.value().toList();
-            m_controlView->marbleWidget()->centerOn( lonLat.at(0).toDouble(), lonLat.at(1).toDouble() );
+            m_controlView->marbleWidget()->centerOn(GeoDataLongitude::fromDegrees(lonLat.at(0).toDouble()), GeoDataLatitude::fromDegrees(lonLat.at(1).toDouble()));
          } else {
             switch ( m_configDialog->onStartup() ) {
             case Marble::LastLocationVisited:
                 m_controlView->marbleWidget()->centerOn(
-                    settings.value("quitLongitude", 0.0).toDouble(),
-                    settings.value("quitLatitude", 0.0).toDouble() );
+                    GeoDataLongitude::fromDegrees(settings.value("quitLongitude", 0.0).toDouble()),
+                    GeoDataLatitude::fromDegrees(settings.value("quitLatitude", 0.0).toDouble()));
                 if (! isDistanceOverwritten) {
                     // set default radius to 1350 (Atlas theme's "sharp" radius)
                     m_controlView->marbleWidget()->setRadius( settings.value("quitRadius", 1350).toInt() );
@@ -1355,27 +1353,27 @@ void MainWindow::writeSettings()
 
      settings.beginGroup( "MarbleWidget" );
          // Get the 'home' values from the widget and store them in the settings.
-         qreal homeLon = 0;
-         qreal homeLat = 0;
+         GeoDataLongitude homeLon = GeoDataLongitude::null;
+         GeoDataLatitude homeLat = GeoDataLatitude::null;
          int homeZoom = 0;
          m_controlView->marbleModel()->home( homeLon, homeLat, homeZoom );
          QString  mapTheme = m_controlView->marbleWidget()->mapThemeId();
          int      projection = (int)( m_controlView->marbleWidget()->projection() );
 
-         settings.setValue( "homeLongitude", homeLon );
-         settings.setValue( "homeLatitude",  homeLat );
+         settings.setValue( "homeLongitude", homeLon.toRadian() );
+         settings.setValue( "homeLatitude",  homeLat.toRadian() );
          settings.setValue( "homeZoom",      homeZoom );
 
          settings.setValue( "mapTheme",   mapTheme );
          settings.setValue( "projection", projection );
 
          // Get the 'quit' values from the widget and store them in the settings.
-         qreal  quitLon = m_controlView->marbleWidget()->centerLongitude();
-         qreal  quitLat = m_controlView->marbleWidget()->centerLatitude();
+         const auto quitLon = m_controlView->marbleWidget()->centerLongitude();
+         const auto quitLat = m_controlView->marbleWidget()->centerLatitude();
          const int quitRadius = m_controlView->marbleWidget()->radius();
 
-         settings.setValue( "quitLongitude", quitLon );
-         settings.setValue( "quitLatitude", quitLat );
+         settings.setValue( "quitLongitude", quitLon.toRadian() );
+         settings.setValue( "quitLatitude", quitLat.toRadian() );
          settings.setValue( "quitRadius", quitRadius );
 
          settings.setValue( "lockFloatItemPositions", m_lockFloatItemsAction->isChecked() );

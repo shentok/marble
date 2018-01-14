@@ -14,6 +14,9 @@
 
 #include "marble_export.h"
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include <QObject>
 
 class QImage;
@@ -38,8 +41,8 @@ public:
     explicit ElevationModel( HttpDownloadManager *downloadManager, PluginManager* pluginManager, QObject *parent = nullptr );
     ~ElevationModel() override;
 
-    qreal height( qreal lon, qreal lat ) const;
-    QVector<GeoDataCoordinates> heightProfile( qreal fromLon, qreal fromLat, qreal toLon, qreal toLat ) const;
+    qreal height(GeoDataLongitude lon, GeoDataLatitude lat) const;
+    QVector<GeoDataCoordinates> heightProfile(GeoDataLongitude fromLon, GeoDataLatitude fromLat, GeoDataLongitude toLon, GeoDataLatitude toLat) const;
 
 Q_SIGNALS:
     /**

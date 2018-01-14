@@ -103,10 +103,10 @@ void CoordinatesParser::readLocation()
 {
     Q_ASSERT( isStartElement()
               && name() == QLatin1String("location"));
- 
-    m_coordinates->setLatitude(attributes().value(QLatin1String("latitude")).toString().toDouble() * DEG2RAD);
-    m_coordinates->setLongitude(attributes().value(QLatin1String("longitude")).toString().toDouble() * DEG2RAD);
-    
+
+    m_coordinates->setLatitude(GeoDataLatitude::fromDegrees(attributes().value(QLatin1String("latitude")).toString().toDouble()));
+    m_coordinates->setLongitude(GeoDataLongitude::fromDegrees(attributes().value(QLatin1String("longitude")).toString().toDouble()));
+
     while( !atEnd() ) {
         readNext();
         

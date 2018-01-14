@@ -17,7 +17,6 @@ namespace Marble {
 class GeoDataLocationPrivate
 {
 public:
-
     GeoDataCoordinates m_coordinates;
 
     GeoDataLocationPrivate();
@@ -80,25 +79,24 @@ void GeoDataLocation::setAltitude(qreal altitude)
     d->m_coordinates.setAltitude(altitude);
 }
 
-qreal GeoDataLocation::latitude(GeoDataCoordinates::Unit unit) const
+GeoDataLatitude GeoDataLocation::latitude() const
 {
-    return d->m_coordinates.latitude(unit);
+    return d->m_coordinates.latitude();
 }
 
-void GeoDataLocation::setLatitude(qreal latitude, GeoDataCoordinates::Unit unit)
+void GeoDataLocation::setLatitude(GeoDataLatitude latitude)
 {
-    d->m_coordinates.setLatitude(latitude, unit);
+    d->m_coordinates.setLatitude(latitude);
 }
 
-qreal GeoDataLocation::longitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLongitude GeoDataLocation::longitude() const
 {
-    return d->m_coordinates.longitude(unit);
+    return d->m_coordinates.longitude();
 }
 
-void GeoDataLocation::setLongitude(qreal longitude, GeoDataCoordinates::Unit unit)
+void GeoDataLocation::setLongitude(GeoDataLongitude longitude)
 {
-    d->m_coordinates.setLongitude(longitude, unit);
+    d->m_coordinates.setLongitude(longitude);
 }
-
 
 }

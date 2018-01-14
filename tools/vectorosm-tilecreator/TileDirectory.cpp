@@ -243,7 +243,6 @@ void TileDirectory::setBoundingPolygon(const QString &file)
     if ( input.open( QFile::ReadOnly ) ) {
         QTextStream stream( &input );
         country = stream.readLine();
-        double lat( 0.0 ), lon( 0.0 );
         GeoDataLinearRing box;
         while ( !stream.atEnd() ) {
             bool inside = true;
@@ -265,10 +264,9 @@ void TileDirectory::setBoundingPolygon(const QString &file)
                     inside = true;
                 }
             } else if ( entries.size() == 2 ) {
-                lon = entries.first().toDouble();
-                lat = entries.last().toDouble();
-                GeoDataCoordinates point( lon, lat, 0.0, GeoDataCoordinates::Degree );
-                box << point;
+                const auto lon = GeoDataLongitude::fromDegrees(entries.first().toDouble());
+                const auto lat = GeoDataLatitude::fromDegrees(entries.last().toDouble());
+                box << GeoDataCoordinates(lon, lat);
             } else {
                 qDebug() << "Warning: Ignoring line in" << file
                          <<  "with" << entries.size() << "fields:" << line;
@@ -380,11 +378,11 @@ void TileDirectory::createOsmTiles() const
 
                 const GeoDataLatLonBox tileBoundary = m_tileProjection.geoCoordinates(tileId.zoomLevel(), tileId.x(), tileId.y());
 
-                double const minLon = tileBoundary.west(GeoDataCoordinates::Degree);
-                double const maxLon = tileBoundary.east(GeoDataCoordinates::Degree);
-                double const maxLat = tileBoundary.north(GeoDataCoordinates::Degree);
-                double const minLat = tileBoundary.south(GeoDataCoordinates::Degree);
-                QString const bbox = QString("-b=%1,%2,%3,%4").arg(minLon).arg(minLat).arg(maxLon).arg(maxLat);
+                auto const minLon = tileBoundary.west();
+                auto const maxLon = tileBoundary.east();
+                auto const maxLat = tileBoundary.north();
+                auto const minLat = tileBoundary.south();
+                QString const bbox = QString("-b=%1,%2,%3,%4").arg(minLon.toDegree()).arg(minLat.toDegree()).arg(maxLon.toDegree()).arg(maxLat.toDegree());
                 QProcess osmconvert;
                 osmconvert.start("osmconvert", QStringList() << "--drop-author" << "--drop-version"
                                  << "--complete-ways" << "--complex-ways" << bbox << output << inputFile);
@@ -414,10 +412,10 @@ int TileDirectory::innerNodes(const TileId &tile) const
 {
     const GeoDataLatLonBox tileBoundary = m_tileProjection.geoCoordinates(tile.zoomLevel(), tile.x(), tile.y());
 
-    double const west = tileBoundary.west();
-    double const east = tileBoundary.east();
-    double const north = tileBoundary.north();
-    double const south = tileBoundary.south();
+    auto const west = tileBoundary.west();
+    auto const east = tileBoundary.east();
+    auto const north = tileBoundary.north();
+    auto const south = tileBoundary.south();
     QVector<GeoDataCoordinates> bounds;
     bounds << GeoDataCoordinates(west, north);
     bounds << GeoDataCoordinates(east, north);
@@ -473,13 +471,13 @@ GeoDataLatLonBox TileDirectory::boundingBox(const QString &filename) const
     GeoDataLatLonBox boundingBox;
     for(QString const &line: output) {
         if (line.startsWith("lon min:")) {
-            boundingBox.setWest(line.mid(8).toDouble(), GeoDataCoordinates::Degree);
+            boundingBox.setWest(GeoDataLongitude::fromDegrees(line.mid(8).toDouble()));
         } else if (line.startsWith("lon max")) {
-            boundingBox.setEast(line.mid(8).toDouble(), GeoDataCoordinates::Degree);
+            boundingBox.setEast(GeoDataLongitude::fromDegrees(line.mid(8).toDouble()));
         } else if (line.startsWith("lat min:")) {
-            boundingBox.setSouth(line.mid(8).toDouble(), GeoDataCoordinates::Degree);
+            boundingBox.setSouth(GeoDataLatitude::fromDegrees(line.mid(8).toDouble()));
         } else if (line.startsWith("lat max:")) {
-            boundingBox.setNorth(line.mid(8).toDouble(), GeoDataCoordinates::Degree);
+            boundingBox.setNorth(GeoDataLatitude::fromDegrees(line.mid(8).toDouble()));
         }
     }
     return boundingBox;

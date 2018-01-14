@@ -73,8 +73,8 @@ QVariant RouteRequestModel::data ( const QModelIndex &index, int role ) const
 
             return placemark.coordinate().toString(Marble::GeoDataCoordinates::Decimal).trimmed();
         }
-        case LongitudeRole: return m_request->at( index.row() ).longitude( Marble::GeoDataCoordinates::Degree );
-        case LatitudeRole: return m_request->at( index.row() ).latitude( Marble::GeoDataCoordinates::Degree );
+        case LongitudeRole: return m_request->at( index.row() ).longitude().toDegree();
+        case LatitudeRole: return m_request->at( index.row() ).latitude().toDegree();
         }
     }
 
@@ -137,7 +137,7 @@ void RouteRequestModel::updateAfterAddition( int idx )
 void RouteRequestModel::setPosition ( int index, qreal longitude, qreal latitude )
 {
     if ( index >= 0 && index < m_request->size() ) {
-        m_request->setPosition( index, Marble::GeoDataCoordinates( longitude, latitude, 0.0, Marble::GeoDataCoordinates::Degree ) );
+        m_request->setPosition(index, Marble::GeoDataCoordinates(Marble::GeoDataLongitude::fromDegrees(longitude), Marble::GeoDataLatitude::fromDegrees(latitude)));
     }
 }
 

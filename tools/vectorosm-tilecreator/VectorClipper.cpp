@@ -37,7 +37,8 @@ VectorClipper::VectorClipper(GeoDataDocument* document, int maxZoomLevel) :
         if (const auto placemark = geodata_cast<GeoDataPlacemark>(feature)) {
             // Select zoom level such that the placemark fits in a single tile
             int zoomLevel;
-            qreal north, south, east, west;
+            GeoDataLatitude north, south;
+            GeoDataLongitude east, west;
             placemark->geometry()->latLonAltBox().boundaries(north, south, east, west);
             for (zoomLevel = maxZoomLevel; zoomLevel >= 0; --zoomLevel) {
                 if (TileId::fromCoordinates(GeoDataCoordinates(west, north), zoomLevel) ==
@@ -101,7 +102,8 @@ GeoDataDocument *VectorClipper::clipTo(const GeoDataLatLonBox &tileBoundary, int
 
 QVector<GeoDataPlacemark *> VectorClipper::potentialIntersections(const GeoDataLatLonBox &box) const
 {
-    qreal north, south, east, west;
+    GeoDataLatitude north, south;
+    GeoDataLongitude east, west;
     box.boundaries(north, south, east, west);
     TileId const topLeft = TileId::fromCoordinates(GeoDataCoordinates(west, north), m_maxZoomLevel);
     TileId const bottomRight = TileId::fromCoordinates(GeoDataCoordinates(east, south), m_maxZoomLevel);
@@ -137,33 +139,34 @@ GeoDataDocument *VectorClipper::clipTo(unsigned int zoomLevel, unsigned int tile
 ClipperLib::Path VectorClipper::clipPath(const GeoDataLatLonBox &box, int zoomLevel) const
 {
     using namespace ClipperLib;
-    Path path;
+
     int const steps = qMax(1, 22 - 2 * zoomLevel);
-    qreal const scale = IntPoint::scale;
-    double x = box.west() * scale;
-    double const horizontalStep = (box.east() * scale - x) / steps;
-    double y = box.north() * scale;
-    double const verticalStep = (box.south() * scale - y) / steps;
+    auto const horizontalStep = (box.east() - box.west()) / steps;
+    auto const verticalStep = (box.south() - box.north()) / steps;
+
+    Path path;
+    auto x = box.west();
+    auto y = box.north();
     for (int i=0; i<steps; ++i) {
-        path << IntPoint(qRound64(x), qRound64(y));
+        path << IntPoint(qRound64(x.toRadian() * IntPoint::scale), qRound64(y.toRadian() * IntPoint::scale));
         x += horizontalStep;
     }
-    path << IntPoint(qRound64(box.east() * scale), qRound64(box.north() * scale));
+    path << IntPoint(qRound64(box.east().toRadian() * IntPoint::scale), qRound64(box.north().toRadian() * IntPoint::scale));
     for (int i=0; i<steps; ++i) {
-        path << IntPoint(qRound64(x), qRound64(y));
+        path << IntPoint(qRound64(x.toRadian() * IntPoint::scale), qRound64(y.toRadian() * IntPoint::scale));
         y += verticalStep;
     }
-    path << IntPoint(qRound64(box.east() * scale), qRound64(box.south() * scale));
+    path << IntPoint(qRound64(box.east().toRadian() * IntPoint::scale), qRound64(box.south().toRadian() * IntPoint::scale));
     for (int i=0; i<steps; ++i) {
-        path << IntPoint(qRound64(x), qRound64(y));
+        path << IntPoint(qRound64(x.toRadian() * IntPoint::scale), qRound64(y.toRadian() * IntPoint::scale));
         x -= horizontalStep;
     }
-    path << IntPoint(qRound64(box.west() * scale), qRound64(box.south() * scale));
+    path << IntPoint(qRound64(box.west().toRadian() * IntPoint::scale), qRound64(box.south().toRadian() * IntPoint::scale));
     for (int i=0; i<steps; ++i) {
-        path << IntPoint(qRound64(x), qRound64(y));
+        path << IntPoint(qRound64(x.toRadian() * IntPoint::scale), qRound64(y.toRadian() * IntPoint::scale));
         y -= verticalStep;
     }
-    path << IntPoint(qRound64(box.west() * scale), qRound64(box.north() * scale));
+    path << IntPoint(qRound64(box.west().toRadian() * IntPoint::scale), qRound64(box.north().toRadian() * IntPoint::scale));
     return path;
 }
 
@@ -198,9 +201,9 @@ qreal VectorClipper::area(const GeoDataLinearRing &ring)
         return area;
     }
     for (int i = 1; i < n; ++i ){
-        area += (ring[i].longitude() - ring[i-1].longitude() ) * ( ring[i].latitude() + ring[i-1].latitude());
+        area += (ring[i].longitude() - ring[i-1].longitude()).toRadian() * (ring[i].latitude() + ring[i-1].latitude()).toRadian();
     }
-    area += (ring[0].longitude() - ring[n-1].longitude() ) * (ring[0].latitude() + ring[n-1].latitude());
+    area += (ring[0].longitude() - ring[n-1].longitude()).toRadian() * (ring[0].latitude() + ring[n-1].latitude()).toRadian();
     qreal const result = EARTH_RADIUS * EARTH_RADIUS * qAbs(area * 0.5);
     m_areas.insert(&ring, result);
     return result;

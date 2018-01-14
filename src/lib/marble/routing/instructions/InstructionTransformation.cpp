@@ -24,7 +24,7 @@ RoutingInstructions InstructionTransformation::process( const RoutingWaypoints &
         const RoutingWaypoint &item = model[i];
         int newAngle = 180 + lastAngle;
         if ( i < model.size() - 1 ) {
-            newAngle = qRound( 180.0 / M_PI * item.point().bearing( model[i+1].point() ) );
+            newAngle = qRound(item.point().bearing(model[i+1].point()).toDegree());
         }
         int angle = ( newAngle - lastAngle + 540 ) % 360;
         Q_ASSERT( angle >= 0 && angle <= 360 );

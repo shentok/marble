@@ -34,10 +34,10 @@ public:
     QString name() const;
     void setIconLink(const QString &iconLink);
     QString iconLink() const;
-    qreal longitude() const;
-    void setLongitude(qreal longitude);
-    qreal latitude() const;
-    void setLatitude(qreal latitude);
+    GeoDataLongitude longitude() const;
+    void setLongitude(GeoDataLongitude longitude);
+    GeoDataLatitude latitude() const;
+    void setLatitude(GeoDataLatitude latitude);
     QString id() const;
     QString setId( const QString &id, bool isNew = false );
     QStringList idFilter() const;
@@ -126,24 +126,24 @@ QString PlacemarkEditHeaderPrivate::iconLink() const
     return m_iconLink->text();
 }
 
-qreal PlacemarkEditHeaderPrivate::longitude() const
+GeoDataLongitude PlacemarkEditHeaderPrivate::longitude() const
 {
-    return m_longitude->value();
+    return GeoDataLongitude::fromDegrees(m_longitude->value());
 }
 
-void PlacemarkEditHeaderPrivate::setLongitude(qreal longitude)
+void PlacemarkEditHeaderPrivate::setLongitude(GeoDataLongitude longitude)
 {
-    m_longitude->setValue(longitude);
+    m_longitude->setValue(longitude.toDegree());
 }
 
-qreal PlacemarkEditHeaderPrivate::latitude() const
+GeoDataLatitude PlacemarkEditHeaderPrivate::latitude() const
 {
-    return m_latitude->value();
+    return GeoDataLatitude::fromDegrees(m_latitude->value());
 }
 
-void PlacemarkEditHeaderPrivate::setLatitude(qreal latitude)
+void PlacemarkEditHeaderPrivate::setLatitude(GeoDataLatitude latitude)
 {
-    m_latitude->setValue(latitude);
+    m_latitude->setValue(latitude.toDegree());
 }
 
 QString PlacemarkEditHeaderPrivate::id() const
@@ -337,12 +337,12 @@ QString PlacemarkEditHeader::iconLink() const
     return d->iconLink();
 }
 
-qreal PlacemarkEditHeader::latitude() const
+GeoDataLatitude PlacemarkEditHeader::latitude() const
 {
     return d->latitude();
 }
 
-qreal PlacemarkEditHeader::longitude() const
+GeoDataLongitude PlacemarkEditHeader::longitude() const
 {
     return d->longitude();
 }
@@ -402,12 +402,12 @@ void PlacemarkEditHeader::setIconLink(const QString &iconLink)
     d->setIconLink(iconLink);
 }
 
-void PlacemarkEditHeader::setLatitude(qreal latitude)
+void PlacemarkEditHeader::setLatitude(GeoDataLatitude latitude)
 {
     d->setLatitude(latitude);
 }
 
-void PlacemarkEditHeader::setLongitude(qreal longitude)
+void PlacemarkEditHeader::setLongitude(GeoDataLongitude longitude)
 {
     d->setLongitude(longitude);
 }

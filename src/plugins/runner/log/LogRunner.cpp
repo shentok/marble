@@ -74,15 +74,15 @@ GeoDataDocument *LogRunner::parseFile(const QString &fileName, DocumentRole role
         }
 
         bool okLat, okLon, okAlt = false;
-        const qreal lat = strLat.toDouble( &okLat );
-        const qreal lon = strLon.toDouble( &okLon );
+        const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(strLat.toDouble(&okLat));
+        const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(strLon.toDouble(&okLon));
         const qreal alt = strElevation.toDouble( &okAlt );
 
         if ( !okLat || !okLon || !okAlt ) {
             continue;
         }
 
-        GeoDataCoordinates coord( lon, lat, alt, GeoDataCoordinates::Degree );
+        const GeoDataCoordinates coord(lon, lat, alt);
         track->append( coord );
     }
 

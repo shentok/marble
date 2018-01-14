@@ -30,8 +30,8 @@ namespace Marble
 
 void OsmNodeTagWriter::writeNode( const OsmConverter::Node &node, GeoWriter& writer )
 {
-    QString lat = QString::number( node.first.latitude( GeoDataCoordinates::Degree ), 'f', 7 );
-    QString lon = QString::number( node.first.longitude( GeoDataCoordinates::Degree ), 'f', 7 );
+    QString lat = QString::number( node.first.latitude().toDegree(), 'f', 7 );
+    QString lon = QString::number( node.first.longitude().toDegree(), 'f', 7 );
 
     writer.writeStartElement( osm::osmTag_node );
 

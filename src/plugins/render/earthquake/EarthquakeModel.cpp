@@ -61,10 +61,10 @@ void EarthquakeModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qint32
     }
 
     const QString geonamesUrl( QLatin1String("http://ws.geonames.org/earthquakesJSON") +
-        QLatin1String("?north=")   + QString::number(box.north() * RAD2DEG) +
-        QLatin1String("&south=")   + QString::number(box.south() * RAD2DEG) +
-        QLatin1String("&east=")    + QString::number(box.east() * RAD2DEG) +
-        QLatin1String("&west=")    + QString::number(box.west() * RAD2DEG) +
+        QLatin1String("?north=")   + QString::number(box.north().toDegree()) +
+        QLatin1String("&south=")   + QString::number(box.south().toDegree()) +
+        QLatin1String("&east=")    + QString::number(box.east().toDegree()) +
+        QLatin1String("&west=")    + QString::number(box.west().toDegree()) +
         QLatin1String("&date=")    + m_endDate.toString("yyyy-MM-dd") +
         QLatin1String("&maxRows=") + QString::number(number) +
         QLatin1String("&username=marble") +
@@ -88,8 +88,8 @@ void EarthquakeModel::parseFile( const QByteArray& file )
 
             // Converting earthquake's properties from JSON to appropriate types
             const QString eqid = levelObject.value(QStringLiteral("eqid")).toString(); // Earthquake's ID
-            const double longitude = levelObject.value(QStringLiteral("lng")).toDouble();
-            const double latitude = levelObject.value(QStringLiteral("lat")).toDouble();
+            const GeoDataLongitude longitude = GeoDataLongitude::fromDegrees(levelObject.value(QStringLiteral("lng")).toDouble());
+            const GeoDataLatitude latitude = GeoDataLatitude::fromDegrees(levelObject.value(QStringLiteral("lat")).toDouble());
             const double magnitude = levelObject.value(QStringLiteral("magnitude")).toDouble();
             const QString dateString = levelObject.value(QStringLiteral("datetime")).toString();
             const QDateTime date = QDateTime::fromString(dateString, QStringLiteral("yyyy-MM-dd hh:mm:ss"));
@@ -98,7 +98,7 @@ void EarthquakeModel::parseFile( const QByteArray& file )
             if( date <= m_endDate && date >= m_startDate && magnitude >= m_minMagnitude ) {
                 if( !itemExists( eqid ) ) {
                     // If it does not exists, create it
-                    GeoDataCoordinates coordinates( longitude, latitude, 0.0, GeoDataCoordinates::Degree );
+                    const GeoDataCoordinates coordinates(longitude, latitude);
                     EarthquakeItem *item = new EarthquakeItem( this );
                     item->setId( eqid );
                     item->setCoordinate( coordinates );

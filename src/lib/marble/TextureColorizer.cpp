@@ -254,8 +254,8 @@ void TextureColorizer::colorize( QImage *origimg, const ViewportParams *viewport
         if( !viewport->currentProjection()->isClippedToSphere() && !viewport->currentProjection()->traversablePoles() )
         {
             qreal realYTop, realYBottom, dummyX;
-            GeoDataCoordinates yNorth(0, viewport->currentProjection()->maxLat(), 0);
-            GeoDataCoordinates ySouth(0, viewport->currentProjection()->minLat(), 0);
+            const GeoDataCoordinates yNorth(GeoDataLongitude::null, viewport->currentProjection()->maxLat(), 0);
+            const GeoDataCoordinates ySouth(GeoDataLongitude::null, viewport->currentProjection()->minLat(), 0);
             viewport->screenCoordinates(yNorth, dummyX, realYTop );
             viewport->screenCoordinates(ySouth, dummyX, realYBottom );
             yTop = qBound(qreal(0.0), realYTop, qreal(imgheight));

@@ -12,7 +12,9 @@
 
 #include "KmlLookAtTagWriter.h"
 
+#include "GeoDataLatitude.h"
 #include "GeoDataLookAt.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataTypes.h"
 #include "GeoDataTimeSpan.h"
 #include "GeoDataTimeStamp.h"
@@ -54,8 +56,8 @@ bool KmlLookAtTagWriter::write( const GeoNode *node,
         writer.writeEndElement();
     }
 
-    writer.writeOptionalElement( "longitude", QString::number( lookAt->longitude( GeoDataCoordinates::Degree ), 'f', 10 ) );
-    writer.writeOptionalElement( "latitude", QString::number( lookAt->latitude( GeoDataCoordinates::Degree ), 'f', 10 ) );
+    writer.writeOptionalElement("longitude", QString::number(lookAt->longitude().toDegree(), 'f', 10));
+    writer.writeOptionalElement("latitude", QString::number(lookAt->latitude().toDegree(), 'f', 10));
     writer.writeOptionalElement( "altitude", QString::number( lookAt->altitude(), 'f', 10 ) );
     writer.writeOptionalElement( "range", QString::number( lookAt->range(), 'f', 10 ) );
     KmlGroundOverlayWriter::writeAltitudeMode( writer, lookAt->altitudeMode() );

@@ -25,7 +25,7 @@ public:
         m_position(),
         m_accuracy(),
         m_speed( 0.0 ),
-        m_direction( 0.0 ),
+        m_direction(Marble::GeoDataAngle::null),
         m_timestamp()
     {}
 
@@ -44,7 +44,7 @@ public:
     Marble::GeoDataCoordinates position() const override { return m_position; }
     Marble::GeoDataAccuracy accuracy() const override { return m_accuracy; }
     qreal speed() const override { return m_speed; }
-    qreal direction() const override { return m_direction; }
+    Marble::GeoDataAngle direction() const override { return m_direction; }
     QDateTime timestamp() const override { return m_timestamp; }
 
     Marble::PositionProviderPlugin *newInstance() const override { return nullptr; }
@@ -53,7 +53,7 @@ public:
     void setPosition( const Marble::GeoDataCoordinates &position,
                       const Marble::GeoDataAccuracy &accuracy,
                       qreal speed,
-                      qreal direction,
+                      Marble::GeoDataAngle direction,
                       const QDateTime &timestamp );
 
 private:
@@ -61,7 +61,7 @@ private:
     Marble::GeoDataCoordinates m_position;
     Marble::GeoDataAccuracy m_accuracy;
     qreal m_speed;
-    qreal m_direction;
+    Marble::GeoDataAngle m_direction;
     QDateTime m_timestamp;
 };
 
@@ -79,7 +79,7 @@ void FakeProvider::setStatus( Marble::PositionProviderStatus status )
 void FakeProvider::setPosition( const Marble::GeoDataCoordinates &position,
                                 const Marble::GeoDataAccuracy &accuracy,
                                 qreal speed,
-                                qreal direction,
+                                Marble::GeoDataAngle direction,
                                 const QDateTime &timestamp )
 {
     m_position = position;
@@ -125,7 +125,7 @@ void PositionTrackingTest::construct()
 
     QCOMPARE( const_cast<PositionTracking &>( tracking ).positionProviderPlugin(), static_cast<PositionProviderPlugin *>( nullptr ) );
     QCOMPARE( tracking.speed(), qreal( 0 ) );
-    QCOMPARE( tracking.direction(), qreal( 0 ) );
+    QCOMPARE( tracking.direction(), GeoDataAngle::fromDegrees(0) );
     QCOMPARE( tracking.timestamp(), QDateTime() );
     QCOMPARE( tracking.accuracy(), GeoDataAccuracy() );
     QCOMPARE( tracking.trackVisible(), true );
@@ -174,10 +174,10 @@ void PositionTrackingTest::statusChanged()
 
 void PositionTrackingTest::setPositionProviderPlugin()
 {
-    const GeoDataCoordinates coordinates( 1.2, 0.9 );
+    const GeoDataCoordinates coordinates(GeoDataLongitude::fromRadians(1.2), GeoDataLatitude::fromRadians(0.9));
     const GeoDataAccuracy accuracy( GeoDataAccuracy::Detailed, 10.0, 22.0 );
     const qreal speed = 32.8;
-    const qreal direction = 49.7;
+    const GeoDataAngle direction = GeoDataAngle::fromDegrees(49.7);
     const QDateTime timestamp( QDate( 1, 3, 1994 ) );
 
     GeoDataTreeModel treeModel;
@@ -205,10 +205,10 @@ void PositionTrackingTest::setPositionProviderPlugin()
 
 void PositionTrackingTest::clearTrack()
 {
-    const GeoDataCoordinates position( 2.1, 0.8 );
+    const GeoDataCoordinates position(GeoDataLongitude::fromRadians(2.1), GeoDataLatitude::fromRadians(0.8));
     const GeoDataAccuracy accuracy( GeoDataAccuracy::Detailed, 10.0, 22.0 );
     const qreal speed = 32.8;
-    const qreal direction = 49.7;
+    const GeoDataAngle direction = GeoDataAngle::fromDegrees(49.7);
     const QDateTime timestamp( QDate( 1, 3, 1994 ) );
 
     GeoDataTreeModel treeModel;

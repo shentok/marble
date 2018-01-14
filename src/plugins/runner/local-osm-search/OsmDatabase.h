@@ -14,6 +14,8 @@
 
 #include "OsmPlacemark.h"
 
+#include "GeoDataAngle.h"
+
 #include <QString>
 #include <QStringList>
 
@@ -41,7 +43,7 @@ private:
 
     static QString formatDistance( const GeoDataCoordinates &a, const GeoDataCoordinates &b );
 
-    static qreal bearing( const GeoDataCoordinates &a, const GeoDataCoordinates &b );
+    static GeoDataAngle bearing(const GeoDataCoordinates &a, const GeoDataCoordinates &b);
 
     Q_DISABLE_COPY( OsmDatabase )
 };

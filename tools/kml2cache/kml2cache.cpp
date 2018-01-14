@@ -33,8 +33,8 @@ const quint32 MarbleMagicNumber = 0x31415926;
 
 void savePlacemarks( QDataStream &out, const GeoDataContainer *container, MarbleClock* clock )
 {
-    qreal lon;
-    qreal lat;
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
     qreal alt;
 
     const QVector<GeoDataPlacemark*> placemarks = container->placemarkList();
@@ -45,7 +45,7 @@ void savePlacemarks( QDataStream &out, const GeoDataContainer *container, Marble
         (*it)->coordinate().geoCoordinates( lon, lat, alt );
 
         // Use double to provide a single cache file format across architectures
-        out << (double)(lon) << (double)(lat) << (double)(alt);
+        out << lon << lat << (double)(alt);
         out << QString( (*it)->role() );
         out << QString( (*it)->description() );
         out << QString( (*it)->countryCode() );

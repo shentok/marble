@@ -13,6 +13,8 @@
 
 #include "PluginInterface.h"
 
+#include "GeoDataAngle.h"
+
 class QDateTime;
 
 namespace Marble
@@ -53,7 +55,7 @@ class MARBLE_EXPORT PositionProviderPluginInterface: public PluginInterface
      * Returns the direction in which the gps device is moving.
      * The direction is an angle (in degrees) clockwise from geographical north
      */
-    virtual qreal direction() const = 0;
+    virtual GeoDataAngle direction() const = 0;
 
     virtual QDateTime timestamp() const = 0;
 

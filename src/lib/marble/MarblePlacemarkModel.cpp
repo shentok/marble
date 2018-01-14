@@ -20,6 +20,8 @@
 
 // Marble
 #include "MarbleDebug.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataPlacemark.h"
 #include "GeoDataExtendedData.h"
 #include "GeoDataData.h"
@@ -157,9 +159,9 @@ QVariant MarblePlacemarkModel::data( const QModelIndex &index, int role ) const
     } else if ( role == ObjectPointerRole ) {
         return qVariantFromValue( dynamic_cast<GeoDataObject*>( d->m_placemarkContainer->at( index.row() ) ) );
     } else if ( role == LongitudeRole ) {
-        return qVariantFromValue( d->m_placemarkContainer->at( index.row() )->coordinate().longitude( GeoDataCoordinates::Degree ) );
+        return qVariantFromValue(d->m_placemarkContainer->at(index.row())->coordinate().longitude().toDegree());
     } else if ( role == LatitudeRole ) {
-        return qVariantFromValue( d->m_placemarkContainer->at( index.row() )->coordinate().latitude( GeoDataCoordinates::Degree ) );
+        return qVariantFromValue(d->m_placemarkContainer->at(index.row())->coordinate().latitude().toDegree());
     } else
         return QVariant();
 }

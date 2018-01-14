@@ -20,7 +20,9 @@
 #include "MarbleDebug.h"
 
 #include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
 #include "GeoDataLatLonAltBox.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataLineString.h"
 #include "GeoDataLinearRing.h"
 #include "GeoDataPoint.h"
@@ -128,36 +130,34 @@ void GeoPainterPrivate::createAnnotationLayout (  qreal x, qreal y,
 GeoDataLinearRing GeoPainterPrivate::createLinearRingFromGeoRect( const GeoDataCoordinates & centerCoordinates,
                                                                   qreal width, qreal height )
 {
-    qreal lon = 0.0;
-    qreal lat = 0.0;
+    GeoDataLongitude lon = GeoDataLongitude::null;
+    GeoDataLatitude lat = GeoDataLatitude::null;
     qreal altitude = centerCoordinates.altitude();
-    centerCoordinates.geoCoordinates( lon, lat, GeoDataCoordinates::Degree );
+    centerCoordinates.geoCoordinates(lon, lat);
 
-    lon = GeoDataCoordinates::normalizeLon( lon, GeoDataCoordinates::Degree );
-    lat = GeoDataCoordinates::normalizeLat( lat, GeoDataCoordinates::Degree );
+    lon = GeoDataCoordinates::normalizeLon(lon);
+    lat = GeoDataCoordinates::normalizeLat(lat);
+    const GeoDataLongitude rx = GeoDataLongitude::fromDegrees(width) * 0.5;
+    const GeoDataLatitude ry = GeoDataLatitude::fromDegrees(height) * 0.5;
 
-    qreal west = GeoDataCoordinates::normalizeLon( lon - width * 0.5, GeoDataCoordinates::Degree );
-    qreal east =  GeoDataCoordinates::normalizeLon( lon + width * 0.5, GeoDataCoordinates::Degree );
+    const GeoDataLongitude west = GeoDataCoordinates::normalizeLon(lon - rx);
+    const GeoDataLongitude east = GeoDataCoordinates::normalizeLon(lon + rx);
 
-    qreal north = GeoDataCoordinates::normalizeLat( lat + height * 0.5, GeoDataCoordinates::Degree );
-    qreal south = GeoDataCoordinates::normalizeLat( lat - height * 0.5, GeoDataCoordinates::Degree );
+    const GeoDataLatitude north = GeoDataCoordinates::normalizeLat(lat + ry);
+    const GeoDataLatitude south = GeoDataCoordinates::normalizeLat(lat - ry);
 
-    GeoDataCoordinates southWest( west, south,
-                                  altitude, GeoDataCoordinates::Degree );
-    GeoDataCoordinates southEast( east, south,
-                                  altitude, GeoDataCoordinates::Degree );
-    GeoDataCoordinates northEast( east, north,
-                                  altitude, GeoDataCoordinates::Degree );
-    GeoDataCoordinates northWest( west, north,
-                                  altitude, GeoDataCoordinates::Degree );
+    const GeoDataCoordinates southWest(west, south, altitude);
+    const GeoDataCoordinates southEast(east, south, altitude);
+    const GeoDataCoordinates northEast(east, north, altitude);
+    const GeoDataCoordinates northWest(west, north, altitude);
 
     GeoDataLinearRing rectangle( Tessellate | RespectLatitudeCircle );
 
     // If the width of the rect is larger as 180 degree, we have to enforce the long way.
-    if ( width >= 180 ) {
-        qreal center = lon;
-        GeoDataCoordinates southCenter( center, south, altitude, GeoDataCoordinates::Degree );
-        GeoDataCoordinates northCenter( center, north, altitude, GeoDataCoordinates::Degree );
+    if (2 * rx >= GeoDataLongitude::halfCircle) {
+        const GeoDataLongitude center = lon;
+        const GeoDataCoordinates southCenter(center, south, altitude);
+        const GeoDataCoordinates northCenter(center, north, altitude);
 
         rectangle << southWest << southCenter << southEast << northEast << northCenter << northWest;
     }
@@ -345,19 +345,19 @@ void GeoPainter::drawEllipse ( const GeoDataCoordinates & centerPosition,
     }
     else {
         // Initialize variables
-        const qreal centerLon = centerPosition.longitude( GeoDataCoordinates::Degree );
-        const qreal centerLat = centerPosition.latitude( GeoDataCoordinates::Degree );
+        const GeoDataLongitude centerLon = centerPosition.longitude();
+        const GeoDataLatitude centerLat = centerPosition.latitude();
         const qreal altitude = centerPosition.altitude();
+        const GeoDataLongitude rx = GeoDataLongitude::fromDegrees(width) / 2.0;
+        const GeoDataLatitude ry = GeoDataLatitude::fromDegrees(height) / 2.0;
 
         // Ensure a valid latitude range: 
-        if ( centerLat + 0.5 * height > 90.0 || centerLat - 0.5 * height < -90.0 ) {
+        if (centerLat + ry > GeoDataLatitude::quaterCircle || centerLat - ry < -GeoDataLatitude::quaterCircle) {
             return;
         }
 
         // Don't show the ellipse if it's too small:
-        GeoDataLatLonBox ellipseBox( centerLat + 0.5 * height, centerLat - 0.5 * height,
-                                     centerLon + 0.5 * width,  centerLon - 0.5 * width, 
-                                     GeoDataCoordinates::Degree );
+        const GeoDataLatLonBox ellipseBox(centerLat + ry, centerLat - ry, centerLon + rx, centerLon - rx);
         if ( !d->m_viewport->viewLatLonAltBox().intersects( ellipseBox ) ||
              !d->m_viewport->resolves( ellipseBox ) ) return;
 
@@ -367,25 +367,24 @@ void GeoPainter::drawEllipse ( const GeoDataCoordinates & centerPosition,
         // ellipse covers on the screen:
         const qreal degreeResolution = d->m_viewport->angularResolution() * RAD2DEG;
         // To create a circle shape even for very small precision we require uneven numbers:
-        const int precision = qMin<qreal>( width / degreeResolution / 8 + 1, 81 );
+        const int precision = qMin<int>( width / degreeResolution / 8 + 1, 81 );
 
         // Calculate the shape of the upper half of the ellipse:
         for ( int i = 0; i <= precision; ++i ) {
             const qreal t = 1.0 - 2.0 * (qreal)(i) / (qreal)(precision);
-            const qreal lat = centerLat + 0.5 * height * sqrt( 1.0 - t * t );
-            const qreal lon = centerLon + 0.5 * width * t;
-            ellipse << GeoDataCoordinates( lon, lat, altitude, GeoDataCoordinates::Degree );
+            const GeoDataLatitude lat = centerLat + ry * sqrt(1.0 - t * t);
+            const GeoDataLongitude lon = centerLon + rx * t;
+            ellipse << GeoDataCoordinates(lon, lat, altitude);
         }
         // Calculate the shape of the lower half of the ellipse:
         for ( int i = 0; i <= precision; ++i ) {
             const qreal t = 2.0 * (qreal)(i) / (qreal)(precision) -  1.0;
-            const qreal lat = centerLat - 0.5 * height * sqrt( 1.0 - t * t );
-            const qreal lon = centerLon + 0.5 * width * t;
-            ellipse << GeoDataCoordinates( lon, lat, altitude, GeoDataCoordinates::Degree );
+            const GeoDataLatitude lat = centerLat - ry * sqrt(1.0 - t * t);
+            const GeoDataLongitude lon = centerLon + rx * t;
+            ellipse << GeoDataCoordinates(lon, lat, altitude);
         }
-        
-        drawPolygon( ellipse );
 
+        drawPolygon( ellipse );
     }
 
 }
@@ -425,19 +424,19 @@ QRegion GeoPainter::regionFromEllipse ( const GeoDataCoordinates & centerPositio
     }
     else {
         // Initialize variables
-        const qreal centerLon = centerPosition.longitude( GeoDataCoordinates::Degree );
-        const qreal centerLat = centerPosition.latitude( GeoDataCoordinates::Degree );
+        const GeoDataLongitude centerLon = centerPosition.longitude();
+        const GeoDataLatitude centerLat = centerPosition.latitude();
         const qreal altitude = centerPosition.altitude();
+        const GeoDataLongitude rx = GeoDataLongitude::fromDegrees(width) / 2;
+        const GeoDataLatitude ry = GeoDataLatitude::fromDegrees(height) / 2;
 
         // Ensure a valid latitude range:
-        if ( centerLat + 0.5 * height > 90.0 || centerLat - 0.5 * height < -90.0 ) {
+        if (centerLat + ry > GeoDataLatitude::quaterCircle || centerLat - ry < -GeoDataLatitude::quaterCircle) {
             return QRegion();
         }
 
         // Don't show the ellipse if it's too small:
-        GeoDataLatLonBox ellipseBox( centerLat + 0.5 * height, centerLat - 0.5 * height,
-                                     centerLon + 0.5 * width,  centerLon - 0.5 * width,
-                                     GeoDataCoordinates::Degree );
+        const GeoDataLatLonBox ellipseBox(centerLat + ry, centerLat - ry, centerLon + rx, centerLon - rx);
         if ( !d->m_viewport->viewLatLonAltBox().intersects( ellipseBox ) ||
              !d->m_viewport->resolves( ellipseBox ) ) return QRegion();
 
@@ -452,16 +451,16 @@ QRegion GeoPainter::regionFromEllipse ( const GeoDataCoordinates & centerPositio
         // Calculate the shape of the upper half of the ellipse:
         for ( int i = 0; i <= precision; ++i ) {
             const qreal t = 1.0 - 2.0 * (qreal)(i) / (qreal)(precision);
-            const qreal lat = centerLat + 0.5 * height * sqrt( 1.0 - t * t );
-            const qreal lon = centerLon + 0.5 * width * t;
-            ellipse << GeoDataCoordinates( lon, lat, altitude, GeoDataCoordinates::Degree );
+            const GeoDataLatitude lat = centerLat + ry * sqrt(1.0 - t * t);
+            const GeoDataLongitude lon = centerLon + rx * t;
+            ellipse << GeoDataCoordinates(lon, lat, altitude);
         }
         // Calculate the shape of the lower half of the ellipse:
         for ( int i = 0; i <= precision; ++i ) {
             const qreal t = 2.0 * (qreal)(i) / (qreal)(precision) -  1.0;
-            const qreal lat = centerLat - 0.5 * height * sqrt( 1.0 - t * t );
-            const qreal lon = centerLon + 0.5 * width * t;
-            ellipse << GeoDataCoordinates( lon, lat, altitude, GeoDataCoordinates::Degree );
+            const GeoDataLatitude lat = centerLat - ry * sqrt(1.0 - t * t);
+            const GeoDataLongitude lon = centerLon + rx * t;
+            ellipse << GeoDataCoordinates(lon, lat, altitude);
         }
 
         return regionFromPolygon( ellipse, Qt::OddEvenFill, strokeWidth );

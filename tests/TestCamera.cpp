@@ -54,13 +54,12 @@ void TestCamera::simpleParseTest()
 
     QVERIFY( camera != nullptr);
 
-    GeoDataCoordinates::Unit const degree = GeoDataCoordinates::Degree;
-    QCOMPARE( camera->longitude( degree ), 1.0 );
-    QCOMPARE( camera->latitude( degree ), 2.0 );
+    QCOMPARE( camera->longitude(), GeoDataLongitude::fromDegrees(1.0) );
+    QCOMPARE( camera->latitude(), GeoDataLatitude::fromDegrees(2.0) );
     QCOMPARE( camera->altitude(), 3.0 );
-    QCOMPARE( camera->heading(), 4.0 );
-    QCOMPARE( camera->tilt(), 5.0 );
-    QCOMPARE( camera->roll(), 6.0 );
+    QCOMPARE( camera->heading(), GeoDataAngle::fromDegrees(4.0) );
+    QCOMPARE( camera->tilt(), GeoDataAngle::fromDegrees(5.0) );
+    QCOMPARE( camera->roll(), GeoDataAngle::fromDegrees(6.0) );
     QCOMPARE( camera->altitudeMode(), RelativeToGround );
 
     delete dataDocument;

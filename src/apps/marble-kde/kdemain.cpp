@@ -419,9 +419,7 @@ int main ( int argc, char *argv[] )
         bool success = false;
         const GeoDataCoordinates coordinates = GeoDataCoordinates::fromString(coordinatesString, success);
         if ( success ) {
-            const qreal longitude = coordinates.longitude(GeoDataCoordinates::Degree);
-            const qreal latitude = coordinates.latitude(GeoDataCoordinates::Degree);
-            window->marbleWidget()->centerOn(longitude, latitude);
+            window->marbleWidget()->centerOn(coordinates);
         }
     }
 

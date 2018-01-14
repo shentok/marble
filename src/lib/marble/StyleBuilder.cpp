@@ -327,11 +327,11 @@ GeoDataStyle::ConstPtr StyleBuilder::Private::createPlacemarkStyle(const StylePa
     if (geodata_cast<GeoDataPoint>(placemark->geometry())) {
         if (visualCategory == GeoDataPlacemark::NaturalTree) {
             GeoDataCoordinates const coordinates = placemark->coordinate();
-            qreal const lat = coordinates.latitude(GeoDataCoordinates::Degree);
-            if (qAbs(lat) > 15) {
+            const GeoDataLatitude lat = coordinates.latitude();
+            if (qAbs(lat) > GeoDataLatitude::fromDegrees(15)) {
                 /** @todo Should maybe auto-adjust to MarbleClock at some point */
                 int const month = QDate::currentDate().month();
-                bool const southernHemisphere = lat < 0;
+                bool const southernHemisphere = lat < GeoDataLatitude::null;
                 if (southernHemisphere) {
                     if (month >= 3 && month <= 5) {
                         style = m_styleTreeAutumn;

@@ -233,9 +233,9 @@ qreal PositionTracking::speed() const
 }
 
 //get direction from provider
-qreal PositionTracking::direction() const
+GeoDataAngle PositionTracking::direction() const
 {
-    return d->m_positionProvider ? d->m_positionProvider->direction() : 0 ;
+    return d->m_positionProvider ? d->m_positionProvider->direction() : GeoDataAngle::fromRadians(0);
 }
 
 QDateTime PositionTracking::timestamp() const

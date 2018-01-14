@@ -24,6 +24,8 @@
 #include "MarbleMath.h"
 #include "MarbleDebug.h"
 #include "GeoDataGroundOverlay.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "GeoSceneTextureTileDataset.h"
 #include "ImageF.h"
 #include "StackedTile.h"
@@ -232,11 +234,11 @@ void MergedLayerDecorator::Private::renderGroundOverlays( QImage *tileImage, con
             continue;
         }
 
-        const qreal pixelToLat = tileLatLonBox.height() / tileImage->height();
-        const qreal pixelToLon = tileLatLonBox.width() / tileImage->width();
+        const GeoDataLatitude tilePixelToLat = tileLatLonBox.height() / tileImage->height();
+        const GeoDataLongitude tilePixelToLon = tileLatLonBox.width() / tileImage->width();
 
-        const qreal latToPixel = overlay->icon().height() / overlayLatLonBox.height();
-        const qreal lonToPixel = overlay->icon().width() / overlayLatLonBox.width();
+        const GeoDataLatitude overlayPixelToLat = overlayLatLonBox.height() / overlay->icon().height();
+        const GeoDataLongitude overlayPixelToLon = overlayLatLonBox.width() / overlay->icon().width();
 
         const qreal  global_height = tileImage->height()
                 * TileLoaderHelper::levelToRow( m_levelZeroRows, tileId.zoomLevel() );
@@ -249,17 +251,17 @@ void MergedLayerDecorator::Private::renderGroundOverlays( QImage *tileImage, con
         for ( int y = 0; y < tileImage->height(); ++y ) {
              QRgb *scanLine = ( QRgb* ) ( tileImage->scanLine( y ) );
 
-             const qreal lat = isMercatorTileProjection
-                     ? gd(2 * (latPixelPosition - y) * pixel2Rad )
-                     : tileLatLonBox.north() - y * pixelToLat;
+             const auto lat = isMercatorTileProjection
+                     ? gd(2 * (latPixelPosition - y) * pixel2Rad)
+                     : tileLatLonBox.north() - y * tilePixelToLat;
 
              for ( int x = 0; x < tileImage->width(); ++x, ++scanLine ) {
-                 qreal lon = GeoDataCoordinates::normalizeLon( tileLatLonBox.west() + x * pixelToLon );
+                 const auto lon = GeoDataCoordinates::normalizeLon(tileLatLonBox.west() + x * tilePixelToLon);
 
                  GeoDataCoordinates coords(lon, lat);
                  GeoDataCoordinates rotatedCoords(coords);
 
-                 if (overlay->latLonBox().rotation() != 0) {
+                 if (overlay->latLonBox().rotation() != GeoDataAngle::null) {
                     // Possible TODO: Make this faster by creating the axisMatrix beforehand
                     // and just call Quaternion::rotateAroundAxis(const matrix &m) here.
                     rotatedCoords = coords.rotateAround(overlayLatLonBox.center(), -overlay->latLonBox().rotation());
@@ -268,9 +270,8 @@ void MergedLayerDecorator::Private::renderGroundOverlays( QImage *tileImage, con
                  // TODO: The rotated latLonBox is bigger. We need to take this into account.
                  // (Currently the GroundOverlay sometimes gets clipped because of that)
                  if ( overlay->latLonBox().contains( rotatedCoords ) ) {
-
-                     qreal px = GeoDataLatLonBox::width( rotatedCoords.longitude(), overlayLatLonBox.west() ) * lonToPixel;
-                     qreal py = (qreal)( overlay->icon().height() ) - ( GeoDataLatLonBox::height( rotatedCoords.latitude(), overlayLatLonBox.south() ) * latToPixel ) - 1;
+                     const qreal px = GeoDataLatLonBox::width(rotatedCoords.longitude(), overlayLatLonBox.west()) / overlayPixelToLon;
+                     const qreal py = overlay->icon().height() - GeoDataLatLonBox::height(rotatedCoords.latitude(), overlayLatLonBox.south()) / overlayPixelToLat - 1;
 
                      if ( px >= 0 && px < overlay->icon().width() && py >= 0 && py < overlay->icon().height() ) {
                          int alpha = qAlpha( overlay->icon().pixel( px, py ) );
@@ -426,8 +427,8 @@ void MergedLayerDecorator::Private::paintSunShading( QImage *tileImage, const Ti
             * TileLoaderHelper::levelToColumn( m_levelZeroColumns, id.zoomLevel() );
     const qreal  global_height = tileImage->height()
             * TileLoaderHelper::levelToRow( m_levelZeroRows, id.zoomLevel() );
-    const qreal lon_scale = 2*M_PI / global_width;
-    const qreal lat_scale = -M_PI / global_height;
+    const auto lon_scale = 2 * GeoDataLongitude::halfCircle / global_width;
+    const auto lat_scale = -2 * GeoDataLatitude::quaterCircle / global_height;
     const int tileHeight = tileImage->height();
     const int tileWidth = tileImage->width();
 
@@ -436,9 +437,9 @@ void MergedLayerDecorator::Private::paintSunShading( QImage *tileImage, const Ti
     const int ipRight = n * (int)( tileWidth / n );
 
     for ( int cur_y = 0; cur_y < tileHeight; ++cur_y ) {
-        const qreal lat = lat_scale * ( id.y() * tileHeight + cur_y ) - 0.5*M_PI;
-        const qreal a = sin( (lat+DEG2RAD * m_sunLocator->getLat() )/2.0 );
-        const qreal c = cos(lat)*cos( -DEG2RAD * m_sunLocator->getLat() );
+        const auto lat = lat_scale * (id.y() * tileHeight + cur_y) - GeoDataLatitude::quaterCircle;
+        const qreal a = sin((lat + m_sunLocator->getLat()).toRadian() / 2.0);
+        const qreal c = cos(lat.toRadian()) * cos(-m_sunLocator->getLat().toRadian());
 
         QRgb* scanline = (QRgb*)tileImage->scanLine( cur_y );
 
@@ -454,7 +455,7 @@ void MergedLayerDecorator::Private::paintSunShading( QImage *tileImage, const Ti
 
             if ( interpolate ) {
                 const int check = cur_x + n;
-                const qreal checklon   = lon_scale * ( id.x() * tileWidth + check );
+                const auto checklon = lon_scale * (id.x() * tileWidth + check);
                 shade = m_sunLocator->shading( checklon, a, c );
 
                 // if the shading didn't change across the interpolation
@@ -473,7 +474,7 @@ void MergedLayerDecorator::Private::paintSunShading( QImage *tileImage, const Ti
                     continue;
                 }
                 for ( int t = 0; t < n ; ++t ) {
-                    const qreal lon   = lon_scale * ( id.x() * tileWidth + cur_x );
+                    const auto lon = lon_scale * (id.x() * tileWidth + cur_x);
                     shade = m_sunLocator->shading( lon, a, c );
                     SunLocator::shadePixel(*scanline, shade);
                     ++scanline;
@@ -484,7 +485,7 @@ void MergedLayerDecorator::Private::paintSunShading( QImage *tileImage, const Ti
             else {
                 // Make sure we don't exceed the image memory
                 if ( cur_x < tileWidth ) {
-                    const qreal lon   = lon_scale * ( id.x() * tileWidth + cur_x );
+                    const auto lon = lon_scale * (id.x() * tileWidth + cur_x);
                     shade = m_sunLocator->shading( lon, a, c );
                     SunLocator::shadePixel(*scanline, shade);
                     ++scanline;

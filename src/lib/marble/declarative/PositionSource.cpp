@@ -139,8 +139,8 @@ void PositionSource::updatePosition()
 
         if ( hasPosition ) {
             Marble::GeoDataCoordinates position = m_marbleQuickItem->model()->positionTracking()->currentLocation();
-            m_position.setLongitude( position.longitude( Marble::GeoDataCoordinates::Degree ) );
-            m_position.setLatitude( position.latitude( Marble::GeoDataCoordinates::Degree ) );
+            m_position.setLongitude(position.longitude().toDegree());
+            m_position.setLatitude(position.latitude().toDegree());
             m_position.setAltitude( position.altitude() );
         }
 

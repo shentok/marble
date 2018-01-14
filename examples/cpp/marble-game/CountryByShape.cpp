@@ -91,8 +91,8 @@ CountryByShape::CountryByShape( MarbleWidget *marbleWidget )
       d( new CountryByShapePrivate(marbleWidget) )
 {
     d->m_parent = this;
-    connect( this, SIGNAL(announceHighlight(qreal,qreal,GeoDataCoordinates::Unit)),
-             d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)) );
+    connect( this, SIGNAL(announceHighlight(GeoDataLongitude,GeoDataLatitude)),
+             d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)) );
 }
 
 CountryByShape::~CountryByShape()
@@ -229,9 +229,7 @@ void CountryByShape::postQuestion( QObject *gameObject )
         }
     }
     d->m_marbleWidget->setHighlightEnabled( true );
-    emit announceHighlight( coord.longitude(GeoDataCoordinates::Degree),
-                            coord.latitude(GeoDataCoordinates::Degree),
-                            GeoDataCoordinates::Degree );
+    emit announceHighlight(coord.longitude(), coord.latitude());
 
     /**
      * Now disable the highlight feature so that

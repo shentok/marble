@@ -37,14 +37,14 @@ ScanlineTextureMapperContext::ScanlineTextureMapperContext( StackedTileLoader * 
       m_tilePosY( 65535 ),
       m_toTileCoordinatesLon( 0.5 * m_globalWidth  - m_tilePosX ),
       m_toTileCoordinatesLat( 0.5 * m_globalHeight - m_tilePosY ),
-      m_prevLat( 0.0 ),
-      m_prevLon( 0.0 ),
+      m_prevLat(GeoDataLatitude::null),
+      m_prevLon(GeoDataLongitude::null),
       m_prevPixelX( 0.0 ),
       m_prevPixelY( 0.0 )
 {
 }
 
-void ScanlineTextureMapperContext::pixelValueF( const qreal lon, const qreal lat,
+void ScanlineTextureMapperContext::pixelValueF(const GeoDataLongitude lon, const GeoDataLatitude lat,
                                                 QRgb* const scanLine )
 {
     // The same method using integers performs about 33% faster.
@@ -82,7 +82,7 @@ void ScanlineTextureMapperContext::pixelValueF( const qreal lon, const qreal lat
     m_prevLat = lat; // preparing for interpolation
 }
 
-void ScanlineTextureMapperContext::pixelValue( const qreal lon, const qreal lat,
+void ScanlineTextureMapperContext::pixelValue(const GeoDataLongitude lon, const GeoDataLatitude lat,
                                                QRgb* const scanLine )
 {
     // The same method using integers performs about 33% faster.
@@ -130,20 +130,20 @@ void ScanlineTextureMapperContext::pixelValue( const qreal lon, const qreal lat,
 // This method will do by far most of the calculations for the 
 // texturemapping, so we move towards integer math to improve speed.
 
-void ScanlineTextureMapperContext::pixelValueApproxF( const qreal lon, const qreal lat,
+void ScanlineTextureMapperContext::pixelValueApproxF(const GeoDataLongitude lon, const GeoDataLatitude lat,
                                                       QRgb *scanLine, const int n )
 {
     // stepLon/Lat: Distance between two subsequent approximated positions
 
-    qreal stepLat = lat - m_prevLat;
-    qreal stepLon = lon - m_prevLon;
+    GeoDataLatitude stepLat = lat - m_prevLat;
+    GeoDataLongitude stepLon = lon - m_prevLon;
 
     // As long as the distance is smaller than 180 deg we can assume that 
     // we didn't cross the dateline.
 
     const qreal nInverse = 1.0 / (qreal)(n);
 
-    if ( fabs(stepLon) < M_PI ) {
+    if (qAbs(stepLon) < GeoDataLongitude::halfCircle) {
         const qreal itStepLon = ( rad2PixelX( lon ) - m_prevPixelX ) * nInverse;
         const qreal itStepLat = ( rad2PixelY( lat ) - m_prevPixelY ) * nInverse;
 
@@ -217,7 +217,7 @@ void ScanlineTextureMapperContext::pixelValueApproxF( const qreal lon, const qre
     // pixelValue(...) directly to make the code more readable.
 
     else {
-        stepLon = ( TWOPI - fabs(stepLon) ) * nInverse;
+        stepLon = (2 * GeoDataLongitude::halfCircle - qAbs(stepLon)) * nInverse;
         stepLat = stepLat * nInverse;
         // We need to distinguish two cases:  
         // crossing the dateline from east to west ...
@@ -227,8 +227,8 @@ void ScanlineTextureMapperContext::pixelValueApproxF( const qreal lon, const qre
             for ( int j = 1; j < n; ++j ) {
                 m_prevLat += stepLat;
                 m_prevLon -= stepLon;
-                if ( m_prevLon <= -M_PI ) 
-                    m_prevLon += TWOPI;
+                if (m_prevLon <= -GeoDataLongitude::halfCircle)
+                    m_prevLon += 2 * GeoDataLongitude::halfCircle;
                 pixelValueF( m_prevLon, m_prevLat, scanLine );
                 ++scanLine;
             }
@@ -237,14 +237,14 @@ void ScanlineTextureMapperContext::pixelValueApproxF( const qreal lon, const qre
         // ... and vice versa: from west to east.
 
         else { 
-            qreal curStepLon = lon - n * stepLon;
+            auto curStepLon = lon - n * stepLon;
 
             for ( int j = 1; j < n; ++j ) {
                 m_prevLat += stepLat;
                 curStepLon += stepLon;
-                qreal  evalLon = curStepLon;
-                if ( curStepLon <= -M_PI )
-                    evalLon += TWOPI;
+                auto evalLon = curStepLon;
+                if (curStepLon <= -GeoDataLongitude::halfCircle)
+                    evalLon += 2 * GeoDataLongitude::halfCircle;
                 pixelValueF( evalLon, m_prevLat, scanLine );
                 ++scanLine;
             }
@@ -268,20 +268,20 @@ bool ScanlineTextureMapperContext::isOutOfTileRangeF( const qreal itLon, const q
 }
 
 
-void ScanlineTextureMapperContext::pixelValueApprox( const qreal lon, const qreal lat,
+void ScanlineTextureMapperContext::pixelValueApprox(const GeoDataLongitude lon, const GeoDataLatitude lat,
                                                      QRgb *scanLine, const int n )
 {
     // stepLon/Lat: Distance between two subsequent approximated positions
 
-    qreal stepLat = lat - m_prevLat;
-    qreal stepLon = lon - m_prevLon;
+    auto stepLat = lat - m_prevLat;
+    auto stepLon = lon - m_prevLon;
 
     // As long as the distance is smaller than 180 deg we can assume that 
     // we didn't cross the dateline.
 
     const qreal nInverse = 1.0 / (qreal)(n);
 
-    if ( fabs(stepLon) < M_PI ) {
+    if (qAbs(stepLon) < GeoDataLongitude::halfCircle) {
         const int itStepLon = (int)( ( rad2PixelX( lon ) - m_prevPixelX ) * nInverse * 128.0 );
         const int itStepLat = (int)( ( rad2PixelY( lat ) - m_prevPixelY ) * nInverse * 128.0 );
 
@@ -337,7 +337,7 @@ void ScanlineTextureMapperContext::pixelValueApprox( const qreal lon, const qrea
     // pixelValue(...) directly to make the code more readable.
 
     else {
-        stepLon = ( TWOPI - fabs(stepLon) ) * nInverse;
+        stepLon = (2 * GeoDataLongitude::halfCircle - qAbs(stepLon)) * nInverse;
         stepLat = stepLat * nInverse;
         // We need to distinguish two cases:  
         // crossing the dateline from east to west ...
@@ -347,8 +347,8 @@ void ScanlineTextureMapperContext::pixelValueApprox( const qreal lon, const qrea
             for ( int j = 1; j < n; ++j ) {
                 m_prevLat += stepLat;
                 m_prevLon -= stepLon;
-                if ( m_prevLon <= -M_PI ) 
-                    m_prevLon += TWOPI;
+                if (m_prevLon <= -GeoDataLongitude::halfCircle)
+                    m_prevLon += 2 * GeoDataLongitude::halfCircle;
                 pixelValue( m_prevLon, m_prevLat, scanLine );
                 ++scanLine;
             }
@@ -357,14 +357,14 @@ void ScanlineTextureMapperContext::pixelValueApprox( const qreal lon, const qrea
         // ... and vice versa: from west to east.
 
         else { 
-            qreal curStepLon = lon - n * stepLon;
+            auto curStepLon = lon - n * stepLon;
 
             for ( int j = 1; j < n; ++j ) {
                 m_prevLat += stepLat;
                 curStepLon += stepLon;
-                qreal  evalLon = curStepLon;
-                if ( curStepLon <= -M_PI )
-                    evalLon += TWOPI;
+                auto evalLon = curStepLon;
+                if (curStepLon <= -GeoDataLongitude::halfCircle)
+                    evalLon += 2 * GeoDataLongitude::halfCircle;
                 pixelValue( evalLon, m_prevLat, scanLine );
                 ++scanLine;
             }

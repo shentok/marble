@@ -13,6 +13,10 @@
 
 #include "marble_export.h"
 
+#include "GeoDataAngle.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include <QtGlobal>
 
 class QTextStream;
@@ -26,20 +30,20 @@ namespace Marble
 class MARBLE_EXPORT RoutingPoint
 {
 public:
-    explicit RoutingPoint( qreal lon = 0.0, qreal lat = 0.0 );
+    explicit RoutingPoint(GeoDataLongitude lon = GeoDataLongitude::null, GeoDataLatitude lat = GeoDataLatitude::null);
 
     /** Longitude of the point */
-    qreal lon() const;
+    GeoDataLongitude lon() const;
 
     /** Latitude of the point */
-    qreal lat() const;
+    GeoDataLatitude lat() const;
 
     /**
       * Calculates the bearing of the line defined by this point
       * and the given other point.
       * Code based on https://www.movable-type.co.uk/scripts/latlong.html
       */
-    qreal bearing( const RoutingPoint &other ) const;
+    GeoDataAngle bearing(const RoutingPoint &other) const;
 
     /**
       * Calculates the distance in meter between this point and the
@@ -49,13 +53,8 @@ public:
     qreal distance( const RoutingPoint &other ) const;
 
 private:
-    qreal m_lon;
-
-    qreal m_lonRad;
-
-    qreal m_lat;
-
-    qreal m_latRad;
+    GeoDataLongitude m_lon;
+    GeoDataLatitude m_lat;
 };
 
 QTextStream& operator<<( QTextStream& stream, const RoutingPoint &i );

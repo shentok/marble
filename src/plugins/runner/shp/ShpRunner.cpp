@@ -112,7 +112,8 @@ GeoDataDocument *ShpRunner::parseFile(const QString &fileName, DocumentRole role
 
         switch ( shapeType ) {
             case SHPT_POINT: {
-                GeoDataPoint *point = new GeoDataPoint( *shape->padfX, *shape->padfY, 0, GeoDataCoordinates::Degree );
+                GeoDataPoint *point = new GeoDataPoint(GeoDataLongitude::fromDegrees(*shape->padfX),
+                                                       GeoDataLatitude::fromDegrees(*shape->padfY));
                 placemark->setGeometry( point );
                 mDebug() << "point " << placemark->name();
                 break;
@@ -121,9 +122,8 @@ GeoDataDocument *ShpRunner::parseFile(const QString &fileName, DocumentRole role
             case SHPT_MULTIPOINT: {
                 GeoDataMultiGeometry *geom = new GeoDataMultiGeometry;
                 for( int j=0; j<shape->nVertices; ++j ) {
-                    geom->append( new GeoDataPoint( GeoDataCoordinates(
-                                  shape->padfX[j], shape->padfY[j],
-                                  0, GeoDataCoordinates::Degree ) ) );
+                    geom->append(new GeoDataPoint(GeoDataLongitude::fromDegrees(shape->padfX[j]),
+                                                  GeoDataLatitude::fromDegrees(shape->padfY[j])));
                 }
                 placemark->setGeometry( geom );
                 mDebug() << "multipoint " << placemark->name();
@@ -137,9 +137,8 @@ GeoDataDocument *ShpRunner::parseFile(const QString &fileName, DocumentRole role
                         GeoDataLineString *line = new GeoDataLineString;
                         int itEnd = (j + 1 < shape->nParts) ? shape->panPartStart[j+1] : shape->nVertices;
                         for( int k=shape->panPartStart[j]; k<itEnd; ++k ) {
-                            line->append( GeoDataCoordinates(
-                                          shape->padfX[k], shape->padfY[k],
-                                          0, GeoDataCoordinates::Degree ) );
+                            line->append(GeoDataCoordinates(GeoDataLongitude::fromDegrees(shape->padfX[k]),
+                                                            GeoDataLatitude::fromDegrees(shape->padfY[k])));
                         }
                         geom->append( line );
                     }
@@ -149,9 +148,8 @@ GeoDataDocument *ShpRunner::parseFile(const QString &fileName, DocumentRole role
                 } else {
                     GeoDataLineString *line = new GeoDataLineString;
                     for( int j=0; j<shape->nVertices; ++j ) {
-                        line->append( GeoDataCoordinates(
-                                      shape->padfX[j], shape->padfY[j],
-                                      0, GeoDataCoordinates::Degree ) );
+                        line->append(GeoDataCoordinates(GeoDataLongitude::fromDegrees(shape->padfX[j]),
+                                                        GeoDataLatitude::fromDegrees(shape->padfY[j])));
                     }
                     placemark->setGeometry( line );
                     mDebug() << "arc " << placemark->name() << " " << shape->nParts;
@@ -170,9 +168,8 @@ GeoDataDocument *ShpRunner::parseFile(const QString &fileName, DocumentRole role
                         int itStart = shape->panPartStart[j];
                         int itEnd = (j + 1 < shape->nParts) ? shape->panPartStart[j+1] : shape->nVertices;
                         for( int k = itStart; k<itEnd; ++k ) {
-                            ring.append( GeoDataCoordinates(
-                                         shape->padfX[k], shape->padfY[k],
-                                         0, GeoDataCoordinates::Degree ) );
+                            ring.append(GeoDataCoordinates(GeoDataLongitude::fromDegrees(shape->padfX[k]),
+                                                           GeoDataLatitude::fromDegrees(shape->padfY[k])));
                         }
                         isRingClockwise = ring.isClockwise();
                         if ( j == 0 || isRingClockwise ) {
@@ -201,9 +198,8 @@ GeoDataDocument *ShpRunner::parseFile(const QString &fileName, DocumentRole role
                     GeoDataPolygon *poly = new GeoDataPolygon;
                     GeoDataLinearRing ring;
                     for( int j=0; j<shape->nVertices; ++j ) {
-                        ring.append( GeoDataCoordinates(
-                                         shape->padfX[j], shape->padfY[j],
-                                         0, GeoDataCoordinates::Degree ) );
+                        ring.append(GeoDataCoordinates(GeoDataLongitude::fromDegrees(shape->padfX[j]),
+                                                       GeoDataLatitude::fromDegrees(shape->padfY[j])));
                     }
                     poly->setOuterBoundary( ring );
                     placemark->setGeometry( poly );

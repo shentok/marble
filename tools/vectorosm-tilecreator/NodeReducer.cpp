@@ -31,7 +31,7 @@ NodeReducer::NodeReducer(GeoDataDocument* document, const TileId &tileId) :
     const GeoSceneMercatorTileProjection tileProjection;
     GeoDataLatLonBox tileBoundary = tileProjection.geoCoordinates(m_zoomLevel, tileId.x(), tileId.y());
     tileBoundary.scale(1.0-1e-4, 1.0-1e-4);
-    tileBoundary.boundaries(m_tileBoundary[North], m_tileBoundary[South], m_tileBoundary[East], m_tileBoundary[West]);
+    m_tileBoundary = tileBoundary;
 
     for (GeoDataPlacemark* placemark: document->placemarkList()) {
         GeoDataGeometry const * const geometry = placemark->geometry();
@@ -84,18 +84,18 @@ qreal NodeReducer::epsilonFor(qreal multiplier) const
 
 qreal NodeReducer::perpendicularDistance(const GeoDataCoordinates &a, const GeoDataCoordinates &b, const GeoDataCoordinates &c) const
 {
-    qreal const y0 = a.latitude();
-    qreal const x0 = a.longitude();
-    qreal const y1 = b.latitude();
-    qreal const x1 = b.longitude();
-    qreal const y2 = c.latitude();
-    qreal const x2 = c.longitude();
-    qreal const y01 = x0 - x1;
-    qreal const x01 = y0 - y1;
-    qreal const y10 = x1 - x0;
-    qreal const x10 = y1 - y0;
-    qreal const y21 = x2 - x1;
-    qreal const x21 = y2 - y1;
+    auto const y0 = a.latitude();
+    auto const x0 = a.longitude();
+    auto const y1 = b.latitude();
+    auto const x1 = b.longitude();
+    auto const y2 = c.latitude();
+    auto const x2 = c.longitude();
+    qreal const y01 = (x0 - x1).toRadian();
+    qreal const x01 = (y0 - y1).toRadian();
+    qreal const y10 = (x1 - x0).toRadian();
+    qreal const x10 = (y1 - y0).toRadian();
+    qreal const y21 = (x2 - x1).toRadian();
+    qreal const x21 = (y2 - y1).toRadian();
     qreal const len = y21 * y21 + x21 * x21;
     qreal const t = len == 0.0 ? -1.0 : (x01 * x21 + y01 * y21) / len;
 
@@ -115,10 +115,10 @@ qreal NodeReducer::perpendicularDistance(const GeoDataCoordinates &a, const GeoD
 
 bool NodeReducer::touchesTileBorder(const GeoDataCoordinates &coordinates) const
 {
-    return  coordinates.latitude() >= m_tileBoundary[North] ||
-            coordinates.latitude() <= m_tileBoundary[South] ||
-            coordinates.longitude() <= m_tileBoundary[West] ||
-            coordinates.longitude() >= m_tileBoundary[East];
+    return  coordinates.latitude() >= m_tileBoundary.north() ||
+            coordinates.latitude() <= m_tileBoundary.south() ||
+            coordinates.longitude() <= m_tileBoundary.west() ||
+            coordinates.longitude() >= m_tileBoundary.east();
 }
 
 qint64 NodeReducer::removedNodes() const

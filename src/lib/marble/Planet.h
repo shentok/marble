@@ -23,6 +23,8 @@ class QColor;
 namespace Marble
 {
 
+class GeoDataLatitude;
+class GeoDataLongitude;
 class PlanetPrivate;
 
 class MARBLE_EXPORT Planet
@@ -86,7 +88,7 @@ public:
      * @param lat the latitude of the sun, in radian
      * @param dateTime the time for which the sun position is to be calculated
      */
-    void sunPosition(qreal &lon, qreal &lat, const QDateTime &dateTime) const;
+    void sunPosition(GeoDataLongitude &lon, GeoDataLatitude &lat, const QDateTime &dateTime) const;
 
     /* Setter functions */
     void setM_0( qreal M_0 );

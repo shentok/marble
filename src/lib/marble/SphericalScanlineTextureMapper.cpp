@@ -261,9 +261,9 @@ void SphericalScanlineTextureMapper::RenderJob::run()
 
             if ( interpolate ) {
                 if (highQuality)
-                    context.pixelValueApproxF( lon, lat, scanLine, n );
+                    context.pixelValueApproxF(GeoDataLongitude::fromRadians(lon), GeoDataLatitude::fromRadians(lat), scanLine, n);
                 else
-                    context.pixelValueApprox( lon, lat, scanLine, n );
+                    context.pixelValueApprox(GeoDataLongitude::fromRadians(lon), GeoDataLatitude::fromRadians(lat), scanLine, n);
 
                 scanLine += ( n - 1 );
             }
@@ -277,9 +277,9 @@ void SphericalScanlineTextureMapper::RenderJob::run()
 //            if ( !crossingPoleArea )
             if ( x < imageWidth ) {
                 if ( highQuality )
-                    context.pixelValueF( lon, lat, scanLine );
+                    context.pixelValueF(GeoDataLongitude::fromRadians(lon), GeoDataLatitude::fromRadians(lat), scanLine);
                 else
-                    context.pixelValue( lon, lat, scanLine );
+                    context.pixelValue(GeoDataLongitude::fromRadians(lon), GeoDataLatitude::fromRadians(lat), scanLine);
             }
 
             ++scanLine;

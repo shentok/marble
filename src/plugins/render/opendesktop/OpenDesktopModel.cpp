@@ -52,8 +52,8 @@ void OpenDesktopModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qint3
     GeoDataCoordinates coords = box.center();
 
     const QString openDesktopUrl(QLatin1String("http://api.opendesktop.org/v1/person/data") +
-        QLatin1String("?latitude=")  + QString::number(coords.latitude() * RAD2DEG) +
-        QLatin1String("&longitude=") + QString::number(coords.longitude() * RAD2DEG) +
+        QLatin1String("?latitude=")  + QString::number(coords.latitude().toDegree()) +
+        QLatin1String("&longitude=") + QString::number(coords.longitude().toDegree()) +
         QLatin1String("&format=json"));
     
     downloadDescriptionFile( QUrl( openDesktopUrl ) );
@@ -80,14 +80,14 @@ void OpenDesktopModel::parseFile( const QByteArray& file )
             const QString city      = dataObject.value(QStringLiteral("city")).toString();
             const QString country   = dataObject.value(QStringLiteral("country")).toString();
             const QString role   = dataObject.value(QStringLiteral("communityrole")).toString();
-            const double longitude  = dataObject.value(QStringLiteral("longitude")).toDouble();
-            const double latitude   = dataObject.value(QStringLiteral("latitude")).toDouble();
+            const GeoDataLongitude longitude = GeoDataLongitude::fromDegrees(dataObject.value(QStringLiteral("longitude")).toDouble());
+            const GeoDataLatitude latitude = GeoDataLatitude::fromDegrees(dataObject.value(QStringLiteral("latitude")).toDouble());
             const QUrl avatarUrl(dataObject.value(QStringLiteral("avatarpic")).toString());
 
             if( !itemExists( personid ) )
             {
                 // If it does not exists, create it
-                GeoDataCoordinates coor(longitude * DEG2RAD, latitude * DEG2RAD);
+                const GeoDataCoordinates coor(longitude, latitude);
                 OpenDesktopItem *item = new OpenDesktopItem( this );
                 item->setMarbleWidget(m_marbleWidget);
                 item->setId( personid );

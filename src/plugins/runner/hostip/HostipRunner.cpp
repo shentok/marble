@@ -89,22 +89,23 @@ void HostipRunner::get()
 
 void HostipRunner::slotRequestFinished( QNetworkReply* reply )
 {
-    double lon(0.0), lat(0.0);
+    GeoDataLongitude lon = GeoDataLongitude::null;
+    GeoDataLatitude lat = GeoDataLatitude::null;
     for ( QString line = reply->readLine(); !line.isEmpty(); line = reply->readLine() ) {
         QString lonInd = "Longitude: ";
         if ( line.startsWith(lonInd) ) {
-            lon = line.mid( lonInd.length() ).toDouble();
+            lon = GeoDataLongitude::fromDegrees(line.mid(lonInd.length()).toDouble());
         }
 
         QString latInd = "Latitude: ";
         if (line.startsWith( latInd) ) {
-            lat = line.mid( latInd.length() ).toDouble();
+            lat = GeoDataLatitude::fromDegrees(line.mid(latInd.length()).toDouble());
         }
     }
 
     QVector<GeoDataPlacemark*> placemarks;
 
-    if (lon != 0.0 && lat != 0.0) {
+    if (lon != GeoDataLongitude::null && lat != GeoDataLatitude::null) {
         GeoDataPlacemark *placemark = new GeoDataPlacemark;
 
         placemark->setName( m_hostInfo.hostName() );
@@ -114,7 +115,7 @@ void HostipRunner::slotRequestFinished( QNetworkReply* reply )
                                  arg( m_hostInfo.hostName() ).
                                  arg( m_hostInfo.addresses().first().toString() ) );
 
-        placemark->setCoordinate( lon * DEG2RAD, lat * DEG2RAD );
+        placemark->setCoordinate(lon, lat);
         placemark->setVisualCategory(GeoDataPlacemark::Coordinate);
         placemarks << placemark;
     }

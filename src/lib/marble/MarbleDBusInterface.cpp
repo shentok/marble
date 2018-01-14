@@ -108,13 +108,13 @@ QStringList MarbleDBusInterface::properties() const
 
 void MarbleDBusInterface::setCenter( const QPointF &center ) const
 {
-    d->m_marbleWidget->centerOn( center.x(), center.y() );
+    d->m_marbleWidget->centerOn(GeoDataLongitude::fromDegrees(center.x()), GeoDataLatitude::fromDegrees(center.y()));
 }
 
 void MarbleDBusInterface::handleVisibleLatLonAltBoxChange()
 {
-    QPointF const newCenter = QPointF( d->m_marbleWidget->centerLongitude(),
-                                       d->m_marbleWidget->centerLatitude() );
+    QPointF const newCenter = QPointF(d->m_marbleWidget->centerLongitude().toDegree(),
+                                      d->m_marbleWidget->centerLatitude().toDegree());
     if ( newCenter != d->m_currentCenter ) {
         d->m_currentCenter = newCenter;
         emit centerChanged( d->m_currentCenter );

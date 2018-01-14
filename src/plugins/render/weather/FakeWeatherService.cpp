@@ -38,7 +38,7 @@ void FakeWeatherService::getAdditionalItems( const GeoDataLatLonAltBox& box,
     FakeWeatherItem *item = new FakeWeatherItem( this );
     item->setStationName( "Fake" );
     item->setPriority( 0 );
-    item->setCoordinate( GeoDataCoordinates( 1, 1 ) );
+    item->setCoordinate(GeoDataCoordinates(GeoDataLongitude::fromRadians(1), GeoDataLatitude::fromRadians(1)));
     item->setId( "fake1" );
     
     WeatherData data;

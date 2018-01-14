@@ -10,7 +10,10 @@
 
 #include "KmlLatLonBoxWriter.h"
 
+#include "GeoDataAngle.h"
+#include "GeoDataLatitude.h"
 #include "GeoDataLatLonBox.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataTypes.h"
 #include "GeoWriter.h"
 #include "KmlElementDictionary.h"
@@ -33,16 +36,11 @@ bool KmlLatLonBoxWriter::write( const GeoNode *node,
     writer.writeStartElement( kml::kmlTag_LatLonBox );
     KmlObjectTagWriter::writeIdentifiers( writer, lat_lon_box );
 
-    writer.writeTextElement( "north",
-			     QString::number(lat_lon_box->north( GeoDataCoordinates::Degree )) );
-    writer.writeTextElement( "south",
-			     QString::number(lat_lon_box->south( GeoDataCoordinates::Degree )) );
-    writer.writeTextElement( "east",
-			     QString::number(lat_lon_box->east( GeoDataCoordinates::Degree )) );
-    writer.writeTextElement( "west",
-			     QString::number(lat_lon_box->west( GeoDataCoordinates::Degree )) );
-    writer.writeOptionalElement( "rotation",
-                             QString::number(lat_lon_box->rotation( GeoDataCoordinates::Degree )), "0" );
+    writer.writeTextElement("north", QString::number(lat_lon_box->north().toDegree()));
+    writer.writeTextElement("south", QString::number(lat_lon_box->south().toDegree()));
+    writer.writeTextElement("east", QString::number(lat_lon_box->east().toDegree()));
+    writer.writeTextElement("west", QString::number(lat_lon_box->west().toDegree()));
+    writer.writeOptionalElement("rotation", QString::number(lat_lon_box->rotation().toDegree()), "0");
 
     writer.writeEndElement();
 

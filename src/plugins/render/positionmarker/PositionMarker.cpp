@@ -53,7 +53,7 @@ PositionMarker::PositionMarker( const MarbleModel *marbleModel )
       m_cursorSize( 1.0 ),
       m_accuracyColor( Oxygen::brickRed4 ),
       m_trailColor( 0, 0, 255 ),
-      m_heading( 0.0 ),
+      m_heading(GeoDataAngle::null),
       m_showTrail ( false )
 {
     const bool smallScreen = MarbleGlobal::getInstance()->profiles() & MarbleGlobal::SmallScreen;
@@ -190,17 +190,17 @@ bool PositionMarker::render( GeoPainter *painter,
         if (!viewport->screenCoordinates( m_currentPosition, screenPositionX, screenPositionY )){
             return true;
         }
-        const GeoDataCoordinates top( m_currentPosition.longitude(), m_currentPosition.latitude()+0.1 );
+        const GeoDataCoordinates top(m_currentPosition.longitude(), m_currentPosition.latitude() + GeoDataLatitude::fromRadians(0.1));
         qreal screenTopX, screenTopY;
         if (!viewport->screenCoordinates( top, screenTopX, screenTopY )){
             return true;
         }
-        qreal const correction = -90.0 + RAD2DEG * atan2( screenPositionY -screenTopY, screenPositionX - screenTopX );
-        const qreal rotation = m_heading + correction;
+        const GeoDataAngle correction = -(GeoDataAngle::fullCircle * 0.25) + GeoDataAngle::fromRadians(atan2(screenPositionY -screenTopY, screenPositionX - screenTopX));
+        const GeoDataAngle rotation = m_heading + correction;
 
         if ( m_useCustomCursor ) {
             QTransform transform;
-            transform.rotate( rotation );
+            transform.rotate(rotation.toDegree());
             bool const highQuality = painter->mapQuality() == HighQuality || painter->mapQuality() == PrintQuality;
             Qt::TransformationMode const mode = highQuality ? Qt::SmoothTransformation : Qt::FastTransformation;
             m_customCursorTransformed = m_customCursor.transformed( transform, mode );
@@ -216,7 +216,7 @@ bool PositionMarker::render( GeoPainter *painter,
             // Rotate the shape according to the current direction and move it to the screen center
             QMatrix transformation;
             transformation.translate( screenPositionX, screenPositionY );
-            transformation.rotate( rotation );
+            transformation.rotate(rotation.toDegree());
             m_arrow = m_arrow * transformation;
 
             m_dirtyRegion = QRegion();

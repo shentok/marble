@@ -31,11 +31,11 @@ GeoNode* KmltiltTagHandler::parse( GeoParser& parser ) const
     GeoStackItem parentItem = parser.parentElement();
 
     if ( parentItem.is<GeoDataCamera>() ){
-        qreal tilt = parser.readElementText().trimmed().toDouble();
+        const auto tilt = GeoDataAngle::fromDegrees(parser.readElementText().trimmed().toDouble());
         parentItem.nodeAs<GeoDataCamera>()->setTilt(tilt);
     } else if ( parentItem.is<GeoDataOrientation>() ){
-        double tilt = parser.readElementText().trimmed().toDouble();
-	parentItem.nodeAs<GeoDataOrientation>()->setTilt(tilt);
+        const auto tilt = GeoDataAngle::fromDegrees(parser.readElementText().trimmed().toDouble());
+        parentItem.nodeAs<GeoDataOrientation>()->setTilt(tilt);
     }
     return nullptr;
 }

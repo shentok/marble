@@ -97,14 +97,14 @@ QList< GeoGraphicsItem* > GeoGraphicsScene::items( const GeoDataLatLonBox &box, 
     if ( box.west() > box.east() ) {
         // Handle boxes crossing the IDL by splitting it into two separate boxes
         GeoDataLatLonBox left;
-        left.setWest( -M_PI );
+        left.setWest(-GeoDataLongitude::halfCircle);
         left.setEast( box.east() );
         left.setNorth( box.north() );
         left.setSouth( box.south() );
 
         GeoDataLatLonBox right;
         right.setWest( box.west() );
-        right.setEast( M_PI );
+        right.setEast(GeoDataLongitude::halfCircle);
         right.setNorth( box.north() );
         right.setSouth( box.south() );
 
@@ -113,7 +113,8 @@ QList< GeoGraphicsItem* > GeoGraphicsScene::items( const GeoDataLatLonBox &box, 
 
     QList< GeoGraphicsItem* > result;
     QRect rect;
-    qreal north, south, east, west;
+    GeoDataLatitude north, south;
+    GeoDataLongitude east, west;
     box.boundaries( north, south, east, west );
     TileId key;
 
@@ -260,7 +261,8 @@ void GeoGraphicsScene::addItem( GeoGraphicsItem* item )
 {
     // Select zoom level so that the object fit in single tile
     int zoomLevel;
-    qreal north, south, east, west;
+    GeoDataLatitude north, south;
+    GeoDataLongitude east, west;
     item->latLonAltBox().boundaries( north, south, east, west );
     for(zoomLevel = item->minZoomLevel(); zoomLevel >= 0; zoomLevel--)
     {

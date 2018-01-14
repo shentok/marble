@@ -30,8 +30,10 @@
 #include "GeoDataPlacemark.h"
 #include "GeoDataPoint.h"
 #include "GeoDataModel.h"
+#include "GeoDataLatitude.h"
 #include "GeoDataLineString.h"
 #include "GeoDataLinearRing.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataMultiGeometry.h"
 #include "GeoDataLatLonQuad.h"
 #include "GeoParser.h"
@@ -109,23 +111,22 @@ GeoNode* KmlcoordinatesTagHandler::parse( GeoParser& parser ) const
             if ( parentItem.represents( kmlTag_Point ) && parentItem.is<GeoDataFeature>() ) {
                 GeoDataCoordinates coord;
                 if ( coordinates.size() == 2 ) {
-                    coord.set( coordinates.at( 0 ).toDouble(),
-                              coordinates.at( 1 ).toDouble(), 0.0, GeoDataCoordinates::Degree );
+                    coord.set(GeoDataLongitude::fromDegrees(coordinates.at(0).toDouble()),
+                              GeoDataLatitude::fromDegrees(coordinates.at(1).toDouble()), 0.0);
                 } else if( coordinates.size() == 3 ) {
-                    coord.set( coordinates.at( 0 ).toDouble(),
-                               coordinates.at( 1 ).toDouble(),
-                               coordinates.at( 2 ).toDouble(),
-                               GeoDataCoordinates::Degree );
+                    coord.set(GeoDataLongitude::fromDegrees(coordinates.at( 0 ).toDouble()),
+                              GeoDataLatitude::fromDegrees(coordinates.at( 1 ).toDouble()),
+                              coordinates.at( 2 ).toDouble());
                 }
                 parentItem.nodeAs<GeoDataPlacemark>()->setCoordinate( coord );
             } else {
                 GeoDataCoordinates coord;
                 if ( coordinates.size() == 2 ) {
-                    coord.set( DEG2RAD * coordinates.at( 0 ).toDouble(),
-                              DEG2RAD * coordinates.at( 1 ).toDouble() );
+                    coord.set(GeoDataLongitude::fromDegrees(coordinates.at(0).toDouble()),
+                              GeoDataLatitude::fromDegrees(coordinates.at(1).toDouble()));
                 } else if( coordinates.size() == 3 ) {
-                    coord.set( DEG2RAD * coordinates.at( 0 ).toDouble(),
-                              DEG2RAD * coordinates.at( 1 ).toDouble(),
+                    coord.set(GeoDataLongitude::fromDegrees(coordinates.at(0).toDouble()),
+                              GeoDataLatitude::fromDegrees(coordinates.at(1).toDouble()),
                               coordinates.at( 2 ).toDouble() );
                 }
 
@@ -180,11 +181,11 @@ GeoNode* KmlcoordinatesTagHandler::parse( GeoParser& parser ) const
 
         GeoDataCoordinates coord;
         if ( coordinates.size() == 2 ) {
-            coord.set( DEG2RAD * coordinates.at( 0 ).toDouble(),
-                       DEG2RAD * coordinates.at( 1 ).toDouble() );
+            coord.set(GeoDataLongitude::fromDegrees(coordinates.at(0).toDouble()),
+                      GeoDataLatitude::fromDegrees(coordinates.at(1).toDouble()));
         } else if( coordinates.size() == 3 ) {
-            coord.set( DEG2RAD * coordinates.at( 0 ).toDouble(),
-                       DEG2RAD * coordinates.at( 1 ).toDouble(),
+            coord.set(GeoDataLongitude::fromDegrees(coordinates.at(0).toDouble()),
+                      GeoDataLatitude::fromDegrees(coordinates.at(1).toDouble()),
                        coordinates.at( 2 ).toDouble() );
         }
         parentItem.nodeAs<GeoDataTrack>()->appendCoordinates( coord );

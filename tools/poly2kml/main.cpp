@@ -62,7 +62,6 @@ void parseBoundingBox( const QFileInfo &file, const QString &name,
     if ( input.open( QFile::ReadOnly ) ) {
         QTextStream stream( &input );
         country = stream.readLine();
-        float lat( 0.0 ), lon( 0.0 );
         GeoDataLinearRing *box = new GeoDataLinearRing;
         while ( !stream.atEnd() ) {
             bool inside = true;
@@ -84,9 +83,9 @@ void parseBoundingBox( const QFileInfo &file, const QString &name,
                     inside = true;
                 }
             } else if ( entries.size() == 2 ) {
-                lon = entries.first().toDouble();
-                lat = entries.last().toDouble();
-                GeoDataCoordinates point( lon, lat, 0.0, GeoDataCoordinates::Degree );
+                const auto lon = GeoDataLongitude::fromDegrees(entries.first().toDouble());
+                const auto lat = GeoDataLatitude::fromDegrees(entries.last().toDouble());
+                const GeoDataCoordinates point(lon, lat);
                 *box << point;
             } else {
                 qDebug() << "Warning: Ignoring line in" << file.absoluteFilePath()

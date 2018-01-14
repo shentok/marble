@@ -10,7 +10,9 @@
 
 #include "KmlLatLonQuadWriter.h"
 
+#include "GeoDataLatitude.h"
 #include "GeoDataLatLonQuad.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataTypes.h"
 #include "GeoWriter.h"
 #include "KmlElementDictionary.h"
@@ -35,24 +37,24 @@ bool KmlLatLonQuadWriter::write( const GeoNode *node,
 
         writer.writeStartElement( kml::kmlTag_coordinates );
 
-        writer.writeCharacters( QString::number( latLonQuad->bottomLeftLongitude( GeoDataCoordinates::Degree ) ) );
+        writer.writeCharacters(QString::number(latLonQuad->bottomLeftLongitude().toDegree()));
         writer.writeCharacters( QString( ',' ) );
-        writer.writeCharacters( QString::number( latLonQuad->bottomLeftLatitude( GeoDataCoordinates::Degree ) ) );
+        writer.writeCharacters(QString::number(latLonQuad->bottomLeftLatitude().toDegree()));
         writer.writeCharacters( QString( ' ' ) );
 
-        writer.writeCharacters( QString::number( latLonQuad->bottomRightLongitude( GeoDataCoordinates::Degree ) ) );
+        writer.writeCharacters(QString::number(latLonQuad->bottomRightLongitude().toDegree()));
         writer.writeCharacters( QString( ',' ) );
-        writer.writeCharacters( QString::number( latLonQuad->bottomRightLatitude( GeoDataCoordinates::Degree ) ) );
+        writer.writeCharacters(QString::number(latLonQuad->bottomRightLatitude().toDegree()));
         writer.writeCharacters( QString( ' ' ) );
 
-        writer.writeCharacters( QString::number( latLonQuad->topRightLongitude( GeoDataCoordinates::Degree ) ) );
+        writer.writeCharacters(QString::number(latLonQuad->topRightLongitude().toDegree()));
         writer.writeCharacters( QString( ',' ) );
-        writer.writeCharacters( QString::number( latLonQuad->topRightLatitude( GeoDataCoordinates::Degree ) ) );
+        writer.writeCharacters(QString::number(latLonQuad->topRightLatitude().toDegree()));
         writer.writeCharacters( QString( ' ' ) );
 
-        writer.writeCharacters( QString::number( latLonQuad->topLeftLongitude( GeoDataCoordinates::Degree ) ) );
+        writer.writeCharacters(QString::number(latLonQuad->topLeftLongitude().toDegree()));
         writer.writeCharacters( QString( ',' ) );
-        writer.writeCharacters( QString::number( latLonQuad->topLeftLatitude( GeoDataCoordinates::Degree ) ) );
+        writer.writeCharacters(QString::number(latLonQuad->topLeftLatitude().toDegree()));
 
         writer.writeEndElement();
 

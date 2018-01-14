@@ -63,8 +63,8 @@ namespace Marble
         axis = rotTheta * axis;
         axis *= rotPhi;
         axis.normalize();
-        const qreal lat = -axis.pitch();
-        const qreal lon = axis.yaw();
+        const GeoDataLatitude lat = -GeoDataLatitude::fromRadians(axis.pitch());
+        const GeoDataLongitude lon = GeoDataLongitude::fromRadians(axis.yaw());
 
         GeoDataLookAt target = lookAt();
         target.setLongitude(lon);
@@ -85,8 +85,7 @@ namespace Marble
                 map()->setRadius(radius);
                 m_logzoom = qRound(zoom(radius));
 
-                GeoDataCoordinates::Unit deg = GeoDataCoordinates::Degree;
-                map()->centerOn(newLookAt.longitude(deg), newLookAt.latitude(deg));
+                map()->centerOn(newLookAt.longitude(), newLookAt.latitude());
 
                 emit zoomChanged(m_logzoom);
                 emit distanceChanged(distanceString());
@@ -274,14 +273,14 @@ namespace Marble
 
     void MarbleAbstractPresenter::goHome(FlyToMode mode)
     {
-        qreal homeLon = 0;
-        qreal homeLat = 0;
+        GeoDataLongitude homeLon = GeoDataLongitude::null;
+        GeoDataLatitude homeLat = GeoDataLatitude::null;
         int homeZoom = 0;
         model()->home(homeLon, homeLat, homeZoom);
 
         GeoDataLookAt target;
-        target.setLongitude(homeLon, GeoDataCoordinates::Degree);
-        target.setLatitude(homeLat, GeoDataCoordinates::Degree);
+        target.setLongitude(homeLon);
+        target.setLatitude(homeLat);
         target.setRange(1000 * distanceFromZoom(homeZoom));
 
         flyTo(target, mode);
@@ -347,16 +346,16 @@ namespace Marble
     {
         Q_ASSERT(newDistance > 0.0);
 
-        qreal destLat;
-        qreal destLon;
-        if (!map()->geoCoordinates(pos.x(), pos.y(), destLon, destLat, GeoDataCoordinates::Degree))
+        GeoDataLatitude destLat;
+        GeoDataLongitude destLon;
+        if (!map()->geoCoordinates(pos.x(), pos.y(), destLon, destLat))
         {
             return;
         }
 
         ViewportParams* now = map()->viewport();
         qreal x(0), y(0);
-        if (!now->screenCoordinates(destLon * DEG2RAD, destLat * DEG2RAD, x, y))
+        if (!now->screenCoordinates(destLon, destLat, x, y))
         {
             return;
         }
@@ -369,22 +368,23 @@ namespace Marble
         qreal newRadius = radiusFromDistance(newDistance);
         soon.setRadius(newRadius);
 
-        qreal mouseLon, mouseLat;
-        if (!soon.geoCoordinates(int(x), int(y), mouseLon, mouseLat, GeoDataCoordinates::Degree ))
+        GeoDataLongitude mouseLon;
+        GeoDataLatitude mouseLat;
+        if (!soon.geoCoordinates(int(x), int(y), mouseLon, mouseLat))
         {
             return;
         }
 
-        const qreal lon = destLon - (mouseLon - map()->centerLongitude());
-        const qreal lat = destLat - (mouseLat - map()->centerLatitude());
+        const GeoDataLongitude lon = destLon - (mouseLon - map()->centerLongitude());
+        const GeoDataLatitude lat = destLat - (mouseLat - map()->centerLatitude());
 
         GeoDataLookAt lookAt;
-        lookAt.setLongitude(lon, GeoDataCoordinates::Degree);
-        lookAt.setLatitude(lat, GeoDataCoordinates::Degree);
+        lookAt.setLongitude(lon);
+        lookAt.setLatitude(lat);
         lookAt.setAltitude(0.0);
         lookAt.setRange(newDistance * KM2METER);
 
-        map()->viewport()->setFocusPoint(GeoDataCoordinates(destLon, destLat, 0, GeoDataCoordinates::Degree));
+        map()->viewport()->setFocusPoint(GeoDataCoordinates(destLon, destLat));
         flyTo(lookAt, Linear);
     }
 
@@ -392,9 +392,9 @@ namespace Marble
     {
         Q_ASSERT(factor > 0.0);
 
-        qreal destLat;
-        qreal destLon;
-        map()->geoCoordinates(pos.x(), pos.y(), destLon, destLat, GeoDataCoordinates::Radian);
+        GeoDataLatitude destLat;
+        GeoDataLongitude destLon;
+        map()->geoCoordinates(pos.x(), pos.y(), destLon, destLat);
 
         GeoDataLookAt lookAt;
         lookAt.setLongitude(destLon);
@@ -405,9 +405,9 @@ namespace Marble
         flyTo(lookAt);
     }
 
-    void MarbleAbstractPresenter::centerOn(const qreal lon, const qreal lat, bool animated)
+    void MarbleAbstractPresenter::centerOn(const GeoDataLongitude lon, const GeoDataLatitude lat, bool animated)
     {
-        GeoDataCoordinates target(lon, lat, 0.0, GeoDataCoordinates::Degree);
+        const GeoDataCoordinates target(lon, lat);
         centerOn(target, animated);
     }
 
@@ -428,11 +428,11 @@ namespace Marble
         int newRadius = radius();
         ViewportParams* viewparams = map()->viewport();
         //prevent divide by zero
-        if(box.height() && box.width())
+        if (box.height() != GeoDataLatitude::null && box.width() != GeoDataLongitude::null)
         {
             //work out the needed zoom level
-            int const horizontalRadius = ( 0.25 * M_PI ) * (viewparams->height() / box.height());
-            int const verticalRadius = ( 0.25 * M_PI ) * (viewparams->width() / box.width());
+            int const horizontalRadius = viewparams->height() * 0.5 * GeoDataLatitude::quaterCircle / box.height();
+            int const verticalRadius = viewparams->width() * 0.25 * GeoDataLongitude::halfCircle / box.width();
             newRadius = qMin<int>(horizontalRadius, verticalRadius );
             newRadius = qMax<int>(radius(minimumZoom()), qMin<int>(newRadius, radius(maximumZoom())));
         }
@@ -467,27 +467,27 @@ namespace Marble
         }
     }
 
-    void MarbleAbstractPresenter::headingOn(qreal heading)
+    void MarbleAbstractPresenter::headingOn(GeoDataAngle heading)
     {
         map()->setHeading(heading);
     }
 
-    void MarbleAbstractPresenter::setCenterLatitude(qreal lat, FlyToMode mode)
+    void MarbleAbstractPresenter::setCenterLatitude(GeoDataLatitude lat, FlyToMode mode)
     {
         centerOn(centerLongitude(), lat, mode);
     }
 
-    void MarbleAbstractPresenter::setCenterLongitude(qreal lon, FlyToMode mode)
+    void MarbleAbstractPresenter::setCenterLongitude(GeoDataLongitude lon, FlyToMode mode)
     {
         centerOn(lon, centerLatitude(), mode);
     }
 
-    qreal MarbleAbstractPresenter::centerLatitude() const
+    GeoDataLatitude MarbleAbstractPresenter::centerLatitude() const
     {
         return map()->centerLatitude();
     }
 
-    qreal MarbleAbstractPresenter::centerLongitude() const
+    GeoDataLongitude MarbleAbstractPresenter::centerLongitude() const
     {
         return map()->centerLongitude();
     }

@@ -12,6 +12,8 @@
 #define MARBLE_GROUNDOVERLAYFRAME_H
 
 #include "SceneGraphicsItem.h"
+
+#include "GeoDataAngle.h"
 #include "GeoDataCoordinates.h"
 
 namespace Marble
@@ -73,7 +75,7 @@ private:
     int                m_hoveredHandle;
     int                m_editStatus;
     bool               m_editStatusChangeNeeded;
-    qreal              m_previousRotation;
+    GeoDataAngle       m_previousRotation;
 
     QVector<QImage>    m_resizeIcons;
     QVector<QImage>    m_rotateIcons;

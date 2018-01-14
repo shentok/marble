@@ -120,7 +120,7 @@ void GpsInfo::updateLocation( const GeoDataCoordinates& coordinates, qreal)
 {
     PositionTracking *tracking = marbleModel()->positionTracking();
     qreal speed = tracking->speed();
-    qreal direction = tracking->direction();
+    GeoDataAngle direction = tracking->direction();
     qreal altitude = coordinates.altitude();
     qreal precision = tracking->accuracy().horizontal;
     QString speedString;
@@ -158,7 +158,7 @@ void GpsInfo::updateLocation( const GeoDataCoordinates& coordinates, qreal)
                                     .arg( QLocale().toString(altitude, 'f', 1 ) )
                                     .arg( distanceString ) );
     m_widget.DirectionValue->setText( QString( " %1 %2" )
-                                     .arg( QLocale().toString(direction, 'f', 1 ) )
+                                     .arg( QLocale().toString(direction.toDegree(), 'f', 1 ) )
                                      .arg( "d" ) );
     m_widget.PrecisionValue->setText( QString( " %1 %2" )
                                      .arg( QLocale().toString(precision, 'f', 1 ) )

@@ -169,8 +169,8 @@ bool MonavMap::areaLessThan( const MonavMap &first, const MonavMap &second )
         return false;
     }
 
-    qreal const areaOne = first.m_boundingBox.width() * first.m_boundingBox.height();
-    qreal const areaTwo = second.m_boundingBox.width() * second.m_boundingBox.height();
+    qreal const areaOne = first.m_boundingBox.width().toRadian() * first.m_boundingBox.height().toRadian();
+    qreal const areaTwo = second.m_boundingBox.width().toRadian() * second.m_boundingBox.height().toRadian();
     return areaOne < areaTwo;
 }
 

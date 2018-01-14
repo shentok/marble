@@ -168,17 +168,16 @@ bool ElevationProfileMarker::render( GeoPainter* painter, ViewportParams* viewpo
     if ( m_currentPosition.isValid() ) {
         qreal x;
         qreal y;
-        qreal lon;
-        qreal lat;
+        GeoDataLongitude lon;
+        GeoDataLatitude lat;
         // move the icon by some pixels, so that the pole of the flag sits at the exact point
         int dx = +3 + m_markerItem.size().width() / 2 - m_markerIcon.contentRect().right();//-4;
         int dy = -6;
-        viewport->screenCoordinates( m_currentPosition.longitude( GeoDataCoordinates::Radian ),
-                                     m_currentPosition.latitude ( GeoDataCoordinates::Radian ),
+        viewport->screenCoordinates( m_currentPosition.longitude(),
+                                     m_currentPosition.latitude(),
                                      x, y );
-        viewport->geoCoordinates( x + dx, y + dy, lon, lat, GeoDataCoordinates::Radian );
-        m_markerItem.setCoordinate( GeoDataCoordinates( lon, lat, m_currentPosition.altitude(),
-                                                            GeoDataCoordinates::Radian ) );
+        viewport->geoCoordinates(x + dx, y + dy, lon, lat);
+        m_markerItem.setCoordinate(GeoDataCoordinates(lon, lat, m_currentPosition.altitude()));
 
         painter->save();
 

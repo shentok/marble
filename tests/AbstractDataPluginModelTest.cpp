@@ -97,11 +97,16 @@ private Q_SLOTS:
     static const ViewportParams fullViewport;
 };
 
-const ViewportParams AbstractDataPluginModelTest::fullViewport( Equirectangular, 0, 0, 100, QSize( 230, 230 ) );
+const ViewportParams AbstractDataPluginModelTest::fullViewport(Equirectangular, GeoDataLongitude::null, GeoDataLatitude::null, 100, QSize(230, 230));
 
 void AbstractDataPluginModelTest::init_testcase()
 {
-    QCOMPARE( GeoDataLatLonBox( fullViewport.viewLatLonAltBox() ), GeoDataLatLonBox( 90, -90, 180, -180, GeoDataCoordinates::Degree ) );
+    const GeoDataLatLonBox viewLatLonBox(GeoDataLatitude::quaterCircle,
+                                         -GeoDataLatitude::quaterCircle,
+                                         GeoDataLongitude::halfCircle,
+                                         -GeoDataLongitude::halfCircle);
+
+    QCOMPARE(GeoDataLatLonBox(fullViewport.viewLatLonAltBox()), viewLatLonBox);
 }
 
 void AbstractDataPluginModelTest::defaultConstructor()
@@ -304,7 +309,7 @@ void AbstractDataPluginModelTest::itemsVersusInitialized()
 
 void AbstractDataPluginModelTest::itemsVersusAddedAngularResolution()
 {
-    const ViewportParams zoomedViewport( Equirectangular, 0, 0, 10000, QSize( 230, 230 ) );
+    const ViewportParams zoomedViewport(Equirectangular, GeoDataLongitude::null, GeoDataLatitude::null, 10000, QSize(230, 230));
 
     TestDataPluginItem *item = new TestDataPluginItem;
     item->setInitialized( true );
@@ -318,7 +323,7 @@ void AbstractDataPluginModelTest::itemsVersusAddedAngularResolution()
 
 void AbstractDataPluginModelTest::itemsVersusSetSticky()
 {
-    const ViewportParams zoomedViewport( Equirectangular, 0, 0, 10000, QSize( 230, 230 ) );
+    const ViewportParams zoomedViewport(Equirectangular, GeoDataLongitude::null, GeoDataLatitude::null, 10000, QSize(230, 230));
 
     TestDataPluginItem *item = new TestDataPluginItem;
     item->setInitialized( true );

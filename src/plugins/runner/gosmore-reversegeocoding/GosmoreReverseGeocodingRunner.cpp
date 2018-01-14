@@ -92,9 +92,9 @@ void GosmoreRunner::reverseGeocoding( const GeoDataCoordinates &coordinates )
     }
 
     QString queryString = "flat=%1&flon=%2&tlat=%1&tlon=%2&fastest=1&v=motorcar";
-    double lon = coordinates.longitude( GeoDataCoordinates::Degree );
-    double lat = coordinates.latitude( GeoDataCoordinates::Degree );
-    queryString = queryString.arg( lat, 0, 'f', 8).arg(lon, 0, 'f', 8 );
+    const GeoDataLongitude lon = coordinates.longitude();
+    const GeoDataLatitude lat = coordinates.latitude();
+    queryString = queryString.arg(lat.toDegree(), 0, 'f', 8).arg(lon.toDegree(), 0, 'f', 8);
     QByteArray output = d->retrieveWaypoints( queryString );
 
     GeoDataPlacemark placemark;

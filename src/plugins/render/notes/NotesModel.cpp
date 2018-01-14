@@ -34,13 +34,13 @@ NotesModel::NotesModel(const MarbleModel *marbleModel, QObject *parent)
 
 void NotesModel::getAdditionalItems(const GeoDataLatLonAltBox& box, qint32 number)
 {
-    double left = box.west(GeoDataCoordinates::Degree);
-    double bottom = box.south(GeoDataCoordinates::Degree);
-    double right = box.east(GeoDataCoordinates::Degree);
-    double top = box.north(GeoDataCoordinates::Degree);
+    const GeoDataLongitude left = box.west();
+    const GeoDataLatitude bottom = box.south();
+    const GeoDataLongitude right = box.east();
+    const GeoDataLatitude top = box.north();
 
     QString bboxValue;
-    bboxValue.append(QString::number(left)).append(",").append(QString::number(bottom)).append(",").append(QString::number(right)).append(",").append(QString::number(top));
+    bboxValue.append(QString::number(left.toDegree())).append(",").append(QString::number(bottom.toDegree())).append(",").append(QString::number(right.toDegree())).append(",").append(QString::number(top.toDegree()));
 
     QUrl osmNotesApiUrl("https://api.openstreetmap.org/api/0.6/notes.json");
     QUrlQuery urlQuery;
@@ -64,8 +64,8 @@ void NotesModel::parseFile(const QByteArray& file)
             QJsonObject jsonObj = jsonRef.toObject();
             QJsonObject geometry = jsonObj.value(QStringLiteral("geometry")).toObject();
             QJsonArray coordinates = geometry.value(QStringLiteral("coordinates")).toArray();
-            double lon = coordinates.at(0).toDouble();
-            double lat = coordinates.at(1).toDouble();
+            const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(coordinates.at(0).toDouble());
+            const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(coordinates.at(1).toDouble());
 
             QJsonObject noteProperties = jsonObj.value(QStringLiteral("properties")).toObject();
             QJsonArray noteComments = noteProperties.value(QStringLiteral("comments")).toArray();
@@ -78,7 +78,7 @@ void NotesModel::parseFile(const QByteArray& file)
 
             NotesItem *item = new NotesItem(this);
             item->setId(id);
-            item->setCoordinate(GeoDataCoordinates(lon, lat, 0.0, GeoDataCoordinates::Degree));
+            item->setCoordinate(GeoDataCoordinates(lon, lat));
             item->setDateCreated(dateCreated);
             item->setNoteStatus(noteStatus);
             item->setDateClosed(dateClosed);

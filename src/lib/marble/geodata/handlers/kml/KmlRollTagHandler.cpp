@@ -29,10 +29,10 @@ GeoNode* KmlrollTagHandler::parse( GeoParser& parser ) const
     GeoStackItem parentItem = parser.parentElement();
 
     if ( parentItem.is<GeoDataCamera>() ) {
-        qreal roll = parser.readElementText().trimmed().toDouble();
+        const auto roll = GeoDataAngle::fromDegrees(parser.readElementText().trimmed().toDouble());
         parentItem.nodeAs<GeoDataCamera>()->setRoll(roll);
     } else if (parentItem.is<GeoDataOrientation>() ) {
-        qreal roll = parser.readElementText().trimmed().toDouble();
+        const auto roll = GeoDataAngle::fromDegrees(parser.readElementText().trimmed().toDouble());
         parentItem.nodeAs<GeoDataOrientation>()->setRoll(roll);
     }
     return nullptr;

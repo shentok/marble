@@ -86,10 +86,10 @@ bool GnomonicProjection::screenCoordinates( const GeoDataCoordinates &coordinate
                                              const ViewportParams *viewport,
                                              qreal &x, qreal &y, bool &globeHidesPoint ) const
 {
-    const qreal lambda = coordinates.longitude();
-    const qreal phi = coordinates.latitude();
-    const qreal lambdaPrime = viewport->centerLongitude();
-    const qreal phi1 = viewport->centerLatitude();
+    const qreal lambda = coordinates.longitude().toRadian();
+    const qreal phi = coordinates.latitude().toRadian();
+    const qreal lambdaPrime = viewport->centerLongitude().toRadian();
+    const qreal phi1 = viewport->centerLatitude().toRadian();
 
     qreal cosC = qSin( phi1 ) * qSin( phi ) + qCos( phi1 ) * qCos( phi ) * qCos( lambda - lambdaPrime );
 
@@ -149,30 +149,23 @@ bool GnomonicProjection::screenCoordinates( const GeoDataCoordinates &coordinate
 
 bool GnomonicProjection::geoCoordinates( const int x, const int y,
                                           const ViewportParams *viewport,
-                                          qreal& lon, qreal& lat,
-                                          GeoDataCoordinates::Unit unit ) const
+                                          GeoDataLongitude &lon, GeoDataLatitude &lat) const
 {
     const qint64  radius  = viewport->radius();
     // Calculate how many degrees are being represented per pixel.
-    const qreal centerLon = viewport->centerLongitude();
-    const qreal centerLat = viewport->centerLatitude();
+    const GeoDataLongitude centerLon = viewport->centerLongitude();
+    const GeoDataLatitude centerLat = viewport->centerLatitude();
     const qreal rx = ( - viewport->width()  / 2 + x );
     const qreal ry = (   viewport->height() / 2 - y );
     const qreal p = qMax( qSqrt( rx*rx + ry*ry ), qreal(0.0001) ); // ensure we don't divide by zero
     const qreal c = qAtan(2 * p / radius);
     const qreal sinc = qSin(c);
 
-    lon = centerLon + qAtan2( rx*sinc , ( p*qCos( centerLat )*qCos( c ) - ry*qSin( centerLat )*sinc  ) );
+    lon = centerLon + GeoDataLongitude::fromRadians(qAtan2(rx*sinc, (p*qCos(centerLat.toRadian())*qCos(c) - ry*qSin(centerLat.toRadian())*sinc)));
 
-    while ( lon < -M_PI ) lon += 2 * M_PI;
-    while ( lon >  M_PI ) lon -= 2 * M_PI;
+    lon = GeoDataCoordinates::normalizeLon(lon);
 
-    lat = qAsin( qCos(c)*qSin(centerLat) + ry*sinc*qCos(centerLat)/p );
-
-    if ( unit == GeoDataCoordinates::Degree ) {
-        lon *= RAD2DEG;
-        lat *= RAD2DEG;
-    }
+    lat = GeoDataLatitude::fromRadians(qAsin(qCos(c)*qSin(centerLat.toRadian()) + ry*sinc*qCos(centerLat.toRadian())/p));
 
     return true;
 }

@@ -108,8 +108,9 @@ GeoDataCoordinates QtPositioningPositionProviderPlugin::position() const
         return GeoDataCoordinates();
     }
 
-    return GeoDataCoordinates( p.longitude(), p.latitude(),
-                               p.altitude(), GeoDataCoordinates::Degree );
+    return GeoDataCoordinates(GeoDataLongitude::fromDegrees(p.longitude()),
+                              GeoDataLatitude::fromDegrees(p.latitude()),
+                              p.altitude());
 }
 
 GeoDataAccuracy QtPositioningPositionProviderPlugin::accuracy() const
@@ -168,17 +169,17 @@ qreal QtPositioningPositionProviderPlugin::speed() const
     return d->m_lastKnownPosition.attribute( QGeoPositionInfo::GroundSpeed );
 }
 
-qreal QtPositioningPositionProviderPlugin::direction() const
+GeoDataAngle QtPositioningPositionProviderPlugin::direction() const
 {
     if ( d->m_source == nullptr ) {
-        return 0.0;
+        return GeoDataAngle::null;
     }
 
     if( !d->m_lastKnownPosition.hasAttribute( QGeoPositionInfo::Direction ) ) {
-        return 0.0;
+        return GeoDataAngle::null;
     }
 
-    return d->m_lastKnownPosition.attribute( QGeoPositionInfo::Direction );
+    return GeoDataAngle::fromDegrees(d->m_lastKnownPosition.attribute(QGeoPositionInfo::Direction));
 }
 
 QDateTime QtPositioningPositionProviderPlugin::timestamp() const

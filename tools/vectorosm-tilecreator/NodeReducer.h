@@ -119,13 +119,7 @@ private:
     qint64 m_remainingNodes;
 
     int m_zoomLevel;
-    double m_tileBoundary[4];
-    enum Boundary {
-        West = 0,
-        North = 1,
-        East = 2,
-        South = 3
-    };
+    GeoDataLatLonBox m_tileBoundary;
 };
 
 }

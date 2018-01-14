@@ -821,9 +821,9 @@ bool RoutingWidget::eventFilter( QObject *o, QEvent *event )
 
     if ( event->type() == QEvent::MouseButtonRelease ) {
         QMouseEvent *e = static_cast<QMouseEvent*>( event );
-        qreal lon( 0.0 ), lat( 0.0 );
-        if ( e->button() == Qt::LeftButton && d->m_widget->geoCoordinates( e->pos().x(), e->pos().y(),
-                                                                                 lon, lat, GeoDataCoordinates::Radian ) ) {
+        GeoDataLongitude lon = GeoDataLongitude::null;
+        GeoDataLatitude lat = GeoDataLatitude::null;
+        if (e->button() == Qt::LeftButton && d->m_widget->geoCoordinates(e->pos().x(), e->pos().y(), lon, lat)) {
             retrieveSelectedPoint( GeoDataCoordinates( lon, lat ) );
             return true;
         } else {

@@ -287,12 +287,12 @@ void MeasureToolPlugin::drawSegments( GeoPainter* painter )
 
         if ( m_showBearingLabel && m_paintMode != Circular ) {
             GeoDataCoordinates coordinates = segment.first();
-            qreal bearing = coordinates.bearing( segment.last(), GeoDataCoordinates::Degree );
+            GeoDataAngle bearing = coordinates.bearing(segment.last());
 
-            if ( bearing < 0 ) {
-                bearing += 360;
+            if (bearing < GeoDataAngle::null) {
+                bearing += GeoDataAngle::fullCircle;
             }
-            QString bearingString = QString::fromUtf8( "%1°" ).arg( bearing, 0, 'f', 2 );
+            QString bearingString = QString::fromUtf8("%1°").arg(bearing.toDegree(), 0, 'f', 2);
             if ( !infoString.isEmpty() ) {
                 infoString += QLatin1Char('\n');
             }
@@ -301,35 +301,39 @@ void MeasureToolPlugin::drawSegments( GeoPainter* painter )
 
         if ( m_showBearingChangeLabel && segmentIndex != 0 ) {
             GeoDataCoordinates currentCoordinates = m_measureLineString[segmentIndex];
-            qreal currentBearing = currentCoordinates.bearing(m_measureLineString[segmentIndex+1]);
-            qreal previousBearing = currentCoordinates.bearing( m_measureLineString[segmentIndex-1]);
+            GeoDataAngle currentBearing = currentCoordinates.bearing(m_measureLineString[segmentIndex+1]);
+            GeoDataAngle previousBearing = currentCoordinates.bearing(m_measureLineString[segmentIndex-1]);
 
             GeoDataLinearRing ring;
             painter->setPen( Qt::NoPen );
             painter->setBrush( QBrush ( QColor ( 127, 127, 127, 127 ) ) );
 
-            if (currentBearing < previousBearing) currentBearing += 2 * M_PI;
+            if (currentBearing < previousBearing) {
+                currentBearing += GeoDataAngle::fromDegrees(360);
+            }
             ring << currentCoordinates;
 
-            qreal angleLength = qAbs(m_latLonAltBox.north() - m_latLonAltBox.south()) / 20;
+            const qreal angleLength = qAbs(m_latLonAltBox.north() - m_latLonAltBox.south()).toRadian() / 20;
 
-            qreal iterBearing = previousBearing;
+            GeoDataAngle iterBearing = previousBearing;
             while ( iterBearing < currentBearing ) {
-                ring << currentCoordinates.moveByBearing( iterBearing, angleLength );
-                iterBearing += 0.1;
+                ring << currentCoordinates.moveByBearing(iterBearing, angleLength);
+                iterBearing += GeoDataAngle::fromRadians(0.1);
             }
 
-            ring << currentCoordinates.moveByBearing( currentBearing, angleLength );
+            ring << currentCoordinates.moveByBearing(currentBearing, angleLength);
 
             painter->drawPolygon( ring );
 
-            qreal currentBearingChange = (currentBearing - previousBearing) * RAD2DEG;
-            if (currentBearingChange < 0) currentBearingChange += 360;
-            QString bearingChangedString = QString::fromUtf8( "%1°" ).arg( currentBearingChange, 0, 'f', 2 );
+            GeoDataAngle currentBearingChange = currentBearing - previousBearing;
+            if (currentBearingChange < GeoDataAngle::null) {
+                currentBearingChange += GeoDataAngle::fullCircle;
+            }
+            QString bearingChangedString = QString::fromUtf8("%1°").arg(currentBearingChange.toDegree(), 0, 'f', 2);
             painter->setPen( Qt::black );
             GeoDataCoordinates textPosition = ring.latLonAltBox().center();
-            qreal deltaEast = ring.latLonAltBox().east() - currentCoordinates.longitude();
-            qreal deltaWest = currentCoordinates.longitude() - ring.latLonAltBox().west();
+            const GeoDataLongitude deltaEast = ring.latLonAltBox().east() - currentCoordinates.longitude();
+            const GeoDataLongitude deltaWest = currentCoordinates.longitude() - ring.latLonAltBox().west();
             if (deltaEast > deltaWest) {
                 textPosition.setLongitude(currentCoordinates.longitude() + deltaEast / 2);
             }
@@ -352,10 +356,10 @@ void MeasureToolPlugin::drawSegments( GeoPainter* painter )
             qreal d = m_measureLineString.length(1);
             m_circularArea = 2 * M_PI * planetRadius * planetRadius * (1 - qCos(d));
 
-            qreal iterBearing = 0;
-            while ( iterBearing < 2 * M_PI ) {
+            GeoDataAngle iterBearing = GeoDataAngle::null;
+            while (iterBearing < GeoDataAngle::fullCircle) {
                 ring << currentCoordinates.moveByBearing(iterBearing, d);
-                iterBearing += 0.1;
+                iterBearing += GeoDataAngle::fromRadians(0.1);
             }
 
             painter->setPen( Qt::NoPen );
@@ -437,27 +441,27 @@ void MeasureToolPlugin::drawSegments( GeoPainter* painter )
         }
 
         if (m_showPolygonArea) {
-            qreal theta1 = 0.0;
+            GeoDataAngle theta1 = GeoDataAngle::null;
             qreal n = m_measureLineString.size();
 
             for (int segmentIndex = 1; segmentIndex < m_measureLineString.size()-1; segmentIndex++) {
                 GeoDataCoordinates current = m_measureLineString[segmentIndex];
-                qreal prevBearing = current.bearing(m_measureLineString[segmentIndex-1]);
-                qreal nextBearing = current.bearing(m_measureLineString[segmentIndex+1]);
+                GeoDataAngle prevBearing = current.bearing(m_measureLineString[segmentIndex-1]);
+                GeoDataAngle nextBearing = current.bearing(m_measureLineString[segmentIndex+1]);
                 if (nextBearing < prevBearing)
-                    nextBearing += 2 * M_PI;
+                    nextBearing += GeoDataAngle::fullCircle;
 
-                qreal angle = nextBearing - prevBearing;
+                GeoDataAngle angle = nextBearing - prevBearing;
                 theta1 += angle;
             }
 
             // Traversing first vertex
             GeoDataCoordinates current = m_measureLineString[0];
-            qreal prevBearing = current.bearing(m_measureLineString[n-1]);
-            qreal nextBearing = current.bearing(m_measureLineString[1]);
+            GeoDataAngle prevBearing = current.bearing(m_measureLineString[n-1]);
+            GeoDataAngle nextBearing = current.bearing(m_measureLineString[1]);
             if (nextBearing < prevBearing)
-                nextBearing += 2 * M_PI;
-            qreal angle = nextBearing - prevBearing;
+                nextBearing += GeoDataAngle::fullCircle;
+            GeoDataAngle angle = nextBearing - prevBearing;
             theta1 += angle;
 
             // And the last one
@@ -465,17 +469,17 @@ void MeasureToolPlugin::drawSegments( GeoPainter* painter )
             prevBearing = current.bearing(m_measureLineString[n-2]);
             nextBearing = current.bearing(m_measureLineString[0]);
             if (nextBearing < prevBearing)
-                nextBearing += 2 * M_PI;
+                nextBearing += GeoDataAngle::fullCircle;
             angle = nextBearing - prevBearing;
             theta1 += angle;
 
-            qreal theta2 = 2 * M_PI * n - theta1;
+            const GeoDataAngle theta2 = GeoDataAngle::fullCircle * n - theta1;
 
             // theta = smaller of theta1 and theta2
-            qreal theta = (theta1 < theta2) ? theta1 : theta2;
+            const GeoDataAngle theta = (theta1 < theta2) ? theta1 : theta2;
 
             qreal planetRadius = marbleModel()->planet()->radius();
-            qreal S = qAbs((theta - (n-2) * M_PI) * planetRadius * planetRadius);
+            qreal S = qAbs((theta.toRadian() - (n-2) * M_PI) * planetRadius * planetRadius);
             m_polygonArea = S;
 
             painter->setPen(Qt::white);
@@ -594,7 +598,7 @@ void MeasureToolPlugin::drawInfobox( GeoPainter *painter ) const
 }
 
 
-void MeasureToolPlugin::addMeasurePoint( qreal lon, qreal lat )
+void MeasureToolPlugin::addMeasurePoint(GeoDataLongitude lon, GeoDataLatitude lat)
 {
     m_measureLineString << GeoDataCoordinates( lon, lat );
 
@@ -656,9 +660,9 @@ void MeasureToolPlugin::addMeasurePointEvent()
 {
     QPoint p = m_marbleWidget->popupMenu()->mousePosition();
 
-    qreal  lat;
-    qreal  lon;
-    m_marbleWidget->geoCoordinates( p.x(), p.y(), lon, lat, GeoDataCoordinates::Radian );
+    GeoDataLatitude lat;
+    GeoDataLongitude lon;
+    m_marbleWidget->geoCoordinates(p.x(), p.y(), lon, lat);
 
     addMeasurePoint( lon, lat );
 }

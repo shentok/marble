@@ -10,6 +10,8 @@
 
 #include "DownloadRegion.h"
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "MarbleModel.h"
 #include "MarbleMap.h"
 #include "MarbleMath.h"
@@ -33,9 +35,9 @@ public:
 
     DownloadRegionPrivate();
 
-    int rad2PixelX( qreal const lon, const TextureLayer *textureLayer ) const;
+    int rad2PixelX(const GeoDataLongitude lon, const TextureLayer *textureLayer) const;
 
-    int rad2PixelY( qreal const lat, const TextureLayer *textureLayer ) const;
+    int rad2PixelY(const GeoDataLatitude lat, const TextureLayer *textureLayer) const;
 };
 
 DownloadRegionPrivate::DownloadRegionPrivate() : m_marbleModel( nullptr ),
@@ -45,27 +47,27 @@ DownloadRegionPrivate::DownloadRegionPrivate() : m_marbleModel( nullptr ),
 }
 
 // copied from AbstractScanlineTextureMapper and slightly adjusted
-int DownloadRegionPrivate::rad2PixelX( qreal const lon, const TextureLayer *textureLayer ) const
+int DownloadRegionPrivate::rad2PixelX(const GeoDataLongitude lon, const TextureLayer *textureLayer) const
 {
     qreal const globalWidth = textureLayer->tileSize().width()
             * textureLayer->tileColumnCount( m_visibleTileLevel );
-    return static_cast<int>(globalWidth * 0.5 * (1 + lon / M_PI));
+    return static_cast<int>(globalWidth * 0.5 * (1 + lon / GeoDataLongitude::halfCircle));
 }
 
 // copied from AbstractScanlineTextureMapper and slightly adjusted
-int DownloadRegionPrivate::rad2PixelY( qreal const lat, const TextureLayer *textureLayer ) const
+int DownloadRegionPrivate::rad2PixelY(const GeoDataLatitude lat, const TextureLayer *textureLayer) const
 {
     qreal const globalHeight = textureLayer->tileSize().height()
             * textureLayer->tileRowCount( m_visibleTileLevel );
     switch (textureLayer->tileProjection()->type()) {
     case GeoSceneAbstractTileProjection::Equirectangular:
-        return static_cast<int>(globalHeight * (0.5 - lat / M_PI));
+        return static_cast<int>(globalHeight * 0.5 * (1 - lat / GeoDataLatitude::quaterCircle));
     case GeoSceneAbstractTileProjection::Mercator:
-        if ( fabs( lat ) < 1.4835 )
+        if (qAbs(lat) < GeoDataLatitude::fromRadians(1.4835))
             return static_cast<int>(globalHeight * 0.5 * (1 - gdInv(lat) / M_PI));
-        if ( lat >= +1.4835 )
+        if (lat >= +GeoDataLatitude::fromRadians(1.4835))
             return static_cast<int>(globalHeight * 0.5 * (1 - 3.1309587 / M_PI));
-        if ( lat <= -1.4835 )
+        if (lat <= -GeoDataLatitude::fromRadians(1.4835))
             return static_cast<int>(globalHeight * 0.5 * (1 + 3.1309587 / M_PI));
     }
 
@@ -193,8 +195,8 @@ QVector<TileCoordsPyramid> DownloadRegion::fromPath( const TextureLayer *texture
 
     for( int i = 1; i < waypoints.size(); ++i ) {
         GeoDataCoordinates position = waypoints[i];
-        qreal lonCenter = position.longitude();
-        qreal latCenter = position.latitude();
+        const qreal lonCenter = position.longitude().toRadian();
+        const qreal latCenter = position.latitude().toRadian();
 
         // coordinates of the of the vertices of the square(topleft and bottomright) at an offset distance from the waypoint
         qreal latNorth = asin( sin( latCenter ) *  cos( radianOffset ) +  cos( latCenter ) * sin( radianOffset )  * cos( 7*M_PI/4 ) );
@@ -204,10 +206,10 @@ QVector<TileCoordsPyramid> DownloadRegion::fromPath( const TextureLayer *texture
         qreal dlonEast =  atan2( sin( 3*M_PI/4 ) * sin( radianOffset ) * cos( latCenter ),  cos( radianOffset ) -  sin( latCenter ) * sin( latSouth ) );
         qreal lonEast  = fmod( lonCenter - dlonEast+M_PI, 2*M_PI ) - M_PI;
 
-        int const northY = d->rad2PixelY( latNorth, textureLayer );
-        int const southY = d->rad2PixelY( latSouth, textureLayer );
-        int const eastX =  d->rad2PixelX( lonEast, textureLayer );
-        int const westX =  d->rad2PixelX( lonWest, textureLayer );
+        int const northY = d->rad2PixelY(GeoDataLatitude::fromRadians(latNorth), textureLayer);
+        int const southY = d->rad2PixelY(GeoDataLatitude::fromRadians(latSouth), textureLayer);
+        int const eastX =  d->rad2PixelX(GeoDataLongitude::fromRadians(lonEast), textureLayer);
+        int const westX =  d->rad2PixelX(GeoDataLongitude::fromRadians(lonWest), textureLayer);
 
         int const west  = qMin( westX, eastX );
         int const north = qMin( northY, southY );

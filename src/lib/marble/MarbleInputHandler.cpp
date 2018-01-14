@@ -25,6 +25,7 @@
 #include "MarbleGlobal.h"
 #include "MarbleDebug.h"
 #include "MarbleMap.h"
+#include "GeoDataAngle.h"
 #include "GeoDataCoordinates.h"
 #include "MarbleAbstractPresenter.h"
 #include "ViewportParams.h"
@@ -169,12 +170,12 @@ class Q_DECL_HIDDEN MarbleDefaultInputHandler::Private
     QPoint m_rightPosition;
     // Indicates the heading when the right mouse button has been pressed
     // and mouse is moving.
-    qreal m_heading;
+    GeoDataAngle m_heading;
 
     // The center longitude in radian when the left mouse button has been pressed.
-    qreal m_leftPressedLon;
+    GeoDataLongitude m_leftPressedLon;
     // The center latitude in radian when the left mouse button has been pressed.
-    qreal m_leftPressedLat;
+    GeoDataLatitude m_leftPressedLat;
 
     int m_dragThreshold;
     QTimer m_lmbTimer;
@@ -194,7 +195,7 @@ MarbleDefaultInputHandler::Private::Private()
     : m_leftPressed(false),
       m_midPressed(false),
       m_rightPressed(false),
-      m_heading(0),
+      m_heading(GeoDataAngle::fromRadians(0)),
       m_dragThreshold(MarbleGlobal::getInstance()->profiles() & MarbleGlobal::SmallScreen ? 15 : 3)
 {
     m_curpmtl.load(QStringLiteral(":/marble/cursor/tl.png"));
@@ -233,9 +234,9 @@ MarbleDefaultInputHandler::MarbleDefaultInputHandler(MarbleAbstractPresenter *ma
 
     d->m_kineticSpinning.setUpdateInterval(35);
     connect(&d->m_kineticSpinning, SIGNAL(positionChanged(qreal,qreal)),
-             MarbleInputHandler::d->m_marblePresenter, SLOT(centerOn(qreal,qreal)));
+             this, SLOT(centerOn(qreal,qreal)));
     connect(&d->m_kineticSpinning, SIGNAL(headingChanged(qreal)),
-             MarbleInputHandler::d->m_marblePresenter, SLOT(headingOn(qreal)));
+             this, SLOT(headingOn(qreal)));
     connect(&d->m_kineticSpinning, SIGNAL(finished()), SLOT(restoreViewContext()));
 
     // Left and right mouse button signals.
@@ -261,12 +262,11 @@ void MarbleDefaultInputHandler::lmbTimeout()
 {
     if (!selectionRubber()->isVisible())
     {
-        qreal clickedLon = 0;
-        qreal clickedLat = 0;
+        GeoDataLongitude clickedLon = GeoDataLongitude::null;
+        GeoDataLatitude clickedLat = GeoDataLatitude::null;
 
         bool isPointOnGlobe = MarbleInputHandler::d->m_marblePresenter->map()->geoCoordinates( d->m_leftPressedX, d->m_leftPressedY,
-                                                                        clickedLon, clickedLat,
-                                                                        GeoDataCoordinates::Degree );
+                                                                        clickedLon, clickedLat);
         emit lmbRequest(d->m_leftPressedX, d->m_leftPressedY);
 
         /**
@@ -274,8 +274,7 @@ void MarbleDefaultInputHandler::lmbTimeout()
          * position is within the globe.
          */
         if ( isPointOnGlobe ) {
-            emit mouseClickGeoPosition( clickedLon, clickedLat,
-                                        GeoDataCoordinates::Degree );
+            emit mouseClickGeoPosition(clickedLon, clickedLat);
         }
     }
 }
@@ -305,10 +304,10 @@ void MarbleDefaultInputHandler::hideSelectionIfCtrlReleased(QEvent *e)
 
 bool MarbleDefaultInputHandler::handleDoubleClick(QMouseEvent *event)
 {
-    qreal mouseLon;
-    qreal mouseLat;
+    GeoDataLongitude mouseLon;
+    GeoDataLatitude mouseLat;
     const bool isMouseAboveMap = MarbleInputHandler::d->m_marblePresenter->map()->geoCoordinates(event->x(), event->y(),
-                                             mouseLon, mouseLat, GeoDataCoordinates::Radian);
+                                             mouseLon, mouseLat);
     if(isMouseAboveMap)
     {
         d->m_pressAndHoldTimer.stop();
@@ -355,8 +354,8 @@ bool MarbleDefaultInputHandler::handleWheel(QWheelEvent *wheelevt)
         marblePresenter->zoomAt(wheelevt->pos(), newDistance);
         if (MarbleInputHandler::d->m_inertialEarthRotation)
         {
-            d->m_kineticSpinning.jumpToPosition(MarbleInputHandler::d->m_marblePresenter->centerLongitude(),
-                                                MarbleInputHandler::d->m_marblePresenter->centerLatitude());
+            d->m_kineticSpinning.jumpToPosition(MarbleInputHandler::d->m_marblePresenter->centerLongitude().toDegree(),
+                                                MarbleInputHandler::d->m_marblePresenter->centerLatitude().toDegree());
         }
         MarbleInputHandler::d->m_steps = 0;
     }
@@ -367,13 +366,12 @@ bool MarbleDefaultInputHandler::handleWheel(QWheelEvent *wheelevt)
 
 bool MarbleDefaultInputHandler::handlePinch(const QPointF &center, qreal scaleFactor, Qt::GestureState state)
 {
-    qreal  destLat;
-    qreal  destLon;
+    GeoDataLatitude destLat;
+    GeoDataLongitude destLon;
 
     MarbleAbstractPresenter *marblePresenter = MarbleInputHandler::d->m_marblePresenter;
 
-    bool isValid = marblePresenter->map()->geoCoordinates(center.x(), center.y(),
-                 destLon, destLat, GeoDataCoordinates::Radian );
+    bool isValid = marblePresenter->map()->geoCoordinates(center.x(), center.y(), destLon, destLat);
 
     if (isValid)
     {
@@ -507,7 +505,7 @@ void MarbleDefaultInputHandler::handleLeftMouseButtonPress(QMouseEvent *event)
     if (MarbleInputHandler::d->m_inertialEarthRotation)
     {
         d->m_kineticSpinning.stop();
-        d->m_kineticSpinning.setPosition(d->m_leftPressedLon, d->m_leftPressedLat);
+        d->m_kineticSpinning.setPosition(d->m_leftPressedLon.toDegree(), d->m_leftPressedLat.toDegree());
     }
 
     if (event->modifiers() & Qt::ControlModifier)
@@ -546,7 +544,7 @@ void MarbleDefaultInputHandler::handleRightMouseButtonPress(QMouseEvent *event)
     if (MarbleInputHandler::d->m_inertialEarthRotation)
     {
         d->m_kineticSpinning.stop();
-        d->m_kineticSpinning.setHeading(d->m_heading);
+        d->m_kineticSpinning.setHeading(d->m_heading.toDegree());
     }
 }
 
@@ -604,7 +602,7 @@ void MarbleDefaultInputHandler::handleMouseButtonRelease(QMouseEvent *event)
     }
 }
 
-void MarbleDefaultInputHandler::notifyPosition(bool isMouseAboveMap, qreal mouseLon, qreal mouseLat)
+void MarbleDefaultInputHandler::notifyPosition(bool isMouseAboveMap, GeoDataLongitude mouseLon, GeoDataLatitude mouseLat)
 {
     // emit the position string only if the signal got attached
     if (MarbleInputHandler::d->m_positionSignalConnected) {
@@ -779,10 +777,10 @@ bool MarbleDefaultInputHandler::handleMouseEvent(QMouseEvent *event)
         }
     }
 
-    qreal mouseLon;
-    qreal mouseLat;
+    GeoDataLongitude mouseLon;
+    GeoDataLatitude mouseLat;
     const bool isMouseAboveMap = MarbleInputHandler::d->m_marblePresenter->map()->geoCoordinates(event->x(), event->y(),
-                                             mouseLon, mouseLat, GeoDataCoordinates::Radian);
+                                             mouseLon, mouseLat);
     notifyPosition(isMouseAboveMap, mouseLon, mouseLat);
 
     QPoint mousePosition(event->x(), event->y());
@@ -815,17 +813,17 @@ bool MarbleDefaultInputHandler::handleMouseEvent(QMouseEvent *event)
 
                 d->m_pressAndHoldTimer.stop();
                 d->m_lmbTimer.stop();
-                const Quaternion rotation = Quaternion::fromEuler( 0, 0, MarbleInputHandler::d->m_marblePresenter->map()->heading() * DEG2RAD );
+                const Quaternion rotation = Quaternion::fromEuler(0, 0, MarbleInputHandler::d->m_marblePresenter->map()->heading().toRadian());
                 Quaternion quat = Quaternion::fromSpherical( - M_PI/2 * deltax / radius, + M_PI/2 * deltay / radius );
                 quat.rotateAroundAxis( rotation );
                 qreal lon, lat;
                 quat.getSpherical( lon, lat );
-                const qreal posLon = d->m_leftPressedLon + RAD2DEG * lon;
-                const qreal posLat = d->m_leftPressedLat + RAD2DEG * lat;
+                const GeoDataLongitude posLon = d->m_leftPressedLon + GeoDataLongitude::fromRadians(lon);
+                const GeoDataLatitude posLat = d->m_leftPressedLat + GeoDataLatitude::fromRadians(lat);
                 MarbleInputHandler::d->m_marblePresenter->centerOn(posLon, posLat);
                 if (MarbleInputHandler::d->m_inertialEarthRotation)
                 {
-                    d->m_kineticSpinning.setPosition(posLon, posLat);
+                    d->m_kineticSpinning.setPosition(posLon.toDegree(), posLat.toDegree());
                 }
             }
         }
@@ -859,11 +857,11 @@ bool MarbleDefaultInputHandler::handleMouseEvent(QMouseEvent *event)
             }
 
             const qreal speedFactor = 0.3;
-            d->m_heading += (dx + dy) * sign * speedFactor;
+            d->m_heading += GeoDataAngle::fromDegrees((dx + dy) * sign * speedFactor);
             MarbleInputHandler::d->m_marblePresenter->map()->setHeading(d->m_heading);
             if (MarbleInputHandler::d->m_inertialEarthRotation)
             {
-                d->m_kineticSpinning.setHeading(d->m_heading);
+                d->m_kineticSpinning.setHeading(d->m_heading.toDegree());
             }
         }
 
@@ -987,6 +985,17 @@ void MarbleDefaultInputHandler::handleMouseButtonPressAndHold(const QPoint &)
 void MarbleDefaultInputHandler::handlePressAndHold()
 {
     handleMouseButtonPressAndHold(QPoint(d->m_leftPressedX, d->m_leftPressedY));
+}
+
+void MarbleDefaultInputHandler::centerOn(qreal lon, qreal lat)
+{
+    MarbleInputHandler::d->m_marblePresenter->centerOn(GeoDataLongitude::fromDegrees(lon),
+                                                       GeoDataLatitude::fromDegrees(lat));
+}
+
+void MarbleDefaultInputHandler::headingOn(qreal heading)
+{
+    MarbleInputHandler::d->m_marblePresenter->headingOn(GeoDataAngle::fromDegrees(heading));
 }
 
 const AbstractDataPluginItem *MarbleDefaultInputHandler::lastToolTipItem() const

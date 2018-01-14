@@ -56,7 +56,7 @@ int main(int argc, char** argv)
     layout->addWidget(positionLabel);
 
     // Center the map onto a given position
-    GeoDataCoordinates home(-60.0, -10.0, 0.0, GeoDataCoordinates::Degree);
+    const auto home = GeoDataCoordinates(-GeoDataLongitude::fromDegrees(60.0), -GeoDataLatitude::fromDegrees(10.0));
     mapWidget->centerOn(home);
 
     // Connect the map widget to the position label.

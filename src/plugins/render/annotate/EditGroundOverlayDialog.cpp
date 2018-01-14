@@ -71,11 +71,11 @@ EditGroundOverlayDialog::EditGroundOverlayDialog( GeoDataGroundOverlay *overlay,
     d->m_rotation->setRange( -360, 360 );
 
     GeoDataLatLonBox latLonBox = overlay->latLonBox();
-    d->m_north->setValue( latLonBox.north( GeoDataCoordinates::Degree ) );
-    d->m_south->setValue( latLonBox.south( GeoDataCoordinates::Degree ) );
-    d->m_west->setValue( latLonBox.west( GeoDataCoordinates::Degree ) );
-    d->m_east->setValue( latLonBox.east( GeoDataCoordinates::Degree ) );
-    d->m_rotation->setValue( latLonBox.rotation( GeoDataCoordinates::Degree ) );
+    d->m_north->setValue(latLonBox.north().toDegree());
+    d->m_south->setValue(latLonBox.south().toDegree());
+    d->m_west->setValue(latLonBox.west().toDegree());
+    d->m_east->setValue(latLonBox.east().toDegree());
+    d->m_rotation->setValue(latLonBox.rotation().toDegree());
 
     connect( d->buttonBox->button( QDialogButtonBox::Ok ), SIGNAL(pressed()), this, SLOT(checkFields()) );
 }
@@ -91,13 +91,12 @@ void EditGroundOverlayDialog::updateGroundOverlay()
     d->m_overlay->setIconFile( d->m_header->iconLink() );
     d->m_overlay->setDescription( d->m_formattedTextWidget->text() );
 
-    d->m_overlay->latLonBox().setBoundaries( d->m_north->value(),
-                                             d->m_south->value(),
-                                             d->m_east->value(),
-                                             d->m_west->value(),
-                                             GeoDataCoordinates::Degree  );
+    d->m_overlay->latLonBox().setBoundaries(GeoDataLatitude::fromDegrees(d->m_north->value()),
+                                            GeoDataLatitude::fromDegrees(d->m_south->value()),
+                                            GeoDataLongitude::fromDegrees(d->m_east->value()),
+                                            GeoDataLongitude::fromDegrees(d->m_west->value()));
 
-    d->m_overlay->latLonBox().setRotation( d->m_rotation->value(), GeoDataCoordinates::Degree );
+    d->m_overlay->latLonBox().setRotation(GeoDataAngle::fromDegrees(d->m_rotation->value()));
 }
 
 void EditGroundOverlayDialog::setGroundOverlayUpdated()

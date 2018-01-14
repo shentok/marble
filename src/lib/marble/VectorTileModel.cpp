@@ -72,8 +72,7 @@ void VectorTileModel::setViewport(const GeoDataLatLonBox &latLonBox)
 {
     bool const smallScreen = MarbleGlobal::getInstance()->profiles() & MarbleGlobal::SmallScreen;
     int const nTiles = smallScreen ? 12 : 20;
-    qreal const viewportArea = latLonBox.width() * latLonBox.height();
-    qreal const level = log((nTiles * 2.0 * M_PI * M_PI) / viewportArea) / log(4);
+    qreal const level = log(nTiles * 4.0 * GeoDataLatitude::quaterCircle / latLonBox.height() * GeoDataLongitude::halfCircle / latLonBox.width()) / log(4);
     m_tileZoomLevel = qFloor(level);
     int tileLoadLevel = m_tileZoomLevel;
 

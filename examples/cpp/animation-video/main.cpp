@@ -42,11 +42,11 @@ namespace {
     QStringList const features = QStringList() << "stars" << "atmosphere";
 
     // Camera starting point: Position and zoom level
-    GeoDataCoordinates const source(   8.40314, 49.01302, 0.0, GeoDataCoordinates::Degree);
+    GeoDataCoordinates const source(GeoDataLongitude::fromDegrees(8.40314), GeoDataLatitude::fromDegrees(49.01302));
     double const sourceZoomLevel = 11;
 
     // Camera destination point: Position and zoom level
-    GeoDataCoordinates const destination( -101.36631, 43.13718, 0.0, GeoDataCoordinates::Degree);
+    GeoDataCoordinates const destination(-GeoDataLongitude::fromDegrees(101.36631), GeoDataLatitude::fromDegrees(43.13718));
     double const destinationZoomLevel = 14;
 
     // Minimum zoom level (in the middle of the animation)
@@ -70,8 +70,8 @@ void interpolate( MarbleWidget* widget, qreal value )
     GeoDataCoordinates coordinates;
     qreal lon, lat;
     Quaternion::slerp( source.quaternion(), destination.quaternion(), value ).getSpherical( lon, lat );
-    coordinates.setLongitude( lon );
-    coordinates.setLatitude( lat );
+    coordinates.setLongitude(GeoDataLongitude::fromRadians(lon));
+    coordinates.setLatitude(GeoDataLatitude::fromRadians(lat));
     widget->centerOn( coordinates );
     widget->setRadius( exp(jumpZoomLevel) + (value < 0.5 ? exp(sourceZoomLevel*(1.0-2*value)) : exp(destinationZoomLevel*(2*value-1.0))) );
 }

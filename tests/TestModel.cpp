@@ -84,12 +84,12 @@ void TestModel::simpleParseTest()
     QCOMPARE( model->altitudeMode(), RelativeToGround);
 
     QCOMPARE( model->location().altitude(), 23.4);
-    QCOMPARE( model->location().latitude(GeoDataCoordinates::Degree), 40.00 );
-    QCOMPARE( model->location().longitude(GeoDataCoordinates::Degree), -105.27 );
+    QCOMPARE( model->location().latitude(), GeoDataLatitude::fromDegrees(40.00) );
+    QCOMPARE( model->location().longitude(), -GeoDataLongitude::fromDegrees(105.27) );
 
-    QCOMPARE( model->orientation().heading(), 1.0);
-    QCOMPARE( model->orientation().tilt(), 2.0);
-    QCOMPARE( model->orientation().roll(), 3.0);
+    QCOMPARE( model->orientation().heading(), GeoDataAngle::fromDegrees(1.0));
+    QCOMPARE( model->orientation().tilt(), GeoDataAngle::fromDegrees(2.0));
+    QCOMPARE( model->orientation().roll(), GeoDataAngle::fromDegrees(3.0));
     QCOMPARE( model->scale().x(), 3.0);
     QCOMPARE( model->scale().y(), 4.0);
     QCOMPARE( model->scale().z(), 5.0);

@@ -41,7 +41,7 @@ namespace Marble {
         void run() override;
 
         void addObject( const QString &callSign,
-                        qreal latitude, qreal longitude, bool canDoDirect,
+                        GeoDataLatitude latitude, GeoDataLongitude longitude, bool canDoDirect,
                         const QString &routePath,
                         const QChar &symbolTable,
                         const QChar &symbolCode );
@@ -57,7 +57,7 @@ namespace Marble {
 
       private:
         void initMicETables();
-        static qreal calculateLongitude( const QString &threeBytes,
+        static GeoDataLongitude calculateLongitude(const QString &threeBytes,
                                          int offset, bool isEast );
 
         AprsSource                  *m_source;

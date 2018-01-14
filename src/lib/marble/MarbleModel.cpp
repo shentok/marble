@@ -84,7 +84,7 @@ class MarbleModelPrivate
           m_planet(PlanetFactory::construct(QStringLiteral("earth"))),
           m_sunLocator( &m_clock, &m_planet ),
           m_pluginManager(),
-          m_homePoint( -9.4, 54.8, 0.0, GeoDataCoordinates::Degree ),  // Some point that tackat defined. :-)
+          m_homePoint(-GeoDataLongitude::fromDegrees(9.4), GeoDataLatitude::fromDegrees(54.8)),  // Some point that tackat defined. :-)
           m_homeZoom( 1050 ),
           m_mapTheme( nullptr ),
           m_storagePolicy( MarbleDirs::localPath() ),
@@ -441,15 +441,15 @@ void MarbleModelPrivate::addHighlightStyle(GeoDataDocument *doc) const
     }
 }
 
-void MarbleModel::home( qreal &lon, qreal &lat, int& zoom ) const
+void MarbleModel::home(GeoDataLongitude &lon, GeoDataLatitude &lat, int &zoom) const
 {
-    d->m_homePoint.geoCoordinates( lon, lat, GeoDataCoordinates::Degree );
+    d->m_homePoint.geoCoordinates(lon, lat);
     zoom = d->m_homeZoom;
 }
 
-void MarbleModel::setHome( qreal lon, qreal lat, int zoom )
+void MarbleModel::setHome(GeoDataLongitude lon, GeoDataLatitude lat, int zoom)
 {
-    d->m_homePoint = GeoDataCoordinates( lon, lat, 0, GeoDataCoordinates::Degree );
+    d->m_homePoint = GeoDataCoordinates(lon, lat);
     d->m_homeZoom = zoom;
     emit homeChanged( d->m_homePoint );
 }

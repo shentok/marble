@@ -24,6 +24,9 @@
 
 #include "CylindricalProjection.h"
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 namespace Marble
 {
 
@@ -59,8 +62,8 @@ class MercatorProjection : public CylindricalProjection
      */
     QIcon icon() const override;
 
-    qreal  maxValidLat() const override;
-    qreal  minValidLat() const override;
+    GeoDataLatitude maxValidLat() const override;
+    GeoDataLatitude minValidLat() const override;
 
     PreservationType preservationType() const override { return Conformal; }
 
@@ -101,10 +104,7 @@ class MercatorProjection : public CylindricalProjection
      * @return @c true  if the pixel (x, y) is within the globe
      *         @c false if the pixel (x, y) is outside the globe, i.e. in space.
      */
-    bool geoCoordinates( const int x, const int y,
-                         const ViewportParams *params,
-                         qreal& lon, qreal& lat,
-                         GeoDataCoordinates::Unit = GeoDataCoordinates::Degree ) const override;
+    bool geoCoordinates(int x, int y, const ViewportParams *viewport, GeoDataLongitude &lon, GeoDataLatitude &lat) const override;
 
     GeoDataLatLonAltBox latLonAltBox( const QRect &screenRect,
                                       const ViewportParams *viewport ) const override;
@@ -112,7 +112,7 @@ class MercatorProjection : public CylindricalProjection
     bool  mapCoversViewport( const ViewportParams *viewport ) const override;
 
  private:
-    mutable qreal m_lastCenterLat;
+    mutable GeoDataLatitude m_lastCenterLat;
     mutable qreal m_lastCenterLatInv;
 
     Q_DISABLE_COPY( MercatorProjection )

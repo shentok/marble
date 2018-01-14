@@ -191,9 +191,9 @@ void Routing::updateWaypointItems()
         while ( iter != d->m_waypointItems.end() ) {
             qreal x = 0;
             qreal y = 0;
-            const qreal lon = d->m_routeRequestModel->data(d->m_routeRequestModel->index( iter.key() ), RouteRequestModel::LongitudeRole).toFloat();
-            const qreal lat = d->m_routeRequestModel->data(d->m_routeRequestModel->index( iter.key() ), RouteRequestModel::LatitudeRole).toFloat();
-            const bool visible = d->m_marbleMap->viewport()->screenCoordinates(lon * DEG2RAD, lat * DEG2RAD, x, y);
+            const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(d->m_routeRequestModel->data(d->m_routeRequestModel->index(iter.key()), RouteRequestModel::LongitudeRole).toFloat());
+            const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(d->m_routeRequestModel->data(d->m_routeRequestModel->index(iter.key()), RouteRequestModel::LatitudeRole).toFloat());
+            const bool visible = d->m_marbleMap->viewport()->screenCoordinates(lon, lat, x, y);
 
             QQuickItem * item = iter.value();
             if ( item ) {
@@ -277,8 +277,8 @@ void Routing::updateSearchResultPlacemarks()
     for (int i = 0; i < d->m_searchResultItems.keys().size() && i < d->m_searchResultPlacemarks.size(); i++) {
         qreal x = 0;
         qreal y = 0;
-        const qreal lon = d->m_searchResultPlacemarks[i]->placemark().coordinate().longitude();
-        const qreal lat = d->m_searchResultPlacemarks[i]->placemark().coordinate().latitude();
+        const GeoDataLongitude lon = d->m_searchResultPlacemarks[i]->placemark().coordinate().longitude();
+        const GeoDataLatitude lat = d->m_searchResultPlacemarks[i]->placemark().coordinate().latitude();
         const bool visible = d->m_marbleMap->viewport()->screenCoordinates(lon, lat, x, y);
 
         QQuickItem * item = d->m_searchResultItems[i];
@@ -395,7 +395,7 @@ void Routing::addVia( qreal lon, qreal lat )
 {
     if ( d->m_marbleMap ) {
         Marble::RouteRequest* request = d->m_marbleMap->model()->routingManager()->routeRequest();
-        request->addVia( Marble::GeoDataCoordinates( lon, lat, 0.0, Marble::GeoDataCoordinates::Degree ) );
+        request->addVia(Marble::GeoDataCoordinates(GeoDataLongitude::fromDegrees(lon), GeoDataLatitude::fromDegrees(lat)));
         updateRoute();
     }
 }
@@ -404,7 +404,7 @@ void Routing::addViaAtIndex(int index, qreal lon, qreal lat)
 {
     if ( d->m_marbleMap ) {
         Marble::RouteRequest * request = d->m_marbleMap->model()->routingManager()->routeRequest();
-        request->insert(index, Marble::GeoDataCoordinates( lon, lat, 0.0, Marble::GeoDataCoordinates::Degree) );
+        request->insert(index, Marble::GeoDataCoordinates(GeoDataLongitude::fromDegrees(lon), GeoDataLatitude::fromDegrees(lat)));
         updateRoute();
     }
 }
@@ -436,12 +436,12 @@ void Routing::setVia( int index, qreal lon, qreal lat )
     Marble::RouteRequest* request = d->m_marbleMap->model()->routingManager()->routeRequest();
     Q_ASSERT( request );
     if ( index < request->size() ) {
-        request->setPosition( index, Marble::GeoDataCoordinates( lon, lat, 0.0, Marble::GeoDataCoordinates::Degree ) );
+        request->setPosition(index, Marble::GeoDataCoordinates(GeoDataLongitude::fromDegrees(lon), GeoDataLatitude::fromDegrees(lat)));
     } else {
         for ( int i=request->size(); i<index; ++i ) {
-            request->append( Marble::GeoDataCoordinates( 0.0, 0.0 ) );
+            request->append(Marble::GeoDataCoordinates(GeoDataLongitude::null, GeoDataLatitude::null));
         }
-        request->append( Marble::GeoDataCoordinates( lon, lat, 0.0, Marble::GeoDataCoordinates::Degree ) );
+        request->append(Marble::GeoDataCoordinates(GeoDataLongitude::fromDegrees(lon), GeoDataLatitude::fromDegrees(lat)));
     }
 
     updateRoute();
@@ -507,8 +507,7 @@ void Routing::openRoute( const QString &fileName )
             const Marble::GeoDataLineString* waypoints = Marble::AlternativeRoutesModel::waypoints( route );
             if ( waypoints ) {
                 GeoDataCoordinates const center = waypoints->latLonAltBox().center();
-                GeoDataCoordinates::Unit const inDegree = GeoDataCoordinates::Degree;
-                d->m_marbleMap->centerOn( center.longitude(inDegree), center.latitude(inDegree) );
+                d->m_marbleMap->centerOn(center.longitude(), center.latitude());
             }
         }
     }

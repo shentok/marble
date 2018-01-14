@@ -96,19 +96,19 @@ void TileScalingTextureMapper::mapTexture( GeoPainter *painter, const ViewportPa
     m_tileLoader->resetTilehash();
 
     // Calculate translation of center point
-    const qreal centerLon = viewport->centerLongitude();
-    const qreal centerLat = viewport->centerLatitude();
+    const GeoDataLongitude centerLon = viewport->centerLongitude();
+    const GeoDataLatitude centerLat = viewport->centerLatitude();
 
     const int numTilesX = m_tileLoader->tileRowCount( tileZoomLevel );
     const int numTilesY = m_tileLoader->tileColumnCount( tileZoomLevel );
     Q_ASSERT( numTilesX > 0 );
     Q_ASSERT( numTilesY > 0 );
 
-    const qreal xNormalizedCenter = 0.5 + 0.5 * centerLon / M_PI;
+    const qreal xNormalizedCenter = 0.5 + 0.5 * centerLon / GeoDataLongitude::halfCircle;
     const int minTileX = qFloor( numTilesX * ( xNormalizedCenter - imageWidth/( 8.0 * radius ) ) );
     const int maxTileX = numTilesX * ( xNormalizedCenter + imageWidth/( 8.0 * radius ) );
 
-    const qreal yNormalizedCenter = 0.5 - 0.5 * asinh( tan( centerLat ) ) / M_PI;
+    const qreal yNormalizedCenter = 0.5 - 0.5 * asinh(tan(centerLat.toRadian())) / M_PI;
     const int minTileY = qMax( qreal( numTilesY * ( yNormalizedCenter - imageHeight/( 8.0 * radius ) ) ),
                                qreal( 0.0 ) );
     const int maxTileY = qMin( qreal( numTilesY * ( yNormalizedCenter + imageHeight/( 8.0 * radius ) ) ),

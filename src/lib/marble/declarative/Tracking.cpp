@@ -123,7 +123,7 @@ void Tracking::updatePositionMarker()
 
         qreal x(0), y(0);
         if ( position ) {
-            Marble::GeoDataCoordinates const pos( position->longitude(), position->latitude(), 0.0, GeoDataCoordinates::Degree );
+            const Marble::GeoDataCoordinates pos(GeoDataLongitude::fromDegrees(position->longitude()), GeoDataLatitude::fromDegrees(position->latitude()));
             visible = visible && m_marbleQuickItem->map()->viewport()->screenCoordinates( pos.longitude(), pos.latitude(), x, y );
             QQuickItem* item = qobject_cast<QQuickItem*>( m_positionMarker );
             if ( item ) {

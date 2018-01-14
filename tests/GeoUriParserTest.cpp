@@ -71,13 +71,15 @@ void GeoUriParserTest::testGeoUri()
 
     GeoDataCoordinates coords = parser.coordinates();
 
-    qreal cLat = 0.0, cLon = 0.0, cAlt = 0.0;
-    coords.geoCoordinates(cLon, cLat, cAlt, GeoDataCoordinates::Degree);
+    GeoDataLatitude cLat = GeoDataLatitude::null;
+    GeoDataLongitude cLon = GeoDataLongitude::null;
+    qreal cAlt = 0.0;
+    coords.geoCoordinates(cLon, cLat, cAlt);
 
     QCOMPARE(ret, valid);
     if ( ret == valid ) {
-        QCOMPARE(cLat, lat );
-        QCOMPARE(cLon, lon);
+        QCOMPARE(cLat, GeoDataLatitude::fromDegrees(lat));
+        QCOMPARE(cLon, GeoDataLongitude::fromDegrees(lon));
         QCOMPARE(cAlt, alt );
     }
 }

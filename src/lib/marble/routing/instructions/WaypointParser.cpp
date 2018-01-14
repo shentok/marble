@@ -67,8 +67,8 @@ RoutingWaypoints WaypointParser::parse( QTextStream &stream ) const
              !line.startsWith( QLatin1String( "Content-Type: text/plain" ) ) ) {
             QStringList entries = line.split( m_fieldSeparator );
             if ( entries.size() >= 1 + m_fieldIndices[RoadName] ) {
-                qreal lon = readField<qreal>( Longitude, entries );
-                qreal lat = readField<qreal>( Latitude, entries );
+                const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(readField<qreal>(Longitude, entries));
+                const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(readField<qreal>(Latitude, entries));
                 RoutingPoint point( lon, lat );
                 QString junctionTypeRaw = readField<QString>( JunctionType, entries, QString() );
                 RoutingWaypoint::JunctionType junctionType = RoutingWaypoint::Other;

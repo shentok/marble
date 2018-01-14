@@ -14,6 +14,8 @@
 #include <QUrl>
 #include <QUrlQuery>
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "Planet.h"
 #include "PlanetFactory.h"
 #include "MarbleDebug.h"
@@ -73,8 +75,8 @@ bool GeoUriParser::parse()
 
 
     if ( geoUriRegexp.indexIn( m_geoUri ) > -1 && geoUriRegexp.captureCount() > 1 ) {
-        double const lat = geoUriRegexp.capturedTexts()[1].toDouble();
-        double const lon = geoUriRegexp.capturedTexts()[2].toDouble();
+        GeoDataLatitude const lat = GeoDataLatitude::fromDegrees(geoUriRegexp.capturedTexts()[1].toDouble());
+        GeoDataLongitude const lon = GeoDataLongitude::fromDegrees(geoUriRegexp.capturedTexts()[2].toDouble());
         double const alt = geoUriRegexp.captureCount() > 2 ? geoUriRegexp.capturedTexts()[3].toDouble() : 0.0;
 
         if ( geoUriRegexp.captureCount() > 3 ) {
@@ -99,7 +101,7 @@ bool GeoUriParser::parse()
                 }
             }
         }
-        GeoDataCoordinates const coordinates( lon, lat, alt, GeoDataCoordinates::Degree );
+        GeoDataCoordinates const coordinates(lon, lat, alt);
         if ( coordinates.isValid() ) {
             m_coordinates = coordinates;
             return true;
@@ -109,8 +111,8 @@ bool GeoUriParser::parse()
         m_geoUri.replace(QStringLiteral("goto/"), QStringLiteral("goto/?"));
         QUrl worldwindUrl( m_geoUri );
 
-        double lat = queryValue(worldwindUrl, "lat", "latitude").toDouble();
-        double lon = queryValue(worldwindUrl, "lon", "longitude").toDouble();
+        const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(queryValue(worldwindUrl, "lat", "latitude").toDouble());
+        const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(queryValue(worldwindUrl, "lon", "longitude").toDouble());
         double alt = queryValue(worldwindUrl, "alt", "altitude").toDouble();
         //double bank = getDoubleFromParameter(worldwindUrl, "bank", "");
         //double dir = getDoubleFromParameter(worldwindUrl, "dir", "direction");
@@ -125,7 +127,7 @@ bool GeoUriParser::parse()
             }
         }
 
-        GeoDataCoordinates const coordinates( lon, lat, alt, GeoDataCoordinates::Degree );
+        GeoDataCoordinates const coordinates(lon, lat, alt);
         if ( coordinates.isValid() ) {
             m_coordinates = coordinates;
             return true;

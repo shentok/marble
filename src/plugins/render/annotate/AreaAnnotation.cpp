@@ -158,12 +158,12 @@ void AreaAnnotation::move( const GeoDataCoordinates &source, const GeoDataCoordi
     polygon->outerBoundary().clear();
     polygon->innerBoundaries().clear();
 
-    const qreal deltaLat = destination.latitude() - source.latitude();
-    const qreal deltaLon = destination.longitude() - source.longitude();
+    const GeoDataLatitude deltaLat = destination.latitude() - source.latitude();
+    const GeoDataLongitude deltaLon = destination.longitude() - source.longitude();
 
-    Quaternion latRectAxis = Quaternion::fromEuler( 0, destination.longitude(), 0);
-    Quaternion latAxis = Quaternion::fromEuler( -deltaLat, 0, 0);
-    Quaternion lonAxis = Quaternion::fromEuler(0, deltaLon, 0);
+    Quaternion latRectAxis = Quaternion::fromEuler(0, destination.longitude().toRadian(), 0);
+    Quaternion latAxis = Quaternion::fromEuler(-deltaLat.toRadian(), 0, 0);
+    Quaternion lonAxis = Quaternion::fromEuler(0, deltaLon.toRadian(), 0);
     Quaternion rotAxis = latRectAxis * latAxis * latRectAxis.inverse() * lonAxis;
 
     for ( int i = 0; i < outerRing.size(); ++i ) {
@@ -925,11 +925,9 @@ bool AreaAnnotation::processEditingOnPress( QMouseEvent *mouseEvent )
         return false;
     }
 
-    qreal lat, lon;
-    m_viewport->geoCoordinates( mouseEvent->pos().x(),
-                                mouseEvent->pos().y(),
-                                lon, lat,
-                                GeoDataCoordinates::Radian );
+    GeoDataLatitude lat;
+    GeoDataLongitude lon;
+    m_viewport->geoCoordinates(mouseEvent->pos().x(), mouseEvent->pos().y(), lon, lat);
     m_movedPointCoords.set( lon, lat );
 
     // First check if one of the nodes from outer boundary has been clicked.
@@ -980,15 +978,13 @@ bool AreaAnnotation::processEditingOnMove( QMouseEvent *mouseEvent )
         return false;
     }
 
-    qreal lon, lat;
-    m_viewport->geoCoordinates( mouseEvent->pos().x(),
-                                mouseEvent->pos().y(),
-                                lon, lat,
-                                GeoDataCoordinates::Radian );
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
+    m_viewport->geoCoordinates(mouseEvent->pos().x(), mouseEvent->pos().y(), lon, lat);
     const GeoDataCoordinates newCoords( lon, lat );
 
-    const qreal deltaLat = lat - m_movedPointCoords.latitude();
-    const qreal deltaLon = lon - m_movedPointCoords.longitude();
+    const GeoDataLatitude deltaLat = lat - m_movedPointCoords.latitude();
+    const GeoDataLongitude deltaLon = lon - m_movedPointCoords.longitude();
 
     if ( m_interactingObj == InteractingNode ) {
         GeoDataPolygon *polygon = static_cast<GeoDataPolygon*>( placemark()->geometry() );
@@ -1026,9 +1022,9 @@ bool AreaAnnotation::processEditingOnMove( QMouseEvent *mouseEvent )
             osmData = &placemark()->osmData();
         }
 
-        Quaternion latRectAxis = Quaternion::fromEuler( 0, lon, 0);
-        Quaternion latAxis = Quaternion::fromEuler( -deltaLat, 0, 0);
-        Quaternion lonAxis = Quaternion::fromEuler(0, deltaLon, 0);
+        Quaternion latRectAxis = Quaternion::fromEuler(0, lon.toRadian(), 0);
+        Quaternion latAxis = Quaternion::fromEuler(-deltaLat.toRadian(), 0, 0);
+        Quaternion lonAxis = Quaternion::fromEuler(0, deltaLon.toRadian(), 0);
         Quaternion rotAxis = latRectAxis * latAxis * latRectAxis.inverse() * lonAxis;
 
 
@@ -1112,11 +1108,9 @@ bool AreaAnnotation::processAddingHoleOnPress( QMouseEvent *mouseEvent )
         return false;
     }
 
-    qreal lon, lat;
-    m_viewport->geoCoordinates( mouseEvent->pos().x(),
-                                    mouseEvent->pos().y(),
-                                    lon, lat,
-                                    GeoDataCoordinates::Radian );
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
+    m_viewport->geoCoordinates(mouseEvent->pos().x(), mouseEvent->pos().y(), lon, lat);
     const GeoDataCoordinates newCoords( lon, lat );
 
     GeoDataPolygon *polygon = static_cast<GeoDataPolygon*>( placemark()->geometry() );
@@ -1403,11 +1397,9 @@ bool AreaAnnotation::processAddingNodesOnMove( QMouseEvent *mouseEvent )
     if ( m_adjustedNode != -2 ) {
         // The virtual node which has just been added is always the last within
         // GeoDataLinearRing's container.qreal lon, lat;
-        qreal lon, lat;
-        m_viewport->geoCoordinates( mouseEvent->pos().x(),
-                                    mouseEvent->pos().y(),
-                                    lon, lat,
-                                    GeoDataCoordinates::Radian );
+        GeoDataLongitude lon;
+        GeoDataLatitude lat;
+        m_viewport->geoCoordinates(mouseEvent->pos().x(), mouseEvent->pos().y(), lon, lat);
         const GeoDataCoordinates newCoords( lon, lat );
         GeoDataPolygon *polygon = static_cast<GeoDataPolygon*>( placemark()->geometry() );
 

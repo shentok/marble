@@ -14,6 +14,9 @@
 #include <QWidget>
 
 #include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include "MarbleGlobal.h"
 #include "marble_export.h"
 
@@ -36,8 +39,8 @@ public:
     ~PlacemarkEditHeader() override;
     QString name() const;
     QString iconLink() const;
-    qreal latitude() const;
-    qreal longitude() const;
+    GeoDataLatitude latitude() const;
+    GeoDataLongitude longitude() const;
     GeoDataCoordinates::Notation notation() const;
     bool positionVisible() const;
     QString id() const;
@@ -50,8 +53,8 @@ public:
 public Q_SLOTS:
     void setName(const QString &name);
     void setIconLink(const QString &iconLink);
-    void setLatitude(qreal latitude);
-    void setLongitude(qreal longitude);
+    void setLatitude(GeoDataLatitude latitude);
+    void setLongitude(GeoDataLongitude longitude);
     void setNotation(GeoDataCoordinates::Notation notation);
     void setPositionVisible( bool visible );
     QString setId( const QString &id );

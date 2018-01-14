@@ -91,8 +91,8 @@ void PlacemarkTextAnnotation::dealWithItemChange( const SceneGraphicsItem *other
 void PlacemarkTextAnnotation::move( const GeoDataCoordinates &source, const GeoDataCoordinates &destination )
 {
     Q_UNUSED( source );
-    qreal lat = destination.latitude();
-    qreal lon = destination.longitude();
+    GeoDataLatitude lat = destination.latitude();
+    GeoDataLongitude lon = destination.longitude();
     GeoDataCoordinates::normalizeLonLat( lon, lat );
     placemark()->setCoordinate( lon, lat );
 }
@@ -128,11 +128,9 @@ bool PlacemarkTextAnnotation::mouseMoveEvent( QMouseEvent *event )
 {
     setRequest( SceneGraphicsItem::NoRequest );
 
-    qreal lon, lat;
-    m_viewport->geoCoordinates( event->pos().x(),
-                                event->pos().y(),
-                                lon, lat,
-                                GeoDataCoordinates::Radian );
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
+    m_viewport->geoCoordinates(event->pos().x(), event->pos().y(), lon, lat);
 
     if ( m_movingPlacemark ) {
         placemark()->setCoordinate( lon, lat );

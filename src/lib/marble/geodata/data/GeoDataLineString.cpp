@@ -84,13 +84,13 @@ void GeoDataLineStringPrivate::interpolateDateLine( const GeoDataCoordinates & p
     previousAtDateLine = dateLineCoords;
     currentAtDateLine = dateLineCoords;
 
-    if ( previousCoords.longitude() < 0 ) {
-        previousAtDateLine.setLongitude( -M_PI );
-        currentAtDateLine.setLongitude( +M_PI );
+    if (previousCoords.longitude() < GeoDataLongitude::null) {
+        previousAtDateLine.setLongitude(-GeoDataLongitude::halfCircle);
+        currentAtDateLine.setLongitude(+GeoDataLongitude::halfCircle);
     }
     else {
-        previousAtDateLine.setLongitude( +M_PI );
-        currentAtDateLine.setLongitude( -M_PI );
+        previousAtDateLine.setLongitude(+GeoDataLongitude::halfCircle);
+        currentAtDateLine.setLongitude(-GeoDataLongitude::halfCircle);
     }
 }
 
@@ -98,13 +98,14 @@ GeoDataCoordinates GeoDataLineStringPrivate::findDateLine( const GeoDataCoordina
                                              const GeoDataCoordinates & currentCoords,
                                              int recursionCounter ) const
 {
-    int currentSign = ( currentCoords.longitude() < 0.0 ) ? -1 : +1 ;
-    int previousSign = ( previousCoords.longitude() < 0.0 ) ? -1 : +1 ;
+    const int currentSign = (currentCoords.longitude() < GeoDataLongitude::null) ? -1 : +1 ;
+    const int previousSign = (previousCoords.longitude() < GeoDataLongitude::null) ? -1 : +1 ;
 
-    qreal longitudeDiff =   fabs( previousSign * M_PI  - previousCoords.longitude() )
-                          + fabs( currentSign * M_PI - currentCoords.longitude() );
+    const GeoDataLongitude longitudeDiff =
+            qAbs(previousSign * GeoDataLongitude::halfCircle - previousCoords.longitude())
+          + qAbs(currentSign * GeoDataLongitude::halfCircle - currentCoords.longitude());
 
-    if ( longitudeDiff < 0.001 || recursionCounter == 100 ) {
+    if (longitudeDiff < GeoDataLongitude::fromRadians(0.001) || recursionCounter == 100) {
 //        mDebug() << "stopped at recursion" << recursionCounter << " and longitude difference " << longitudeDiff;
         return currentCoords;
     }
@@ -112,7 +113,7 @@ GeoDataCoordinates GeoDataLineStringPrivate::findDateLine( const GeoDataCoordina
 
     const GeoDataCoordinates interpolatedCoords = previousCoords.nlerp(currentCoords, 0.5);
 
-    int interpolatedSign = ( interpolatedCoords.longitude() < 0.0 ) ? -1 : +1 ;
+    const int interpolatedSign = (interpolatedCoords.longitude() < GeoDataLongitude::null) ? -1 : +1 ;
 
 /*
     mDebug() << "SRC" << previousCoords.toString();
@@ -205,7 +206,7 @@ void GeoDataLineStringPrivate::optimize (GeoDataLineString& lineString) const
     if (lineString.size() < 2) return;
 
     // Calculate the least non-zero detail-level by checking the bounding box
-    quint8 startLevel = levelForResolution( ( lineString.latLonAltBox().width() + lineString.latLonAltBox().height() ) / 2 );
+    const quint8 startLevel = levelForResolution((lineString.latLonAltBox().width().toRadian() + lineString.latLonAltBox().height().toRadian()) / 2);
 
     quint8 currentLevel = startLevel;
     quint8 maxLevel = startLevel;
@@ -234,8 +235,8 @@ void GeoDataLineStringPrivate::optimize (GeoDataLineString& lineString) const
         for( ; itCoords != itEnd; ++itCoords) {
             if (itCoords->detail() != 0 && itCoords->detail() < currentLevel) continue;
 
-            if ( currentLevel == startLevel && (itCoords->longitude() == -M_PI || itCoords->longitude() == M_PI
-                || itCoords->latitude() < -89 * DEG2RAD || itCoords->latitude() > 89 * DEG2RAD)) {
+            if (currentLevel == startLevel && (itCoords->longitude() == -GeoDataLongitude::halfCircle || itCoords->longitude() == GeoDataLongitude::halfCircle
+                || itCoords->latitude() < -GeoDataLatitude::fromDegrees(89) || itCoords->latitude() > GeoDataLatitude::fromDegrees(89))) {
                 itCoords->setDetail(startLevel);
                 currentCoords = *itCoords;
                 maxLevel = currentLevel;
@@ -571,22 +572,17 @@ GeoDataLineString GeoDataLineString::toNormalized() const
 
     normalizedLineString.setTessellationFlags( tessellationFlags() );
 
-    qreal lon;
-    qreal lat;
-
     // FIXME: Think about how we can avoid unnecessary copies
     //        if the linestring stays the same.
-    QVector<GeoDataCoordinates>::const_iterator end = d->m_vector.constEnd();
-    for( QVector<GeoDataCoordinates>::const_iterator itCoords
-          = d->m_vector.constBegin();
-         itCoords != end;
-         ++itCoords ) {
+    for (auto itCoords : d->m_vector) {
+        GeoDataLongitude lon;
+        GeoDataLatitude lat;
 
-        itCoords->geoCoordinates( lon, lat );
-        qreal alt = itCoords->altitude();
+        itCoords.geoCoordinates(lon, lat);
+        const qreal alt = itCoords.altitude();
         GeoDataCoordinates::normalizeLonLat( lon, lat );
 
-        GeoDataCoordinates normalizedCoords( *itCoords );
+        GeoDataCoordinates normalizedCoords(itCoords);
         normalizedCoords.set( lon, lat, alt );
         normalizedLineString << normalizedCoords;
     }
@@ -649,7 +645,7 @@ void GeoDataLineStringPrivate::toPoleCorrected( const GeoDataLineString& q, GeoD
     if ( q.isClosed() ) {
         if ( !( m_vector.first().isPole() ) &&
               ( m_vector.last().isPole() ) ) {
-                qreal firstLongitude = ( m_vector.first() ).longitude();
+                const GeoDataLongitude firstLongitude = m_vector.first().longitude();
                 GeoDataCoordinates modifiedCoords( m_vector.last() );
                 modifiedCoords.setLongitude( firstLongitude );
                 poleCorrected << modifiedCoords;
@@ -672,7 +668,7 @@ void GeoDataLineStringPrivate::toPoleCorrected( const GeoDataLineString& q, GeoD
                 continue;
             }
             else {
-                qreal previousLongitude = previousCoords.longitude();
+                const GeoDataLongitude previousLongitude = previousCoords.longitude();
                 GeoDataCoordinates currentModifiedCoords( currentCoords );
                 currentModifiedCoords.setLongitude( previousLongitude );
                 poleCorrected << currentModifiedCoords;
@@ -680,7 +676,7 @@ void GeoDataLineStringPrivate::toPoleCorrected( const GeoDataLineString& q, GeoD
         }
         else {
             if ( previousCoords.isPole() ) {
-                qreal currentLongitude = currentCoords.longitude();
+                const GeoDataLongitude currentLongitude = currentCoords.longitude();
                 GeoDataCoordinates previousModifiedCoords( previousCoords );
                 previousModifiedCoords.setLongitude( currentLongitude );
                 poleCorrected << previousModifiedCoords;
@@ -697,7 +693,7 @@ void GeoDataLineStringPrivate::toPoleCorrected( const GeoDataLineString& q, GeoD
     if ( q.isClosed() ) {
         if (  ( m_vector.first().isPole() ) &&
              !( m_vector.last().isPole() ) ) {
-                qreal lastLongitude = ( m_vector.last() ).longitude();
+                const GeoDataLongitude lastLongitude = m_vector.last().longitude();
                 GeoDataCoordinates modifiedCoords( m_vector.first() );
                 modifiedCoords.setLongitude( lastLongitude );
                 poleCorrected << modifiedCoords;
@@ -724,15 +720,15 @@ void GeoDataLineStringPrivate::toDateLineCorrected(
     GeoDataLineString * dateLineCorrected = isClosed ? new GeoDataLinearRing( f )
                                                      : new GeoDataLineString( f );
 
-    qreal previousLon = 0.0;
+    GeoDataLongitude previousLon = GeoDataLongitude::null;
     int previousSign = 1;
 
     bool unfinished = false;
 
     for (; itPoint != itEndPoint; ++itPoint ) {
-        const qreal currentLon = itPoint->longitude();
+        const GeoDataLongitude currentLon = itPoint->longitude();
 
-        int currentSign = ( currentLon < 0.0 ) ? -1 : +1 ;
+        const int currentSign = (currentLon < GeoDataLongitude::null) ? -1 : +1 ;
 
         if( itPoint == q.constBegin() ) {
             previousSign = currentSign;
@@ -740,8 +736,7 @@ void GeoDataLineStringPrivate::toDateLineCorrected(
         }
 
         // If we are crossing the date line ...
-        if ( previousSign != currentSign && fabs(previousLon) + fabs(currentLon) > M_PI ) {
-
+        if (previousSign != currentSign && qAbs(previousLon) + qAbs(currentLon) > GeoDataLongitude::halfCircle) {
             unfinished = !unfinished;
 
             GeoDataCoordinates previousTemp;

@@ -43,7 +43,7 @@ public:
     void initialize() override;
     bool isInitialized() const override;
     qreal speed() const override;
-    qreal direction() const override;
+    GeoDataAngle direction() const override;
     QDateTime timestamp() const override;
 
     // Implementing PositionProviderPlugin

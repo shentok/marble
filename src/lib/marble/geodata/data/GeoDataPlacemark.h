@@ -19,6 +19,8 @@
 
 #include "GeoDataCoordinates.h"
 #include "GeoDataFeature.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 
 #include "geodata_export.h"
 
@@ -576,7 +578,7 @@ class GEODATA_EXPORT GeoDataPlacemark: public GeoDataFeature
      * Return the coordinates of the placemark as @p longitude,
      * @p latitude and @p altitude.
      */
-    void coordinate( qreal &longitude, qreal &latitude, qreal &altitude ) const;
+    void coordinate(GeoDataLongitude &longitude, GeoDataLatitude &latitude, qreal &altitude) const;
 
     /**
       * Quick, safe accessor to the placemark's OsmPlacemarkData stored within it's
@@ -597,8 +599,7 @@ class GEODATA_EXPORT GeoDataPlacemark: public GeoDataFeature
      * Set the coordinate of the placemark in @p longitude and
      * @p latitude.
      */
-    void setCoordinate( qreal longitude, qreal latitude, qreal altitude = 0,
-                        GeoDataCoordinates::Unit _unit = GeoDataCoordinates::Radian );
+    void setCoordinate(GeoDataLongitude longitude, GeoDataLatitude latitude, qreal altitude = 0);
 
     /**
     * Set the coordinate of the placemark with an @p GeoDataPoint.

@@ -11,7 +11,9 @@
 
 #include "KmlLineStringTagWriter.h"
 
+#include "GeoDataLatitude.h"
 #include "GeoDataLineString.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataTypes.h"
 #include "GeoDataCoordinates.h"
 #include "GeoWriter.h"
@@ -55,11 +57,11 @@ bool KmlLineStringTagWriter::write( const GeoNode *node, GeoWriter& writer ) con
                 writer.writeCharacters( " " );
             }
 
-            qreal lon = coordinates.longitude( GeoDataCoordinates::Degree );
-            writer.writeCharacters( QString::number( lon, 'f', 10 ) );
+            const GeoDataLongitude lon = coordinates.longitude();
+            writer.writeCharacters(QString::number(lon.toDegree(), 'f', 10));
             writer.writeCharacters( "," );
-            qreal lat = coordinates.latitude( GeoDataCoordinates::Degree );
-            writer.writeCharacters( QString::number( lat, 'f', 10 ) );
+            const GeoDataLatitude lat = coordinates.latitude();
+            writer.writeCharacters(QString::number(lat.toDegree(), 'f', 10));
 
             if ( hasAltitude ) {
                 qreal alt = coordinates.altitude();

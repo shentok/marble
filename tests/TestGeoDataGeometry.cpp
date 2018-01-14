@@ -33,7 +33,7 @@ void TestGeoDataGeometry::downcastPointTest_data()
     QTest::addColumn<GeoDataPoint>("point");
 
     GeoDataPoint point1;
-    point1.setCoordinates( GeoDataCoordinates(.5, .2, 100) );
+    point1.setCoordinates(GeoDataCoordinates(GeoDataLongitude::fromRadians(.5), GeoDataLatitude::fromRadians(.2), 100));
     QTest::newRow("First") << point1;
 }
 

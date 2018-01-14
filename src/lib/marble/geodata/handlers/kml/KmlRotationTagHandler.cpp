@@ -10,9 +10,9 @@
 
 #include "KmlRotationTagHandler.h"
 
-#include "MarbleDebug.h"
-
 #include "KmlElementDictionary.h"
+
+#include "GeoDataAngle.h"
 #include "GeoDataScreenOverlay.h"
 #include "GeoDataPhotoOverlay.h"
 #include "GeoDataLatLonBox.h"
@@ -32,21 +32,21 @@ GeoNode* KmlrotationTagHandler::parse( GeoParser& parser ) const
 
     if (parentItem.represents( kmlTag_ScreenOverlay ))
     {
-        qreal rotation = parser.readElementText().toFloat();
+        const auto rotation = GeoDataAngle::fromDegrees(parser.readElementText().toFloat());
 
         parentItem.nodeAs<GeoDataScreenOverlay>()->setRotation( rotation );
     }
     else if (parentItem.represents( kmlTag_LatLonBox ))
     {
-        qreal rotation = parser.readElementText().toFloat();
+        const auto rotation = GeoDataAngle::fromDegrees(parser.readElementText().toFloat());
 
-        parentItem.nodeAs<GeoDataLatLonBox>()->setRotation( rotation * DEG2RAD );
+        parentItem.nodeAs<GeoDataLatLonBox>()->setRotation(rotation);
     }
     else if (parentItem.represents( kmlTag_PhotoOverlay ))
     {
-        qreal rotation = parser.readElementText().toFloat();
+        const auto rotation = GeoDataAngle::fromDegrees(parser.readElementText().toFloat());
 
-        parentItem.nodeAs<GeoDataPhotoOverlay>()->setRotation( rotation );
+        parentItem.nodeAs<GeoDataPhotoOverlay>()->setRotation(rotation);
     }
     return nullptr;
 }

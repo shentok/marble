@@ -60,25 +60,24 @@
 
 using namespace Marble;
 
-qreal epsilon   =   1.0;
+const GeoDataAngle epsilon = GeoDataAngle::fromDegrees(1.0);
 
 // Polygon header flags, representing the type of polygon
 enum polygonFlagType { LINESTRING = 0, LINEARRING = 1, OUTERBOUNDARY = 2, INNERBOUNDARY = 3, MULTIGEOMETRY = 4 };
 
-qreal latDistance( const GeoDataCoordinates &A, const GeoDataCoordinates &B ) {
-    qreal latA = A.latitude( GeoDataCoordinates::Degree );
-    qreal latB = B.latitude( GeoDataCoordinates::Degree );
-    return latB - latA;
+GeoDataLatitude latDistance(const GeoDataCoordinates &a, const GeoDataCoordinates &b)
+{
+    return b.latitude() - a.latitude();
 }
 
-qreal lonDistance( const GeoDataCoordinates &A, const GeoDataCoordinates &B ) {
-    qreal lonA = A.longitude( GeoDataCoordinates::Degree );
-    qreal lonB = B.longitude( GeoDataCoordinates::Degree );
-    return lonB - lonA;
+GeoDataLongitude lonDistance(const GeoDataCoordinates &a, const GeoDataCoordinates &b)
+{
+    return b.longitude() - a.longitude();
 }
 
-qreal nodeDistance( const GeoDataCoordinates &A, const GeoDataCoordinates &B ) {
-    return qMax( qAbs( latDistance( A, B ) ), qAbs( lonDistance( A, B ) ) );
+GeoDataAngle nodeDistance(const GeoDataCoordinates &a, const GeoDataCoordinates &b)
+{
+    return GeoDataAngle::fromRadians(qMax(qAbs(latDistance(a,b).toRadian()), qAbs(lonDistance(a, b).toRadian())));
 }
 
 
@@ -123,14 +122,14 @@ void printAllNodes( const QVector<GeoDataCoordinates>::Iterator& begin, const QV
             for ( ; itAux2 != end && nodeDistance( (*it), (*itAux2) ) <= epsilon; ++itAux2 )
                 ++nrChildNodes;
 
-            qint16 lat = printFormat16( it->latitude( GeoDataCoordinates::Degree ) );
-            qint16 lon = printFormat16( it->longitude( GeoDataCoordinates::Degree ) );
+            const qint16 lat = printFormat16(it->latitude().toDegree());
+            const qint16 lon = printFormat16(it->longitude().toDegree());
 
             stream << lat << lon << nrChildNodes;
         }
         else { // relative nodes
-            qint8 lat = printFormat8( latDistance( (*it), (*itAux) ) );
-            qint8 lon = printFormat8( lonDistance( (*it), (*itAux) ) );
+            const qint8 lat = printFormat8(latDistance(*it, *itAux).toDegree());
+            const qint8 lon = printFormat8(lonDistance(*it, *itAux).toDegree());
             stream << lat << lon;
         }
     }

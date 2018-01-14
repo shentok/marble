@@ -13,6 +13,8 @@
 #include "MarbleGlobal.h"
 
 using Marble::GeoDataCoordinates;
+using Marble::GeoDataLatitude;
+using Marble::GeoDataLongitude;
 using Marble::EARTH_RADIUS;
 using Marble::DEG2RAD;
 
@@ -31,23 +33,23 @@ Coordinate::Coordinate(const Marble::GeoDataCoordinates &coordinates)
 
 qreal Coordinate::longitude() const
 {
-    return m_coordinate.longitude( GeoDataCoordinates::Degree );
+    return m_coordinate.longitude().toDegree();
 }
 
 void Coordinate::setLongitude( qreal lon )
 {
-    m_coordinate.setLongitude( lon, GeoDataCoordinates::Degree );
+    m_coordinate.setLongitude(Marble::GeoDataLongitude::fromDegrees(lon));
     emit longitudeChanged();
 }
 
 qreal Coordinate::latitude() const
 {
-    return m_coordinate.latitude( GeoDataCoordinates::Degree );
+    return m_coordinate.latitude().toDegree();
 }
 
 void Coordinate::setLatitude( qreal lat )
 {
-    m_coordinate.setLatitude( lat, GeoDataCoordinates::Degree );
+    m_coordinate.setLatitude(Marble::GeoDataLatitude::fromDegrees(lat));
     emit latitudeChanged();
 }
 
@@ -74,17 +76,16 @@ void Coordinate::setCoordinates( const GeoDataCoordinates &coordinates )
 
 qreal Coordinate::distance( qreal longitude, qreal latitude ) const
 {
-    GeoDataCoordinates::Unit deg = GeoDataCoordinates::Degree;
-    GeoDataCoordinates other( longitude, latitude, 0, deg );
+    const GeoDataCoordinates other(GeoDataLongitude::fromDegrees(longitude), GeoDataLatitude::fromDegrees(latitude));
     return EARTH_RADIUS * coordinates().sphericalDistanceTo(other);
 }
 
 qreal Coordinate::bearing( qreal longitude, qreal latitude ) const
 {
-    qreal deltaLon = longitude * DEG2RAD - m_coordinate.longitude();
-    qreal y = sin( deltaLon ) * cos( latitude * DEG2RAD );
-    qreal x = cos( m_coordinate.latitude() ) * sin( latitude * DEG2RAD ) -
-              sin( m_coordinate.latitude() ) * cos( latitude * DEG2RAD ) * cos( deltaLon );
+    auto deltaLon = GeoDataLongitude::fromDegrees(longitude) - m_coordinate.longitude();
+    qreal y = sin(deltaLon.toRadian()) * cos( latitude * DEG2RAD );
+    qreal x = cos( m_coordinate.latitude().toRadian() ) * sin( latitude * DEG2RAD ) -
+              sin( m_coordinate.latitude().toRadian() ) * cos( latitude * DEG2RAD ) * cos(deltaLon.toRadian());
     return Marble::RAD2DEG * atan2( y, x );
 }
 

@@ -58,7 +58,7 @@ bool Bookmarks::isBookmark( qreal longitude, qreal latitude ) const
 
     Marble::BookmarkManager* manager = m_marbleQuickItem->model()->bookmarkManager();
     Marble::GeoDataDocument *bookmarks = manager->document();
-    Marble::GeoDataCoordinates const compareTo( longitude, latitude, 0.0, Marble::GeoDataCoordinates::Degree );
+    Marble::GeoDataCoordinates const compareTo(GeoDataLongitude::fromDegrees(longitude), GeoDataLatitude::fromDegrees(latitude));
 
     qreal planetRadius = m_marbleQuickItem->model()->planet()->radius();
     for( const Marble::GeoDataFolder* folder: bookmarks->folderList() ) {
@@ -134,7 +134,7 @@ void Bookmarks::removeBookmark( qreal longitude, qreal latitude )
 
     Marble::BookmarkManager* manager = m_marbleQuickItem->model()->bookmarkManager();
     Marble::GeoDataDocument *bookmarks = manager->document();
-    Marble::GeoDataCoordinates const compareTo( longitude, latitude, 0.0, Marble::GeoDataCoordinates::Degree );
+    Marble::GeoDataCoordinates const compareTo(GeoDataLongitude::fromDegrees(longitude), GeoDataLatitude::fromDegrees(latitude));
 
     qreal planetRadius = m_marbleQuickItem->model()->planet()->radius();
     for( const Marble::GeoDataFolder* folder: bookmarks->folderList() ) {
@@ -188,7 +188,7 @@ qreal BookmarksModel::longitude( int idx ) const
     if ( idx >= 0 && idx < rowCount() ) {
         QVariant const value = data( index( idx, 0 ), Marble::MarblePlacemarkModel::CoordinateRole );
         Marble::GeoDataCoordinates const coordinates = value.value<Marble::GeoDataCoordinates>();
-        return coordinates.longitude( Marble::GeoDataCoordinates::Degree );
+        return coordinates.longitude().toDegree();
     }
     return 0.0;
 }
@@ -198,7 +198,7 @@ qreal BookmarksModel::latitude( int idx ) const
     if ( idx >= 0 && idx < rowCount() ) {
         QVariant const value = data( index( idx, 0 ), Marble::MarblePlacemarkModel::CoordinateRole );
         Marble::GeoDataCoordinates const coordinates = value.value<Marble::GeoDataCoordinates>();
-        return coordinates.latitude( Marble::GeoDataCoordinates::Degree );
+        return coordinates.latitude().toDegree();
     }
     return 0.0;
 }

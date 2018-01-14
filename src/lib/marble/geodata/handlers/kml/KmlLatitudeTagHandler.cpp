@@ -19,7 +19,7 @@
 #include "GeoDataLookAt.h"
 #include "GeoDataCamera.h"
 #include "GeoParser.h"
-#include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
 #include "GeoDataLocation.h"
 
 namespace Marble
@@ -34,14 +34,14 @@ namespace kml
         GeoStackItem parentItem = parser.parentElement();
 
         if ( parentItem.is<GeoDataLookAt>() ) {
-            qreal latitude = parser.readElementText().trimmed().toDouble();
-            parentItem.nodeAs<GeoDataLookAt>()->setLatitude(latitude, GeoDataCoordinates::Degree);
+            const GeoDataLatitude latitude = GeoDataLatitude::fromDegrees(parser.readElementText().trimmed().toDouble());
+            parentItem.nodeAs<GeoDataLookAt>()->setLatitude(latitude);
         } else if ( parentItem.is<GeoDataCamera>() ) {
-            qreal latitude = parser.readElementText().trimmed().toDouble();
-            parentItem.nodeAs<GeoDataCamera>()->setLatitude(latitude, GeoDataCoordinates::Degree);
+            const GeoDataLatitude latitude = GeoDataLatitude::fromDegrees(parser.readElementText().trimmed().toDouble());
+            parentItem.nodeAs<GeoDataCamera>()->setLatitude(latitude);
         } else if ( parentItem.is<GeoDataLocation>() ) {
-	        qreal latitude = parser.readElementText().trimmed().toDouble();
-	        parentItem.nodeAs<GeoDataLocation>()->setLatitude(latitude, GeoDataCoordinates::Degree);
+            const GeoDataLatitude latitude = GeoDataLatitude::fromDegrees(parser.readElementText().trimmed().toDouble());
+            parentItem.nodeAs<GeoDataLocation>()->setLatitude(latitude);
 	}
         return nullptr;
     }

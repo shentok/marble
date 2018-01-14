@@ -13,6 +13,7 @@
 #define MARBLE_GEODATAPHOTOOVERLAY_P_H
 
 #include "GeoDataOverlay_p.h"
+
 #include "GeoDataTypes.h"
 #include "GeoDataPoint.h"
 #include "GeoDataImagePyramid.h"
@@ -26,7 +27,7 @@ public:
     GeoDataPhotoOverlayPrivate();
     GeoDataPhotoOverlayPrivate(const GeoDataPhotoOverlayPrivate& other);
 
-    qreal m_rotation;
+    GeoDataAngle m_rotation;
     GeoDataViewVolume m_viewVolume;
     GeoDataImagePyramid m_imagePyramid;
     GeoDataPoint m_point;
@@ -34,7 +35,7 @@ public:
 };
 
 GeoDataPhotoOverlayPrivate::GeoDataPhotoOverlayPrivate() :
-    m_rotation( 0.0 ),
+    m_rotation(GeoDataAngle::null),
     m_viewVolume(),
     m_imagePyramid(),
     m_point(),

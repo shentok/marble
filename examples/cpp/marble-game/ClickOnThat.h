@@ -41,13 +41,13 @@ public Q_SLOTS:
     void initiateGame();
     void postQuestion( QObject* );
     void updateSelectPin( bool, const GeoDataCoordinates& );
-    void determineResult( qreal, qreal, GeoDataCoordinates::Unit );
+    void determineResult(GeoDataLongitude, GeoDataLatitude);
     void highlightCorrectAnswer();
 
 Q_SIGNALS:
     void gameInitialized();
     void updateResult( bool );
-    void announceHighlight(qreal, qreal, GeoDataCoordinates::Unit );
+    void announceHighlight(GeoDataLongitude, GeoDataLatitude);
 
 private:
     ClickOnThatPrivate * const d;

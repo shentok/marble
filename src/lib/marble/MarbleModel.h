@@ -32,6 +32,9 @@
 #include <QObject>
 #include <QString>
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include "MarbleGlobal.h"
 
 class QItemSelectionModel;
@@ -160,14 +163,16 @@ class MARBLE_EXPORT MarbleModel : public QObject
      * @param  lat  the latitude of the home point.
      * @param  zoom the default zoom level of the home point.
      */
-    void home( qreal &lon, qreal &lat, int& zoom ) const;
+    void home(GeoDataLongitude &lon, GeoDataLatitude &lat, int &zoom) const;
+
     /**
      * @brief  Set the home point
      * @param  lon  the longitude of the new home point.
      * @param  lat  the latitude of the new home point.
      * @param  zoom the default zoom level for the new home point.
      */
-    void setHome( qreal lon, qreal lat, int zoom = 1050 );
+    void setHome(GeoDataLongitude lon, GeoDataLatitude lat, int zoom = 1050);
+
     /**
      * @brief  Set the home point
      * @param  homePoint  the new home point.

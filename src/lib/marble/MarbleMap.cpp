@@ -220,8 +220,8 @@ MarbleMapPrivate::MarbleMapPrivate( MarbleMap *parent, MarbleModel *model ) :
      * placemarks will be fletered out in GeoGraphicsScene
      * and will not be highlighted.
      */
-    QObject::connect( parent, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)),
-                      &m_geometryLayer, SLOT(handleHighlight(qreal,qreal,GeoDataCoordinates::Unit)) );
+    QObject::connect( parent, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)),
+                      &m_geometryLayer, SLOT(handleHighlight(GeoDataLongitude,GeoDataLatitude)) );
 
     QObject::connect(&m_floatItemsLayer, SIGNAL(repaintNeeded(QRegion)),
                      parent,             SIGNAL(repaintNeeded(QRegion)));
@@ -470,12 +470,9 @@ int MarbleMap::tileZoomLevel() const
 }
 
 
-qreal MarbleMap::centerLatitude() const
+GeoDataLatitude MarbleMap::centerLatitude() const
 {
-    // Calculate translation of center point
-    const qreal centerLat = d->m_viewport.centerLatitude();
-
-    return centerLat * RAD2DEG;
+    return d->m_viewport.centerLatitude();
 }
 
 bool MarbleMap::hasFeatureAt(const QPoint &position) const
@@ -483,12 +480,9 @@ bool MarbleMap::hasFeatureAt(const QPoint &position) const
     return d->m_placemarkLayer.hasPlacemarkAt(position) || d->m_geometryLayer.hasFeatureAt(position, viewport());
 }
 
-qreal MarbleMap::centerLongitude() const
+GeoDataLongitude MarbleMap::centerLongitude() const
 {
-    // Calculate translation of center point
-    const qreal centerLon = d->m_viewport.centerLongitude();
-
-    return centerLon * RAD2DEG;
+    return d->m_viewport.centerLongitude();
 }
 
 int  MarbleMap::minimumZoom() const
@@ -724,26 +718,26 @@ quint64 MarbleMap::volatileTileCacheLimit() const
 }
 
 
-void MarbleMap::rotateBy(qreal deltaLon, qreal deltaLat)
+void MarbleMap::rotateBy(GeoDataLongitude deltaLon, GeoDataLatitude deltaLat)
 {
-    centerOn( d->m_viewport.centerLongitude() * RAD2DEG + deltaLon,
-              d->m_viewport.centerLatitude()  * RAD2DEG + deltaLat );
+    centerOn(d->m_viewport.centerLongitude() + deltaLon,
+             d->m_viewport.centerLatitude() + deltaLat);
 }
 
 
-void MarbleMap::centerOn( const qreal lon, const qreal lat )
+void MarbleMap::centerOn(const GeoDataLongitude lon, const GeoDataLatitude lat)
 {
-    d->m_viewport.centerOn( lon * DEG2RAD, lat * DEG2RAD );
+    d->m_viewport.centerOn(lon, lat);
 
     emit visibleLatLonAltBoxChanged( d->m_viewport.viewLatLonAltBox() );
 }
 
-void MarbleMap::setCenterLatitude( qreal lat )
+void MarbleMap::setCenterLatitude(GeoDataLatitude lat)
 {
     centerOn( centerLongitude(), lat );
 }
 
-void MarbleMap::setCenterLongitude( qreal lon )
+void MarbleMap::setCenterLongitude(GeoDataLongitude lon)
 {
     centerOn( lon, centerLatitude() );
 }
@@ -768,17 +762,14 @@ void MarbleMap::setProjection( Projection projection )
 }
 
 
-bool MarbleMap::screenCoordinates( qreal lon, qreal lat,
-                                   qreal& x, qreal& y ) const
+bool MarbleMap::screenCoordinates(GeoDataLongitude lon, GeoDataLatitude lat, qreal &x, qreal &y) const
 {
-    return d->m_viewport.screenCoordinates( lon * DEG2RAD, lat * DEG2RAD, x, y );
+    return d->m_viewport.screenCoordinates(lon, lat, x, y);
 }
 
-bool MarbleMap::geoCoordinates( int x, int y,
-                                qreal& lon, qreal& lat,
-                                GeoDataCoordinates::Unit unit ) const
+bool MarbleMap::geoCoordinates(int x, int y, GeoDataLongitude &lon, GeoDataLatitude &lat) const
 {
-    return d->m_viewport.geoCoordinates( x, y, lon, lat, unit );
+    return d->m_viewport.geoCoordinates(x, y, lon, lat);
 }
 
 void MarbleMapPrivate::setDocument( const QString& key )
@@ -1176,7 +1167,7 @@ void MarbleMap::setLockToSubSolarPoint( bool visible )
         connect( d->m_model->sunLocator(), SIGNAL(positionChanged(qreal,qreal)),
                  this,                     SLOT(centerOn(qreal,qreal)) );
 
-        centerOn( d->m_model->sunLocator()->getLon(), d->m_model->sunLocator()->getLat() );
+        centerOn(d->m_model->sunLocator()->getLon(), d->m_model->sunLocator()->getLat());
     } else if ( visible ) {
         mDebug() << "Ignoring centering on sun, since the sun plugin is not loaded.";
     }
@@ -1344,13 +1335,13 @@ void MarbleMap::setVisibleRelationTypes(GeoDataRelation::RelationTypes relationT
 
 void MarbleMap::notifyMouseClick( int x, int y )
 {
-    qreal  lon   = 0;
-    qreal  lat   = 0;
+    GeoDataLongitude lon = GeoDataLongitude::null;
+    GeoDataLatitude lat = GeoDataLatitude::null;
 
-    const bool valid = geoCoordinates( x, y, lon, lat, GeoDataCoordinates::Radian );
+    const bool valid = geoCoordinates(x, y, lon, lat);
 
     if ( valid ) {
-        emit mouseClickGeoPosition( lon, lat, GeoDataCoordinates::Radian );
+        emit mouseClickGeoPosition(lon, lat);
     }
 }
 
@@ -1474,14 +1465,14 @@ const StyleBuilder* MarbleMap::styleBuilder() const
     return &d->m_styleBuilder;
 }
 
-qreal MarbleMap::heading() const
+GeoDataAngle MarbleMap::heading() const
 {
-    return d->m_viewport.heading() * RAD2DEG;
+    return d->m_viewport.heading();
 }
 
-void MarbleMap::setHeading( qreal heading )
+void MarbleMap::setHeading(GeoDataAngle heading)
 {
-    d->m_viewport.setHeading( heading * DEG2RAD );
+    d->m_viewport.setHeading(heading);
     d->m_textureLayer.setNeedsUpdate();
 
     emit visibleLatLonAltBoxChanged( d->m_viewport.viewLatLonAltBox() );

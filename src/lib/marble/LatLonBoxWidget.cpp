@@ -55,17 +55,18 @@ LatLonBoxWidget::~LatLonBoxWidget()
 
 GeoDataLatLonBox LatLonBoxWidget::latLonBox() const
 {
-    return GeoDataLatLonBox( d->m_ui.northSpinBox->value(), d->m_ui.southSpinBox->value(),
-                             d->m_ui.eastSpinBox->value(), d->m_ui.westSpinBox->value(),
-                             GeoDataCoordinates::Degree );
+    return GeoDataLatLonBox(GeoDataLatitude::fromDegrees(d->m_ui.northSpinBox->value()),
+                            GeoDataLatitude::fromDegrees(d->m_ui.southSpinBox->value()),
+                            GeoDataLongitude::fromDegrees(d->m_ui.eastSpinBox->value()),
+                            GeoDataLongitude::fromDegrees(d->m_ui.westSpinBox->value()));
 }
 
 void LatLonBoxWidget::setLatLonBox( GeoDataLatLonBox const & latLonBox )
 {
-    d->m_ui.northSpinBox->setValue( latLonBox.north( GeoDataCoordinates::Degree ));
-    d->m_ui.southSpinBox->setValue( latLonBox.south( GeoDataCoordinates::Degree ));
-    d->m_ui.eastSpinBox->setValue( latLonBox.east( GeoDataCoordinates::Degree ));
-    d->m_ui.westSpinBox->setValue( latLonBox.west( GeoDataCoordinates::Degree ));
+    d->m_ui.northSpinBox->setValue(latLonBox.north().toDegree());
+    d->m_ui.southSpinBox->setValue(latLonBox.south().toDegree());
+    d->m_ui.eastSpinBox->setValue(latLonBox.east().toDegree());
+    d->m_ui.westSpinBox->setValue(latLonBox.west().toDegree());
 }
 
 void LatLonBoxWidget::updateLatSingleStep()

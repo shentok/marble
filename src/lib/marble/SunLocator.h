@@ -20,7 +20,9 @@
 #include <QObject>
 #include <QColor>
 
-//FIXME: This class shouldn't be exposed but is needed by the worldclock plasmoid
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include "marble_export.h"
 
 namespace Marble
@@ -29,6 +31,7 @@ class MarbleClock;
 class SunLocatorPrivate;
 class Planet;
 
+//FIXME: This class shouldn't be exposed but is needed by the worldclock plasmoid
 class MARBLE_EXPORT SunLocator : public QObject
 {
     Q_OBJECT
@@ -37,14 +40,14 @@ class MARBLE_EXPORT SunLocator : public QObject
     SunLocator( const MarbleClock *clock, const Planet *planet );
     ~SunLocator() override;
 
-    qreal shading(qreal lon, qreal a, qreal c) const;
+    qreal shading(GeoDataLongitude lon, qreal a, qreal c) const;
     static void shadePixel(QRgb &pixcol, qreal shade);
     static void shadePixelComposite(QRgb &pixcol, const QRgb &dpixcol, qreal shade);
 
     void  setPlanet( const Planet *planet );
 
-    qreal getLon() const;
-    qreal getLat() const;
+    GeoDataLongitude getLon() const;
+    GeoDataLatitude getLat() const;
 
  public Q_SLOTS:
     void update();

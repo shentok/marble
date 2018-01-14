@@ -23,7 +23,11 @@
 
 
 #include "marble_export.h"
+
+#include "GeoDataAngle.h"
 #include "GeoDataCoordinates.h"       // In geodata/data/
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataRelation.h"
 
 // Qt
@@ -192,8 +196,7 @@ class MARBLE_EXPORT MarbleMap : public QObject
      * @return @c true  if the geographical coordinates are visible on the screen
      *         @c false if the geographical coordinates are not visible on the screen
      */
-    bool screenCoordinates( qreal lon, qreal lat,
-                            qreal& x, qreal& y ) const;
+    bool screenCoordinates(GeoDataLongitude lon, GeoDataLatitude lat, qreal &x, qreal &y) const;
 
     /**
      * @brief Get the earth coordinates corresponding to a pixel in the map.
@@ -205,23 +208,21 @@ class MARBLE_EXPORT MarbleMap : public QObject
      * @return @c true  if the pixel (x, y) is within the globe
      *         @c false if the pixel (x, y) is outside the globe, i.e. in space.
      */
-    bool geoCoordinates( int x, int y,
-                         qreal& lon, qreal& lat,
-                         GeoDataCoordinates::Unit = GeoDataCoordinates::Degree ) const;
+    bool geoCoordinates(int x, int y, GeoDataLongitude &lon, GeoDataLatitude &lat) const;
 
     /**
      * @brief Return the longitude of the center point.
      * @return The longitude of the center point in degree.
      */
-    qreal centerLongitude() const;
+    GeoDataLongitude centerLongitude() const;
 
     /**
      * @brief Return the latitude of the center point.
      * @return The latitude of the center point in degree.
      */
-    qreal centerLatitude() const;
+    GeoDataLatitude centerLatitude() const;
 
-    qreal heading() const;
+    GeoDataAngle heading() const;
 
     /**
      * @since 0.26.0
@@ -448,7 +449,7 @@ class MARBLE_EXPORT MarbleMap : public QObject
      */
     void setRadius( int radius );
 
-    void setHeading( qreal heading );
+    void setHeading(GeoDataAngle heading);
 
     /**
      * @brief  Rotate the view by the two angles phi and theta.
@@ -461,7 +462,7 @@ class MARBLE_EXPORT MarbleMap : public QObject
      * of (lon, lat), otherwise the resulting angle will be the sum of
      * the previous position and the two offsets.
      */
-    void rotateBy(qreal deltaLon, qreal deltaLat);
+    void rotateBy(GeoDataLongitude deltaLon, GeoDataLatitude deltaLat);
 
     /**
      * @brief  Center the view on a geographical point
@@ -470,19 +471,19 @@ class MARBLE_EXPORT MarbleMap : public QObject
      * @param  lon  an angle parallel to the longitude lines
      *              +180(W) - -180(E)
      */
-    void centerOn( const qreal lon, const qreal lat );
+    void centerOn(const GeoDataLongitude lon, const GeoDataLatitude lat);
 
     /**
      * @brief  Set the latitude for the center point
      * @param  lat  the new value for the latitude in degree
      */
-    void setCenterLatitude( qreal lat );
+    void setCenterLatitude(GeoDataLatitude lat);
 
     /**
      * @brief  Set the longitude for the center point
      * @param  lon  the new value for the longitude in degree
      */
-    void setCenterLongitude( qreal lon );
+    void setCenterLongitude(GeoDataLongitude lon);
 
     /**
      * @brief  Set the Projection used for the map
@@ -738,7 +739,7 @@ class MARBLE_EXPORT MarbleMap : public QObject
 
     void mouseMoveGeoPosition( const QString& );
 
-    void mouseClickGeoPosition( qreal lon, qreal lat, GeoDataCoordinates::Unit );
+    void mouseClickGeoPosition(GeoDataLongitude lon, GeoDataLatitude lat);
 
     void framesPerSecond( qreal fps );
 
@@ -773,7 +774,7 @@ class MARBLE_EXPORT MarbleMap : public QObject
 
     void renderStateChanged( const RenderState &state );
 
-    void highlightedPlacemarksChanged( qreal, qreal, GeoDataCoordinates::Unit );
+    void highlightedPlacemarksChanged(GeoDataLongitude, GeoDataLatitude);
 
     void viewContextChanged(ViewContext viewContext);
 

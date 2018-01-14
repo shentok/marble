@@ -25,7 +25,6 @@
 namespace Marble
 {
 
-class GeoDataCoordinates;
 class GeoDataPlacemark;
 
 /**

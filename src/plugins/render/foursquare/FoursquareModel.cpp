@@ -52,14 +52,14 @@ void FoursquareModel::getAdditionalItems( const GeoDataLatLonAltBox& box, qint32
     qreal const area = distanceLon * distanceLat;
     if ( area > 10 * 1000 * KM2METER * KM2METER ) {
         // Large area (> 10.000 km^2) => too large for bbox queries
-        apiUrl += QLatin1String("?ll=") + QString::number(box.center().latitude(Marble::GeoDataCoordinates::Degree)) +
-                  QLatin1Char(',') + QString::number(box.center().longitude(Marble::GeoDataCoordinates::Degree)) +
+        apiUrl += QLatin1String("?ll=") + QString::number(box.center().latitude().toDegree()) +
+                  QLatin1Char(',') + QString::number(box.center().longitude().toDegree()) +
                   QLatin1String("&intent=checkin");
     } else {
-        apiUrl += QLatin1String("?ne=") + QString::number(box.north(Marble::GeoDataCoordinates::Degree)) +
-                  QLatin1Char(',') + QString::number(box.east(Marble::GeoDataCoordinates::Degree)) +
-                  QLatin1String("&sw=") + QString::number(box.south(Marble::GeoDataCoordinates::Degree)) +
-                  QLatin1Char(',') + QString::number(box.west(Marble::GeoDataCoordinates::Degree)) +
+        apiUrl += QLatin1String("?ne=") + QString::number(box.north().toDegree()) +
+                  QLatin1Char(',') + QString::number(box.east().toDegree()) +
+                  QLatin1String("&sw=") + QString::number(box.south().toDegree()) +
+                  QLatin1Char(',') + QString::number(box.west().toDegree()) +
                   QLatin1String("&intent=browse");
     }
     apiUrl += QLatin1String("&limit=") + QString::number(number) +
@@ -93,8 +93,8 @@ void FoursquareModel::parseFile( const QByteArray& file )
             const QString address = locationObject.value(QStringLiteral("address")).toString();
             const QString city = locationObject.value(QStringLiteral("city")).toString();
             const QString country = locationObject.value(QStringLiteral("country")).toString();
-            const double latitude = locationObject.value(QStringLiteral("lat")).toString().toDouble();
-            const double longitude = locationObject.value(QStringLiteral("lng")).toString().toDouble();
+            const GeoDataLatitude latitude = GeoDataLatitude::fromDegrees(locationObject.value(QStringLiteral("lat")).toString().toDouble());
+            const GeoDataLongitude longitude = GeoDataLongitude::fromDegrees(locationObject.value(QStringLiteral("lng")).toString().toDouble());
             const int usersCount = venueObject.value(QStringLiteral("stats")).toObject().value(QStringLiteral("usersCount")).toInt();
 
             const QJsonValue categoryIconValue = firstCategoryObject.value(QStringLiteral("icon"));
@@ -114,7 +114,7 @@ void FoursquareModel::parseFile( const QByteArray& file )
             }
 
             if( !itemExists( id ) ) {
-                GeoDataCoordinates coordinates( longitude, latitude, 0.0, GeoDataCoordinates::Degree );
+                const GeoDataCoordinates coordinates(longitude, latitude);
                 FoursquareItem *item = new FoursquareItem( this );
                 item->setId( id );
                 item->setCoordinate( coordinates );

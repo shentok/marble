@@ -15,6 +15,8 @@
 
 
 #include "GeoDataColorStyle.h"
+
+#include "GeoDataAngle.h"
 #include "GeoDataHotSpot.h"
 
 #include "geodata_export.h"
@@ -89,9 +91,9 @@ class GEODATA_EXPORT GeoDataIconStyle : public GeoDataColorStyle
     void setScale(float scale);
     float scale() const;
 
-    int heading() const;
-    void setHeading( int heading );
-    
+    GeoDataAngle heading() const;
+    void setHeading(GeoDataAngle heading);
+
     RemoteIconLoader *remoteIconLoader() const;
 
     /*

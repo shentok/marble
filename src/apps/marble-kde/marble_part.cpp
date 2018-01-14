@@ -180,8 +180,8 @@ MarblePart::MarblePart( QWidget *parentWidget, QObject *parent, const QVariantLi
     switch ( MarbleSettings::onStartup() ) {
     case LastLocationVisited: {
             GeoDataLookAt target;
-            target.setLongitude( MarbleSettings::quitLongitude() );
-            target.setLatitude( MarbleSettings::quitLatitude() );
+            target.setLongitude(GeoDataLongitude::fromDegrees(MarbleSettings::quitLongitude()));
+            target.setLatitude(GeoDataLatitude::fromDegrees(MarbleSettings::quitLatitude()));
             target.setRange( MarbleSettings::quitRange() );
             m_controlView->marbleWidget()->flyTo( target, Instant );
         }
@@ -416,10 +416,10 @@ void MarblePart::copyMap()
 
 void MarblePart::copyCoordinates()
 {
-    qreal lon = m_controlView->marbleWidget()->centerLongitude();
-    qreal lat = m_controlView->marbleWidget()->centerLatitude();
+    const auto lon = m_controlView->marbleWidget()->centerLongitude();
+    const auto lat = m_controlView->marbleWidget()->centerLatitude();
 
-    QString  positionString = GeoDataCoordinates( lon, lat, 0.0, GeoDataCoordinates::Degree ).toString();
+    const QString positionString = GeoDataCoordinates(lon, lat).toString();
     QClipboard  *clipboard = QApplication::clipboard();
 
     clipboard->setText( positionString );
@@ -430,8 +430,8 @@ void MarblePart::readSettings()
     qDebug() << "Start: MarblePart::readSettings()";
 
     // Set home position
-    m_controlView->marbleModel()->setHome( MarbleSettings::homeLongitude(),
-                                           MarbleSettings::homeLatitude(),
+    m_controlView->marbleModel()->setHome( GeoDataLongitude::fromDegrees(MarbleSettings::homeLongitude()),
+                                           GeoDataLatitude::fromDegrees(MarbleSettings::homeLatitude()),
                                            MarbleSettings::homeZoom() );
 
     // Map theme and projection
@@ -585,22 +585,22 @@ void MarblePart::readStatusBarSettings()
 void MarblePart::writeSettings()
 {
     // Get the 'quit' values from the widget and store them in the settings.
-    qreal  quitLon = m_controlView->marbleWidget()->lookAt().longitude();
-    qreal  quitLat = m_controlView->marbleWidget()->lookAt().latitude();
+    auto quitLon = m_controlView->marbleWidget()->lookAt().longitude();
+    auto quitLat = m_controlView->marbleWidget()->lookAt().latitude();
     qreal  quitRange = m_controlView->marbleWidget()->lookAt().range();
 
-    MarbleSettings::setQuitLongitude( quitLon );
-    MarbleSettings::setQuitLatitude( quitLat );
+    MarbleSettings::setQuitLongitude(quitLon.toDegree());
+    MarbleSettings::setQuitLatitude(quitLat.toDegree());
     MarbleSettings::setQuitRange( quitRange );
 
     // Get the 'home' values from the widget and store them in the settings.
-    qreal  homeLon = 0;
-    qreal  homeLat = 0;
+    GeoDataLongitude homeLon = GeoDataLongitude::null;
+    GeoDataLatitude homeLat = GeoDataLatitude::null;
     int     homeZoom = 0;
 
     m_controlView->marbleModel()->home( homeLon, homeLat, homeZoom );
-    MarbleSettings::setHomeLongitude( homeLon );
-    MarbleSettings::setHomeLatitude( homeLat );
+    MarbleSettings::setHomeLongitude(homeLon.toDegree());
+    MarbleSettings::setHomeLatitude(homeLat.toDegree());
     MarbleSettings::setHomeZoom( homeZoom );
 
     // Set default font
@@ -1737,8 +1737,8 @@ void MarblePart::lookAtBookmark( QAction *action)
 {
         GeoDataLookAt temp = qvariant_cast<GeoDataLookAt>( action->data() ) ;
         m_controlView->marbleWidget()->flyTo( temp ) ;
-                mDebug() << " looking at bookmark having longitude : "<< temp.longitude(GeoDataCoordinates::Degree)
-                         << " latitude :  "<< temp.latitude(GeoDataCoordinates::Degree)
+                mDebug() << " looking at bookmark having longitude : "<< temp.longitude()
+                         << " latitude :  "<< temp.latitude()
                          << " distance : " << temp.range();
 }
 

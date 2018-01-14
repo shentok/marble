@@ -526,8 +526,8 @@ void ElevationProfileFloatItem::updateVisiblePoints()
     QList<QList<int> > routeSegments;
     QList<int> currentRouteSegment;
     for ( int i = 0; i < m_eleData.count(); i++ ) {
-        qreal lon = m_points[i].longitude(GeoDataCoordinates::Degree);
-        qreal lat = m_points[i].latitude (GeoDataCoordinates::Degree);
+        const auto lon = m_points[i].longitude();
+        const auto lat = m_points[i].latitude();
         qreal x = 0;
         qreal y = 0;
 

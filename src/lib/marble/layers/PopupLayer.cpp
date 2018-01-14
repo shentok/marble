@@ -134,10 +134,12 @@ void PopupLayer::popup()
     ViewportParams viewport( d->m_widget->viewport()->projection(),
                              coords.longitude(), coords.latitude(), d->m_widget->viewport()->radius(),
                              d->m_widget->viewport()->size() );
-    qreal sx, sy, lon, lat;
+    qreal sx, sy;
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
     viewport.screenCoordinates( coords, sx, sy );
     sx = viewport.radius() < viewport.width() ? 0.5 * (viewport.width() + viewport.radius()) : 0.75 * viewport.width();
-    viewport.geoCoordinates( sx, sy, lon, lat, GeoDataCoordinates::Radian );
+    viewport.geoCoordinates(sx, sy, lon, lat);
     coords.setLatitude( lat );
     coords.setLongitude( lon );
     d->m_widget->centerOn( coords, true );

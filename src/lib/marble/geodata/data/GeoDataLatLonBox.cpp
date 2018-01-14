@@ -28,20 +28,20 @@ const GeoDataLatLonBox GeoDataLatLonBox::empty = GeoDataLatLonBox();
 class GeoDataLatLonBoxPrivate
 {
  public:
-    GeoDataLatLonBoxPrivate()
-        : m_north( 0.0 ),
-          m_south( 0.0 ),
-          m_east( 0.0 ),
-          m_west( 0.0 ),
-          m_rotation( 0.0 )
+    GeoDataLatLonBoxPrivate() :
+        m_north(GeoDataLatitude::null),
+        m_south(GeoDataLatitude::null),
+        m_east(GeoDataLongitude::null),
+        m_west(GeoDataLongitude::null),
+        m_rotation(GeoDataAngle::fromRadians(0.0))
     {
     }
 
-    qreal m_north;
-    qreal m_south;
-    qreal m_east;
-    qreal m_west;
-    qreal m_rotation; // NOT implemented yet!
+    GeoDataLatitude m_north;
+    GeoDataLatitude m_south;
+    GeoDataLongitude m_east;
+    GeoDataLongitude m_west;
+    GeoDataAngle m_rotation; // NOT implemented yet!
 };
 
 bool operator==( GeoDataLatLonBox const& lhs, GeoDataLatLonBox const& rhs )
@@ -58,22 +58,22 @@ bool operator!=( GeoDataLatLonBox const& lhs, GeoDataLatLonBox const& rhs )
     return !( lhs == rhs );
 }
 
-GeoDataLatLonBox::GeoDataLatLonBox()
-    : GeoDataObject(),
-      d( new GeoDataLatLonBoxPrivate )
+GeoDataLatLonBox::GeoDataLatLonBox() :
+    GeoDataObject(),
+    d(new GeoDataLatLonBoxPrivate)
 {
 }
 
-GeoDataLatLonBox::GeoDataLatLonBox( qreal north, qreal south, qreal east, qreal west, GeoDataCoordinates::Unit unit )
-    : GeoDataObject(),
-      d( new GeoDataLatLonBoxPrivate )
+GeoDataLatLonBox::GeoDataLatLonBox(GeoDataLatitude north, GeoDataLatitude south, GeoDataLongitude east, GeoDataLongitude west) :
+    GeoDataObject(),
+    d(new GeoDataLatLonBoxPrivate)
 {
-    setBoundaries( north, south, east, west, unit );
+    setBoundaries(north, south, east, west);
 }
 
-GeoDataLatLonBox::GeoDataLatLonBox( const GeoDataLatLonBox & other )
-    : GeoDataObject( other ),
-      d( new GeoDataLatLonBoxPrivate( *other.d ) )
+GeoDataLatLonBox::GeoDataLatLonBox(const GeoDataLatLonBox &other) :
+    GeoDataObject(other),
+    d(new GeoDataLatLonBoxPrivate(*other.d))
 {
 }
 
@@ -87,159 +87,82 @@ const char* GeoDataLatLonBox::nodeType() const
     return GeoDataTypes::GeoDataLatLonBoxType;
 }
 
-qreal GeoDataLatLonBox::north( GeoDataCoordinates::Unit unit ) const
+GeoDataLatitude GeoDataLatLonBox::north() const
 {
-    if ( unit == GeoDataCoordinates::Degree ) {
-        return d->m_north * RAD2DEG;
-    }
     return d->m_north;
 }
 
-void GeoDataLatLonBox::setNorth( const qreal north, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonBox::setNorth(GeoDataLatitude north)
 {
-    switch( unit ){
-    default:
-    case GeoDataCoordinates::Radian:
-        d->m_north = GeoDataCoordinates::normalizeLat( north );
-        break;
-    case GeoDataCoordinates::Degree:
-        d->m_north = GeoDataCoordinates::normalizeLat( north * DEG2RAD );
-        break;
-    }
+    d->m_north = GeoDataCoordinates::normalizeLat(north);
 }
 
-qreal GeoDataLatLonBox::south( GeoDataCoordinates::Unit unit ) const
+GeoDataLatitude GeoDataLatLonBox::south() const
 {
-    if ( unit == GeoDataCoordinates::Degree ) {
-        return d->m_south * RAD2DEG;
-    }
     return d->m_south;
 }
 
-void GeoDataLatLonBox::setSouth( const qreal south, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonBox::setSouth(GeoDataLatitude south)
 {
-    switch( unit ){
-    default:
-    case GeoDataCoordinates::Radian:
-        d->m_south = GeoDataCoordinates::normalizeLat( south );
-        break;
-    case GeoDataCoordinates::Degree:
-        d->m_south = GeoDataCoordinates::normalizeLat( south * DEG2RAD );
-        break;
-    }
+    d->m_south = GeoDataCoordinates::normalizeLat(south);
 }
 
-qreal GeoDataLatLonBox::east( GeoDataCoordinates::Unit unit ) const
+GeoDataLongitude GeoDataLatLonBox::east() const
 {
-    if ( unit == GeoDataCoordinates::Degree ) {
-        return d->m_east * RAD2DEG;
-    }
     return d->m_east;
 }
 
-void GeoDataLatLonBox::setEast( const qreal east, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonBox::setEast(GeoDataLongitude east)
 {
-    switch( unit ){
-    default:
-    case GeoDataCoordinates::Radian:
-        d->m_east = GeoDataCoordinates::normalizeLon( east );
-        break;
-    case GeoDataCoordinates::Degree:
-        d->m_east = GeoDataCoordinates::normalizeLon( east * DEG2RAD );
-        break;
-    }
+    d->m_east = GeoDataCoordinates::normalizeLon(east);
 }
 
-qreal GeoDataLatLonBox::west( GeoDataCoordinates::Unit unit ) const
+GeoDataLongitude GeoDataLatLonBox::west() const
 {
-    if ( unit == GeoDataCoordinates::Degree ) {
-        return d->m_west * RAD2DEG;
-    }
     return d->m_west;
 }
 
-void GeoDataLatLonBox::setWest( const qreal west, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonBox::setWest(GeoDataLongitude west)
 {
-    switch( unit ){
-    default:
-    case GeoDataCoordinates::Radian:
-        d->m_west = GeoDataCoordinates::normalizeLon( west );
-        break;
-    case GeoDataCoordinates::Degree:
-        d->m_west = GeoDataCoordinates::normalizeLon( west * DEG2RAD );
-        break;
-    }
+    d->m_west = GeoDataCoordinates::normalizeLon(west);
 }
 
-void GeoDataLatLonBox::setRotation( const qreal rotation, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonBox::setRotation(GeoDataAngle rotation)
 {
-    switch( unit ){
-    default:
-    case GeoDataCoordinates::Radian:
-        d->m_rotation = rotation;
-        break;
-    case GeoDataCoordinates::Degree:
-        d->m_rotation = rotation * DEG2RAD;
-        break;
-    }
+    d->m_rotation = rotation;
 }
 
-qreal GeoDataLatLonBox::rotation( GeoDataCoordinates::Unit unit ) const
+GeoDataAngle GeoDataLatLonBox::rotation() const
 {
-    if ( unit == GeoDataCoordinates::Degree ) {
-        return d->m_rotation * RAD2DEG;
-    }
     return d->m_rotation;
 }
 
-void GeoDataLatLonBox::boundaries( qreal &north, qreal &south, qreal &east, qreal &west, GeoDataCoordinates::Unit unit ) const
+void GeoDataLatLonBox::boundaries(GeoDataLatitude &north, GeoDataLatitude &south, GeoDataLongitude &east, GeoDataLongitude &west) const
 {
-    switch( unit ){
-    default:
-    case GeoDataCoordinates::Radian:
-        north = d->m_north;
-        south = d->m_south;
-        east  = d->m_east;
-        west  = d->m_west;
-        break;
-    case GeoDataCoordinates::Degree:
-        north = d->m_north * RAD2DEG;
-        south = d->m_south * RAD2DEG;
-        east  = d->m_east  * RAD2DEG;
-        west  = d->m_west  * RAD2DEG;
-        break;
-    }
+    north = d->m_north;
+    south = d->m_south;
+    east  = d->m_east;
+    west  = d->m_west;
 }
 
-void GeoDataLatLonBox::setBoundaries( qreal north, qreal south, qreal east, qreal west, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonBox::setBoundaries(GeoDataLatitude north, GeoDataLatitude south, GeoDataLongitude east, GeoDataLongitude west)
 {
-    switch( unit ){
-    default:
-    case GeoDataCoordinates::Radian:
-        d->m_north = GeoDataCoordinates::normalizeLat( north );
-        d->m_south = GeoDataCoordinates::normalizeLat( south );
-        d->m_east =  GeoDataCoordinates::normalizeLon( east );
-        d->m_west =  GeoDataCoordinates::normalizeLon( west );
-        break;
-    case GeoDataCoordinates::Degree:
-        d->m_north = GeoDataCoordinates::normalizeLat( north * DEG2RAD );
-        d->m_south = GeoDataCoordinates::normalizeLat( south * DEG2RAD );
-        d->m_east =  GeoDataCoordinates::normalizeLon( east * DEG2RAD );
-        d->m_west =  GeoDataCoordinates::normalizeLon( west * DEG2RAD );
-        break;
-    }
+    d->m_north = GeoDataCoordinates::normalizeLat(north);
+    d->m_south = GeoDataCoordinates::normalizeLat(south);
+    d->m_east =  GeoDataCoordinates::normalizeLon(east);
+    d->m_west =  GeoDataCoordinates::normalizeLon(west);
 }
 
 void GeoDataLatLonBox::scale(qreal verticalFactor, qreal horizontalFactor) const
 {
     GeoDataCoordinates const middle = center();
-    qreal const deltaY = 0.5 * height() * verticalFactor;
-    qreal const deltaX = 0.5 * width() * horizontalFactor;
-    d->m_north = qMin((middle.latitude() + deltaY), static_cast<qreal>(M_PI/2));
-    d->m_south = qMax((middle.latitude() - deltaY), static_cast<qreal>(-M_PI/2));
-    if (deltaX > 180 * DEG2RAD) {
-        d->m_east = M_PI;
-        d->m_west = -M_PI;
+    const GeoDataLatitude deltaY = 0.5 * height() * verticalFactor;
+    const GeoDataLongitude deltaX = 0.5 * width() * horizontalFactor;
+    d->m_north = qMin((middle.latitude() + deltaY), +GeoDataLatitude::quaterCircle);
+    d->m_south = qMax((middle.latitude() - deltaY), -GeoDataLatitude::quaterCircle);
+    if (deltaX > GeoDataLongitude::halfCircle) {
+        d->m_east = GeoDataLongitude::halfCircle;
+        d->m_west = -GeoDataLongitude::halfCircle;
     }
     else {
         d->m_east = GeoDataCoordinates::normalizeLon(middle.longitude() + deltaX);
@@ -254,42 +177,34 @@ GeoDataLatLonBox GeoDataLatLonBox::scaled(qreal verticalFactor, qreal horizontal
     return result;
 }
 
-qreal GeoDataLatLonBox::width( GeoDataCoordinates::Unit unit ) const
+GeoDataLongitude GeoDataLatLonBox::width() const
 {
-    return GeoDataLatLonBox::width( d->m_east, d->m_west, unit );
+    return GeoDataLatLonBox::width(d->m_east, d->m_west);
 }
 
-qreal GeoDataLatLonBox::width( qreal east, qreal west, GeoDataCoordinates::Unit unit )
+GeoDataLongitude GeoDataLatLonBox::width(GeoDataLongitude east, GeoDataLongitude west)
 {
-    qreal width = fabs( (qreal)( GeoDataLatLonBox::crossesDateLine(east, west)
-                                     ? 2 * M_PI - west + east
-                                     : east - west ) );
+    GeoDataLongitude width = qAbs(GeoDataLatLonBox::crossesDateLine(east, west)
+                                     ? 2 * GeoDataLongitude::halfCircle - west + east
+                                     : east - west);
 
     // This also covers the case where this bounding box covers the whole
     // longitude range ( -180 <= lon <= + 180 ).
-    if ( width > 2 * M_PI ) {
-        width = 2 * M_PI;
-    }
-
-    if ( unit == GeoDataCoordinates::Degree ) {
-        return width * RAD2DEG;
+    if (width > 2 * GeoDataLongitude::halfCircle) {
+        width = 2 * GeoDataLongitude::halfCircle;
     }
 
     return width;
 }
 
-qreal GeoDataLatLonBox::height( GeoDataCoordinates::Unit unit ) const
+GeoDataLatitude GeoDataLatLonBox::height() const
 {
-    return GeoDataLatLonBox::height(d->m_north, d->m_south, unit);
+    return GeoDataLatLonBox::height(d->m_north, d->m_south);
 }
 
-qreal GeoDataLatLonBox::height(qreal north, qreal south, GeoDataCoordinates::Unit unit)
+GeoDataLatitude GeoDataLatLonBox::height(GeoDataLatitude north, GeoDataLatitude south)
 {
-    qreal height = fabs( (qreal)( south - north ) );
-
-    if ( unit == GeoDataCoordinates::Degree ) {
-        return height * RAD2DEG;
-    }
+    const GeoDataLatitude height = qAbs(south - north);
 
     return height;
 }
@@ -299,9 +214,9 @@ bool GeoDataLatLonBox::crossesDateLine() const
     return GeoDataLatLonBox::crossesDateLine(d->m_east, d->m_west);
 }
 
-bool GeoDataLatLonBox::crossesDateLine(qreal east, qreal west)
+bool GeoDataLatLonBox::crossesDateLine(GeoDataLongitude east, GeoDataLongitude west)
 {
-    return east < west || ( east == M_PI && west == -M_PI );
+    return east < west || (east == GeoDataLongitude::halfCircle && west == -GeoDataLongitude::halfCircle);
 }
 
 GeoDataCoordinates GeoDataLatLonBox::center() const
@@ -310,7 +225,7 @@ GeoDataCoordinates GeoDataLatLonBox::center() const
         return GeoDataCoordinates();
 
     if( crossesDateLine() )
-        return GeoDataCoordinates( GeoDataCoordinates::normalizeLon( east() + 2 * M_PI - ( east() + 2 * M_PI - west() ) / 2 ) ,
+        return GeoDataCoordinates(GeoDataCoordinates::normalizeLon(east() + 2 * GeoDataLongitude::halfCircle - (east() + 2 * GeoDataLongitude::halfCircle - west() ) / 2) ,
                                 north() - ( north() - south() ) / 2 );
     else
         return GeoDataCoordinates( east() - ( east() - west() ) / 2,
@@ -321,20 +236,20 @@ bool GeoDataLatLonBox::containsPole( Pole pole ) const
 {
     switch ( pole ) {
       case NorthPole:
-        return ( 2 * north() == +M_PI );
+        return (north() == +GeoDataLatitude::quaterCircle);
       case SouthPole:
-        return ( 2 * south() == -M_PI );
+        return (south() == -GeoDataLatitude::quaterCircle);
       default:
       case AnyPole:
-        return (    2 * north() == +M_PI
-                 || 2 * south() == -M_PI );
+        return (   north() == +GeoDataLatitude::quaterCircle
+                || south() == -GeoDataLatitude::quaterCircle);
     }
 
     mDebug() << Q_FUNC_INFO << "Invalid pole";
     return false;
 }
 
-bool GeoDataLatLonBox::contains(qreal lon, qreal lat) const
+bool GeoDataLatLonBox::contains(GeoDataLongitude lon, GeoDataLatitude lat) const
 {
     if ( lat < d->m_south || lat > d->m_north ) {
         return false;
@@ -351,7 +266,8 @@ bool GeoDataLatLonBox::contains(qreal lon, qreal lat) const
 
 bool GeoDataLatLonBox::contains( const GeoDataCoordinates &point ) const
 {
-    qreal lon, lat;
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
 
     point.geoCoordinates( lon, lat );
 
@@ -378,8 +294,8 @@ bool GeoDataLatLonBox::contains( const GeoDataLatLonBox &other ) const
                 // So for both cases we are able to ignore the "overhanging" portion 
                 // and thereby basically reduce the problem to the "normal" case: 
 
-                if ( ( other.west() <= d->m_west && d->m_east <= +M_PI )
-                  || ( other.east() >= d->m_east && d->m_west >= -M_PI ) ) {
+                if ((other.west() <= d->m_west && d->m_east <= +GeoDataLongitude::halfCircle)
+                  || (other.east() >= d->m_east && d->m_west >= -GeoDataLongitude::halfCircle)) {
                     return true;
                 }
             }
@@ -398,14 +314,14 @@ bool GeoDataLatLonBox::contains( const GeoDataLatLonBox &other ) const
                 // So for both cases we are able to ignore the "overhanging" portion 
                 // and thereby basically reduce the problem to the "normal" case: 
 
-                if ( ( d->m_west <= other.west() && other.east() <= +M_PI )
-                  || ( d->m_east >= other.east() && other.west() >= -M_PI ) ) {
+                if ((d->m_west <= other.west() && other.east() <= +GeoDataLongitude::halfCircle)
+                  || (d->m_east >= other.east() && other.west() >= -GeoDataLongitude::halfCircle)) {
                     return true;
                 }
 
                 // if this bounding box covers the whole longitude range  ( -180 <= lon <= + 180 )
                 // then of course the "inner" bounding box is "inside"
-                if ( d->m_west == -M_PI && d->m_east == +M_PI ) {
+                if (d->m_west == -GeoDataLongitude::halfCircle && d->m_east == +GeoDataLongitude::halfCircle) {
                     return true;
                 }
             }
@@ -499,21 +415,21 @@ GeoDataLatLonBox GeoDataLatLonBox::united( const GeoDataLatLonBox& other ) const
     result.setNorth(qMax( d->m_north, other.north() ) );
     result.setSouth( qMin( d->m_south, other.south() ) );
 
-    qreal w1 = d->m_west;
-    qreal w2 = other.west();
-    qreal e1 = d->m_east;
-    qreal e2 = other.east();
+    GeoDataLongitude w1 = d->m_west;
+    GeoDataLongitude w2 = other.west();
+    GeoDataLongitude e1 = d->m_east;
+    GeoDataLongitude e2 = other.east();
 
     bool const idl1 = d->m_east < d->m_west;
     bool const idl2 = other.d->m_east < other.d->m_west;
 
     if ( idl1 ) {
-        w1 += 2* M_PI;
-        e1 += 2* M_PI;
+        w1 += 2 * GeoDataLongitude::halfCircle;
+        e1 += 2 * GeoDataLongitude::halfCircle;
     }
     if ( idl2 ) {
-        w2 += 2* M_PI;
-        e2 += 2* M_PI;
+        w2 += 2 * GeoDataLongitude::halfCircle;
+        e2 += 2 * GeoDataLongitude::halfCircle;
     }
 
     // in the usual case, we take the maximum of east bounds, and
@@ -522,7 +438,7 @@ GeoDataLatLonBox GeoDataLatLonBox::united( const GeoDataLatLonBox& other ) const
     //    (so the smallest box should go around the IDL)
     //
     // - 1 but not 2 boxes are crossing IDL
-    if ( fabs( c2.longitude()-c1.longitude() ) > M_PI
+    if (qAbs(c2.longitude() - c1.longitude()) > GeoDataLongitude::halfCircle
          || ( idl1 ^ idl2 ) ) {
         // exceptions, we go the unusual way:
         // min of east, max of west
@@ -544,17 +460,21 @@ GeoDataLatLonBox GeoDataLatLonBox::toCircumscribedRectangle() const
 
     coordinates.append( GeoDataCoordinates( west(), north() ) );
     coordinates.append( GeoDataCoordinates( west(), south() ) );
-    coordinates.append( GeoDataCoordinates( east() + ( crossesDateLine() ? 2 * M_PI : 0 ), north() ) );
-    coordinates.append( GeoDataCoordinates( east() + ( crossesDateLine() ? 2 * M_PI : 0 ), south() ) );
+    coordinates.append( GeoDataCoordinates( east() + ( crossesDateLine() ? 2 * GeoDataLongitude::halfCircle : GeoDataLongitude::null ), north() ) );
+    coordinates.append( GeoDataCoordinates( east() + ( crossesDateLine() ? 2 * GeoDataLongitude::halfCircle : GeoDataLongitude::null ), south() ) );
 
-    const qreal cosRotation = cos( rotation() );
-    const qreal sinRotation = sin( rotation() );
+    const qreal cosRotation = cos(rotation().toRadian());
+    const qreal sinRotation = sin(rotation().toRadian());
 
-    qreal centerLat = center().latitude();
-    qreal centerLon = center().longitude();
-    if ( GeoDataLatLonBox( 0, 0, center().longitude(), west() ).crossesDateLine() ) {
-        if ( !centerLon ) centerLon += M_PI;
-        else centerLon += 2 * M_PI;
+    GeoDataLatitude centerLat = center().latitude();
+    GeoDataLongitude centerLon = center().longitude();
+    if (GeoDataLatLonBox(GeoDataLatitude::null, GeoDataLatitude::null, center().longitude(), west()).crossesDateLine()) {
+        if (centerLon == GeoDataLongitude::null) {
+            centerLon += GeoDataLongitude::halfCircle;
+        }
+        else {
+            centerLon += 2 * GeoDataLongitude::halfCircle;
+        }
     }
 
     GeoDataLatLonBox box;
@@ -566,11 +486,11 @@ GeoDataLatLonBox GeoDataLatLonBox::toCircumscribedRectangle() const
 
     for ( const GeoDataCoordinates& coord: coordinates ) {
 
-        const qreal lon = coord.longitude();
-        const qreal lat = coord.latitude();
+        const GeoDataLongitude lon = coord.longitude();
+        const GeoDataLatitude lat = coord.latitude();
 
-        const qreal rotatedLon = ( lon - centerLon ) * cosRotation - ( lat - centerLat ) * sinRotation + centerLon;
-        const qreal rotatedLat = ( lon - centerLon ) * sinRotation + ( lat - centerLat ) * cosRotation + centerLat;
+        const GeoDataLongitude rotatedLon = (lon - centerLon) * cosRotation - GeoDataLongitude::fromRadians((lat - centerLat).toRadian() * sinRotation) + centerLon;
+        const GeoDataLatitude rotatedLat = GeoDataLatitude::fromRadians((lon - centerLon).toRadian() * sinRotation) + (lat - centerLat) * cosRotation + centerLat;
 
         if ( !northSet || rotatedLat > box.north() ) {
             northSet = true;
@@ -639,14 +559,15 @@ GeoDataLatLonBox GeoDataLatLonBox::fromLineString(  const GeoDataLineString& lin
         return GeoDataLatLonBox();
     }
 
-    qreal lon, lat;
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
     lineString.first().geoCoordinates( lon, lat );
     GeoDataCoordinates::normalizeLonLat( lon, lat );
 
-    qreal north = lat;
-    qreal south = lat;
-    qreal west =  lon;
-    qreal east =  lon;
+    GeoDataLatitude north = lat;
+    GeoDataLatitude south = lat;
+    GeoDataLongitude west =  lon;
+    GeoDataLongitude east =  lon;
 
     // If there's only a single node stored then the boundingbox only contains that point
     if ( lineString.size() == 1 )
@@ -667,12 +588,12 @@ GeoDataLatLonBox GeoDataLatLonBox::fromLineString(  const GeoDataLineString& lin
     int idlMinCrossState = 0;
 
     // Holds values for east and west while idlCrossState != 0
-    qreal otherWest =  lon;
-    qreal otherEast =  lon;
-    
-    qreal previousLon = lon;
+    GeoDataLongitude otherWest = lon;
+    GeoDataLongitude otherEast = lon;
 
-    int currentSign = ( lon < 0 ) ? -1 : +1;
+    GeoDataLongitude previousLon = lon;
+
+    int currentSign = (lon < GeoDataLongitude::null) ? -1 : +1;
     int previousSign = currentSign;
 
     QVector<GeoDataCoordinates>::ConstIterator it( lineString.constBegin() );
@@ -692,7 +613,7 @@ GeoDataLatLonBox GeoDataLatLonBox::fromLineString(  const GeoDataLineString& lin
             south = lat;
         }
 
-        currentSign = ( lon < 0 ) ? -1 : +1;
+        currentSign = (lon < GeoDataLongitude::null) ? -1 : +1;
 
         // Once the polyline crosses the dateline the covered bounding box
         // would cover the whole [-M_PI; M_PI] range.
@@ -704,7 +625,7 @@ GeoDataLatLonBox GeoDataLatLonBox::fromLineString(  const GeoDataLineString& lin
 
         // IDL check
         if ( previousSign != currentSign
-             && fabs( previousLon ) + fabs( lon ) > M_PI ) {
+             && qAbs(previousLon) + qAbs(lon) > GeoDataLongitude::halfCircle) {
 
             // Initialize values for otherWest and otherEast
             if ( idlCrossed == false ) {
@@ -714,7 +635,7 @@ GeoDataLatLonBox GeoDataLatLonBox::fromLineString(  const GeoDataLineString& lin
             }
 
             // Determine the new IDL Cross State
-            if ( previousLon < 0 ) {
+            if (previousLon < GeoDataLongitude::null) {
                 idlCrossState++;
                 if ( idlCrossState > idlMaxCrossState ) {
                     idlMaxCrossState = idlCrossState;
@@ -761,13 +682,13 @@ GeoDataLatLonBox GeoDataLatLonBox::fromLineString(  const GeoDataLineString& lin
         if ( ( idlMinCrossState < 0 && idlMaxCrossState > 0 ) 
             || idlMinCrossState < -1  || idlMaxCrossState > 1 
             || west <= east ) {
-            east = +M_PI;
-            west = -M_PI;
+            east = +GeoDataLongitude::halfCircle;
+            west = -GeoDataLongitude::halfCircle;
             // if polygon fully in south hemisphere, contain south pole
-            if( north < 0 ) {
-                south = -M_PI/2;
+            if (north < GeoDataLatitude::null) {
+                south = -GeoDataLatitude::quaterCircle;
             } else {
-                north = M_PI/2;
+                north = GeoDataLatitude::quaterCircle;
             }
         }
     }
@@ -793,47 +714,47 @@ bool GeoDataLatLonBox::fuzzyCompare(const GeoDataLatLonBox& lhs,
 
     // Check the latitude for approximate equality
 
-    double latDelta = lhs.height() * factor;
+    GeoDataLatitude latDelta = lhs.height() * factor;
 
-    if (fabs(lhs.north() - rhs.north()) > latDelta) equal = false;
-    if (fabs(lhs.south() - rhs.south()) > latDelta) equal = false;
+    if (qAbs(lhs.north() - rhs.north()) > latDelta) equal = false;
+    if (qAbs(lhs.south() - rhs.south()) > latDelta) equal = false;
 
 
     // Check the longitude for approximate equality
 
-    double lonDelta = lhs.width() * factor;
+    GeoDataLongitude lonDelta = lhs.width() * factor;
 
-    double lhsEast = lhs.east();
-    double rhsEast = rhs.east();
+    GeoDataLongitude lhsEast = lhs.east();
+    GeoDataLongitude rhsEast = rhs.east();
 
     if (!GeoDataLatLonBox::crossesDateLine(lhsEast, rhsEast)) {
-        if (fabs(lhsEast - rhsEast) > lonDelta) equal = false;
+        if (qAbs(lhsEast - rhsEast) > lonDelta) equal = false;
     }
     else {
-        if (lhsEast < 0 && rhsEast > 0) {
-            lhsEast += 2 * M_PI;
-            if (fabs(lhsEast - rhsEast) > lonDelta) equal = false;
+        if (lhsEast < GeoDataLongitude::null && rhsEast > GeoDataLongitude::null) {
+            lhsEast += 2 * GeoDataLongitude::halfCircle;
+            if (qAbs(lhsEast - rhsEast) > lonDelta) equal = false;
         }
-        if (lhsEast > 0 && rhsEast < 0) {
-            rhsEast += 2 * M_PI;
-            if (fabs(lhsEast - rhsEast) > lonDelta) equal = false;
+        if (lhsEast > GeoDataLongitude::null && rhsEast < GeoDataLongitude::null) {
+            rhsEast += 2 * GeoDataLongitude::halfCircle;
+            if (qAbs(lhsEast - rhsEast) > lonDelta) equal = false;
         }
     }
 
-    double lhsWest = lhs.west();
-    double rhsWest = rhs.west();
+    GeoDataLongitude lhsWest = lhs.west();
+    GeoDataLongitude rhsWest = rhs.west();
 
     if (!GeoDataLatLonBox::crossesDateLine(lhsWest, rhsWest)) {
-       if (fabs(lhsWest - rhsWest) > lonDelta) equal = false;
+       if (qAbs(lhsWest - rhsWest) > lonDelta) equal = false;
     }
     else {
-        if (lhsWest < 0 && rhsWest > 0) {
-            lhsWest += 2 * M_PI;
-            if (fabs(lhsWest - rhsWest) > lonDelta) equal = false;
+        if (lhsWest < GeoDataLongitude::null && rhsWest > GeoDataLongitude::null) {
+            lhsWest += 2 * GeoDataLongitude::halfCircle;
+            if (qAbs(lhsWest - rhsWest) > lonDelta) equal = false;
         }
-        if (lhsWest > 0 && rhsWest < 0) {
-            rhsWest += 2 * M_PI;
-            if (fabs(lhsWest - rhsWest) > lonDelta) equal = false;
+        if (lhsWest > GeoDataLongitude::null && rhsWest < GeoDataLongitude::null) {
+            rhsWest += 2 * GeoDataLongitude::halfCircle;
+            if (qAbs(lhsWest - rhsWest) > lonDelta) equal = false;
         }
     }
 

@@ -12,6 +12,9 @@
 #ifndef MARBLE_MARBLEMATH_H
 #define MARBLE_MARBLEMATH_H
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include <QtGlobal>
 
 #include <cmath>
@@ -48,11 +51,11 @@ namespace Marble
  * @param lon2 longitude of second point in radians
  * @param lat2 latitude of second point in radians
  */
-inline qreal distanceSphere( qreal lon1, qreal lat1, qreal lon2, qreal lat2 ) {
-
-    qreal h1 = sin( 0.5 * ( lat2 - lat1 ) );
-    qreal h2 = sin( 0.5 * ( lon2 - lon1 ) );
-    qreal d = h1 * h1 + cos( lat1 ) * cos( lat2 ) * h2 * h2;
+inline qreal distanceSphere(GeoDataLongitude lon1, GeoDataLatitude lat1, GeoDataLongitude lon2, GeoDataLatitude lat2)
+{
+    const qreal h1 = sin(0.5 * (lat2 - lat1).toRadian());
+    const qreal h2 = sin(0.5 * (lon2 - lon1).toRadian());
+    const qreal d = h1 * h1 + cos(lat1.toRadian()) * cos(lat2.toRadian()) * h2 * h2;
 
     return 2.0 * atan2( sqrt( d ), sqrt( 1.0 - d ) );
 }
@@ -64,8 +67,9 @@ inline qreal distanceSphere( qreal lon1, qreal lat1, qreal lon2, qreal lat2 ) {
  * @brief an accuracy of about 1 arcmin.
  * @brief See: https://en.wikipedia.org/wiki/Great-circle_distance
  */
-inline qreal distanceSphereApprox( qreal lon1, qreal lat1, qreal lon2, qreal lat2 ) {
-    return acos( sin( lat1 ) * sin( lat2 ) + cos( lat1 ) * cos( lat2 ) * cos( lon1 - lon2 ) );
+inline qreal distanceSphereApprox(GeoDataLongitude lon1, GeoDataLatitude lat1, GeoDataLongitude lon2, GeoDataLatitude lat2)
+{
+    return acos(sin(lat1.toRadian()) * sin(lat2.toRadian()) + cos(lat1.toRadian()) * cos(lat2.toRadian()) * cos((lon1 - lon2).toRadian()));
 }
 
 
@@ -75,16 +79,15 @@ inline qreal distanceSphereApprox( qreal lon1, qreal lat1, qreal lon2, qreal lat
  * @brief position y in the Mercator projection in terms of the latitude.
  * @brief See: https://en.wikipedia.org/wiki/Mercator_projection
  */
-inline qreal gdInv( qreal x ) {
-        const qreal x2 = x * x;
-        return x 
-            + x * x2 * (  a1
+inline qreal gdInv(GeoDataLatitude lat)
+{
+        const qreal x2 = lat.toRadian() * lat.toRadian();
+        return lat.toRadian()
+            + lat.toRadian() * x2 * (  a1
             + x2 * ( a2  + x2 * ( a3  + x2 * ( a4  + x2 * ( a5
             + x2 * ( a6  + x2 * ( a7  + x2 * ( a8  + x2 * ( a9
             + x2 * ( a10 + x2 * ( a11 + x2 * ( a12 + x2 * ( a13
             + x2 * ( a14 + x2 * ( a15 + x2 * ( a16 ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) );
-}
-
 }
 
 /**
@@ -93,8 +96,8 @@ inline qreal gdInv( qreal x ) {
  *        in the Mercator projection in terms of the vertical position y.
  *        See: https://en.wikipedia.org/wiki/Mercator_projection
  */
-inline qreal gd( qreal x ) {
-
+inline GeoDataLatitude gd(qreal x)
+{
     /*
     const qreal x2 = x * x;
     return x
@@ -105,7 +108,9 @@ inline qreal gd( qreal x ) {
          - x2 * ( a14 - x2 * ( a15 - x2 * ( a16 ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) );
     */
 
-    return atan ( sinh ( x ) );
+    return GeoDataLatitude::fromRadians(atan(sinh(x)));
+}
+
 }
 
 #endif

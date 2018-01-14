@@ -40,16 +40,16 @@ GeoNode* KmlheadingTagHandler::parse( GeoParser& parser ) const
     Q_ASSERT(parser.isStartElement() && parser.isValidElement(QLatin1String(kmlTag_heading)));
 
     GeoStackItem parentItem = parser.parentElement();
-    
-    int const heading = parser.readElementText().toInt();
-    if ( heading >= 0 && heading <= 360 ) {
+
+    const auto heading = GeoDataAngle::fromDegrees(parser.readElementText().toInt());
+    if (heading >= GeoDataAngle::null && heading <= GeoDataAngle::fullCircle) {
         if ( parentItem.represents( kmlTag_IconStyle ) ) {
             parentItem.nodeAs<GeoDataIconStyle>()->setHeading( heading );
         } else if ( parentItem.represents( kmlTag_Camera ) ) {
             parentItem.nodeAs<GeoDataCamera>()->setHeading( heading );
         } else if ( parentItem.represents( kmlTag_Orientation ) ) {
-	    parentItem.nodeAs<GeoDataOrientation>()->setHeading( heading );
-	}
+            parentItem.nodeAs<GeoDataOrientation>()->setHeading( heading );
+        }
     } else {
         mDebug() << "Invalid heading value " << heading << ", must be within 0..360. Using 0 instead.";
     }

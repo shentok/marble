@@ -59,12 +59,12 @@ void ViewportParamsTest::constructorDefaultValues()
     QCOMPARE( viewport.size(), QSize( 100, 100 ) );
     QCOMPARE( viewport.width(), 100 );
     QCOMPARE( viewport.height(), 100 );
-    QCOMPARE( viewport.centerLongitude(), 0. );
-    QCOMPARE( viewport.centerLatitude(), 0. );
+    QCOMPARE( viewport.centerLongitude(), GeoDataLongitude::null );
+    QCOMPARE( viewport.centerLatitude(), GeoDataLatitude::null );
     QCOMPARE( viewport.polarity(), 1 );
     QCOMPARE( viewport.radius(), 2000 );
     QCOMPARE( viewport.mapCoversViewport(), true );
-    QCOMPARE( viewport.focusPoint(), GeoDataCoordinates( 0., 0., 0. ) );
+    QCOMPARE( viewport.focusPoint(), GeoDataCoordinates(GeoDataLongitude::null, GeoDataLatitude::null, 0.) );
 
     // invariants:
     QVERIFY( viewport.radius() > 0 ); // avoids divisions by zero
@@ -76,8 +76,8 @@ void ViewportParamsTest::constructorDefaultValues()
 void ViewportParamsTest::constructorValues_data()
 {
     QTest::addColumn<Marble::Projection>( "projection" );
-    QTest::addColumn<qreal>( "lon" );
-    QTest::addColumn<qreal>( "lat" );
+    QTest::addColumn<GeoDataLongitude>( "lon" );
+    QTest::addColumn<GeoDataLatitude>( "lat" );
     QTest::addColumn<int>( "radius" );
     QTest::addColumn<QSize>( "size" );
 
@@ -92,20 +92,20 @@ void ViewportParamsTest::constructorValues_data()
     viewport.setProjection( Equirectangular );
     const AbstractProjection *const equirectangular = viewport.currentProjection();
 
-    addRow() << Spherical << qreal(0) << qreal(0) << 2000 << QSize( 100, 100 );
-    addRow() << Mercator << qreal(0) << qreal(0) << 2000 << QSize( 100, 100 );
-    addRow() << Equirectangular << qreal(0) << qreal(0) << 2000 << QSize( 100, 100 );
+    addRow() << Spherical << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << 2000 << QSize( 100, 100 );
+    addRow() << Mercator << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << 2000 << QSize( 100, 100 );
+    addRow() << Equirectangular << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << 2000 << QSize( 100, 100 );
 
-    addRow() << Spherical << qreal(205 * DEG2RAD) << spherical->maxValidLat() + qreal(1.0) << 2000 << QSize( 100, 100 );
-    addRow() << Mercator << qreal(205 * DEG2RAD) << mercator->maxValidLat() + qreal(1.0) << 2000 << QSize( 100, 100 );
-    addRow() << Equirectangular << qreal(205 * DEG2RAD) << equirectangular->maxValidLat() + qreal(1.0) << 2000 << QSize( 100, 100 );
+    addRow() << Spherical << GeoDataLongitude::fromDegrees(205) << spherical->maxValidLat() + GeoDataLatitude::fromRadians(1.0) << 2000 << QSize( 100, 100 );
+    addRow() << Mercator << GeoDataLongitude::fromDegrees(205) << mercator->maxValidLat() + GeoDataLatitude::fromRadians(1.0) << 2000 << QSize( 100, 100 );
+    addRow() << Equirectangular << GeoDataLongitude::fromDegrees(205) << equirectangular->maxValidLat() + GeoDataLatitude::fromRadians(1.0) << 2000 << QSize( 100, 100 );
 }
 
 void ViewportParamsTest::constructorValues()
 {
     QFETCH( Projection, projection );
-    QFETCH( qreal, lon );
-    QFETCH( qreal, lat );
+    QFETCH( GeoDataLongitude, lon );
+    QFETCH( GeoDataLatitude, lat );
     QFETCH( int, radius );
     QFETCH( QSize, size );
 
@@ -134,19 +134,17 @@ void ViewportParamsTest::screenCoordinates_GeoDataLineString_data()
     QTest::addColumn<GeoDataLineString>( "line" );
     QTest::addColumn<int>( "size" );
 
-    GeoDataCoordinates::Unit deg = GeoDataCoordinates::Degree;
-
     GeoDataLineString longitudeLine;
-    longitudeLine << GeoDataCoordinates(185, 5, 0, deg )
-                  << GeoDataCoordinates(185, 15, 0, deg );
+    longitudeLine << GeoDataCoordinates(GeoDataLongitude::fromDegrees(185), GeoDataLatitude::fromDegrees(5))
+                  << GeoDataCoordinates(GeoDataLongitude::fromDegrees(185), GeoDataLatitude::fromDegrees(15));
 
     GeoDataLineString diagonalLine;
-    diagonalLine << GeoDataCoordinates(-185, 5, 0, deg )
-                 << GeoDataCoordinates(185, 15, 0, deg );
+    diagonalLine << GeoDataCoordinates(-GeoDataLongitude::fromDegrees(185), GeoDataLatitude::fromDegrees(5))
+                 << GeoDataCoordinates(GeoDataLongitude::fromDegrees(185), GeoDataLatitude::fromDegrees(15));
 
     GeoDataLineString latitudeLine;
-    latitudeLine << GeoDataCoordinates(-185, 5, 0, deg )
-                 << GeoDataCoordinates(185, 5, 0, deg );
+    latitudeLine << GeoDataCoordinates(-GeoDataLongitude::fromDegrees(185), GeoDataLatitude::fromDegrees(5))
+                 << GeoDataCoordinates(GeoDataLongitude::fromDegrees(185), GeoDataLatitude::fromDegrees(5));
 
     Projection projection = Mercator;
 
@@ -257,7 +255,7 @@ void ViewportParamsTest::screenCoordinates_GeoDataLineString()
     ViewportParams viewport;
     viewport.setProjection( projection );
     viewport.setRadius( 360 / 4 ); // for easy mapping of lon <-> x
-    viewport.centerOn(185 * DEG2RAD, 0);
+    viewport.centerOn(GeoDataLongitude::fromDegrees(185), GeoDataLatitude::null);
 
     line.setTessellationFlags( tessellation );
     QVector<QPolygonF*> polys;
@@ -285,9 +283,9 @@ void ViewportParamsTest::screenCoordinates_GeoDataLineString()
 
 void ViewportParamsTest::screenCoordinates_GeoDataLineString2()
 {
-    const ViewportParams viewport( Spherical, 90 * DEG2RAD, 38 * DEG2RAD, 256, QSize( 1165, 833 ) );
+    const ViewportParams viewport(Spherical, 0.5 * GeoDataLongitude::halfCircle, GeoDataLatitude::fromDegrees(38), 256, QSize(1165, 833));
 
-    const GeoDataCoordinates coordinates( -90, 23.44, 0.0, GeoDataCoordinates::Degree );
+    const GeoDataCoordinates coordinates(-0.5 * GeoDataLongitude::halfCircle, GeoDataLatitude::fromDegrees(23.44));
     qreal x, y;
     bool globeHidesPoint;
     viewport.screenCoordinates( coordinates, x, y, globeHidesPoint );
@@ -295,8 +293,8 @@ void ViewportParamsTest::screenCoordinates_GeoDataLineString2()
     QCOMPARE( globeHidesPoint, true );
 
     GeoDataLineString line( Tessellate | RespectLatitudeCircle );
-    line << GeoDataCoordinates( -180, 23.4400, 0.0, GeoDataCoordinates::Degree );
-    line << GeoDataCoordinates( 0, 23.4400, 0.0, GeoDataCoordinates::Degree );
+    line << GeoDataCoordinates( -GeoDataLongitude::halfCircle, GeoDataLatitude::fromDegrees(23.4400));
+    line << GeoDataCoordinates( GeoDataLongitude::null, GeoDataLatitude::fromDegrees(23.4400));
 
     QVector<QPolygonF*> polys;
     viewport.screenCoordinates( line, polys );
@@ -311,13 +309,13 @@ void ViewportParamsTest::screenCoordinates_GeoDataLinearRing()
     // of the rectangle is visible. As a result only a single
     // screen polygon should be rendered.
 
-    const ViewportParams viewport( Spherical, -15 * DEG2RAD, 0 * DEG2RAD, 350, QSize( 1000, 750 ) );
+    const ViewportParams viewport(Spherical, -GeoDataLongitude::fromDegrees(15), GeoDataLatitude::null, 350, QSize(1000, 750));
 
     GeoDataLinearRing line( Tessellate );
-    GeoDataCoordinates coord1 ( 30, -10, 0.0, GeoDataCoordinates::Degree );
-    GeoDataCoordinates coord2 ( 30, -45, 0.0, GeoDataCoordinates::Degree );
-    GeoDataCoordinates coord3 ( 100, -45, 0.0, GeoDataCoordinates::Degree );
-    GeoDataCoordinates coord4 ( 100, -10, 0.0, GeoDataCoordinates::Degree );
+    GeoDataCoordinates coord1 ( GeoDataLongitude::fromDegrees(30), -GeoDataLatitude::fromDegrees(10) );
+    GeoDataCoordinates coord2 ( GeoDataLongitude::fromDegrees(30), -GeoDataLatitude::fromDegrees(45) );
+    GeoDataCoordinates coord3 ( GeoDataLongitude::fromDegrees(100), -GeoDataLatitude::fromDegrees(45) );
+    GeoDataCoordinates coord4 ( GeoDataLongitude::fromDegrees(100), -GeoDataLatitude::fromDegrees(10) );
 
     qreal x, y;
     bool globeHidesPoint;
@@ -345,22 +343,20 @@ void ViewportParamsTest::geoDataLinearRing_data()
     QTest::addColumn<GeoDataLinearRing>( "ring" );
     QTest::addColumn<int>( "size" );
 
-    GeoDataCoordinates::Unit deg = GeoDataCoordinates::Degree;
-
     GeoDataLinearRing normalRing;
-    normalRing << GeoDataCoordinates(175, 5, 0, deg )
-               << GeoDataCoordinates(175, 15, 0, deg )
-               << GeoDataCoordinates(170, 15, 0, deg );
+    normalRing << GeoDataCoordinates(GeoDataLongitude::fromDegrees(175), GeoDataLatitude::fromDegrees(5))
+               << GeoDataCoordinates(GeoDataLongitude::fromDegrees(175), GeoDataLatitude::fromDegrees(15))
+               << GeoDataCoordinates(GeoDataLongitude::fromDegrees(170), GeoDataLatitude::fromDegrees(15));
 
     GeoDataLinearRing acrossIDLRing;
-    acrossIDLRing << GeoDataCoordinates(-175, 5, 0, deg )
-                  << GeoDataCoordinates(175, 5, 0, deg )
-                  << GeoDataCoordinates(175, 15, 0, deg );
+    acrossIDLRing << GeoDataCoordinates(-GeoDataLongitude::fromDegrees(175), GeoDataLatitude::fromDegrees(5))
+                  << GeoDataCoordinates(GeoDataLongitude::fromDegrees(175), GeoDataLatitude::fromDegrees(5))
+                  << GeoDataCoordinates(GeoDataLongitude::fromDegrees(175), GeoDataLatitude::fromDegrees(15));
 
     GeoDataLinearRing aroundSPoleRing;
-    aroundSPoleRing << GeoDataCoordinates(-175, -65, 0, deg )
-                 << GeoDataCoordinates(-55, -70, 0, deg )
-                    << GeoDataCoordinates(65, -75, 0, deg );
+    aroundSPoleRing << GeoDataCoordinates(-GeoDataLongitude::fromDegrees(175), -GeoDataLatitude::fromDegrees(65))
+                 << GeoDataCoordinates(-GeoDataLongitude::fromDegrees(55), -GeoDataLatitude::fromDegrees(70))
+                    << GeoDataCoordinates(GeoDataLongitude::fromDegrees(65), -GeoDataLatitude::fromDegrees(75));
 
     Projection projection = Mercator;
 
@@ -482,7 +478,7 @@ void ViewportParamsTest::geoDataLinearRing()
     ViewportParams viewport;
     viewport.setProjection( projection );
     viewport.setRadius( 360 / 4 ); // for easy mapping of lon <-> x
-    viewport.centerOn(175 * DEG2RAD, 0);
+    viewport.centerOn(GeoDataLongitude::fromDegrees(175), GeoDataLatitude::null);
 
     ring.setTessellationFlags( tessellation );
     QVector<QPolygonF*> polys;
@@ -524,8 +520,8 @@ void ViewportParamsTest::setInvalidRadius()
 
 void ViewportParamsTest::setFocusPoint()
 {
-    const GeoDataCoordinates focusPoint1( 10, 13, 0, GeoDataCoordinates::Degree );
-    const GeoDataCoordinates focusPoint2( 14.3, 20.5, 0, GeoDataCoordinates::Degree );
+    const GeoDataCoordinates focusPoint1( GeoDataLongitude::fromDegrees(10), GeoDataLatitude::fromDegrees(13) );
+    const GeoDataCoordinates focusPoint2( GeoDataLongitude::fromDegrees(14.3), GeoDataLatitude::fromDegrees(20.5) );
 
     ViewportParams viewport;
 

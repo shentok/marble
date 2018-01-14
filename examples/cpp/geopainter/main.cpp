@@ -23,7 +23,7 @@ public:
 
 void MyMarbleWidget::customPaint(GeoPainter* painter)
 {
-    GeoDataCoordinates home(8.4, 49.0, 0.0, GeoDataCoordinates::Degree);
+    GeoDataCoordinates home(GeoDataLongitude::fromDegrees(8.4), GeoDataLatitude::fromDegrees(49.0));
     painter->setPen(Qt::green);
     painter->drawEllipse(home, 7, 7);
     painter->setPen(Qt::black);
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     QApplication app(argc,argv);
     MyMarbleWidget *mapWidget = new MyMarbleWidget;
     mapWidget->setMapThemeId(QStringLiteral("earth/openstreetmap/openstreetmap.dgml"));
-    mapWidget->centerOn(8.4, 49.0);
+    mapWidget->centerOn(GeoDataLongitude::fromDegrees(8.4), GeoDataLatitude::fromDegrees(49.0));
     mapWidget->show();
     return app.exec();
 }

@@ -126,18 +126,18 @@ QHash<TileId, QVector<GeoDataPlacemark *> > SpellChecker::parseCities(const QStr
             GeoDataPlacemark* city = new GeoDataPlacemark;
             city->setName(values[1]);
             bool ok;
-            double const lon = values[5].toDouble(&ok);
+            auto const lon = GeoDataLongitude::fromDegrees(values[5].toDouble(&ok));
             if (!ok) {
                 qDebug() << values[5] << " is no longitude";
                 continue;
             }
-            double const lat = values[4].toDouble(&ok);
+            auto const lat = GeoDataLatitude::fromDegrees(values[4].toDouble(&ok));
             if (!ok) {
                 qDebug() << values[4] << " is no latitude";
                 continue;
             }
             double const ele = values[15].toDouble();
-            auto const coordinate = GeoDataCoordinates(lon, lat, ele, GeoDataCoordinates::Degree);
+            auto const coordinate = GeoDataCoordinates(lon, lat, ele);
             city->setCoordinate(coordinate);
 
             auto const tile = TileId::fromCoordinates(coordinate, m_tileLevel);

@@ -53,14 +53,14 @@ void TestLatLonQuad::simpleParseTest()
 
     QVERIFY( overlay->latLonBox().isEmpty() );
     QVERIFY( overlay->latLonQuad().isValid() );
-    QFUZZYCOMPARE( overlay->latLonQuad().bottomLeft().longitude( GeoDataCoordinates::Degree ), 1.0, 0.0001 );
-    QFUZZYCOMPARE( overlay->latLonQuad().bottomLeft().latitude( GeoDataCoordinates::Degree ), 2.0, 0.0001 );
-    QFUZZYCOMPARE( overlay->latLonQuad().bottomRight().longitude( GeoDataCoordinates::Degree ), 3.0, 0.0001 );
-    QFUZZYCOMPARE( overlay->latLonQuad().bottomRight().latitude( GeoDataCoordinates::Degree ), 4.0, 0.0001 );
-    QFUZZYCOMPARE( overlay->latLonQuad().topRight().longitude( GeoDataCoordinates::Degree ), 5.0, 0.0001 );
-    QFUZZYCOMPARE( overlay->latLonQuad().topRight().latitude( GeoDataCoordinates::Degree ), 6.0, 0.0001 );
-    QFUZZYCOMPARE( overlay->latLonQuad().topLeft().longitude( GeoDataCoordinates::Degree ), 7.0, 0.0001 );
-    QFUZZYCOMPARE( overlay->latLonQuad().topLeft().latitude( GeoDataCoordinates::Degree ), 8.0, 0.0001 );
+    QFUZZYCOMPARE(overlay->latLonQuad().bottomLeft().longitude(), GeoDataLongitude::fromDegrees(1.0), GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlay->latLonQuad().bottomLeft().latitude(), GeoDataLatitude::fromDegrees(2.0), GeoDataLatitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlay->latLonQuad().bottomRight().longitude(), GeoDataLongitude::fromDegrees(3.0), GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlay->latLonQuad().bottomRight().latitude(), GeoDataLatitude::fromDegrees(4.0), GeoDataLatitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlay->latLonQuad().topRight().longitude(), GeoDataLongitude::fromDegrees(5.0), GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlay->latLonQuad().topRight().latitude(), GeoDataLatitude::fromDegrees(6.0), GeoDataLatitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlay->latLonQuad().topLeft().longitude(), GeoDataLongitude::fromDegrees(7.0), GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlay->latLonQuad().topLeft().latitude(), GeoDataLatitude::fromDegrees(8.0), GeoDataLatitude::fromDegrees(0.0001));
 }
 
 QTEST_MAIN( TestLatLonQuad )

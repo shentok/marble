@@ -11,6 +11,8 @@
 
 #include "KmlPointTagWriter.h"
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataPoint.h"
 #include "GeoDataTypes.h"
 #include "GeoWriter.h"
@@ -44,9 +46,9 @@ bool KmlPointTagWriter::write( const GeoNode *node,
     // it is not including the altitude and is adding an extra space after commas
 
     QString coordinateString =
-        QString::number(point->coordinates().longitude(GeoDataCoordinates::Degree), 'f', 10) +
+        QString::number(point->coordinates().longitude().toDegree(), 'f', 10) +
         QLatin1Char(',') +
-        QString::number(point->coordinates().latitude(GeoDataCoordinates::Degree) , 'f', 10);
+        QString::number(point->coordinates().latitude().toDegree(), 'f', 10);
 
     if( point->coordinates().altitude() ) {
         coordinateString += QLatin1Char(',') + QString::number( point->coordinates().altitude() , 'f' , 10);

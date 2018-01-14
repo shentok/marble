@@ -101,13 +101,13 @@ void TestFeatureDetach::testDocument()
 
 void TestFeatureDetach::testPlacemark()
 {
-    GeoDataCoordinates coords1(30, 30, 0, GeoDataCoordinates::Degree);
+    GeoDataCoordinates coords1(GeoDataLongitude::fromDegrees(30), GeoDataLatitude::fromDegrees(30));
     GeoDataPlacemark place1;
     place1.setCoordinate(coords1);
 
     GeoDataPlacemark place2 = place1;
 
-    GeoDataCoordinates coords2(60, 60, 0, GeoDataCoordinates::Degree);
+    GeoDataCoordinates coords2(GeoDataLongitude::fromDegrees(60), GeoDataLatitude::fromDegrees(60));
     GeoDataPoint *point = static_cast<GeoDataPoint*>( place2.geometry() );
     point->setCoordinates(coords2);
     QVERIFY(place1.coordinate() == coords1);

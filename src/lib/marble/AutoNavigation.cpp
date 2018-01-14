@@ -93,8 +93,9 @@ void AutoNavigation::Private::moveOnBorderToCenter( const GeoDataCoordinates &po
     if(!( m_viewport->screenCoordinates( position, x, y ) ) ) {
          centerOn( position );
     }
-    qreal centerLon = m_viewport->centerLongitude();
-    qreal centerLat = m_viewport->centerLatitude();
+
+    const GeoDataLongitude centerLon = m_viewport->centerLongitude();
+    const GeoDataLatitude centerLat = m_viewport->centerLatitude();
 
     qreal centerX = 0.0;
     qreal centerY = 0.0;
@@ -116,9 +117,9 @@ void AutoNavigation::Private::moveOnBorderToCenter( const GeoDataCoordinates &po
 
 GeoDataCoordinates AutoNavigation::Private::findIntersection( qreal currentX, qreal currentY ) const
 {
-    qreal direction = m_tracking->direction();
-    if ( direction >= 360 ) {
-        direction = fmod( direction,360.0 );
+    GeoDataAngle direction = m_tracking->direction();
+    if (direction >= GeoDataAngle::fromDegrees(360)) {
+        direction = GeoDataAngle::fromDegrees(fmod(direction.toDegree(), 360.0));
     }
 
     const qreal width = m_viewport->width();
@@ -133,8 +134,8 @@ GeoDataCoordinates AutoNavigation::Private::findIntersection( qreal currentX, qr
     bool crossVertical = false;
 
     //calculation of intersection point
-    if( 0 < direction && direction < 90 ) {
-        const qreal angle = direction * DEG2RAD;
+    if (GeoDataAngle::null < direction && direction < GeoDataAngle::fromDegrees(90)) {
+        const qreal angle = direction.toRadian();
 
         //Intersection with line x = width
         intercept.setX( width - currentX );
@@ -156,8 +157,8 @@ GeoDataCoordinates AutoNavigation::Private::findIntersection( qreal currentX, qr
         }
 
     }
-    else if( 270 < direction && direction < 360 ) {
-        const qreal angle = (direction - 270) * DEG2RAD;
+    else if (GeoDataAngle::fromDegrees(270) < direction && direction < GeoDataAngle::fromDegrees(360)) {
+        const qreal angle = (direction - GeoDataAngle::fromDegrees(270)).toRadian();
 
         //Intersection with line y = 0
         intercept.setY( currentY );
@@ -179,8 +180,8 @@ GeoDataCoordinates AutoNavigation::Private::findIntersection( qreal currentX, qr
         }
 
     }
-    else if( 180 < direction && direction < 270  ) {
-        const qreal angle = (direction - 180) * DEG2RAD;
+    else if (GeoDataAngle::fromDegrees(180) < direction && direction < GeoDataAngle::fromDegrees(270)) {
+        const qreal angle = (direction - GeoDataAngle::fromDegrees(180)).toRadian();
 
         //Intersection with line x = 0
         intercept.setX( currentX );
@@ -202,8 +203,8 @@ GeoDataCoordinates AutoNavigation::Private::findIntersection( qreal currentX, qr
         }
 
     }
-    else if( 90 < direction && direction < 180  ) {
-        const qreal angle = (direction - 90) * DEG2RAD;
+    else if (GeoDataAngle::fromDegrees(90) < direction && direction < GeoDataAngle::fromDegrees(180)) {
+        const qreal angle = (direction - GeoDataAngle::fromDegrees(90)).toRadian();
 
         //Intersection with line y = height
         intercept.setY( height - currentY );
@@ -225,22 +226,22 @@ GeoDataCoordinates AutoNavigation::Private::findIntersection( qreal currentX, qr
         }
 
     }
-    else if( direction == 0 ) {
+    else if (direction == GeoDataAngle::null) {
         destinationHorizontal.setX( currentX );
         destinationHorizontal.setY( 0 );
         crossHorizontal = true;
     }
-    else if( direction == 90 ) {
+    else if (direction == GeoDataAngle::fromDegrees(90)) {
         destinationVertical.setX( width );
         destinationVertical.setY( currentY );
         crossVertical = true;
     }
-    else if( direction == 180 ) {
+    else if (direction == GeoDataAngle::fromDegrees(180)) {
         destinationHorizontal.setX( currentX );
         destinationHorizontal.setY( height );
         crossHorizontal = true;
     }
-    else if( direction == 270 ) {
+    else if (direction == GeoDataAngle::fromDegrees(270)) {
         destinationVertical.setX( 0 );
         destinationVertical.setY( currentY );
         crossVertical = true;
@@ -255,11 +256,10 @@ GeoDataCoordinates AutoNavigation::Private::findIntersection( qreal currentX, qr
         destination.setY( destinationVertical.y() );
     }
 
-    qreal destinationLon = 0.0;
-    qreal destinationLat = 0.0;
-    m_viewport->geoCoordinates( destination.x(), destination.y(), destinationLon, destinationLat,
-                              GeoDataCoordinates::Radian );
-    GeoDataCoordinates destinationCoord( destinationLon, destinationLat, GeoDataCoordinates::Radian );
+    GeoDataLongitude destinationLon = GeoDataLongitude::null;
+    GeoDataLatitude destinationLat = GeoDataLatitude::null;
+    m_viewport->geoCoordinates(destination.x(), destination.y(), destinationLon, destinationLat);
+    const GeoDataCoordinates destinationCoord(destinationLon, destinationLat);
 
     return destinationCoord;
 }

@@ -47,7 +47,7 @@ public:
     void initialize() override;
     bool isInitialized() const override;
     qreal speed() const override;
-    qreal direction() const override;
+    GeoDataAngle direction() const override;
     QDateTime timestamp() const override;
 
     // Implementing PositionProviderPlugin
@@ -65,7 +65,7 @@ private Q_SLOTS:
 
 private:
     GeoDataCoordinates addNoise(const Marble::GeoDataCoordinates &,const Marble::GeoDataAccuracy &) const;
-    static qreal addNoise(qreal bearing);
+    static GeoDataAngle addNoise(GeoDataAngle bearing);
     void changeStatus(PositionProviderStatus status);
 
     MarbleModel *const m_marbleModel;
@@ -77,8 +77,8 @@ private:
     GeoDataCoordinates m_currentPositionWithNoise;
     QDateTime m_currentDateTime;
     qreal m_speed;
-    qreal m_direction;
-    qreal m_directionWithNoise;
+    GeoDataAngle m_direction;
+    GeoDataAngle m_directionWithNoise;
     QTimer m_updateTimer;
 };
 
