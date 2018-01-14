@@ -35,11 +35,10 @@ MyPaintLayer::MyPaintLayer ( MarbleWidget *widget ) :
     m_delta( 0.02 ),
     m_index ( 0 )
 {
-    GeoDataCoordinates::Unit const degree = GeoDataCoordinates::Degree;
-    m_cities << GeoDataCoordinates(  7.64573, 45.04981, 0.0, degree ); // Torino
-    m_cities << GeoDataCoordinates(  8.33439, 49.01673, 0.0, degree ); // Karlsruhe
-    m_cities << GeoDataCoordinates( 14.41637, 50.09329, 0.0, degree ); // Praha
-    m_cities << GeoDataCoordinates( 15.97254, 45.80268, 0.0, degree ); // Zagred
+    m_cities << GeoDataCoordinates(  GeoDataLongitude::fromDegrees(7.64573), GeoDataLatitude::fromDegrees(45.04981)); // Torino
+    m_cities << GeoDataCoordinates(  GeoDataLongitude::fromDegrees(8.33439), GeoDataLatitude::fromDegrees(49.01673)); // Karlsruhe
+    m_cities << GeoDataCoordinates( GeoDataLongitude::fromDegrees(14.41637), GeoDataLatitude::fromDegrees(50.09329)); // Praha
+    m_cities << GeoDataCoordinates( GeoDataLongitude::fromDegrees(15.97254), GeoDataLatitude::fromDegrees(45.80268)); // Zagred
     addInterpolatedPoint();
 }
 
@@ -177,7 +176,7 @@ GeoDataCoordinates MyPaintLayer::basePoint( const GeoDataCoordinates &c1, const 
     Quaternion const c = c2.quaternion() * ((a+b)*-0.25).exp();
     qreal lon, lat;
     c.getSpherical( lon, lat );
-    return GeoDataCoordinates( lon, lat );
+    return GeoDataCoordinates(GeoDataLongitude::fromRadians(lon), GeoDataLatitude::fromRadians(lat));
 }
 
 void MyPaintLayer::addInterpolatedPoint()

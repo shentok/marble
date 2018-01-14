@@ -70,8 +70,8 @@ GeoDataDocument* OsmParser::parseO5m(const QString &filename, QString &error)
         {
             OsmNode& node = nodes[data.id];
             node.osmData().setId(data.id);
-            node.setCoordinates(GeoDataCoordinates(data.lon*1.0e-7, data.lat*1.0e-7,
-                                                   0.0, GeoDataCoordinates::Degree));
+            node.setCoordinates(GeoDataCoordinates(GeoDataLongitude::fromDegrees(data.lon*1.0e-7),
+                                                   GeoDataLatitude::fromDegrees(data.lat*1.0e-7)));
             while ((innerState = o5mreader_iterateTags(reader, &key, &value)) == O5MREADER_ITERATE_RET_NEXT) {
                 const QString keyString = *stringPool.insert(QString::fromUtf8(key));
                 const QString valueString = *stringPool.insert(QString::fromUtf8(value));

@@ -80,35 +80,35 @@ GeoDataLatLonAltBox AzimuthalProjection::latLonAltBox( const QRect& screenRect,
 
     // If the whole globe is visible we can easily calculate
     // analytically the lon-/lat- range.
-    qreal pitch = GeoDataCoordinates::normalizeLat( viewport->planetAxis().pitch() );
+    const GeoDataLatitude pitch = GeoDataCoordinates::normalizeLat(GeoDataLatitude::fromRadians(viewport->planetAxis().pitch()));
 
     if ( 2.0 * viewport->radius() <= viewport->height()
          &&  2.0 * viewport->radius() <= viewport->width() )
     {
         // Unless the planetaxis is in the screen plane the allowed longitude range
         // covers full -180 deg to +180 deg:
-        if ( pitch > 0.0 && pitch < +M_PI ) {
-            latLonAltBox.setWest(  -M_PI );
-            latLonAltBox.setEast(  +M_PI );
-            latLonAltBox.setNorth( +fabs( M_PI / 2.0 - fabs( pitch ) ) );
-            latLonAltBox.setSouth( -M_PI / 2.0 );
+        if (pitch > GeoDataLatitude::null && pitch < +2 * GeoDataLatitude::quaterCircle) {
+            latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
+            latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
+            latLonAltBox.setNorth(+qAbs(GeoDataLatitude::quaterCircle - qAbs(pitch)));
+            latLonAltBox.setSouth(-GeoDataLatitude::quaterCircle);
         }
-        if ( pitch < 0.0 && pitch > -M_PI ) {
-            latLonAltBox.setWest(  -M_PI );
-            latLonAltBox.setEast(  +M_PI );
-            latLonAltBox.setNorth( +M_PI / 2.0 );
-            latLonAltBox.setSouth( -fabs( M_PI / 2.0 - fabs( pitch ) ) );
+        if (pitch < GeoDataLatitude::null && pitch > -2 * GeoDataLatitude::quaterCircle) {
+            latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
+            latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
+            latLonAltBox.setNorth(+GeoDataLatitude::quaterCircle);
+            latLonAltBox.setSouth(-qAbs(GeoDataLatitude::quaterCircle - qAbs(pitch)));
         }
 
         // Last but not least we deal with the rare case where the
         // globe is fully visible and pitch = 0.0 or pitch = -M_PI or
         // pitch = +M_PI
-        if ( pitch == 0.0 || pitch == -M_PI || pitch == +M_PI ) {
-            qreal yaw = viewport->planetAxis().yaw();
-            latLonAltBox.setWest( GeoDataCoordinates::normalizeLon( yaw - M_PI / 2.0 ) );
-            latLonAltBox.setEast( GeoDataCoordinates::normalizeLon( yaw + M_PI / 2.0 ) );
-            latLonAltBox.setNorth( +M_PI / 2.0 );
-            latLonAltBox.setSouth( -M_PI / 2.0 );
+        if (pitch == GeoDataLatitude::null || pitch == -2 * GeoDataLatitude::quaterCircle || pitch == +2 * GeoDataLatitude::quaterCircle) {
+            const GeoDataLongitude yaw = GeoDataLongitude::fromRadians(viewport->planetAxis().yaw());
+            latLonAltBox.setWest(GeoDataCoordinates::normalizeLon(yaw - 0.5 * GeoDataLongitude::halfCircle));
+            latLonAltBox.setEast(GeoDataCoordinates::normalizeLon(yaw + 0.5 * GeoDataLongitude::halfCircle));
+            latLonAltBox.setNorth(+GeoDataLatitude::quaterCircle);
+            latLonAltBox.setSouth(-GeoDataLatitude::quaterCircle);
         }
 
         return latLonAltBox;
@@ -118,18 +118,18 @@ GeoDataLatLonAltBox AzimuthalProjection::latLonAltBox( const QRect& screenRect,
     // inside the viewport to get more accurate values for east and west.
 
     // We need a point on the screen at maxLat that definitely gets displayed:
-    qreal averageLongitude = ( latLonAltBox.west() + latLonAltBox.east() ) / 2.0;
+    const GeoDataLongitude averageLongitude = (latLonAltBox.west() + latLonAltBox.east()) / 2.0;
 
-    GeoDataCoordinates maxLatPoint( averageLongitude, maxLat(), 0.0, GeoDataCoordinates::Radian );
-    GeoDataCoordinates minLatPoint( averageLongitude, minLat(), 0.0, GeoDataCoordinates::Radian );
+    GeoDataCoordinates maxLatPoint(averageLongitude, maxLat());
+    GeoDataCoordinates minLatPoint(averageLongitude, minLat());
 
     qreal dummyX, dummyY; // not needed
     bool dummyVal;
 
     if ( screenCoordinates( maxLatPoint, viewport, dummyX, dummyY, dummyVal ) ||
          screenCoordinates( minLatPoint, viewport, dummyX, dummyY, dummyVal ) ) {
-        latLonAltBox.setWest( -M_PI );
-        latLonAltBox.setEast( +M_PI );
+        latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
+        latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
     }
 
     return latLonAltBox;
@@ -238,20 +238,20 @@ void AzimuthalProjectionPrivate::processTessellation( const GeoDataCoordinates &
                                       && previousCoords.latitude() == currentCoords.latitude();
 
     // Calculate steps for tessellation: lonDiff and altDiff
-    qreal lonDiff = 0.0;
+    GeoDataLongitude lonDiff = GeoDataLongitude::null;
     if ( followLatitudeCircle ) {
-        const int previousSign = previousCoords.longitude() > 0 ? 1 : -1;
-        const int currentSign = currentCoords.longitude() > 0 ? 1 : -1;
+        const int previousSign = previousCoords.longitude() > GeoDataLongitude::null ? 1 : -1;
+        const int currentSign = currentCoords.longitude() > GeoDataLongitude::null ? 1 : -1;
 
         lonDiff = currentCoords.longitude() - previousCoords.longitude();
         if ( previousSign != currentSign
-             && fabs(previousCoords.longitude()) + fabs(currentCoords.longitude()) > M_PI ) {
+             && qAbs(previousCoords.longitude()) + qAbs(currentCoords.longitude()) > GeoDataLongitude::halfCircle) {
             if ( previousSign > currentSign ) {
                 // going eastwards ->
-                lonDiff += 2 * M_PI ;
+                lonDiff += 2 * GeoDataLongitude::halfCircle;
             } else {
                 // going westwards ->
-                lonDiff -= 2 * M_PI;
+                lonDiff -= 2 * GeoDataLongitude::halfCircle;
             }
         }
     }
@@ -268,8 +268,8 @@ void AzimuthalProjectionPrivate::processTessellation( const GeoDataCoordinates &
             // linear interpolation of the longitude.
             const qreal altDiff = currentCoords.altitude() - previousCoords.altitude();
             const qreal altitude = altDiff * t + previousCoords.altitude();
-            const qreal lon = lonDiff * t + previousCoords.longitude();
-            const qreal lat = previousTessellatedCoords.latitude();
+            const GeoDataLongitude lon = lonDiff * t + previousCoords.longitude();
+            const GeoDataLatitude lat = previousTessellatedCoords.latitude();
 
             currentTessellatedCoords = GeoDataCoordinates(lon, lat, altitude);
         }
@@ -537,27 +537,25 @@ void AzimuthalProjectionPrivate::horizonToPolygon( const ViewportParams *viewpor
     Q_Q( const AzimuthalProjection );
     // Calculate the angle of the position vectors of both coordinates
     q->screenCoordinates( disappearCoords, viewport, x, y, dummyGlobeHidesPoint );
-    qreal alpha = atan2( y - imageHalfHeight,
-                         x - imageHalfWidth );
+    const GeoDataLongitude alpha = GeoDataLongitude::fromRadians(atan2(y - imageHalfHeight, x - imageHalfWidth));
 
     q->screenCoordinates( reappearCoords, viewport, x, y, dummyGlobeHidesPoint );
-    qreal beta =  atan2( y - imageHalfHeight,
-                         x - imageHalfWidth );
+    const GeoDataLongitude beta = GeoDataLongitude::fromRadians(atan2(y - imageHalfHeight, x - imageHalfWidth));
 
     // Calculate the difference between both
-    qreal diff = GeoDataCoordinates::normalizeLon( beta - alpha );
+    const GeoDataLongitude diff = GeoDataCoordinates::normalizeLon(beta - alpha);
 
-    qreal sgndiff = diff < 0 ? -1 : 1;
+    qreal sgndiff = diff < GeoDataLongitude::null ? -1 : 1;
 
     const qreal arcradius = q->clippingRadius() * viewport->radius();
-    const int itEnd = fabs(diff * RAD2DEG);
+    const int itEnd = qAbs(diff).toDegree();
 
     // Create a polygon that resembles an arc between the two position vectors
     polygon->reserve(polygon->size() + itEnd);
     for ( int it = 1; it <= itEnd; ++it ) {
-        const qreal angle = alpha + DEG2RAD * sgndiff * it;
-        const qreal itx = imageHalfWidth  +  arcradius * cos( angle );
-        const qreal ity = imageHalfHeight +  arcradius * sin( angle );
+        const GeoDataLongitude angle = alpha + sgndiff * GeoDataLongitude::fromDegrees(it);
+        const qreal itx = imageHalfWidth  +  arcradius * cos(angle.toRadian());
+        const qreal ity = imageHalfHeight +  arcradius * sin(angle.toRadian());
         *polygon << QPointF( itx, ity );
     }
 }
@@ -589,31 +587,31 @@ GeoDataCoordinates AzimuthalProjectionPrivate::doFindHorizon( const GeoDataCoord
     bool followLatitudeCircle = false;
 
     // Calculate steps for tessellation: lonDiff and altDiff
-    qreal lonDiff = 0.0;
-    qreal previousLongitude = 0.0;
-    qreal previousLatitude = 0.0;
+    GeoDataLongitude lonDiff = GeoDataLongitude::null;
+    GeoDataLongitude previousLongitude = GeoDataLongitude::null;
+    GeoDataLatitude previousLatitude = GeoDataLatitude::null;
 
     if ( f.testFlag( RespectLatitudeCircle ) ) {
         previousCoords.geoCoordinates( previousLongitude, previousLatitude );
-        qreal previousSign = previousLongitude > 0 ? 1 : -1;
+        const qreal previousSign = previousLongitude > GeoDataLongitude::null ? 1 : -1;
 
-        qreal currentLongitude = 0.0;
-        qreal currentLatitude = 0.0;
+        GeoDataLongitude currentLongitude = GeoDataLongitude::null;
+        GeoDataLatitude currentLatitude = GeoDataLatitude::null;
         currentCoords.geoCoordinates( currentLongitude, currentLatitude );
-        qreal currentSign = currentLongitude > 0 ? 1 : -1;
+        const qreal currentSign = currentLongitude > GeoDataLongitude::null ? 1 : -1;
 
         if ( previousLatitude == currentLatitude ) {
             followLatitudeCircle = true;
 
             lonDiff = currentLongitude - previousLongitude;
             if ( previousSign != currentSign
-                 && fabs(previousLongitude) + fabs(currentLongitude) > M_PI ) {
+                 && qAbs(previousLongitude) + qAbs(currentLongitude) > GeoDataLongitude::halfCircle) {
                 if ( previousSign > currentSign ) {
                     // going eastwards ->
-                    lonDiff += 2 * M_PI ;
+                    lonDiff += 2 * GeoDataLongitude::halfCircle;
                 } else {
                     // going westwards ->
-                    lonDiff -= 2 * M_PI;
+                    lonDiff -= 2 * GeoDataLongitude::halfCircle;
                 }
             }
 
@@ -630,8 +628,8 @@ GeoDataCoordinates AzimuthalProjectionPrivate::doFindHorizon( const GeoDataCoord
         // linear interpolation of the longitude.
         const qreal altDiff = currentCoords.altitude() - previousCoords.altitude();
         const qreal altitude = previousCoords.altitude() + 0.5 * altDiff;
-        const qreal lon = lonDiff * 0.5 + previousLongitude;
-        const qreal lat = previousLatitude;
+        const GeoDataLongitude lon = lonDiff * 0.5 + previousLongitude;
+        const GeoDataLatitude lat = previousLatitude;
 
         horizonCoords = GeoDataCoordinates(lon, lat, altitude);
     }

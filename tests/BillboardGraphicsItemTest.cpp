@@ -53,7 +53,7 @@ void BillboardGraphicsItemTest::defaultConstructorValues()
 void BillboardGraphicsItemTest::paintEvent()
 {
     BillboardGraphicsItem item;
-    item.setCoordinate( GeoDataCoordinates( 0, 0 ) );
+    item.setCoordinate(GeoDataCoordinates(GeoDataLongitude::null, GeoDataLatitude::null));
 
     MarbleGraphicsGridLayout *topLayout = new MarbleGraphicsGridLayout( 1, 1 );
     item.setLayout( topLayout );
@@ -68,7 +68,7 @@ void BillboardGraphicsItemTest::paintEvent()
     QImage paintDevice( 100, 100, QImage::Format_ARGB32_Premultiplied );
     QPainter painter( &paintDevice );
 
-    const ViewportParams viewport( Mercator, 0, 0, 20, paintDevice.size() );
+    const ViewportParams viewport(Mercator, GeoDataLongitude::null, GeoDataLatitude::null, 20, paintDevice.size());
 
     item.paintEvent( &painter, &viewport );
 

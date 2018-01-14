@@ -89,10 +89,7 @@ class AzimuthalEquidistantProjection : public AzimuthalProjection
      * @return @c true  if the pixel (x, y) is within the globe
      *         @c false if the pixel (x, y) is outside the globe, i.e. in space.
      */
-    bool geoCoordinates( const int x, const int y,
-                         const ViewportParams *params,
-                         qreal& lon, qreal& lat,
-                         GeoDataCoordinates::Unit unit = GeoDataCoordinates::Degree ) const override;
+    bool geoCoordinates(int x, int y, const ViewportParams *viewport, GeoDataLongitude &lon, GeoDataLatitude &lat) const override;
 
  protected:
     explicit AzimuthalEquidistantProjection(AzimuthalEquidistantProjectionPrivate *dd );

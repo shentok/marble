@@ -19,7 +19,7 @@
 #include "MarbleClock.h"
 #include "Planet.h"
 #include "MarbleMath.h"
- 
+
 #include "MarbleDebug.h"
 
 #include <QDateTime>
@@ -35,8 +35,8 @@ class SunLocatorPrivate
 {
 public:
     SunLocatorPrivate( const MarbleClock *clock, const Planet *planet )
-        : m_lon( 0.0 ),
-          m_lat( 0.0 ),
+        : m_lon(GeoDataLongitude::null),
+          m_lat(GeoDataLatitude::null),
           m_twilightZone(planet->twilightZone()),
           m_clock( clock ),
           m_planet( planet )
@@ -44,8 +44,8 @@ public:
         planet->sunPosition(m_lon, m_lat, clock->dateTime());
     }
 
-    qreal m_lon;
-    qreal m_lat;
+    GeoDataLongitude m_lon;
+    GeoDataLatitude m_lat;
 
     qreal m_twilightZone;
 
@@ -65,10 +65,10 @@ SunLocator::~SunLocator()
     delete d;
 }
 
-qreal SunLocator::shading(qreal lon, qreal a, qreal c) const
+qreal SunLocator::shading(GeoDataLongitude lon, qreal a, qreal c) const
 {
     // haversine formula
-    qreal b = sin((lon-d->m_lon)/2.0);
+    qreal b = sin((lon-d->m_lon).toRadian() / 2.0);
 //    qreal g = sin((lat-d->m_lat)/2.0);
 //    qreal h = (g*g)+cos(lat)*cos(d->m_lat)*(b*b); 
     qreal h = (a*a) + c * (b*b); 
@@ -145,7 +145,7 @@ void SunLocator::update()
 {
     d->m_planet->sunPosition(d->m_lon, d->m_lat, d->m_clock->dateTime());
 
-    emit positionChanged( getLon(), getLat() );
+    emit positionChanged(getLon().toDegree(), getLat().toDegree());
 }
 
 void SunLocator::setPlanet( const Planet *planet )
@@ -169,18 +169,18 @@ void SunLocator::setPlanet( const Planet *planet )
     // In that case we don't want an update.
     // Update the shading in all other cases.
     if ( !previousPlanet->id().isEmpty() ) {
-        emit positionChanged( getLon(), getLat() );
+        emit positionChanged(getLon().toDegree(), getLat().toDegree());
     }
 }
 
-qreal SunLocator::getLon() const
+GeoDataLongitude SunLocator::getLon() const
 {
-    return d->m_lon * RAD2DEG;
+    return d->m_lon;
 }
 
-qreal SunLocator::getLat() const
+GeoDataLatitude SunLocator::getLat() const
 {
-    return d->m_lat * RAD2DEG;
+    return d->m_lat;
 }
 
 }

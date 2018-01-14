@@ -14,6 +14,8 @@
 #define MARBLE_GEODATAPHOTOOVERLAY_H
 
 #include "GeoDataOverlay.h"
+
+#include "GeoDataAngle.h"
 #include "MarbleGlobal.h"
 #include "geodata_export.h"
 
@@ -50,8 +52,8 @@ public:
         Sphere
     };
 
-    qreal rotation() const;
-    void setRotation( const qreal rotation );
+    GeoDataAngle rotation() const;
+    void setRotation(const GeoDataAngle rotation);
 
     GeoDataViewVolume &viewVolume();
     const GeoDataViewVolume& viewVolume() const;

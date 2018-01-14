@@ -100,11 +100,11 @@ void Private::setupMarbleWidget()
         }
     }
 
-    m_marbleWidget->centerOn( 23.0, 42.0 );
+    m_marbleWidget->centerOn(GeoDataLongitude::fromDegrees(23.0), GeoDataLatitude::fromDegrees(42.0));
     m_marbleWidget->setDistance( 7500 );
 
-    m_parent->connect( m_parent, SIGNAL(announceHighlight(qreal,qreal,GeoDataCoordinates::Unit)),
-                       m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)) );
+    m_parent->connect( m_parent, SIGNAL(announceHighlight(GeoDataLongitude,GeoDataLatitude)),
+                       m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)) );
 }
 
 void Private::setupGameSignals()
@@ -222,12 +222,12 @@ void MainWindow::disableGames()
                 d->m_clickOnThat, SLOT(postQuestion(QObject*)) );
     disconnect( d->m_clickOnThat, SIGNAL(updateResult(bool)),
                 this, SLOT(displayResult(bool)) );
-    disconnect( d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)),
-                d->m_clickOnThat, SLOT(determineResult(qreal,qreal,GeoDataCoordinates::Unit)) );
+    disconnect( d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)),
+                d->m_clickOnThat, SLOT(determineResult(GeoDataLongitude,GeoDataLatitude)) );
     d->m_clickOnThat->disablePinDocument();
 
     // Reset the map view
-    d->m_marbleWidget->centerOn( 23.0, 42.0 );
+    d->m_marbleWidget->centerOn(GeoDataLongitude::fromDegrees(23.0), GeoDataLatitude::fromDegrees(42.0));
     d->m_marbleWidget->setDistance( 7500 );
 }
 

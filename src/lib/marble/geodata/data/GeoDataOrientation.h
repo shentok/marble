@@ -12,6 +12,8 @@
 #define GEODATAORIENTATION_H
 
 #include "GeoDataObject.h"
+
+#include "GeoDataAngle.h"
 #include "MarbleGlobal.h"
 
 namespace Marble {
@@ -40,8 +42,8 @@ public:
     /** Returns by how much degrees the camera has been rotated about the normal.
      *  Default value= 0. Range: 0-360 degrees
      */
-    double heading() const;
-    void setHeading( double heading );
+    GeoDataAngle heading() const;
+    void setHeading(GeoDataAngle heading);
 
     /** Returns the rotation of the camera in degrees, around the X axis.
      *  Value ranges from 0 (indicating that the view is aimed straight down
@@ -49,14 +51,14 @@ public:
      *  the horizon) to values greater than 90 (indicating that the view is pointed
      *  up into the sky. Values are clamped at +180 degrees.
      */
-    double tilt() const;
-    void setTilt( double tilt );
+    GeoDataAngle tilt() const;
+    void setTilt(GeoDataAngle tilt);
 
     /** Returns the rotation of the camera in degrees around the Z axis.
      *  Range: −180 to +180 degrees.
      */
-    double roll() const;
-    void setRoll( double roll);
+    GeoDataAngle roll() const;
+    void setRoll(GeoDataAngle roll);
 
 protected:
     GeoDataOrientationPrivate* const d;

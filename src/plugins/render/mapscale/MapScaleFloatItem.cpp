@@ -154,11 +154,11 @@ void MapScaleFloatItem::setProjection( const ViewportParams *viewport )
 
         if ( viewport->currentProjection()->surfaceType() == AbstractProjection::Cylindrical )
         {
-            qreal centerLatitude = viewport->viewLatLonAltBox().center().latitude();
+            const auto centerLatitude = viewport->viewLatLonAltBox().center().latitude();
             // For flat maps we calculate the length of the 90 deg section of the
             // central latitude circle. For flat maps this distance matches
             // the pixel based radius propertyy.
-            m_pixel2Length *= M_PI / 2 * cos( centerLatitude );
+            m_pixel2Length *= M_PI / 2 * cos(centerLatitude.toRadian());
         }
 
         m_scaleBarDistance = (qreal)(m_scaleBarWidth) * m_pixel2Length;

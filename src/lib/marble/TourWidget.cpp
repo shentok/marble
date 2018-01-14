@@ -19,6 +19,8 @@
 #include "ui_TourWidget.h"
 #include "GeoDataPlacemark.h"
 #include "GeoDataDocument.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataLookAt.h"
 #include "GeoDataPlaylist.h"
 #include "GeoDataTour.h"
@@ -454,8 +456,8 @@ void TourWidgetPrivate::addPlacemark()
 {
     // Get the normalized coordinates of the focus point. There will be automatically added a new
     // placemark.
-    qreal lat = m_widget->focusPoint().latitude();
-    qreal lon = m_widget->focusPoint().longitude();
+    GeoDataLatitude lat = m_widget->focusPoint().latitude();
+    GeoDataLongitude lon = m_widget->focusPoint().longitude();
     GeoDataCoordinates::normalizeLonLat( lon, lat );
 
     GeoDataDocument *document = new GeoDataDocument;

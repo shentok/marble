@@ -65,7 +65,7 @@ int main(int argc, char** argv)
     }
     double const scale = 4.0;
     mapWidget->resize( 130 * scale, 130 * scale );
-    mapWidget->centerOn( 49.59526, 18.48104 );
+    mapWidget->centerOn(GeoDataLongitude::fromDegrees(49.59526), GeoDataLatitude::fromDegrees(18.48104));
     mapWidget->setRadius( 120 * scale / 2.0 );
 
     QPixmap canvas( ":/canvas.png" );

@@ -15,7 +15,9 @@
 
 // Marble
 #include "ViewportParams.h"
+#include "GeoDataLatitude.h"
 #include "GeoDataLatLonAltBox.h"
+#include "GeoDataLongitude.h"
 
 #include "MarbleDebug.h"
 
@@ -60,18 +62,16 @@ bool EquirectProjection::screenCoordinates( const GeoDataCoordinates &geopoint,
     int  width  = viewport->width();
     int  height = viewport->height();
 
-    qreal  lon;
-    qreal  lat;
-    qreal  rad2Pixel = 2.0 * viewport->radius() / M_PI;
+    const GeoDataLongitude centerLon = viewport->centerLongitude();
+    const GeoDataLatitude centerLat = viewport->centerLatitude();
 
-    const qreal centerLon = viewport->centerLongitude();
-    const qreal centerLat = viewport->centerLatitude();
-
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
     geopoint.geoCoordinates( lon, lat );
 
     // Let (x, y) be the position on the screen of the geopoint.
-    x = ((qreal)(viewport->width())  / 2.0 + rad2Pixel * (lon - centerLon));
-    y = ((qreal)(viewport->height()) / 2.0 - rad2Pixel * (lat - centerLat));
+    x = ((qreal)(viewport->width())  / 2.0 + 2 * viewport->radius() * (lon - centerLon) / GeoDataLongitude::halfCircle);
+    y = ((qreal)(viewport->height()) / 2.0 - viewport->radius() * (lat - centerLat) / GeoDataLatitude::quaterCircle);
 
     // Return true if the calculated point is inside the screen area,
     // otherwise return false.
@@ -142,45 +142,32 @@ bool EquirectProjection::screenCoordinates( const GeoDataCoordinates &coordinate
 
 bool EquirectProjection::geoCoordinates( const int x, const int y,
                                          const ViewportParams *viewport,
-                                         qreal& lon, qreal& lat,
-                                         GeoDataCoordinates::Unit unit ) const
+                                         GeoDataLongitude &lon, GeoDataLatitude &lat) const
 {
     const int radius = viewport->radius();
-    const qreal pixel2Rad = M_PI / (2.0 * radius);
 
     // Get the Lat and Lon of the center point of the screen.
-    const qreal centerLon = viewport->centerLongitude();
-    const qreal centerLat = viewport->centerLatitude();
+    const GeoDataLongitude centerLon = viewport->centerLongitude();
+    const GeoDataLatitude centerLat = viewport->centerLatitude();
 
     {
         const int halfImageWidth = viewport->width() / 2;
-        const int xPixels = x - halfImageWidth;
+        const int xPixels = (x - halfImageWidth) / (2 * radius);
 
-        lon = + xPixels * pixel2Rad + centerLon;
-
-        while ( lon > M_PI )  lon -= 2.0 * M_PI;
-        while ( lon < -M_PI ) lon += 2.0 * M_PI;
-
-        if ( unit == GeoDataCoordinates::Degree ) {
-            lon *= RAD2DEG;
-        }
+        lon = GeoDataCoordinates::normalizeLon(+ xPixels * GeoDataLongitude::halfCircle + centerLon);
     }
 
     {
         // Get yTop and yBottom, the limits of the map on the screen.
         const int halfImageHeight = viewport->height() / 2;
-        const int yCenterOffset = (int)( centerLat * (qreal)(2 * radius) / M_PI);
+        const int yCenterOffset = (int)(radius * centerLat / GeoDataLatitude::quaterCircle);
         const int yTop          = halfImageHeight - radius + yCenterOffset;
         const int yBottom       = yTop + 2 * radius;
 
         // Return here if the y coordinate is outside the map
         if ( yTop <= y && y < yBottom ) {
-            const int yPixels = y - halfImageHeight;
-            lat = - yPixels * pixel2Rad + centerLat;
-
-            if ( unit == GeoDataCoordinates::Degree ) {
-                lat *= RAD2DEG;
-            }
+            const int yPixels = (y - halfImageHeight) / radius;
+            lat = - yPixels * GeoDataLatitude::quaterCircle + centerLat;
 
             return true;
         }
@@ -192,21 +179,21 @@ bool EquirectProjection::geoCoordinates( const int x, const int y,
 GeoDataLatLonAltBox EquirectProjection::latLonAltBox( const QRect& screenRect,
                                                       const ViewportParams *viewport ) const
 {
-    qreal west;
-    qreal north = 90*DEG2RAD;
-    geoCoordinates( screenRect.left(), screenRect.top(), viewport, west, north, GeoDataCoordinates::Radian );
+    GeoDataLongitude west;
+    GeoDataLatitude north = GeoDataLatitude::quaterCircle;
+    geoCoordinates(screenRect.left(), screenRect.top(), viewport, west, north);
 
-    qreal east;
-    qreal south = -90*DEG2RAD;
-    geoCoordinates( screenRect.right(), screenRect.bottom(), viewport, east, south, GeoDataCoordinates::Radian );
+    GeoDataLongitude east;
+    GeoDataLatitude south = -GeoDataLatitude::quaterCircle;
+    geoCoordinates(screenRect.right(), screenRect.bottom(), viewport, east, south);
 
     // For the case where the whole viewport gets covered there is a
     // pretty dirty and generic detection algorithm:
     GeoDataLatLonAltBox latLonAltBox;
-    latLonAltBox.setNorth( north, GeoDataCoordinates::Radian );
-    latLonAltBox.setSouth( south, GeoDataCoordinates::Radian );
-    latLonAltBox.setWest( west, GeoDataCoordinates::Radian );
-    latLonAltBox.setEast( east, GeoDataCoordinates::Radian );
+    latLonAltBox.setNorth(north);
+    latLonAltBox.setSouth(south);
+    latLonAltBox.setWest(west);
+    latLonAltBox.setEast(east);
     latLonAltBox.setMinAltitude(      -100000000.0 );
     latLonAltBox.setMaxAltitude( 100000000000000.0 );
 
@@ -219,28 +206,28 @@ GeoDataLatLonAltBox EquirectProjection::latLonAltBox( const QRect& screenRect,
 
     int xRepeatDistance = 4 * radius;
     if ( width >= xRepeatDistance ) {
-        latLonAltBox.setWest( -M_PI );
-        latLonAltBox.setEast( +M_PI );
+        latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
+        latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
     }
 
     // Now we need to check whether maxLat (e.g. the north pole) gets displayed
     // inside the viewport.
 
     // We need a point on the screen at maxLat that definitely gets displayed:
-    qreal averageLongitude = latLonAltBox.east();
+    const GeoDataLongitude averageLongitude = latLonAltBox.east();
 
-    GeoDataCoordinates maxLatPoint( averageLongitude, maxLat(), 0.0, GeoDataCoordinates::Radian );
-    GeoDataCoordinates minLatPoint( averageLongitude, minLat(), 0.0, GeoDataCoordinates::Radian );
+    GeoDataCoordinates maxLatPoint(averageLongitude, maxLat());
+    GeoDataCoordinates minLatPoint(averageLongitude, minLat());
 
     qreal dummyX, dummyY; // not needed
 
     if ( screenCoordinates( maxLatPoint, viewport, dummyX, dummyY ) ) {
-        latLonAltBox.setEast( +M_PI );
-        latLonAltBox.setWest( -M_PI );
+        latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
+        latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
     }
     if ( screenCoordinates( minLatPoint, viewport, dummyX, dummyY ) ) {
-        latLonAltBox.setEast( +M_PI );
-        latLonAltBox.setWest( -M_PI );
+        latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
+        latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
     }
 
     return latLonAltBox;
@@ -256,13 +243,10 @@ bool EquirectProjection::mapCoversViewport( const ViewportParams *viewport ) con
     int  halfImageHeight = viewport->height() / 2;
 
     // Get the Lat and Lon of the center point of the screen.
-    const qreal centerLat = viewport->centerLatitude();
-
-    // Calculate how many pixel are being represented per radians.
-    const float rad2Pixel = (qreal)( 2 * radius )/M_PI;
+    const GeoDataLatitude centerLat = viewport->centerLatitude();
 
     // Get yTop and yBottom, the limits of the map on the screen.
-    int yCenterOffset = (int)( centerLat * rad2Pixel );
+    int yCenterOffset = (int)(radius * centerLat / GeoDataLatitude::quaterCircle);
     int yTop          = halfImageHeight - radius + yCenterOffset;
     int yBottom       = yTop + 2 * radius;
 

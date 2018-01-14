@@ -111,9 +111,9 @@ bool SunPlugin::render( GeoPainter *painter, ViewportParams *viewport,
 
     if( visible() )
     {
-        const qreal lon = marbleModel()->sunLocator()->getLon();
-        const qreal lat = marbleModel()->sunLocator()->getLat();
-        const GeoDataCoordinates coordinates( lon, lat, 0, GeoDataCoordinates::Degree );
+        const auto lon = marbleModel()->sunLocator()->getLon();
+        const auto lat = marbleModel()->sunLocator()->getLat();
+        const GeoDataCoordinates coordinates(lon, lat);
         painter->drawPixmap( coordinates, m_pixmap );
     }
 

@@ -53,12 +53,11 @@ void OSRMRunner::retrieveRoute( const RouteRequest *route )
     }
 
     QString url = "http://router.project-osrm.org/route/v1/driving/";
-    GeoDataCoordinates::Unit const degree = GeoDataCoordinates::Degree;
     for ( int i=0; i<route->size(); ++i ) {
         GeoDataCoordinates const coordinates = route->at( i );
-        url += QString::number(coordinates.longitude(degree), 'f', 6);
+        url += QString::number(coordinates.longitude().toDegree(), 'f', 6);
         url += ',';
-        url += QString::number(coordinates.latitude(degree), 'f', 6);
+        url += QString::number(coordinates.latitude().toDegree(), 'f', 6);
         if (i+1<route->size()) {
             url += ';';
         }
@@ -135,9 +134,9 @@ GeoDataLineString *OSRMRunner::decodePolyline( const QString &geometry )
             } while ( block >= 0x20 );
             coordinates[j] += ( ( result & 1 ) != 0 ? ~( result >> 1 ) : ( result >> 1 ) );
         }
-        lineString->append( GeoDataCoordinates( double( coordinates[1] ) / 1E6,
-                                                double( coordinates[0] ) / 1E6,
-                                                0.0, GeoDataCoordinates::Degree ) );
+        lineString->append(GeoDataCoordinates(GeoDataLongitude::fromDegrees(double(coordinates[1]) / 1E6),
+                                              GeoDataLatitude::fromDegrees(double(coordinates[0]) / 1E6),
+                                              0.0));
     }
     return lineString;
 }

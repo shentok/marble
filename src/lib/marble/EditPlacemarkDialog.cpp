@@ -140,12 +140,10 @@ EditPlacemarkDialog::EditPlacemarkDialog( GeoDataPlacemark *placemark,
     d->m_isBalloonVisible->setChecked( placemark->isBalloonVisible() );
     d->m_initialIsBaloonVisible = placemark->isBalloonVisible();
 
-    d->m_header->setLatitude( placemark->coordinate().latitude( GeoDataCoordinates::Degree ) );
-    d->m_header->setLongitude( placemark->coordinate().longitude( GeoDataCoordinates::Degree ) );
-    d->m_initialCoords = GeoDataCoordinates( d->m_header->longitude(),
-                                             d->m_header->latitude(),
-                                             0,
-                                             GeoDataCoordinates::Degree );
+    d->m_header->setLatitude(placemark->coordinate().latitude());
+    d->m_header->setLongitude(placemark->coordinate().longitude());
+    d->m_initialCoords = GeoDataCoordinates(d->m_header->longitude(),
+                                            d->m_header->latitude());
 
     // There's no point showing Relations and Tags tabs if the editor was not
     // loaded from the annotate plugin ( loaded from tourWidget.. )
@@ -277,8 +275,8 @@ bool EditPlacemarkDialog::isIdFieldVisible() const
 
 void EditPlacemarkDialog::updateDialogFields()
 {
-    d->m_header->setLatitude( d->m_placemark->coordinate().latitude( GeoDataCoordinates::Degree ) );
-    d->m_header->setLongitude( d->m_placemark->coordinate().longitude( GeoDataCoordinates::Degree ) );
+    d->m_header->setLatitude(d->m_placemark->coordinate().latitude());
+    d->m_header->setLongitude(d->m_placemark->coordinate().longitude());
 }
 
 void EditPlacemarkDialog::setIdFilter(const QStringList &filter)
@@ -316,10 +314,7 @@ void EditPlacemarkDialog::updateTextAnnotation()
     //allow for HTML in the description
     d->m_placemark->setDescriptionCDATA( true );
     d->m_placemark->setName( d->m_header->name() );
-    d->m_placemark->setCoordinate( GeoDataCoordinates( d->m_header->longitude(),
-                                                                         d->m_header->latitude(),
-                                                                         0,
-                                                                         GeoDataCoordinates::Degree ) );
+    d->m_placemark->setCoordinate(GeoDataCoordinates(d->m_header->longitude(), d->m_header->latitude()));
 
     d->m_placemark->setVisible( d->m_isPlacemarkVisible->isChecked() );
     d->m_placemark->setBalloonVisible( d->m_isBalloonVisible->isChecked() );
@@ -462,10 +457,8 @@ void EditPlacemarkDialog::restoreInitial( int result )
         d->m_placemark->setDescriptionCDATA( d->m_initialDescriptionIsCDATA );
     }
 
-    if ( d->m_placemark->coordinate().latitude( GeoDataCoordinates::Degree ) !=
-         d->m_initialCoords.latitude( GeoDataCoordinates::Degree ) ||
-         d->m_placemark->coordinate().longitude( GeoDataCoordinates::Degree ) !=
-         d->m_initialCoords.longitude( GeoDataCoordinates::Degree ) ) {
+    if (d->m_placemark->coordinate().latitude() != d->m_initialCoords.latitude() ||
+        d->m_placemark->coordinate().longitude() != d->m_initialCoords.longitude()) {
         d->m_placemark->setCoordinate( d->m_initialCoords );
     }
 

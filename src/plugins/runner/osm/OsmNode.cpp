@@ -24,9 +24,9 @@ namespace Marble {
 
 void OsmNode::parseCoordinates(const QXmlStreamAttributes &attributes)
 {
-    qreal const lon = attributes.value(QLatin1String("lon")).toDouble();
-    qreal const lat = attributes.value(QLatin1String("lat")).toDouble();
-    setCoordinates(GeoDataCoordinates(lon, lat, 0, GeoDataCoordinates::Degree));
+    const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(attributes.value(QLatin1String("lon")).toDouble());
+    const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(attributes.value(QLatin1String("lat")).toDouble());
+    setCoordinates(GeoDataCoordinates(lon, lat));
 }
 
 void OsmNode::setCoordinates(const GeoDataCoordinates &coordinates)

@@ -296,9 +296,9 @@ void RoutingLayerPrivate::renderRoute( GeoPainter *painter )
         if ( !m_dragStopOver.isNull() && m_dragStopOverRightIndex >= 0 && m_dragStopOverRightIndex <= m_routeRequest->size() ) {
             QPoint moved = m_dropStopOver - m_dragStopOver;
             if ( moved.manhattanLength() > 10 ) {
-                qreal lon( 0.0 ), lat( 0.0 );
-                if ( m_marbleWidget->geoCoordinates( m_dropStopOver.x(), m_dropStopOver.y(),
-                                                     lon, lat, GeoDataCoordinates::Radian ) ) {
+                GeoDataLongitude lon = GeoDataLongitude::null;
+                GeoDataLatitude lat = GeoDataLatitude::null;
+                if (m_marbleWidget->geoCoordinates(m_dropStopOver.x(), m_dropStopOver.y(), lon, lat)) {
                     GeoDataCoordinates drag( lon, lat );
                     standardRoutePen.setStyle( Qt::DotLine );
                     painter->setPen( standardRoutePen );
@@ -403,9 +403,10 @@ void RoutingLayerPrivate::storeDragPosition( const QPoint &pos )
     m_dragStopOver = pos;
     m_dragStopOverRightIndex = -1;
 
-    qreal lon( 0.0 ), lat( 0.0 );
+    GeoDataLongitude lon = GeoDataLongitude::null;
+    GeoDataLatitude lat = GeoDataLatitude::null;
     if ( m_routeRequest && !pos.isNull()
-        && m_marbleWidget->geoCoordinates( pos.x(), pos.y(), lon, lat, GeoDataCoordinates::Radian ) ) {
+        && m_marbleWidget->geoCoordinates(pos.x(), pos.y(), lon, lat)) {
         GeoDataCoordinates waypoint( lon, lat );
         m_dragStopOverRightIndex = m_routingModel->rightNeighbor( waypoint, m_routeRequest );
     }
@@ -532,9 +533,10 @@ bool RoutingLayerPrivate::handleMouseButtonRelease( QMouseEvent *e )
             return false;
         }
 
-        qreal lon( 0.0 ), lat( 0.0 );
+        GeoDataLongitude lon = GeoDataLongitude::null;
+        GeoDataLatitude lat = GeoDataLatitude::null;
         if ( m_dragStopOverRightIndex >= 0 && m_dragStopOverRightIndex <= m_routeRequest->size()
-                && m_marbleWidget->geoCoordinates( m_dropStopOver.x(), m_dropStopOver.y(), lon, lat, GeoDataCoordinates::Radian ) ) {
+                && m_marbleWidget->geoCoordinates(m_dropStopOver.x(), m_dropStopOver.y(), lon, lat)) {
             GeoDataCoordinates position( lon, lat );
             m_dragStopOverRightIndex = viaInsertPosition( e->modifiers() );
             m_routeRequest->insert( m_dragStopOverRightIndex, position );
@@ -549,10 +551,9 @@ bool RoutingLayerPrivate::handleMouseButtonRelease( QMouseEvent *e )
 
 bool RoutingLayerPrivate::handleMouseMove( QMouseEvent *e )
 {
-    qreal lon( 0.0 ), lat( 0.0 );
-    if ( m_marbleWidget->geoCoordinates( e->pos().x(), e->pos().y(),
-                                         lon, lat, GeoDataCoordinates::Radian ) ) {
-
+    GeoDataLongitude lon = GeoDataLongitude::null;
+    GeoDataLatitude lat = GeoDataLatitude::null;
+    if (m_marbleWidget->geoCoordinates(e->pos().x(), e->pos().y(), lon, lat)) {
         if ( m_movingIndex >= 0 ) {
             GeoDataCoordinates moved( lon, lat );
             m_routeRequest->setPosition( m_movingIndex, moved );

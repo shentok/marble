@@ -13,11 +13,14 @@
 #ifndef MARBLE_GEODATALATLONBOX_H
 #define MARBLE_GEODATALATLONBOX_H
 
+#include "GeoDataObject.h"
+
+#include "GeoDataAngle.h"
+#include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 
 #include "MarbleGlobal.h"
-
-#include "GeoDataObject.h"
-#include "GeoDataCoordinates.h"
 
 #include "geodata_export.h"
 
@@ -55,7 +58,7 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
 
  public:
     GeoDataLatLonBox();
-    GeoDataLatLonBox( qreal north, qreal south, qreal east, qreal west, GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    GeoDataLatLonBox(GeoDataLatitude north, GeoDataLatitude south, GeoDataLongitude east, GeoDataLongitude west);
     GeoDataLatLonBox( const GeoDataLatLonBox & );
     ~GeoDataLatLonBox() override;
 
@@ -68,39 +71,39 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
      * @brief Get the northern boundary of the bounding box.
      * @return the latitude of the northern boundary.
      */
-    qreal north( GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian ) const;
-    void setNorth( const qreal north, GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    GeoDataLatitude north() const;
+    void setNorth(GeoDataLatitude north);
 
     /**
      * @brief Get the southern boundary of the bounding box.
      * @return the latitude of the southern boundary.
      */
-    qreal south( GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian ) const;
-    void setSouth( const qreal south, GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    GeoDataLatitude south() const;
+    void setSouth(GeoDataLatitude south);
 
     /**
      * @brief Get the eastern boundary of the bounding box.
      * @return the longitude of the eastern boundary.
      */
-    qreal east( GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian ) const;
-    void setEast( const qreal east, GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    GeoDataLongitude east() const;
+    void setEast(GeoDataLongitude east);
 
     /**
      * @brief Get the western boundary of the bounding box.
      * @return the longitude of the western boundary.
      */
-    qreal west( GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian ) const;
-    void setWest( const qreal west, GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    GeoDataLongitude west() const;
+    void setWest(GeoDataLongitude west);
 
     /**
      * @brief Get the rotation of the bounding box.
      * @return the rotation of the bounding box.
      */
-    qreal rotation( GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian ) const;
-    void setRotation( const qreal rotation, GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    GeoDataAngle rotation() const;
+    void setRotation(GeoDataAngle rotation);
 
-    void boundaries( qreal &north, qreal &south, qreal &east, qreal &west, GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian ) const;
-    void setBoundaries( qreal north, qreal south, qreal east, qreal west, GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    void boundaries(GeoDataLatitude &north, GeoDataLatitude &south, GeoDataLongitude &east, GeoDataLongitude &west) const;
+    void setBoundaries(GeoDataLatitude north, GeoDataLatitude south, GeoDataLongitude east, GeoDataLongitude west);
 
     /**
      * @brief Changes the differences between the boundaries and the center by the given factor, keeping the center unchanged
@@ -114,25 +117,25 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
      * @brief Get the width of the longitude interval
      * @return the angle covered by the longitude range.
      */
-    qreal width( GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian ) const;
+    GeoDataLongitude width() const;
 
     /**
      * @brief Get the width of the longitude interval. East and west parameters are in radians.
      * @return the angle covered by the longitude range in given unit.
      */
-    static qreal width( qreal east, qreal west, GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    static GeoDataLongitude width(GeoDataLongitude east, GeoDataLongitude west);
 
     /**
      * @brief Get the height of the latitude interval
      * @return the angle covered by the latitude range.
      */
-    qreal height( GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian ) const;
+    GeoDataLatitude height() const;
 
     /**
      * @brief Get the height of the latitude interval. North and south parameters are in radians.
      * @return the angle covered by the latitude range in given unit.
      */
-    static qreal height( qreal north, qreal south, GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    static GeoDataLatitude height(GeoDataLatitude north, GeoDataLatitude south);
 
     /**
      * @brief Detect whether the bounding box crosses the IDL.
@@ -148,7 +151,7 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
      * @return @c true  the bounding box crosses the +/-180 deg longitude.
      *         @c false the bounding box doesn't cross the +/-180 deg longitude.
      */
-    static bool crossesDateLine(qreal east, qreal west);
+    static bool crossesDateLine(GeoDataLongitude east, GeoDataLongitude west);
 
     /**
      * @brief returns the center of this box
@@ -172,7 +175,7 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
      * @param lat latitude in radians.
      * @return true if the box contains given point, false otherwise
      */
-    bool contains(qreal lon, qreal lat) const; //Optimized version for overlay painting
+    bool contains(GeoDataLongitude lon, GeoDataLatitude lat) const; //Optimized version for overlay painting
 
     virtual bool intersects( const GeoDataLatLonBox & ) const;
 

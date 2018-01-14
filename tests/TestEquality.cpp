@@ -330,19 +330,19 @@ void TestEquality::cameraTest()
 
     camera1.setAltitudeMode(Marble::Absolute);
     camera1.setAltitude(100);
-    camera1.setLatitude(100);
-    camera1.setLongitude(100);
-    camera1.setHeading(200);
-    camera1.setRoll(300);
-    camera1.setTilt(400);
+    camera1.setLatitude(GeoDataLatitude::fromDegrees(100));
+    camera1.setLongitude(GeoDataLongitude::fromDegrees(100));
+    camera1.setHeading(GeoDataAngle::fromDegrees(200));
+    camera1.setRoll(GeoDataAngle::fromDegrees(300));
+    camera1.setTilt(GeoDataAngle::fromDegrees(400));
 
     camera2.setAltitudeMode(Marble::ClampToGround);
     camera2.setAltitude(100);
-    camera2.setLatitude(100);
-    camera2.setLongitude(100);
-    camera2.setHeading(200);
-    camera2.setRoll(300);
-    camera2.setTilt(400);
+    camera2.setLatitude(GeoDataLatitude::fromDegrees(100));
+    camera2.setLongitude(GeoDataLongitude::fromDegrees(100));
+    camera2.setHeading(GeoDataAngle::fromDegrees(200));
+    camera2.setRoll(GeoDataAngle::fromDegrees(300));
+    camera2.setTilt(GeoDataAngle::fromDegrees(400));
 
     QCOMPARE( camera1, camera1 );
     QCOMPARE( camera2, camera2 );
@@ -571,7 +571,7 @@ void TestEquality::tourTest()
     iconStyle.setIconPath( "path/to/icon" );
     iconStyle.setIcon( icon );
     iconStyle.setHotSpot( hotSpot, GeoDataHotSpot::Fraction, GeoDataHotSpot::Fraction );
-    iconStyle.setHeading( 0 );
+    iconStyle.setHeading(GeoDataAngle::null);
 
     GeoDataLabelStyle labelStyle;
     labelStyle.setColor( Qt::blue );
@@ -639,12 +639,12 @@ void TestEquality::tourTest()
     GeoDataLatLonAltBox latLonAltBox1;
     GeoDataLod lod1;
 
-    latLonAltBox1.setEast( 40 );
-    latLonAltBox1.setWest( 50 );
-    latLonAltBox1.setNorth( 60 );
-    latLonAltBox1.setSouth( 70 );
-    latLonAltBox1.setRotation( 20 );
-    latLonAltBox1.setBoundaries( 70, 80, 50, 60 );
+    latLonAltBox1.setEast(GeoDataLongitude::fromDegrees(40));
+    latLonAltBox1.setWest(GeoDataLongitude::fromDegrees(50));
+    latLonAltBox1.setNorth(GeoDataLatitude::fromDegrees(60));
+    latLonAltBox1.setSouth(GeoDataLatitude::fromDegrees(70));
+    latLonAltBox1.setRotation(GeoDataAngle::fromDegrees(20));
+    latLonAltBox1.setBoundaries(GeoDataLatitude::fromDegrees(70), GeoDataLatitude::fromDegrees(80), GeoDataLongitude::fromDegrees(50), GeoDataLongitude::fromDegrees(60));
     latLonAltBox1.setMaxAltitude( 100 );
     latLonAltBox1.setMinAltitude( 20 );
     latLonAltBox1.setAltitudeMode( Marble::Absolute );
@@ -684,11 +684,11 @@ void TestEquality::tourTest()
 
     camera1.setAltitudeMode(Marble::Absolute);
     camera1.setAltitude(100);
-    camera1.setLatitude(100);
-    camera1.setLongitude(100);
-    camera1.setHeading(200);
-    camera1.setRoll(300);
-    camera1.setTilt(400);
+    camera1.setLatitude(GeoDataLatitude::fromDegrees(100));
+    camera1.setLongitude(GeoDataLongitude::fromDegrees(100));
+    camera1.setHeading(GeoDataAngle::fromDegrees(200));
+    camera1.setRoll(GeoDataAngle::fromDegrees(300));
+    camera1.setTilt(GeoDataAngle::fromDegrees(400));
     camera2 = camera1;
 
     tour1.setAbstractView( &camera1 );
@@ -707,8 +707,8 @@ void TestEquality::tourTest()
 
     GeoDataLookAt lookAt;
 
-    lookAt.setLatitude( 1.1113 );
-    lookAt.setLongitude( 2.33 );
+    lookAt.setLatitude(GeoDataLatitude::fromRadians(1.1113));
+    lookAt.setLongitude(GeoDataLongitude::fromRadians(2.33));
     lookAt.setAltitude( 1500 );
     lookAt.setRange( 500 );
 
@@ -722,7 +722,7 @@ void TestEquality::tourTest()
     tour1.setStyleMap( &styleMap1 );
     QVERIFY( tour1 == tour2 );
 
-    camera2.setRoll(400);
+    camera2.setRoll(GeoDataAngle::fromDegrees(400));
     tour1.setAbstractView( &camera2 );
     QVERIFY( tour1 != tour2 );
 }
@@ -732,16 +732,16 @@ void TestEquality::pointTest()
     GeoDataPoint point1, point2;
     GeoDataCoordinates coord1, coord2;
 
-    coord1.set(100,100,100);
-    coord2.set(200,200,200);
+    coord1.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(100), 100);
+    coord2.set(GeoDataLongitude::fromDegrees(200), GeoDataLatitude::fromDegrees(200), 200);
     point1.setCoordinates(coord1);
     point2.setCoordinates(coord2);
 
     QVERIFY( point1 != point2 );
     QCOMPARE( point1 != point2, true );
 
-    coord1.set(100,150);
-    coord2.set(100,150);
+    coord1.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(150));
+    coord2.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(150));
     point1.setCoordinates(coord1);
     point2.setCoordinates(coord2);
 
@@ -758,12 +758,12 @@ void TestEquality::linearRingTest()
     GeoDataLinearRing linearRing1, linearRing2;
     GeoDataCoordinates coord1, coord2, coord3, coord4, coord5, coord6;
 
-    coord1.set(123,100);
-    coord2.set(124,101);
-    coord3.set(123,100);
-    coord4.set(123,100);
-    coord5.set(124,101);
-    coord6.set(123,100);
+    coord1.set(GeoDataLongitude::fromDegrees(123), GeoDataLatitude::fromDegrees(100));
+    coord2.set(GeoDataLongitude::fromDegrees(124), GeoDataLatitude::fromDegrees(101));
+    coord3.set(GeoDataLongitude::fromDegrees(123), GeoDataLatitude::fromDegrees(100));
+    coord4.set(GeoDataLongitude::fromDegrees(123), GeoDataLatitude::fromDegrees(100));
+    coord5.set(GeoDataLongitude::fromDegrees(124), GeoDataLatitude::fromDegrees(101));
+    coord6.set(GeoDataLongitude::fromDegrees(123), GeoDataLatitude::fromDegrees(100));
 
     linearRing1.append(coord1);
     linearRing1.append(coord2);
@@ -791,12 +791,12 @@ void TestEquality::lineStringTest()
     GeoDataLineString lineString1, lineString2;
     GeoDataCoordinates coord1, coord2, coord3, coord4, coord5, coord6;
 
-    coord1.set(100,100,100);
-    coord2.set(-100,-100,-100);
-    coord3.set(50,50,50);
-    coord4.set(150,150,150);
-    coord5.set(-150,-150,-150);
-    coord6.set(-50,-50,-50);
+    coord1.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(100), 100);
+    coord2.set(GeoDataLongitude::fromDegrees(-100), GeoDataLatitude::fromDegrees(-100), -100);
+    coord3.set(GeoDataLongitude::fromDegrees(50), GeoDataLatitude::fromDegrees(50), 50);
+    coord4.set(GeoDataLongitude::fromDegrees(150), GeoDataLatitude::fromDegrees(150), 150);
+    coord5.set(GeoDataLongitude::fromDegrees(-150), GeoDataLatitude::fromDegrees(-150), -150);
+    coord6.set(GeoDataLongitude::fromDegrees(-50), GeoDataLatitude::fromDegrees(-50), -50);
 
     lineString1.append(coord1);
     lineString1.append(coord3);
@@ -826,12 +826,12 @@ void TestEquality::polygonTest()
     GeoDataLinearRing outerBoundary1, outerBoundary2;
     GeoDataCoordinates coord1, coord2, coord3, coord4, coord5, coord6;
 
-    coord1.set(623,600);
-    coord2.set(624,601);
-    coord3.set(623,600);
-    coord4.set(623,600);
-    coord5.set(624,601);
-    coord6.set(623,600);
+    coord1.set(GeoDataLongitude::fromDegrees(623), GeoDataLatitude::fromDegrees(600));
+    coord2.set(GeoDataLongitude::fromDegrees(624), GeoDataLatitude::fromDegrees(601));
+    coord3.set(GeoDataLongitude::fromDegrees(623), GeoDataLatitude::fromDegrees(600));
+    coord4.set(GeoDataLongitude::fromDegrees(623), GeoDataLatitude::fromDegrees(600));
+    coord5.set(GeoDataLongitude::fromDegrees(624), GeoDataLatitude::fromDegrees(601));
+    coord6.set(GeoDataLongitude::fromDegrees(623), GeoDataLatitude::fromDegrees(600));
 
     outerBoundary1.append(coord1);
     outerBoundary1.append(coord2);
@@ -849,18 +849,18 @@ void TestEquality::polygonTest()
     GeoDataCoordinates coord111, coord112, coord113, coord121, coord122, coord123;
     GeoDataCoordinates coord211, coord212, coord213, coord221, coord222, coord223;
 
-    coord111.set(100,100);
-    coord112.set(200,200);
-    coord113.set(100,100);
-    coord121.set(400,400);
-    coord122.set(500,500);
-    coord123.set(400,400);
-    coord211.set(100,100);
-    coord212.set(200,200);
-    coord213.set(100,100);
-    coord221.set(400,400);
-    coord222.set(500,500);
-    coord223.set(400,400);
+    coord111.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(100));
+    coord112.set(GeoDataLongitude::fromDegrees(200), GeoDataLatitude::fromDegrees(200));
+    coord113.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(100));
+    coord121.set(GeoDataLongitude::fromDegrees(400), GeoDataLatitude::fromDegrees(400));
+    coord122.set(GeoDataLongitude::fromDegrees(500), GeoDataLatitude::fromDegrees(500));
+    coord123.set(GeoDataLongitude::fromDegrees(400), GeoDataLatitude::fromDegrees(400));
+    coord211.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(100));
+    coord212.set(GeoDataLongitude::fromDegrees(200), GeoDataLatitude::fromDegrees(200));
+    coord213.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(100));
+    coord221.set(GeoDataLongitude::fromDegrees(400), GeoDataLatitude::fromDegrees(400));
+    coord222.set(GeoDataLongitude::fromDegrees(500), GeoDataLatitude::fromDegrees(500));
+    coord223.set(GeoDataLongitude::fromDegrees(400), GeoDataLatitude::fromDegrees(400));
 
     innerBoundary11.append(coord111);
     innerBoundary11.append(coord112);
@@ -904,7 +904,7 @@ void TestEquality::polygonTest()
 
     /* Test for inequality: make sure polygon's coordinates are not equal */
     polygon2.appendInnerBoundary(innerBoundary11);
-    coord111.set(100,1);
+    coord111.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(1));
     innerBoundary11.clear();
     innerBoundary11.append(coord111);
     innerBoundary11.append(coord112);
@@ -919,32 +919,32 @@ void TestEquality::polygonTest()
 void TestEquality::latLonQuadTest()
 {
     GeoDataLatLonQuad quad1, quad2;
-    quad1.setBottomLeftLatitude( 55, GeoDataCoordinates::Degree );
-    quad1.setBottomLeftLongitude( 60, GeoDataCoordinates::Degree );
-    quad1.setBottomRightLatitude( 45, GeoDataCoordinates::Degree );
-    quad1.setBottomRightLongitude( 50, GeoDataCoordinates::Degree );
+    quad1.setBottomLeftLatitude(GeoDataLatitude::fromDegrees(55));
+    quad1.setBottomLeftLongitude(GeoDataLongitude::fromDegrees(60));
+    quad1.setBottomRightLatitude(GeoDataLatitude::fromDegrees(45));
+    quad1.setBottomRightLongitude(GeoDataLongitude::fromDegrees(50));
 
-    quad1.setTopLeftLatitude( 55, GeoDataCoordinates::Degree );
-    quad1.setTopLeftLongitude( 60, GeoDataCoordinates::Degree );
-    quad1.setTopRightLatitude( 45, GeoDataCoordinates::Degree );
-    quad1.setTopRightLongitude( 50, GeoDataCoordinates::Degree );
+    quad1.setTopLeftLatitude(GeoDataLatitude::fromDegrees(55));
+    quad1.setTopLeftLongitude(GeoDataLongitude::fromDegrees(60));
+    quad1.setTopRightLatitude(GeoDataLatitude::fromDegrees(45));
+    quad1.setTopRightLongitude(GeoDataLongitude::fromDegrees(50));
 
-    quad2.setBottomLeftLatitude( 55, GeoDataCoordinates::Degree );
-    quad2.setBottomLeftLongitude( 60, GeoDataCoordinates::Degree );
-    quad2.setBottomRightLatitude( 45, GeoDataCoordinates::Degree );
-    quad2.setBottomRightLongitude( 50, GeoDataCoordinates::Degree );
+    quad2.setBottomLeftLatitude(GeoDataLatitude::fromDegrees(55));
+    quad2.setBottomLeftLongitude(GeoDataLongitude::fromDegrees(60));
+    quad2.setBottomRightLatitude(GeoDataLatitude::fromDegrees(45));
+    quad2.setBottomRightLongitude(GeoDataLongitude::fromDegrees(50));
 
-    quad2.setTopLeftLatitude( 55, GeoDataCoordinates::Degree );
-    quad2.setTopLeftLongitude( 60, GeoDataCoordinates::Degree );
-    quad2.setTopRightLatitude( 45, GeoDataCoordinates::Degree );
-    quad2.setTopRightLongitude( 50, GeoDataCoordinates::Degree );
+    quad2.setTopLeftLatitude(GeoDataLatitude::fromDegrees(55));
+    quad2.setTopLeftLongitude(GeoDataLongitude::fromDegrees(60));
+    quad2.setTopRightLatitude(GeoDataLatitude::fromDegrees(45));
+    quad2.setTopRightLongitude(GeoDataLongitude::fromDegrees(50));
 
     QCOMPARE( quad1, quad1 );
     QCOMPARE( quad2, quad2 );
     QCOMPARE( quad1 != quad2, false );
     QVERIFY( quad1 == quad2 );
 
-    quad1.setTopLeftLatitude( 65, GeoDataCoordinates::Degree );
+    quad1.setTopLeftLatitude(GeoDataLatitude::fromDegrees(65));
 
     QCOMPARE( quad1, quad1 );
     QCOMPARE( quad2, quad2 );
@@ -956,26 +956,26 @@ void TestEquality::latLonBoxTest()
 {
     GeoDataLatLonBox latLonBox1, latLonBox2;
 
-    latLonBox1.setEast( 40 );
-    latLonBox1.setWest( 50 );
-    latLonBox1.setNorth( 60 );
-    latLonBox1.setSouth( 70 );
-    latLonBox1.setRotation( 20 );
-    latLonBox1.setBoundaries( 70, 80, 50, 60 );
+    latLonBox1.setEast(GeoDataLongitude::fromDegrees(40));
+    latLonBox1.setWest(GeoDataLongitude::fromDegrees(50));
+    latLonBox1.setNorth(GeoDataLatitude::fromDegrees(60));
+    latLonBox1.setSouth(GeoDataLatitude::fromDegrees(70));
+    latLonBox1.setRotation(GeoDataAngle::fromDegrees(20));
+    latLonBox1.setBoundaries(GeoDataLatitude::fromDegrees(70), GeoDataLatitude::fromDegrees(80), GeoDataLongitude::fromDegrees(50), GeoDataLongitude::fromDegrees(60));
 
-    latLonBox2.setEast( 40 );
-    latLonBox2.setWest( 50 );
-    latLonBox2.setNorth( 60 );
-    latLonBox2.setSouth( 70 );
-    latLonBox2.setRotation( 20 );
-    latLonBox2.setBoundaries( 70, 80, 50, 60 );
+    latLonBox2.setEast(GeoDataLongitude::fromDegrees(40));
+    latLonBox2.setWest(GeoDataLongitude::fromDegrees(50));
+    latLonBox2.setNorth(GeoDataLatitude::fromDegrees(60));
+    latLonBox2.setSouth(GeoDataLatitude::fromDegrees(70));
+    latLonBox2.setRotation(GeoDataAngle::fromDegrees(20));
+    latLonBox2.setBoundaries(GeoDataLatitude::fromDegrees(70), GeoDataLatitude::fromDegrees(80), GeoDataLongitude::fromDegrees(50), GeoDataLongitude::fromDegrees(60));
 
     QCOMPARE( latLonBox1, latLonBox1 );
     QCOMPARE( latLonBox2, latLonBox2 );
     QCOMPARE( latLonBox1 != latLonBox2, false );
     QVERIFY( latLonBox1 == latLonBox2 );
 
-    latLonBox2.setWest( 55 );
+    latLonBox2.setWest(GeoDataLongitude::fromDegrees(55));
 
     QCOMPARE( latLonBox1, latLonBox1 );
     QCOMPARE( latLonBox2, latLonBox2 );
@@ -987,22 +987,22 @@ void TestEquality::latLonAltBoxTest()
 {
     GeoDataLatLonAltBox latLonAltBox1, latLonAltBox2;
 
-    latLonAltBox1.setEast( 40 );
-    latLonAltBox1.setWest( 50 );
-    latLonAltBox1.setNorth( 60 );
-    latLonAltBox1.setSouth( 70 );
-    latLonAltBox1.setRotation( 20 );
-    latLonAltBox1.setBoundaries( 70, 80, 50, 60 );
+    latLonAltBox1.setEast(GeoDataLongitude::fromDegrees(40));
+    latLonAltBox1.setWest(GeoDataLongitude::fromDegrees(50));
+    latLonAltBox1.setNorth(GeoDataLatitude::fromDegrees(60));
+    latLonAltBox1.setSouth(GeoDataLatitude::fromDegrees(70));
+    latLonAltBox1.setRotation(GeoDataAngle::fromDegrees(20));
+    latLonAltBox1.setBoundaries(GeoDataLatitude::fromDegrees(70), GeoDataLatitude::fromDegrees(80), GeoDataLongitude::fromDegrees(50), GeoDataLongitude::fromDegrees(60));
     latLonAltBox1.setMaxAltitude( 100 );
     latLonAltBox1.setMinAltitude( 20 );
     latLonAltBox1.setAltitudeMode( Marble::Absolute );
 
-    latLonAltBox2.setEast( 40 );
-    latLonAltBox2.setWest( 50 );
-    latLonAltBox2.setNorth( 60 );
-    latLonAltBox2.setSouth( 70 );
-    latLonAltBox2.setRotation( 20 );
-    latLonAltBox2.setBoundaries( 70, 80, 50, 60 );
+    latLonAltBox2.setEast(GeoDataLongitude::fromDegrees(40));
+    latLonAltBox2.setWest(GeoDataLongitude::fromDegrees(50));
+    latLonAltBox2.setNorth(GeoDataLatitude::fromDegrees(60));
+    latLonAltBox2.setSouth(GeoDataLatitude::fromDegrees(70));
+    latLonAltBox2.setRotation(GeoDataAngle::fromDegrees(20));
+    latLonAltBox2.setBoundaries(GeoDataLatitude::fromDegrees(70), GeoDataLatitude::fromDegrees(80), GeoDataLongitude::fromDegrees(50), GeoDataLongitude::fromDegrees(60));
     latLonAltBox2.setMaxAltitude( 100 );
     latLonAltBox2.setMinAltitude( 20 );
     latLonAltBox2.setAltitudeMode( Marble::Absolute );
@@ -1012,7 +1012,7 @@ void TestEquality::latLonAltBoxTest()
     QCOMPARE( latLonAltBox1 != latLonAltBox2, false );
     QVERIFY( latLonAltBox1 == latLonAltBox2 );
 
-    latLonAltBox2.setEast( 30 );
+    latLonAltBox2.setEast(GeoDataLongitude::fromDegrees(30));
 
     QCOMPARE( latLonAltBox1, latLonAltBox1 );
     QCOMPARE( latLonAltBox2, latLonAltBox2 );
@@ -1054,22 +1054,22 @@ void TestEquality::regionTest()
     GeoDataLatLonAltBox latLonAltBox1;
     GeoDataLatLonAltBox latLonAltBox2;
 
-    latLonAltBox1.setEast( 40 );
-    latLonAltBox1.setWest( 50 );
-    latLonAltBox1.setNorth( 60 );
-    latLonAltBox1.setSouth( 70 );
-    latLonAltBox1.setRotation( 20 );
-    latLonAltBox1.setBoundaries( 70, 80, 50, 60 );
+    latLonAltBox1.setEast(GeoDataLongitude::fromDegrees(40));
+    latLonAltBox1.setWest(GeoDataLongitude::fromDegrees(50));
+    latLonAltBox1.setNorth(GeoDataLatitude::fromDegrees(60));
+    latLonAltBox1.setSouth(GeoDataLatitude::fromDegrees(70));
+    latLonAltBox1.setRotation(GeoDataAngle::fromDegrees(20));
+    latLonAltBox1.setBoundaries(GeoDataLatitude::fromDegrees(70), GeoDataLatitude::fromDegrees(80), GeoDataLongitude::fromDegrees(50), GeoDataLongitude::fromDegrees(60));
     latLonAltBox1.setMaxAltitude( 100 );
     latLonAltBox1.setMinAltitude( 20 );
     latLonAltBox1.setAltitudeMode( Marble::Absolute );
 
-    latLonAltBox2.setEast( 40 );
-    latLonAltBox2.setWest( 50 );
-    latLonAltBox2.setNorth( 60 );
-    latLonAltBox2.setSouth( 70 );
-    latLonAltBox2.setRotation( 20 );
-    latLonAltBox2.setBoundaries( 70, 80, 50, 60 );
+    latLonAltBox2.setEast(GeoDataLongitude::fromDegrees(40));
+    latLonAltBox2.setWest(GeoDataLongitude::fromDegrees(50));
+    latLonAltBox2.setNorth(GeoDataLatitude::fromDegrees(60));
+    latLonAltBox2.setSouth(GeoDataLatitude::fromDegrees(70));
+    latLonAltBox2.setRotation(GeoDataAngle::fromDegrees(20));
+    latLonAltBox2.setBoundaries(GeoDataLatitude::fromDegrees(70), GeoDataLatitude::fromDegrees(80), GeoDataLongitude::fromDegrees(50), GeoDataLongitude::fromDegrees(60));
     latLonAltBox2.setMaxAltitude( 100 );
     latLonAltBox2.setMinAltitude( 20 );
     latLonAltBox2.setAltitudeMode( Marble::Absolute );
@@ -1174,20 +1174,20 @@ void TestEquality::iconStyleTest()
     iconStyle1.setIconPath( "path/to/icon" );
     iconStyle1.setIcon( icon );
     iconStyle1.setHotSpot( hotSpot, GeoDataHotSpot::Fraction, GeoDataHotSpot::Fraction );
-    iconStyle1.setHeading( 0 );
+    iconStyle1.setHeading(GeoDataAngle::null);
 
     iconStyle2.setScale( 1.0 );
     iconStyle2.setIconPath( "path/to/icon" );
     iconStyle2.setIcon( icon );
     iconStyle2.setHotSpot( hotSpot, GeoDataHotSpot::Fraction, GeoDataHotSpot::Fraction );
-    iconStyle2.setHeading( 0 );
+    iconStyle2.setHeading(GeoDataAngle::null);
 
     QCOMPARE( iconStyle1, iconStyle1 );
     QCOMPARE( iconStyle2, iconStyle2 );
     QCOMPARE( iconStyle1 != iconStyle2, false );
     QVERIFY( iconStyle1 == iconStyle2 );
 
-    iconStyle2.setHeading( 1 );
+    iconStyle2.setHeading(GeoDataAngle::fromDegrees(1));
     iconStyle2.setScale( 2.0 );
 
     QCOMPARE( iconStyle1, iconStyle1 );
@@ -1340,7 +1340,7 @@ void TestEquality::styleTest()
     iconStyle.setIconPath( "path/to/icon" );
     iconStyle.setIcon( icon );
     iconStyle.setHotSpot( hotSpot, GeoDataHotSpot::Fraction, GeoDataHotSpot::Fraction );
-    iconStyle.setHeading( 0 );
+    iconStyle.setHeading(GeoDataAngle::null);
     
     GeoDataLabelStyle labelStyle;
     labelStyle.setColor( Qt::blue );
@@ -1525,20 +1525,20 @@ void TestEquality::screenOverlayTest()
     overlay1.setRotationXY( vec2 );
     overlay1.setScreenXY( vec3 );
     overlay1.setSize( vec4 );
-    overlay1.setRotation( 3.4 );
+    overlay1.setRotation(GeoDataAngle::fromDegrees(3.4));
 
     overlay2.setOverlayXY( vec1 );
     overlay2.setRotationXY( vec2 );
     overlay2.setScreenXY( vec3 );
     overlay2.setSize( vec4 );
-    overlay2.setRotation( 3.4 );
+    overlay2.setRotation(GeoDataAngle::fromDegrees(3.4));
 
     QCOMPARE( overlay1, overlay1 );
     QCOMPARE( overlay2, overlay2 );
     QCOMPARE( overlay1 != overlay2, false );
     QVERIFY( overlay1 == overlay2 );
 
-    overlay2.setRotation( 7.3 );
+    overlay2.setRotation(GeoDataAngle::fromDegrees(7.3));
 
     QCOMPARE( overlay1, overlay1 );
     QCOMPARE( overlay2, overlay2 );
@@ -1584,8 +1584,8 @@ void TestEquality::photoOverlayTest()
     GeoDataPoint point1, point2;
     GeoDataCoordinates coord1, coord2;
 
-    coord1.set(100,100,100);
-    coord2.set(100,100,100);
+    coord1.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(100), 100);
+    coord2.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(100), 100);
     point1.setCoordinates(coord1);
     point2.setCoordinates(coord2);
     overlay1.setPoint( point1 );
@@ -1594,15 +1594,15 @@ void TestEquality::photoOverlayTest()
     overlay1.setShape( GeoDataPhotoOverlay::Cylinder );
     overlay2.setShape( GeoDataPhotoOverlay::Cylinder );
 
-    overlay1.setRotation( 2.5 );
-    overlay2.setRotation( 2.5 );
+    overlay1.setRotation(GeoDataAngle::fromDegrees(2.5));
+    overlay2.setRotation(GeoDataAngle::fromDegrees(2.5));
 
     QCOMPARE( overlay1, overlay1 );
     QCOMPARE( overlay2, overlay2 );
     QCOMPARE( overlay1 != overlay2, false );
     QVERIFY( overlay1 == overlay2 );
 
-    overlay2.setRotation( 4.3 );
+    overlay2.setRotation(GeoDataAngle::fromDegrees(4.3));
 
     QCOMPARE( overlay1, overlay1 );
     QCOMPARE( overlay2, overlay2 );
@@ -1615,43 +1615,43 @@ void TestEquality::groundOverlayTest()
     GeoDataGroundOverlay overlay1, overlay2;
     GeoDataLatLonBox latLonBox1, latLonBox2;
 
-    latLonBox1.setEast( 40 );
-    latLonBox1.setWest( 50 );
-    latLonBox1.setNorth( 60 );
-    latLonBox1.setSouth( 70 );
-    latLonBox1.setRotation( 20 );
-    latLonBox1.setBoundaries( 70, 80, 50, 60 );
+    latLonBox1.setEast(GeoDataLongitude::fromDegrees(40));
+    latLonBox1.setWest(GeoDataLongitude::fromDegrees(50));
+    latLonBox1.setNorth(GeoDataLatitude::fromDegrees(60));
+    latLonBox1.setSouth(GeoDataLatitude::fromDegrees(70));
+    latLonBox1.setRotation(GeoDataAngle::fromDegrees(20));
+    latLonBox1.setBoundaries(GeoDataLatitude::fromDegrees(70), GeoDataLatitude::fromDegrees(80), GeoDataLongitude::fromDegrees(50), GeoDataLongitude::fromDegrees(60));
 
-    latLonBox2.setEast( 40 );
-    latLonBox2.setWest( 50 );
-    latLonBox2.setNorth( 60 );
-    latLonBox2.setSouth( 70 );
-    latLonBox2.setRotation( 20 );
-    latLonBox2.setBoundaries( 70, 80, 50, 60 );
+    latLonBox2.setEast(GeoDataLongitude::fromDegrees(40));
+    latLonBox2.setWest(GeoDataLongitude::fromDegrees(50));
+    latLonBox2.setNorth(GeoDataLatitude::fromDegrees(60));
+    latLonBox2.setSouth(GeoDataLatitude::fromDegrees(70));
+    latLonBox2.setRotation(GeoDataAngle::fromDegrees(20));
+    latLonBox2.setBoundaries(GeoDataLatitude::fromDegrees(70), GeoDataLatitude::fromDegrees(80), GeoDataLongitude::fromDegrees(50), GeoDataLongitude::fromDegrees(60));
 
     overlay1.setLatLonBox( latLonBox1 );
     overlay2.setLatLonBox( latLonBox2 );
 
     GeoDataLatLonQuad quad1, quad2;
-    quad1.setBottomLeftLatitude( 55, GeoDataCoordinates::Degree );
-    quad1.setBottomLeftLongitude( 60, GeoDataCoordinates::Degree );
-    quad1.setBottomRightLatitude( 45, GeoDataCoordinates::Degree );
-    quad1.setBottomRightLongitude( 50, GeoDataCoordinates::Degree );
+    quad1.setBottomLeftLatitude(GeoDataLatitude::fromDegrees(55));
+    quad1.setBottomLeftLongitude(GeoDataLongitude::fromDegrees(60));
+    quad1.setBottomRightLatitude(GeoDataLatitude::fromDegrees(45));
+    quad1.setBottomRightLongitude(GeoDataLongitude::fromDegrees(50));
 
-    quad1.setTopLeftLatitude( 55, GeoDataCoordinates::Degree );
-    quad1.setTopLeftLongitude( 60, GeoDataCoordinates::Degree );
-    quad1.setTopRightLatitude( 45, GeoDataCoordinates::Degree );
-    quad1.setTopRightLongitude( 50, GeoDataCoordinates::Degree );
+    quad1.setTopLeftLatitude(GeoDataLatitude::fromDegrees(55));
+    quad1.setTopLeftLongitude(GeoDataLongitude::fromDegrees(60));
+    quad1.setTopRightLatitude(GeoDataLatitude::fromDegrees(45));
+    quad1.setTopRightLongitude(GeoDataLongitude::fromDegrees(50));
 
-    quad2.setBottomLeftLatitude( 55, GeoDataCoordinates::Degree );
-    quad2.setBottomLeftLongitude( 60, GeoDataCoordinates::Degree );
-    quad2.setBottomRightLatitude( 45, GeoDataCoordinates::Degree );
-    quad2.setBottomRightLongitude( 50, GeoDataCoordinates::Degree );
+    quad2.setBottomLeftLatitude(GeoDataLatitude::fromDegrees(55));
+    quad2.setBottomLeftLongitude(GeoDataLongitude::fromDegrees(60));
+    quad2.setBottomRightLatitude(GeoDataLatitude::fromDegrees(45));
+    quad2.setBottomRightLongitude(GeoDataLongitude::fromDegrees(50));
 
-    quad2.setTopLeftLatitude( 55, GeoDataCoordinates::Degree );
-    quad2.setTopLeftLongitude( 60, GeoDataCoordinates::Degree );
-    quad2.setTopRightLatitude( 45, GeoDataCoordinates::Degree );
-    quad2.setTopRightLongitude( 50, GeoDataCoordinates::Degree );
+    quad2.setTopLeftLatitude(GeoDataLatitude::fromDegrees(55));
+    quad2.setTopLeftLongitude(GeoDataLongitude::fromDegrees(60));
+    quad2.setTopRightLatitude(GeoDataLatitude::fromDegrees(45));
+    quad2.setTopRightLongitude(GeoDataLongitude::fromDegrees(50));
 
     overlay1.setLatLonQuad( quad1 );
     overlay2.setLatLonQuad( quad2 );
@@ -1758,19 +1758,19 @@ void TestEquality::orientationTest()
 {
     GeoDataOrientation obj1, obj2;
 
-    obj1.setHeading( 90 );
-    obj1.setTilt( 45 );
-    obj1.setRoll( -90 );
+    obj1.setHeading(GeoDataAngle::fromDegrees(90));
+    obj1.setTilt(GeoDataAngle::fromDegrees(45));
+    obj1.setRoll(GeoDataAngle::fromDegrees(-90));
 
     obj2 = obj1;
-    obj2.setRoll( -45 );
+    obj2.setRoll(GeoDataAngle::fromDegrees(-45));
 
     QCOMPARE( obj1, obj1 );
     QCOMPARE( obj2, obj2 );
     QCOMPARE( obj1 == obj2, false );
     QVERIFY( obj1 != obj2 );
 
-    obj2.setRoll( - 90 );
+    obj2.setRoll(GeoDataAngle::fromDegrees(-90));
     QVERIFY( obj1 == obj2 );
 }
 
@@ -1778,8 +1778,8 @@ void TestEquality::locationTest()
 {
     GeoDataLocation loc1, loc2;
 
-    loc1.setLatitude( M_PI_4, GeoDataCoordinates::Degree );
-    loc1.setLongitude( M_PI_4, GeoDataCoordinates::Degree );
+    loc1.setLatitude(GeoDataLatitude::fromDegrees(M_PI_4));
+    loc1.setLongitude(GeoDataLongitude::fromDegrees(M_PI_4));
     loc1.setAltitude( 2500.0 );
 
     loc2 = loc1;
@@ -1833,8 +1833,8 @@ void TestEquality::modelTest()
 
 
     GeoDataCoordinates coord1, coord2;
-    coord1.set(100, 200, 300);
-    coord2.set(100, 200, 200);
+    coord1.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(200), 300);
+    coord2.set(GeoDataLongitude::fromDegrees(100), GeoDataLatitude::fromDegrees(200), 200);
 
     model1.setCoordinates( coord1 );
     model2.setCoordinates( coord2 );
@@ -1855,12 +1855,12 @@ void TestEquality::modelTest()
 
     GeoDataOrientation obj1, obj2;
 
-    obj1.setHeading( 90 );
-    obj1.setTilt( 45 );
-    obj1.setRoll( -90 );
+    obj1.setHeading(GeoDataAngle::fromDegrees(90));
+    obj1.setTilt(GeoDataAngle::fromDegrees(45));
+    obj1.setRoll(GeoDataAngle::fromDegrees(-90));
 
     obj2 = obj1;
-    obj2.setRoll( -45 );
+    obj2.setRoll(GeoDataAngle::fromDegrees(-45));
 
     model1.setOrientation( obj1 );
     model2.setOrientation( obj2 );
@@ -1868,8 +1868,8 @@ void TestEquality::modelTest()
 
     GeoDataLocation loc1, loc2;
 
-    loc1.setLatitude( M_PI_4, GeoDataCoordinates::Degree );
-    loc1.setLongitude( M_PI_4, GeoDataCoordinates::Degree );
+    loc1.setLatitude(GeoDataLatitude::fromDegrees(M_PI_4));
+    loc1.setLongitude(GeoDataLongitude::fromDegrees(M_PI_4));
     loc1.setAltitude( 2500.0 );
 
     loc2 = loc1;
@@ -1906,7 +1906,7 @@ void TestEquality::modelTest()
     scale2.setZ( 3.0 );
     model2.setScale( scale2 );
 
-    obj2.setRoll( -90 );
+    obj2.setRoll(GeoDataAngle::fromDegrees(-90));
     model2.setOrientation( obj2 );
 
     loc2.setAltitude( 2500.0 );
@@ -1923,7 +1923,10 @@ void TestEquality::trackTest()
     GeoDataTrack track1, track2;
     QDateTime date11( QDate(2000, 10, 4) ), date12( QDate(2001, 10, 4) );
     QDateTime date21( QDate(2002, 10, 4) ), date22( QDate(2003, 10, 4) );
-    GeoDataCoordinates coord1(100, 100), coord2(200, 300), coord3(300, 300), coord4(400, 400);
+    const GeoDataCoordinates coord1(GeoDataLongitude::fromRadians(100), GeoDataLatitude::fromRadians(100));
+    const GeoDataCoordinates coord2(GeoDataLongitude::fromRadians(200), GeoDataLatitude::fromRadians(300));
+    const GeoDataCoordinates coord3(GeoDataLongitude::fromRadians(300), GeoDataLatitude::fromRadians(300));
+    const GeoDataCoordinates coord4(GeoDataLongitude::fromRadians(400), GeoDataLatitude::fromRadians(400));
     GeoDataExtendedData extendedData1, extendedData2;
     GeoDataData data1, data2;
 
@@ -1967,7 +1970,10 @@ void TestEquality::multiTrackTest()
     GeoDataTrack *track1, *track2, *track3, *track4;
     QDateTime date11( QDate(2000, 10, 4) ), date12( QDate(2001, 10, 4) );
     QDateTime date21( QDate(2002, 10, 4) ), date22( QDate(2003, 10, 4) );
-    GeoDataCoordinates coord1(100, 100), coord2(200, 300), coord3(300, 300), coord4(400, 400);
+    const GeoDataCoordinates coord1(GeoDataLongitude::fromRadians(100), GeoDataLatitude::fromRadians(100));
+    const GeoDataCoordinates coord2(GeoDataLongitude::fromRadians(200), GeoDataLatitude::fromRadians(300));
+    const GeoDataCoordinates coord3(GeoDataLongitude::fromRadians(300), GeoDataLatitude::fromRadians(300));
+    const GeoDataCoordinates coord4(GeoDataLongitude::fromRadians(400), GeoDataLatitude::fromRadians(400));
     GeoDataExtendedData extendedData1, extendedData2;
     GeoDataData data1, data2;
 
@@ -2042,8 +2048,8 @@ void TestEquality::lookAtTest()
 {
     GeoDataLookAt lookAt1, lookAt2;
 
-    lookAt1.setLatitude(1.112);
-    lookAt1.setLongitude(2.33);
+    lookAt1.setLatitude(GeoDataLatitude::fromRadians(1.112));
+    lookAt1.setLongitude(GeoDataLongitude::fromRadians(2.33));
     lookAt1.setAltitude(1500);
     lookAt2 = lookAt1;
 
@@ -2148,8 +2154,8 @@ void TestEquality::networkLinkTest()
 
     lookAt1.setAltitudeMode( Marble::ClampToGround );
     lookAt1.setAltitude( 100 );
-    lookAt1.setLatitude( 100 );
-    lookAt1.setLongitude( 100 );
+    lookAt1.setLatitude(GeoDataLatitude::fromDegrees(100));
+    lookAt1.setLongitude(GeoDataLongitude::fromDegrees(100));
     lookAt1.setRange( 500 );
     lookAt2 = lookAt1;
 
@@ -2196,11 +2202,11 @@ void TestEquality::networkLinkControlTest()
 
     camera1->setAltitudeMode( Marble::ClampToGround );
     camera1->setAltitude( 2000 );
-    camera1->setLatitude( 2.555 );
-    camera1->setLongitude( 1.32 );
-    camera1->setHeading( 200 );
-    camera1->setRoll( 300 );
-    camera1->setTilt( 400 );
+    camera1->setLatitude(GeoDataLatitude::fromRadians(2.555));
+    camera1->setLongitude(GeoDataLongitude::fromRadians(1.32));
+    camera1->setHeading(GeoDataAngle::fromDegrees(200));
+    camera1->setRoll(GeoDataAngle::fromDegrees(300));
+    camera1->setTilt(GeoDataAngle::fromDegrees(400));
     *camera2 = *camera1;
 
 
@@ -2258,43 +2264,43 @@ void TestEquality::folderTest()
     overlay21 = new GeoDataGroundOverlay;
     overlay22 = new GeoDataGroundOverlay;
 
-    latLonBox1.setEast( 33 );
-    latLonBox1.setWest( 52 );
-    latLonBox1.setNorth( 61 );
-    latLonBox1.setSouth( 72 );
-    latLonBox1.setRotation( 51 );
-    latLonBox1.setBoundaries( 23, 54, 33, 21 );
+    latLonBox1.setEast(GeoDataLongitude::fromDegrees(33));
+    latLonBox1.setWest(GeoDataLongitude::fromDegrees(52));
+    latLonBox1.setNorth(GeoDataLatitude::fromDegrees(61));
+    latLonBox1.setSouth(GeoDataLatitude::fromDegrees(72));
+    latLonBox1.setRotation(GeoDataAngle::fromDegrees(51));
+    latLonBox1.setBoundaries(GeoDataLatitude::fromDegrees(23), GeoDataLatitude::fromDegrees(54), GeoDataLongitude::fromDegrees(33), GeoDataLongitude::fromDegrees(21));
 
-    latLonBox2.setEast( 40 );
-    latLonBox2.setWest( 50 );
-    latLonBox2.setNorth( 60 );
-    latLonBox2.setSouth( 70 );
-    latLonBox2.setRotation( 20 );
-    latLonBox2.setBoundaries( 70, 80, 50, 60 );
+    latLonBox2.setEast(GeoDataLongitude::fromDegrees(40));
+    latLonBox2.setWest(GeoDataLongitude::fromDegrees(50));
+    latLonBox2.setNorth(GeoDataLatitude::fromDegrees(60));
+    latLonBox2.setSouth(GeoDataLatitude::fromDegrees(70));
+    latLonBox2.setRotation(GeoDataAngle::fromDegrees(20));
+    latLonBox2.setBoundaries(GeoDataLatitude::fromDegrees(70), GeoDataLatitude::fromDegrees(80), GeoDataLongitude::fromDegrees(50), GeoDataLongitude::fromDegrees(60));
 
     overlay11->setLatLonBox( latLonBox1 );
     overlay12->setLatLonBox( latLonBox2 );
 
     GeoDataLatLonQuad quad1, quad2;
-    quad1.setBottomLeftLatitude( 1.23, GeoDataCoordinates::Radian );
-    quad1.setBottomLeftLongitude( 2.60, GeoDataCoordinates::Radian );
-    quad1.setBottomRightLatitude( 0.45, GeoDataCoordinates::Radian );
-    quad1.setBottomRightLongitude( 1.260, GeoDataCoordinates::Radian );
+    quad1.setBottomLeftLatitude(GeoDataLatitude::fromRadians(1.23));
+    quad1.setBottomLeftLongitude(GeoDataLongitude::fromRadians(2.60));
+    quad1.setBottomRightLatitude(GeoDataLatitude::fromRadians(0.45));
+    quad1.setBottomRightLongitude(GeoDataLongitude::fromRadians(1.260));
 
-    quad1.setTopLeftLatitude( 2.55, GeoDataCoordinates::Radian );
-    quad1.setTopLeftLongitude( 1.65, GeoDataCoordinates::Radian );
-    quad1.setTopRightLatitude( 1.245, GeoDataCoordinates::Radian );
-    quad1.setTopRightLongitude( 1.350, GeoDataCoordinates::Radian );
+    quad1.setTopLeftLatitude(GeoDataLatitude::fromRadians(2.55));
+    quad1.setTopLeftLongitude(GeoDataLongitude::fromRadians(1.65));
+    quad1.setTopRightLatitude(GeoDataLatitude::fromRadians(1.245));
+    quad1.setTopRightLongitude(GeoDataLongitude::fromRadians(1.350));
 
-    quad2.setBottomLeftLatitude( 55, GeoDataCoordinates::Degree );
-    quad2.setBottomLeftLongitude( 60, GeoDataCoordinates::Degree );
-    quad2.setBottomRightLatitude( 45, GeoDataCoordinates::Degree );
-    quad2.setBottomRightLongitude( 50, GeoDataCoordinates::Degree );
+    quad2.setBottomLeftLatitude(GeoDataLatitude::fromDegrees(55));
+    quad2.setBottomLeftLongitude(GeoDataLongitude::fromDegrees(60));
+    quad2.setBottomRightLatitude(GeoDataLatitude::fromDegrees(45));
+    quad2.setBottomRightLongitude(GeoDataLongitude::fromDegrees(50));
 
-    quad2.setTopLeftLatitude( 55, GeoDataCoordinates::Degree );
-    quad2.setTopLeftLongitude( 60, GeoDataCoordinates::Degree );
-    quad2.setTopRightLatitude( 45, GeoDataCoordinates::Degree );
-    quad2.setTopRightLongitude( 50, GeoDataCoordinates::Degree );
+    quad2.setTopLeftLatitude(GeoDataLatitude::fromDegrees(55));
+    quad2.setTopLeftLongitude(GeoDataLongitude::fromDegrees(60));
+    quad2.setTopRightLatitude(GeoDataLatitude::fromDegrees(45));
+    quad2.setTopRightLongitude(GeoDataLongitude::fromDegrees(50));
 
     overlay11->setLatLonQuad( quad1 );
     overlay12->setLatLonQuad( quad2 );

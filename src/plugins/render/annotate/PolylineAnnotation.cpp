@@ -283,13 +283,13 @@ void PolylineAnnotation::move( const GeoDataCoordinates &source, const GeoDataCo
     }
     lineString->clear();
 
-    const qreal deltaLat = destination.latitude() - source.latitude();
-    const qreal deltaLon = destination.longitude() - source.longitude();
+    const GeoDataLatitude deltaLat = destination.latitude() - source.latitude();
+    const GeoDataLongitude deltaLon = destination.longitude() - source.longitude();
 
-    Quaternion latRectAxis = Quaternion::fromEuler( 0, destination.longitude(), 0);
-    Quaternion latAxis = Quaternion::fromEuler( -deltaLat, 0, 0);
-    Quaternion lonAxis = Quaternion::fromEuler(0, deltaLon, 0);
-    Quaternion rotAxis = latRectAxis * latAxis * latRectAxis.inverse() * lonAxis;
+    const Quaternion latRectAxis = Quaternion::fromEuler(0, destination.longitude().toRadian(), 0);
+    const Quaternion latAxis = Quaternion::fromEuler(-deltaLat.toRadian(), 0, 0);
+    const Quaternion lonAxis = Quaternion::fromEuler(0, deltaLon.toRadian(), 0);
+    const Quaternion rotAxis = latRectAxis * latAxis * latRectAxis.inverse() * lonAxis;
 
     for ( int i = 0; i < oldLineString.size(); ++i ) {
         const GeoDataCoordinates movedPoint = oldLineString.at(i).rotateAround(rotAxis);
@@ -539,11 +539,9 @@ bool PolylineAnnotation::processEditingOnPress( QMouseEvent *mouseEvent )
         return false;
     }
 
-    qreal lat, lon;
-    m_viewport->geoCoordinates( mouseEvent->pos().x(),
-                                mouseEvent->pos().y(),
-                                lon, lat,
-                                GeoDataCoordinates::Radian );
+    GeoDataLatitude lat;
+    GeoDataLongitude lon;
+    m_viewport->geoCoordinates(mouseEvent->pos().x(), mouseEvent->pos().y(), lon, lat);
     m_movedPointCoords.set( lon, lat );
 
     // First check if one of the nodes has been clicked.
@@ -581,11 +579,9 @@ bool PolylineAnnotation::processEditingOnMove( QMouseEvent *mouseEvent )
         return false;
     }
 
-    qreal lon, lat;
-    m_viewport->geoCoordinates( mouseEvent->pos().x(),
-                                mouseEvent->pos().y(),
-                                lon, lat,
-                                GeoDataCoordinates::Radian );
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
+    m_viewport->geoCoordinates(mouseEvent->pos().x(), mouseEvent->pos().y(), lon, lat);
     const GeoDataCoordinates newCoords( lon, lat );
 
     if ( m_interactingObj == InteractingNode ) {
@@ -611,13 +607,13 @@ bool PolylineAnnotation::processEditingOnMove( QMouseEvent *mouseEvent )
         const GeoDataLineString oldLineString = *lineString;
         lineString->clear();
 
-        const qreal deltaLat = lat - m_movedPointCoords.latitude();
-        const qreal deltaLon = lon - m_movedPointCoords.longitude();
+        const GeoDataLatitude deltaLat = lat - m_movedPointCoords.latitude();
+        const GeoDataLongitude deltaLon = lon - m_movedPointCoords.longitude();
 
-        Quaternion latRectAxis = Quaternion::fromEuler( 0, lon, 0);
-        Quaternion latAxis = Quaternion::fromEuler( -deltaLat, 0, 0);
-        Quaternion lonAxis = Quaternion::fromEuler(0, deltaLon, 0);
-        Quaternion rotAxis = latRectAxis * latAxis * latRectAxis.inverse() * lonAxis;
+        const Quaternion latRectAxis = Quaternion::fromEuler(0, lon.toRadian(), 0);
+        const Quaternion latAxis = Quaternion::fromEuler(-deltaLat.toRadian(), 0, 0);
+        const Quaternion lonAxis = Quaternion::fromEuler(0, deltaLon.toRadian(), 0);
+        const Quaternion rotAxis = latRectAxis * latAxis * latRectAxis.inverse() * lonAxis;
 
         for ( int i = 0; i < oldLineString.size(); ++i ) {
             const GeoDataCoordinates movedPoint = oldLineString.at(i).rotateAround(rotAxis);
@@ -766,11 +762,9 @@ bool PolylineAnnotation::processAddingNodesOnMove( QMouseEvent *mouseEvent )
     if ( m_adjustedNode != -1 ) {
         // The virtual node which has just been added is always the last within
         // GeoDataLinearRing's container.qreal lon, lat;
-        qreal lon, lat;
-        m_viewport->geoCoordinates( mouseEvent->pos().x(),
-                                    mouseEvent->pos().y(),
-                                    lon, lat,
-                                    GeoDataCoordinates::Radian );
+        GeoDataLongitude lon;
+        GeoDataLatitude lat;
+        m_viewport->geoCoordinates(mouseEvent->pos().x(), mouseEvent->pos().y(), lon, lat);
         const GeoDataCoordinates newCoords( lon, lat );
         GeoDataLineString *line = static_cast<GeoDataLineString*>( placemark()->geometry() );
         line->at(m_adjustedNode) = newCoords;

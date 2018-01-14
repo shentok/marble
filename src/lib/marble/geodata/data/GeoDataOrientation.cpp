@@ -16,17 +16,19 @@ namespace Marble {
 class GeoDataOrientationPrivate
 {
 public:
-    double m_heading;
+    GeoDataAngle m_heading;
 
-    double m_tilt;
+    GeoDataAngle m_tilt;
 
-    double m_roll;
+    GeoDataAngle m_roll;
 
     GeoDataOrientationPrivate();
 };
 
 GeoDataOrientationPrivate::GeoDataOrientationPrivate() :
-    m_heading(0), m_tilt(0), m_roll(0)
+    m_heading(GeoDataAngle::null),
+    m_tilt(GeoDataAngle::null),
+    m_roll(GeoDataAngle::null)
 {
     // nothing to do
 }
@@ -73,32 +75,32 @@ const char *GeoDataOrientation::nodeType() const
     return GeoDataTypes::GeoDataOrientationType;
 }
 
-double GeoDataOrientation::heading() const
+GeoDataAngle GeoDataOrientation::heading() const
 {
     return d->m_heading;
 }
 
-void GeoDataOrientation::setHeading( double heading )
+void GeoDataOrientation::setHeading(GeoDataAngle heading)
 {
     d->m_heading = heading;
 }
 
-double GeoDataOrientation::tilt() const
+GeoDataAngle GeoDataOrientation::tilt() const
 {
     return d->m_tilt;
 }
 
-void GeoDataOrientation::setTilt( double tilt )
+void GeoDataOrientation::setTilt(GeoDataAngle tilt)
 {
     d->m_tilt = tilt;
 }
 
-double GeoDataOrientation::roll() const
+GeoDataAngle GeoDataOrientation::roll() const
 {
     return d->m_roll;
 }
 
-void GeoDataOrientation::setRoll( double roll )
+void GeoDataOrientation::setRoll(GeoDataAngle roll)
 {
     d->m_roll = roll;
 }

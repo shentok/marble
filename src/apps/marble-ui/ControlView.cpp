@@ -534,10 +534,10 @@ void ControlView::launchExternalMapEditor()
     else {
         // Potlatch, the flash based editor running at the osm main website
         QString url = "http://www.openstreetmap.org/edit?lat=%1&lon=%2&zoom=%3";
-        qreal lat = m_marbleWidget->centerLatitude();
-        qreal lon = m_marbleWidget->centerLongitude();
+        const auto lat = m_marbleWidget->centerLatitude();
+        const auto lon = m_marbleWidget->centerLongitude();
         int zoom = m_marbleWidget->tileZoomLevel();
-        url = url.arg( lat, 0, 'f', 8 ).arg( lon, 0, 'f', 8 ).arg( zoom );
+        url = url.arg(lat.toDegree(), 0, 'f', 8).arg(lon.toDegree(), 0, 'f', 8).arg(zoom);
         QDesktopServices::openUrl( QUrl(url) );
     }
 }
@@ -557,17 +557,17 @@ void ControlView::synchronizeWithExternalMapEditor( const QString &application, 
     localEventLoop.exec();
 
     GeoDataLatLonAltBox box = m_marbleWidget->viewport()->viewLatLonAltBox();
-    qreal north = box.north( GeoDataCoordinates::Degree );
-    qreal east  = box.east( GeoDataCoordinates::Degree );
-    qreal south = box.south( GeoDataCoordinates::Degree );
-    qreal west  = box.west( GeoDataCoordinates::Degree );
+    const auto north = box.north();
+    const auto east  = box.east();
+    const auto south = box.south();
+    const auto west  = box.west();
 
     if( watchdog.isActive() && reply->bytesAvailable() > 0 ) {
         // The local server is alive. Tell it to download the current region
         watchdog.stop();
         QString serverUrl = "http://localhost:8111/load_and_zoom?top=%1&right=%2&bottom=%3&left=%4";
-        serverUrl = serverUrl.arg( north, 0, 'f', 8 ).arg( east, 0, 'f', 8 );
-        serverUrl = serverUrl.arg( south, 0, 'f', 8 ).arg( west, 0, 'f', 8 );
+        serverUrl = serverUrl.arg(north.toDegree(), 0, 'f', 8).arg(east.toDegree(), 0, 'f', 8);
+        serverUrl = serverUrl.arg(south.toDegree(), 0, 'f', 8).arg(west.toDegree(), 0, 'f', 8);
         mDebug() << "Connecting to local server URL " << serverUrl;
         manager.get( QNetworkRequest( QUrl( serverUrl ) ) );
 
@@ -576,8 +576,8 @@ void ControlView::synchronizeWithExternalMapEditor( const QString &application, 
         localEventLoop.exec();
     } else {
         // The local server is not alive. Start the application
-        QString applicationArgument = argument.arg( south, 0, 'f', 8 ).arg( east, 0, 'f', 8 );
-        applicationArgument = applicationArgument.arg( north, 0, 'f', 8 ).arg( west, 0, 'f', 8 );
+        QString applicationArgument = argument.arg(south.toDegree(), 0, 'f', 8).arg(east.toDegree(), 0, 'f', 8);
+        applicationArgument = applicationArgument.arg(north.toDegree(), 0, 'f', 8).arg(west.toDegree(), 0, 'f', 8);
         mDebug() << "No local server found. Launching " << application << " with argument " << applicationArgument;
         if ( !QProcess::startDetached( application, QStringList() << applicationArgument ) ) {
             QString text = tr( "Unable to start the external editor. Check that %1 is installed or choose a different external editor in the settings dialog." );
@@ -965,8 +965,8 @@ void ControlView::dropEvent(QDropEvent *event)
         // first try human readable coordinates
         const GeoDataCoordinates coordinates = GeoDataCoordinates::fromString(text, success);
         if (success) {
-            const qreal longitude = coordinates.longitude(GeoDataCoordinates::Degree);
-            const qreal latitude = coordinates.latitude(GeoDataCoordinates::Degree);
+            const auto longitude = coordinates.longitude();
+            const auto latitude = coordinates.latitude();
             m_marbleWidget->centerOn(longitude, latitude);
         } else {
             success = openGeoUri(text);

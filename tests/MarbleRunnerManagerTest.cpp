@@ -81,11 +81,11 @@ void MarbleRunnerManagerTest::initTestCase()
 
     qRegisterMetaType<QVector<GeoDataCoordinates> >( "QVector<GeoDataCoordinates>" );
 
-    m_coords.setLatitude(52.50160, GeoDataCoordinates::Degree );
-    m_coords.setLongitude(13.40233, GeoDataCoordinates::Degree );
+    m_coords.setLatitude(GeoDataLatitude::fromDegrees(52.50160));
+    m_coords.setLongitude(GeoDataLongitude::fromDegrees(13.40233));
 
-    m_coords2.setLatitude(52.52665, GeoDataCoordinates::Degree );
-    m_coords2.setLongitude(13.39032, GeoDataCoordinates::Degree );
+    m_coords2.setLatitude(GeoDataLatitude::fromDegrees(52.52665));
+    m_coords2.setLongitude(GeoDataLongitude::fromDegrees(13.39032));
 
     m_request.append( m_coords );
     m_request.append( m_coords2 );

@@ -609,9 +609,9 @@ void GeometryLayer::setVisibleRelationTypes(GeoDataRelation::RelationTypes relat
     }
 }
 
-void GeometryLayer::handleHighlight(qreal lon, qreal lat, GeoDataCoordinates::Unit unit)
+void GeometryLayer::handleHighlight(GeoDataLongitude lon, GeoDataLatitude lat)
 {
-    GeoDataCoordinates clickedPoint(lon, lat, 0, unit);
+    const GeoDataCoordinates clickedPoint(lon, lat);
     QVector<GeoDataPlacemark*> selectedPlacemarks;
 
     for (int i = 0; i < d->m_model->rowCount(); ++i) {

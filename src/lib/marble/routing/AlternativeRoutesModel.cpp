@@ -50,7 +50,7 @@ public:
       * Returns the bearing of the great circle path defined by the coordinates one and two
       * Based on https://www.movable-type.co.uk/scripts/latlong.html
       */
-    static qreal bearing( const GeoDataCoordinates &one, const GeoDataCoordinates &two );
+    static GeoDataAngle bearing(const GeoDataCoordinates &one, const GeoDataCoordinates &two);
 
     /**
       * Returns the distance between the given point and the line segment (not line) defined
@@ -61,7 +61,7 @@ public:
     /**
       * Returns the point reached when traveling the given distance from start with the given direction
       */
-    static GeoDataCoordinates coordinates( const GeoDataCoordinates &start, qreal distance, qreal bearing );
+    static GeoDataCoordinates coordinates(const GeoDataCoordinates &start, qreal distance, GeoDataAngle bearing);
 
     /**
       * Returns the similarity between routeA and routeB. This method is not symmetric, i.e. in
@@ -83,7 +83,7 @@ public:
 
     static int nonZero( const QImage &image );
 
-    static QPolygonF polygon( const GeoDataLineString &lineString, qreal x, qreal y, qreal sx, qreal sy );
+    static QPolygonF polygon(const GeoDataLineString &lineString, GeoDataLongitude lon, GeoDataLatitude lat, qreal sx, qreal sy);
 
     /** The currently shown alternative routes (model data) */
     QVector<GeoDataDocument*> m_routes;
@@ -117,12 +117,12 @@ int AlternativeRoutesModel::Private::nonZero( const QImage &image )
   return count;
 }
 
-QPolygonF AlternativeRoutesModel::Private::polygon( const GeoDataLineString &lineString, qreal x, qreal y, qreal sx, qreal sy )
+QPolygonF AlternativeRoutesModel::Private::polygon(const GeoDataLineString &lineString, GeoDataLongitude lon, GeoDataLatitude lat, qreal sx, qreal sy )
 {
     QPolygonF poly;
     for ( int i = 0; i < lineString.size(); ++i ) {
-        poly << QPointF( qAbs( ( lineString)[i].longitude() - x ) * sx,
-                         qAbs( ( lineString)[i].latitude()  - y ) * sy );
+        poly << QPointF( qAbs(lineString[i].longitude() - lon).toRadian() * sx,
+                         qAbs(lineString[i].latitude()  - lat).toRadian() * sy );
     }
     return poly;
 }
@@ -159,30 +159,30 @@ qreal AlternativeRoutesModel::Private::distance( const GeoDataLineString &wayPoi
     return minDistance;
 }
 
-qreal AlternativeRoutesModel::Private::bearing( const GeoDataCoordinates &one, const GeoDataCoordinates &two )
+GeoDataAngle AlternativeRoutesModel::Private::bearing(const GeoDataCoordinates &one, const GeoDataCoordinates &two)
 {
-    qreal delta = two.longitude() - one.longitude();
-    qreal lat1 = one.latitude();
-    qreal lat2 = two.latitude();
-    return fmod( atan2( sin ( delta ) * cos ( lat2 ),
-                 cos( lat1 ) * sin( lat2 ) - sin( lat1 ) * cos( lat2 ) * cos ( delta ) ), 2 * M_PI );
+    const qreal delta = (two.longitude() - one.longitude()).toRadian();
+    const qreal lat1 = one.latitude().toRadian();
+    const qreal lat2 = two.latitude().toRadian();
+    return GeoDataAngle::fromRadians(fmod( atan2( sin ( delta ) * cos ( lat2 ),
+                 cos( lat1 ) * sin( lat2 ) - sin( lat1 ) * cos( lat2 ) * cos ( delta ) ), 2 * M_PI ));
 }
 
-GeoDataCoordinates AlternativeRoutesModel::Private::coordinates( const GeoDataCoordinates &start, qreal distance, qreal bearing )
+GeoDataCoordinates AlternativeRoutesModel::Private::coordinates(const GeoDataCoordinates &start, qreal distance, GeoDataAngle bearing)
 {
-    qreal lat1 = start.latitude();
-    qreal lon1 = start.longitude();
-    qreal lat2 = asin( sin( lat1 ) * cos( distance ) + cos( lat1 ) * sin( distance ) * cos( bearing ) );
-    qreal lon2 = lon1 + atan2( sin( bearing ) * sin( distance ) * cos( lat1 ), cos( distance ) - sin( lat1 ) * sin( lat2 ) );
-    return GeoDataCoordinates( lon2, lat2 );
+    const qreal lat1 = start.latitude().toRadian();
+    const qreal lon1 = start.longitude().toRadian();
+    const qreal lat2 = asin(sin(lat1) * cos(distance) + cos(lat1) * sin(distance) * cos(bearing.toRadian()));
+    const qreal lon2 = lon1 + atan2(sin(bearing.toRadian()) * sin(distance) * cos(lat1), cos(distance) - sin(lat1) * sin(lat2));
+    return GeoDataCoordinates(GeoDataLongitude::fromRadians(lon2), GeoDataLatitude::fromRadians(lat2));
 }
 
 qreal AlternativeRoutesModel::Private::distance( const GeoDataCoordinates &satellite, const GeoDataCoordinates &lineA, const GeoDataCoordinates &lineB )
 {
     const qreal dist = lineA.sphericalDistanceTo(satellite);
-    qreal bearA = bearing( lineA, satellite );
-    qreal bearB = bearing( lineA, lineB );
-    qreal result = asin( sin ( dist ) * sin( bearB - bearA ) );
+    const GeoDataAngle bearA = bearing(lineA, satellite);
+    const GeoDataAngle bearB = bearing(lineA, lineB);
+    qreal result = asin(sin(dist) * sin((bearB - bearA).toRadian()));
     Q_ASSERT(qMax<qreal>(satellite.sphericalDistanceTo(lineA), satellite.sphericalDistanceTo(lineB)) >= qAbs<qreal>(result));
 
     result = acos( cos( dist ) / cos( result ) );
@@ -209,12 +209,12 @@ qreal AlternativeRoutesModel::Private::unidirectionalSimilarity( const GeoDataDo
     image.fill( qRgb( 0, 0, 0 ) );
     GeoDataLatLonBox box = GeoDataLatLonBox::fromLineString( *waypointsA );
     box = box.united( GeoDataLatLonBox::fromLineString( *waypointsB ) );
-    if ( !box.width() || !box.height() ) {
+    if (box.width() != GeoDataLongitude::null || box.height() != GeoDataLatitude::null) {
       return 0.0;
     }
 
-    qreal const sw = image.width() / box.width();
-    qreal const sh = image.height() / box.height();
+    qreal const sw = image.width() / box.width().toRadian();
+    qreal const sh = image.height() / box.height().toRadian();
 
     QPainter painter( &image );
     painter.setPen( QColor( Qt::white ) );

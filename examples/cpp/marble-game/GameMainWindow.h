@@ -31,7 +31,7 @@ public:
     MarbleWidget *marbleWidget();
 
 Q_SIGNALS:
-    void announceHighlight(qreal, qreal, GeoDataCoordinates::Unit );
+    void announceHighlight(GeoDataLongitude, GeoDataLatitude);
     void postQuestion( QObject* );
 
 private Q_SLOTS:

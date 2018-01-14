@@ -115,8 +115,8 @@ void MercatorScanlineTextureMapper::mapTexture( const ViewportParams *viewport, 
     // what actually can be painted
 
     qreal realYTop, realYBottom, dummyX;
-    GeoDataCoordinates yNorth(0, viewport->currentProjection()->maxLat(), 0);
-    GeoDataCoordinates ySouth(0, viewport->currentProjection()->minLat(), 0);
+    const GeoDataCoordinates yNorth(GeoDataLongitude::null, viewport->currentProjection()->maxLat());
+    const GeoDataCoordinates ySouth(GeoDataLongitude::null, viewport->currentProjection()->minLat());
     viewport->screenCoordinates(yNorth, dummyX, realYTop );
     viewport->screenCoordinates(ySouth, dummyX, realYBottom );
 
@@ -165,6 +165,7 @@ void MercatorScanlineTextureMapper::RenderJob::run()
     // Calculate how many degrees are being represented per pixel.
     const float rad2Pixel = (float)( 2 * radius ) / M_PI;
     const qreal pixel2Rad = 1.0/rad2Pixel;
+    const GeoDataLongitude pixel2Lon = GeoDataLongitude::fromRadians(1.0/rad2Pixel);
 
     const bool interlaced   = ( m_mapQuality == LowQuality );
     const bool highQuality  = ( m_mapQuality == HighQuality
@@ -175,14 +176,12 @@ void MercatorScanlineTextureMapper::RenderJob::run()
     const int n = ScanlineTextureMapperContext::interpolationStep( m_viewport, m_mapQuality );
 
     // Calculate translation of center point
-    const qreal centerLon = m_viewport->centerLongitude();
-    const qreal centerLat = m_viewport->centerLatitude();
+    const GeoDataLongitude centerLon = m_viewport->centerLongitude();
+    const GeoDataLatitude centerLat = m_viewport->centerLatitude();
 
-    const int yCenterOffset = (int)( asinh( tan( centerLat ) ) * rad2Pixel  );
+    const int yCenterOffset = (int)(asinh(tan(centerLat.toRadian())) * rad2Pixel);
 
-    qreal leftLon = + centerLon - ( imageWidth / 2 * pixel2Rad );
-    while ( leftLon < -M_PI ) leftLon += 2 * M_PI;
-    while ( leftLon >  M_PI ) leftLon -= 2 * M_PI;
+    const GeoDataLongitude leftLon = GeoDataCoordinates::normalizeLon(+ centerLon - (imageWidth * GeoDataLongitude::halfCircle / radius));
 
     const int maxInterpolationPointX = n * (int)( imageWidth / n - 1 ) + 1;
 
@@ -198,8 +197,8 @@ void MercatorScanlineTextureMapper::RenderJob::run()
 
         QRgb * scanLine = (QRgb*)( m_canvasImage->scanLine( y ) );
 
-        qreal lon = leftLon;
-        const qreal lat = gd ( ( (imageHeight / 2 + yCenterOffset) - y )
+        GeoDataLongitude lon = leftLon;
+        const GeoDataLatitude lat = gd(((imageHeight / 2 + yCenterOffset) - y)
                     * pixel2Rad );
 
         for ( int x = 0; x < imageWidth; ++x ) {
@@ -207,15 +206,19 @@ void MercatorScanlineTextureMapper::RenderJob::run()
             bool interpolate = false;
             if ( x > 0 && x <= maxInterpolationPointX ) {
                 x += n - 1;
-                lon += (n - 1) * pixel2Rad;
+                lon += (n - 1) * pixel2Lon;
                 interpolate = !printQuality;
             }
             else {
                 interpolate = false;
             }
 
-            if ( lon < -M_PI ) lon += 2 * M_PI;
-            if ( lon >  M_PI ) lon -= 2 * M_PI;
+            if (lon < -GeoDataLongitude::halfCircle) {
+                lon += 2 * GeoDataLongitude::halfCircle;
+            }
+            if (lon > GeoDataLongitude::halfCircle) {
+                lon -= 2 * GeoDataLongitude::halfCircle;
+            }
 
             if ( interpolate ) {
                 if (highQuality)
@@ -234,7 +237,7 @@ void MercatorScanlineTextureMapper::RenderJob::run()
             }
 
             ++scanLine;
-            lon += pixel2Rad;
+            lon += pixel2Lon;
         }
 
         // copy scanline to improve performance

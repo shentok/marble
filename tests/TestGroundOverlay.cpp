@@ -77,22 +77,22 @@ void TestGroundOverlay::simpleParseTest()
     QFUZZYCOMPARE( overlayFirst->altitudeMode(), Absolute, 0.0001 );
     QCOMPARE( overlayFirst->drawOrder(), 0 );
 
-    QFUZZYCOMPARE( overlayFirst->latLonBox().north(), 37.91904192681665 * DEG2RAD, 0.0001 );
-    QFUZZYCOMPARE( overlayFirst->latLonBox().south(), 37.46543388598137 * DEG2RAD, 0.0001 );
-    QFUZZYCOMPARE( overlayFirst->latLonBox().east(), 15.35832653742206 * DEG2RAD, 0.0001 );
-    QFUZZYCOMPARE( overlayFirst->latLonBox().west(), 14.60128369746704 * DEG2RAD, 0.0001 );
-    QFUZZYCOMPARE( overlayFirst->latLonBox().rotation(), -0.1556640799496235 * DEG2RAD, 0.0001 );
+    QFUZZYCOMPARE(overlayFirst->latLonBox().north(), GeoDataLatitude::fromDegrees(37.91904192681665), GeoDataLatitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlayFirst->latLonBox().south(), GeoDataLatitude::fromDegrees(37.46543388598137), GeoDataLatitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlayFirst->latLonBox().east(), GeoDataLongitude::fromDegrees(15.35832653742206), GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlayFirst->latLonBox().west(), GeoDataLongitude::fromDegrees(14.60128369746704), GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlayFirst->latLonBox().rotation(), -GeoDataAngle::fromDegrees(0.1556640799496235), GeoDataAngle::fromDegrees(0.0001));
 
     QFUZZYCOMPARE( overlaySecond->altitude(), 233.0, 0.0001 );
 
     QCOMPARE( overlaySecond->altitudeMode(), ClampToGround );
     QCOMPARE( overlaySecond->drawOrder(), 2 );
 
-    QFUZZYCOMPARE( overlaySecond->latLonBox().north(), 23.3765376 * DEG2RAD, 0.0001 );
-    QFUZZYCOMPARE( overlaySecond->latLonBox().south(), 1.5743867869 * DEG2RAD, 0.0001 );
-    QFUZZYCOMPARE( overlaySecond->latLonBox().east(), 33.78365874 * DEG2RAD, 0.0001 );
-    QFUZZYCOMPARE( overlaySecond->latLonBox().west(), 94.352435642 * DEG2RAD, 0.0001 );
-    QFUZZYCOMPARE( overlaySecond->latLonBox().rotation(), 6.346364378 * DEG2RAD, 0.0001 );
+    QFUZZYCOMPARE(overlaySecond->latLonBox().north(), GeoDataLatitude::fromDegrees(23.3765376), GeoDataLatitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlaySecond->latLonBox().south(), GeoDataLatitude::fromDegrees(1.5743867869), GeoDataLatitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlaySecond->latLonBox().east(), GeoDataLongitude::fromDegrees(33.78365874), GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlaySecond->latLonBox().west(), GeoDataLongitude::fromDegrees(94.352435642), GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(overlaySecond->latLonBox().rotation(), GeoDataAngle::fromDegrees(6.346364378), GeoDataAngle::fromDegrees(0.0001));
 
     delete dataDocument;
 }

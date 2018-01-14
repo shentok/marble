@@ -13,7 +13,11 @@
 
 #include "geodata_export.h"
 #include "GeoDataAbstractView.h"
+
+#include "GeoDataAngle.h"
 #include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 
 namespace Marble
 {
@@ -55,7 +59,7 @@ public:
      * @param unit units that lon and lat get measured in
      * (default for Radian: north pole at pi/2, southpole at -pi/2)
      */
-    void setLatitude( qreal latitude,GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    void setLatitude(GeoDataLatitude latitude);
 
     /**
      * @brief retrieves the latitude of the GeoDataCamera object
@@ -64,7 +68,7 @@ public:
      * (default for Radian: north pole at pi/2, southpole at -pi/2)
      * @return latitude
      */
-    qreal latitude( GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian ) const;
+    GeoDataLatitude latitude() const;
 
     /**
      * @brief set the longitude in a GeoDataCamera object
@@ -72,7 +76,7 @@ public:
      * @param unit units that lon and lat get measured in
      * (default for Radian: north pole at pi/2, southpole at -pi/2)
      */
-    void setLongitude( qreal longitude,GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    void setLongitude(GeoDataLongitude longitude);
 
     /**
      * @brief retrieves the longitude of the GeoDataCamera object
@@ -81,7 +85,7 @@ public:
      * (default for Radian: north pole at pi/2, southpole at -pi/2)
      * @return latitude
      */
-    qreal longitude( GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian ) const;
+    GeoDataLongitude longitude() const;
 
     /**
      * @brief retrieve the lat/lon/alt triple as a GeoDataCoordinates object
@@ -90,17 +94,17 @@ public:
      */
     GeoDataCoordinates coordinates() const;
 
-    void setRoll( qreal roll );
+    void setRoll(GeoDataAngle roll);
 
-    qreal roll() const;
+    GeoDataAngle roll() const;
 
-    qreal heading() const;
+    GeoDataAngle heading() const;
 
-    void setHeading(qreal heading);
+    void setHeading(GeoDataAngle heading);
 
-    qreal tilt() const;
+    GeoDataAngle tilt() const;
 
-    void setTilt(qreal tilt);
+    void setTilt(GeoDataAngle tilt);
 
     void setCoordinates( const GeoDataCoordinates& coordinates );
 

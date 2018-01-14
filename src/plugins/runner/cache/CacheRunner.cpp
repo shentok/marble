@@ -93,7 +93,7 @@ GeoDataDocument* CacheRunner::parseFile( const QString &fileName, DocumentRole r
         in >> tmpstr; tmpstr = *stringPool.insert(tmpstr);
         mark->setName( tmpstr );
         in >> lon >> lat >> alt;
-        mark->setCoordinate( (qreal)(lon), (qreal)(lat), (qreal)(alt) );
+        mark->setCoordinate(GeoDataLongitude::fromRadians(lon), GeoDataLatitude::fromRadians(lat), alt);
         in >> tmpstr; tmpstr = *stringPool.insert(tmpstr);
         mark->setRole( tmpstr );
         in >> tmpstr; tmpstr = *stringPool.insert(tmpstr);

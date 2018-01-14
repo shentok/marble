@@ -113,9 +113,9 @@ bool VerticalPerspectiveProjection::screenCoordinates( const GeoDataCoordinates 
     Q_D(const VerticalPerspectiveProjection);
     d->calculateConstants(viewport->radius());
     const qreal P =  d->m_P;
-    const qreal deltaLambda = coordinates.longitude() - viewport->centerLongitude();
-    const qreal phi = coordinates.latitude();
-    const qreal phi1 = viewport->centerLatitude();
+    const qreal deltaLambda = (coordinates.longitude() - viewport->centerLongitude()).toRadian();
+    const qreal phi = coordinates.latitude().toRadian();
+    const qreal phi1 = viewport->centerLatitude().toRadian();
 
     qreal cosC = qSin( phi1 ) * qSin( phi ) + qCos( phi1 ) * qCos( phi ) * qCos( deltaLambda );
 
@@ -181,8 +181,7 @@ bool VerticalPerspectiveProjection::screenCoordinates( const GeoDataCoordinates 
 
 bool VerticalPerspectiveProjection::geoCoordinates( const int x, const int y,
                                           const ViewportParams *viewport,
-                                          qreal& lon, qreal& lat,
-                                          GeoDataCoordinates::Unit unit ) const
+                                          GeoDataLongitude &lon, GeoDataLatitude &lat) const
 {
     Q_D(const VerticalPerspectiveProjection);
     d->calculateConstants(viewport->radius());
@@ -206,19 +205,14 @@ bool VerticalPerspectiveProjection::geoCoordinates( const int x, const int y,
     const qreal c = qAsin((P-qSqrt(1-pP))/(fract+1/fract));
     const qreal sinc = qSin(c);
 
-    const qreal centerLon = viewport->centerLongitude();
-    const qreal centerLat = viewport->centerLatitude();
-    lon = centerLon + qAtan2(rx*sinc, (p*qCos(centerLat)*qCos(c) - ry*qSin(centerLat)*sinc));
+    const GeoDataLongitude centerLon = viewport->centerLongitude();
+    const GeoDataLatitude centerLat = viewport->centerLatitude();
 
-    while ( lon < -M_PI ) lon += 2 * M_PI;
-    while ( lon >  M_PI ) lon -= 2 * M_PI;
+    lon = centerLon + GeoDataLongitude::fromRadians(qAtan2(rx*sinc, (p*qCos(centerLat.toRadian())*qCos(c) - ry*qSin(centerLat.toRadian())*sinc)));
 
-    lat = qAsin(qCos(c)*qSin(centerLat) + (ry*sinc*qCos(centerLat))/p);
+    lon = GeoDataCoordinates::normalizeLon(lon);
 
-    if ( unit == GeoDataCoordinates::Degree ) {
-        lon *= RAD2DEG;
-        lat *= RAD2DEG;
-    }
+    lat = GeoDataLatitude::fromRadians(qAsin(qCos(c)*qSin(centerLat.toRadian()) + (ry*sinc*qCos(centerLat.toRadian()))/p));
 
     return true;
 }

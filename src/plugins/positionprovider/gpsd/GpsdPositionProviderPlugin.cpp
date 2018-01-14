@@ -83,8 +83,9 @@ void GpsdPositionProviderPlugin::update( gps_data_t data )
         m_status = PositionProviderStatusAcquiring;
     else {
         m_status = PositionProviderStatusAvailable;
-        m_position.set( data.fix.longitude, data.fix.latitude,
-                        data.fix.altitude, GeoDataCoordinates::Degree );
+        m_position.set(GeoDataLongitude::fromDegrees(data.fix.longitude),
+                       GeoDataLatitude::fromDegrees(data.fix.latitude),
+                       data.fix.altitude);
         if (data.fix.mode == MODE_2D) {
             m_position.setAltitude(0);
         }
@@ -110,7 +111,7 @@ void GpsdPositionProviderPlugin::update( gps_data_t data )
 
         if( !std::isnan( data.fix.track ) )
         {
-            m_track = data.fix.track;
+            m_track = GeoDataAngle::fromDegrees(data.fix.track);
         }
 
 #if defined( GPSD_API_MAJOR_VERSION ) && ( GPSD_API_MAJOR_VERSION >= 9 )
@@ -158,9 +159,10 @@ GeoDataAccuracy GpsdPositionProviderPlugin::accuracy() const
     return m_accuracy;
 }
 
-GpsdPositionProviderPlugin::GpsdPositionProviderPlugin() : m_thread( nullptr ),
-    m_speed( 0.0 ),
-    m_track( 0.0 )
+GpsdPositionProviderPlugin::GpsdPositionProviderPlugin() :
+    m_thread(nullptr),
+    m_speed(0.0),
+    m_track(GeoDataAngle::null)
 {
 }
 
@@ -183,7 +185,7 @@ qreal GpsdPositionProviderPlugin::speed() const
     return m_speed;
 }
 
-qreal GpsdPositionProviderPlugin::direction() const
+GeoDataAngle GpsdPositionProviderPlugin::direction() const
 {
     return m_track;
 }

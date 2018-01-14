@@ -110,7 +110,7 @@ void CountryByFlag::initiateGame()
     if ( d->m_countryNames ) {
         d->m_countryNames->setVisible( false );
         d->m_marbleWidget->model()->treeModel()->updateFeature( d->m_countryNames );
-        d->m_marbleWidget->centerOn( 23.0, 42.0 );
+        d->m_marbleWidget->centerOn(GeoDataLongitude::fromDegrees(23.0), GeoDataLatitude::fromDegrees(42.0));
         d->m_marbleWidget->setDistance( 7500 );
         d->m_marbleWidget->setHighlightEnabled( false );
         emit gameInitialized();

@@ -60,10 +60,9 @@ void MapQuestRunner::retrieveRoute( const RouteRequest *route )
     }
 
     QString url = "http://open.mapquestapi.com/directions/v1/route?callback=renderAdvancedNarrative&outFormat=xml&narrativeType=text&shapeFormat=raw&generalize=0";
-    GeoDataCoordinates::Unit const degree = GeoDataCoordinates::Degree;
-    append(&url, "from", QString::number(route->source().latitude(degree), 'f', 6) + QLatin1Char(',') + QString::number(route->source().longitude(degree), 'f', 6));
+    append(&url, "from", QString::number(route->source().latitude().toDegree(), 'f', 6) + QLatin1Char(',') + QString::number(route->source().longitude().toDegree(), 'f', 6));
     for ( int i=1; i<route->size(); ++i ) {
-        append(&url, "to", QString::number(route->at(i).latitude(degree), 'f', 6) + QLatin1Char(',') + QString::number(route->at(i).longitude(degree), 'f', 6));
+        append(&url, "to", QString::number(route->at(i).latitude().toDegree(), 'f', 6) + QLatin1Char(',') + QString::number(route->at(i).longitude().toDegree(), 'f', 6));
     }
 
     QString const unit = MarbleGlobal::getInstance()->locale()->measurementSystem() == MarbleLocale::MetricSystem ? "k" : "m";
@@ -220,9 +219,9 @@ GeoDataDocument* MapQuestRunner::parse( const QByteArray &content ) const
     if ( shapePoints.size() == 1 ) {
         QDomNodeList geometry = shapePoints.at(0).toElement().elementsByTagName(QStringLiteral("latLng"));
         for ( int i=0; i<geometry.size(); ++i ) {
-            double const lat = geometry.item(i).namedItem(QStringLiteral("lat")).toElement().text().toDouble();
-            double const lon = geometry.item(i).namedItem(QStringLiteral("lng")).toElement().text().toDouble();
-            GeoDataCoordinates const position( lon, lat, 0.0, GeoDataCoordinates::Degree );
+            const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(geometry.item(i).namedItem(QStringLiteral("lat")).toElement().text().toDouble());
+            const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(geometry.item(i).namedItem(QStringLiteral("lng")).toElement().text().toDouble());
+            const GeoDataCoordinates position(lon, lat);
             routeWaypoints->append( position );
         }
     }

@@ -553,11 +553,11 @@ bool AnnotatePlugin::eventFilter( QObject *watched, QEvent *event )
 
 
     // Get the geocoordinates from mouse pos screen coordinates.
-    qreal lon, lat;
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
     const bool isOnGlobe = m_marbleWidget->geoCoordinates( mouseEvent->pos().x(),
                                                            mouseEvent->pos().y(),
-                                                           lon, lat,
-                                                           GeoDataCoordinates::Radian );
+                                                           lon, lat );
     if ( !isOnGlobe ) {
         return false;
     }
@@ -1115,8 +1115,8 @@ void AnnotatePlugin::addTextAnnotation()
 
     // Get the normalized coordinates of the focus point. There will be automatically added a new
     // placemark.
-    qreal lat = m_marbleWidget->focusPoint().latitude();
-    qreal lon = m_marbleWidget->focusPoint().longitude();
+    GeoDataLatitude lat = m_marbleWidget->focusPoint().latitude();
+    GeoDataLongitude lon = m_marbleWidget->focusPoint().longitude();
     GeoDataCoordinates::normalizeLonLat( lon, lat );
 
     GeoDataPlacemark *placemark = new GeoDataPlacemark;
@@ -1201,17 +1201,17 @@ void AnnotatePlugin::setupOverlayRmbMenu()
 void AnnotatePlugin::addOverlay()
 {
     GeoDataGroundOverlay *overlay = new GeoDataGroundOverlay();
-    qreal centerLongitude = m_marbleWidget->viewport()->centerLongitude()*RAD2DEG;
-    qreal centerLatitude = m_marbleWidget->viewport()->centerLatitude()*RAD2DEG;
-    GeoDataLatLonAltBox box  = m_marbleWidget->viewport()->viewLatLonAltBox();
-    qreal maxDelta = 20;
-    qreal deltaLongitude = qMin(box.width(GeoDataCoordinates::Degree), maxDelta);
-    qreal deltaLatitude = qMin(box.height(GeoDataCoordinates::Degree), maxDelta);
-    qreal north = centerLatitude + deltaLatitude/4;
-    qreal south = centerLatitude - deltaLatitude/4;
-    qreal west = centerLongitude - deltaLongitude/4;
-    qreal east = centerLongitude + deltaLongitude/4;
-    overlay->latLonBox().setBoundaries( north, south, east, west, GeoDataCoordinates::Degree );
+    const GeoDataLongitude centerLongitude = m_marbleWidget->viewport()->centerLongitude();
+    const GeoDataLatitude centerLatitude = m_marbleWidget->viewport()->centerLatitude();
+    const GeoDataLatLonAltBox box = m_marbleWidget->viewport()->viewLatLonAltBox();
+    const qreal maxDelta = 20;
+    const GeoDataLongitude deltaLongitude = qMin(box.width(), GeoDataLongitude::fromDegrees(maxDelta));
+    const GeoDataLatitude deltaLatitude = qMin(box.height(), GeoDataLatitude::fromDegrees(maxDelta));
+    const GeoDataLatitude north = centerLatitude + deltaLatitude/4;
+    const GeoDataLatitude south = centerLatitude - deltaLatitude/4;
+    const GeoDataLongitude west = centerLongitude - deltaLongitude/4;
+    const GeoDataLongitude east = centerLongitude + deltaLongitude/4;
+    overlay->latLonBox().setBoundaries(north, south, east, west);
     overlay->setName( tr( "Untitled Ground Overlay" ) );
     QPointer<EditGroundOverlayDialog> dialog = new EditGroundOverlayDialog(
                                                                  overlay,
@@ -1345,8 +1345,9 @@ void AnnotatePlugin::showPolygonRmbMenu( qreal x, qreal y )
 {
     // We need to store the coordinates from where the rmb menu is shown so that in case of
     // selecting Copy/Cut, we can move the polygon.
-    qreal lon, lat;
-    m_marbleWidget->geoCoordinates( x, y, lon, lat, GeoDataCoordinates::Radian );
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
+    m_marbleWidget->geoCoordinates(x, y, lon, lat);
     m_fromWhereToCopy = GeoDataCoordinates( lon, lat );
 
     if ( !static_cast<AreaAnnotation*>( m_focusItem )->hasNodesSelected() ) {
@@ -1594,8 +1595,9 @@ void AnnotatePlugin::setupPolylineRmbMenu()
 
 void AnnotatePlugin::showPolylineRmbMenu( qreal x, qreal y )
 {
-    qreal lon, lat;
-    m_marbleWidget->geoCoordinates( x, y, lon, lat, GeoDataCoordinates::Radian );
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
+    m_marbleWidget->geoCoordinates(x, y, lon, lat);
     m_fromWhereToCopy = GeoDataCoordinates( lon, lat );
 
     if ( !static_cast<PolylineAnnotation*>( m_focusItem )->hasNodesSelected() ) {
@@ -1760,8 +1762,9 @@ void AnnotatePlugin::pasteItem()
 {
     const QPoint eventPoint = m_marbleWidget->popupMenu()->mousePosition();
 
-    qreal lon, lat;
-    m_marbleWidget->geoCoordinates( eventPoint.x(), eventPoint.y(), lon, lat, GeoDataCoordinates::Radian );
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
+    m_marbleWidget->geoCoordinates(eventPoint.x(), eventPoint.y(), lon, lat);
     const GeoDataCoordinates newCoords( lon, lat );
 
     m_clipboardItem->move( m_fromWhereToCopy, newCoords );
@@ -1778,11 +1781,11 @@ void AnnotatePlugin::pasteItem()
 
 const GeoDataCoordinates AnnotatePlugin::mouseGeoDataCoordinates(QMouseEvent *mouseEvent) const
 {
-    qreal lon, lat;
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
     m_marbleWidget->geoCoordinates( mouseEvent->pos().x(),
                                     mouseEvent->pos().y(),
-                                    lon, lat,
-                                    GeoDataCoordinates::Radian );
+                                    lon, lat );
     return GeoDataCoordinates( lon, lat );
 }
 

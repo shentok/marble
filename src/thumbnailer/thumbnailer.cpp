@@ -115,16 +115,16 @@ void GeoDataThumbnailer::onGeoDataObjectAdded( GeoDataObject* object )
 
     int newRadius = m_marbleMap.radius();
     //prevent divide by zero
-    if( latLonAltBox.height() && latLonAltBox.width() ) {
+    if (latLonAltBox.isNull()) {
         const ViewportParams* viewparams = m_marbleMap.viewport();
         //work out the needed zoom level
-        const int horizontalRadius = ( 0.25 * M_PI ) * ( viewparams->height() / latLonAltBox.height() );
-        const int verticalRadius = ( 0.25 * M_PI ) * ( viewparams->width() / latLonAltBox.width() );
+        const int horizontalRadius = 0.5 * (GeoDataLatitude::quaterCircle / latLonAltBox.height()) * viewparams->height();
+        const int verticalRadius = 0.25 * (GeoDataLongitude::halfCircle / latLonAltBox.width()) * viewparams->width();
         newRadius = qMin<int>( horizontalRadius, verticalRadius );
         newRadius = qMax<int>(radius(m_marbleMap.minimumZoom()), qMin<int>(newRadius, radius(m_marbleMap.maximumZoom())));
     }
 
-    m_marbleMap.centerOn( center.longitude(GeoDataCoordinates::Degree), center.latitude(GeoDataCoordinates::Degree) );
+    m_marbleMap.centerOn(center.longitude(), center.latitude());
 
     m_marbleMap.setRadius( newRadius );
 

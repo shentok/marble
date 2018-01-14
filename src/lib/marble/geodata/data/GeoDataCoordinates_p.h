@@ -11,7 +11,10 @@
 #ifndef MARBLE_GEODATACOORDINATES_P_H
 #define MARBLE_GEODATACOORDINATES_P_H
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "Quaternion.h"
+
 #include <QAtomicInt>
 
 namespace Marble
@@ -27,13 +30,13 @@ class GeoDataCoordinatesPrivate
     * ref must be called ref as qAtomicAssign used in GeoDataCoordinates::operator=
     * needs this name. Maybe we can rename it to our scheme later on.
     */
-    GeoDataCoordinatesPrivate()
-        : m_q( nullptr ),
-          m_lon( 0 ),
-          m_lat( 0 ),
-          m_altitude( 0 ),
-          m_detail( 0 ),
-          ref( 0 )
+    GeoDataCoordinatesPrivate() :
+        m_q(nullptr),
+        m_lon(GeoDataLongitude::null),
+        m_lat(GeoDataLatitude::null),
+        m_altitude(0),
+        m_detail(0),
+        ref(0)
     {
     }
 
@@ -44,25 +47,14 @@ class GeoDataCoordinatesPrivate
     * ref must be called ref as qAtomicAssign used in GeoDataCoordinates::operator=
     * needs this name. Maybe we can rename it to our scheme later on.
     */
-    GeoDataCoordinatesPrivate( qreal _lon, qreal _lat, qreal _alt,
-                        GeoDataCoordinates::Unit unit,
-                        int _detail )
-        : m_q( nullptr ),
-          m_altitude( _alt ),
-          m_detail( _detail ),
-          ref( 0 )
+    GeoDataCoordinatesPrivate(GeoDataLongitude lon, GeoDataLatitude lat, qreal alt, quint8 detail) :
+        m_q(nullptr),
+        m_lon(lon),
+        m_lat(lat),
+        m_altitude(alt),
+        m_detail(detail),
+        ref(0)
     {
-        switch( unit ){
-        default:
-        case GeoDataCoordinates::Radian:
-            m_lon = _lon;
-            m_lat = _lat;
-            break;
-        case GeoDataCoordinates::Degree:
-            m_lon = _lon * DEG2RAD;
-            m_lat = _lat * DEG2RAD;
-            break;
-        }
     }
 
     /*
@@ -123,7 +115,7 @@ class GeoDataCoordinatesPrivate
     * if the UTM zone parameter is outside the range [1,60].
     * Range of the central meridian is the radian equivalent of [-177,+177].
     */
-    static qreal centralMeridianUTM( qreal zone );
+    static GeoDataLongitude centralMeridianUTM( qreal zone );
 
 
     /**
@@ -151,7 +143,7 @@ class GeoDataCoordinatesPrivate
     * @param lambda0 Longitude of the central meridian to be used, in radians.
     * @return The computed point with its x and y coordinates
     */
-    static QPointF mapLonLatToXY( qreal lambda, qreal phi, qreal lambda0 );
+    static QPointF mapLonLatToXY(GeoDataLongitude lambda, GeoDataLatitude phi, GeoDataLongitude lambda0);
 
     /**
      * Converts a latitude/longitude pair to x and y coordinates in the
@@ -173,7 +165,7 @@ class GeoDataCoordinatesPrivate
     * @param lat latitude, in radians
     * @return latitude band
     */
-    static QString lonLatToLatitudeBand( qreal lon, qreal lat );
+    static QString lonLatToLatitudeBand(GeoDataLongitude lon, GeoDataLatitude lat );
 
     /**
     * @brief retrieves the northing value of a longitude/latitude
@@ -182,7 +174,7 @@ class GeoDataCoordinatesPrivate
     * @param lat latitude, in radians
     * @return UTM northing value
     */
-    static qreal lonLatToNorthing( qreal lon, qreal lat );
+    static qreal lonLatToNorthing(GeoDataLongitude lon, GeoDataLatitude lat );
 
     /**
     * @brief retrieves the UTM zone number of a longitude/latitude
@@ -191,7 +183,7 @@ class GeoDataCoordinatesPrivate
     * @param lat latitude, in radians
     * @return UTM zone number
     */
-    static int lonLatToZone( qreal lon, qreal lat );
+    static int lonLatToZone(GeoDataLongitude lon, GeoDataLatitude lat);
 
     /**
     * @brief  retrieves the easting value of a longitude/latitude
@@ -200,11 +192,11 @@ class GeoDataCoordinatesPrivate
     * @param lat latitude, in radians
     * @return UTM easting value
     */
-    static qreal lonLatToEasting( qreal lon, qreal lat );
+    static qreal lonLatToEasting(GeoDataLongitude lon, GeoDataLatitude lat );
 
     Quaternion * m_q;
-    qreal      m_lon;
-    qreal      m_lat;
+    GeoDataLongitude m_lon;
+    GeoDataLatitude m_lat;
     qreal      m_altitude;     // in meters above sea level
     quint8     m_detail;
     QAtomicInt ref;

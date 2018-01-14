@@ -12,6 +12,8 @@
 #define GEODATASCREENOVERLAY_H
 
 #include "GeoDataOverlay.h"
+
+#include "GeoDataAngle.h"
 #include "GeoDataVec2.h"
 #include "MarbleGlobal.h"
 
@@ -55,8 +57,8 @@ public:
     void setSize( const GeoDataVec2 &vec2 );
     void setSize(qreal x, qreal y, GeoDataVec2::Unit xunit, GeoDataVec2::Unit yunit);
 
-    qreal rotation() const;
-    void setRotation( qreal rotation );
+    GeoDataAngle rotation() const;
+    void setRotation(GeoDataAngle rotation);
 
 private:
     Q_DECLARE_PRIVATE(GeoDataScreenOverlay)

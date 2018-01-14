@@ -15,6 +15,8 @@
 #include <QSize>
 #include <QImage>
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "GeoSceneTileDataset.h"
 #include "MarbleMath.h"
 #include "MathHelper.h"
@@ -32,14 +34,14 @@ class ScanlineTextureMapperContext
 public:
     ScanlineTextureMapperContext( StackedTileLoader * const tileLoader, int tileLevel );
 
-    void pixelValueF( const qreal lon, const qreal lat,
+    void pixelValueF(const GeoDataLongitude lon, const GeoDataLatitude lat,
                       QRgb* const scanLine );
-    void pixelValue( const qreal lon, const qreal lat,
+    void pixelValue(const GeoDataLongitude lon, const GeoDataLatitude lat,
                      QRgb* const scanLine );
 
-    void pixelValueApproxF( const qreal lon, const qreal lat,
+    void pixelValueApproxF(const GeoDataLongitude lon, const GeoDataLatitude lat,
                             QRgb *scanLine, const int n );
-    void pixelValueApprox( const qreal lon, const qreal lat,
+    void pixelValueApprox(const GeoDataLongitude lon, const GeoDataLatitude lat,
                            QRgb *scanLine, const int n );
 
     static int interpolationStep( const ViewportParams *viewport, MapQuality mapQuality );
@@ -58,8 +60,8 @@ private:
 
     // Converts Radian to global texture coordinates 
     // ( with origin in center, measured in pixel) 
-    qreal rad2PixelX( const qreal lon ) const;
-    qreal rad2PixelY( const qreal lat ) const;
+    qreal rad2PixelX(const GeoDataLongitude lon) const;
+    qreal rad2PixelY(const GeoDataLatitude lat) const;
 
     // Checks whether the pixelValueApprox method will make use of more than
     // one tile
@@ -99,8 +101,8 @@ private:
     qreal  m_toTileCoordinatesLat;
 
     // Previous coordinates
-    qreal  m_prevLat;
-    qreal  m_prevLon;
+    GeoDataLatitude m_prevLat;
+    GeoDataLongitude m_prevLon;
     qreal  m_prevPixelX;
     qreal  m_prevPixelY;
 };
@@ -115,18 +117,18 @@ inline int ScanlineTextureMapperContext::globalHeight() const
     return m_globalHeight;
 }
 
-inline qreal ScanlineTextureMapperContext::rad2PixelX( const qreal lon ) const
+inline qreal ScanlineTextureMapperContext::rad2PixelX(const GeoDataLongitude lon) const
 {
-    return lon * m_normGlobalWidth;
+    return lon.toRadian() * m_normGlobalWidth;
 }
 
-inline qreal ScanlineTextureMapperContext::rad2PixelY( const qreal lat ) const
+inline qreal ScanlineTextureMapperContext::rad2PixelY(const GeoDataLatitude lat) const
 {
     switch ( m_textureProjection ) {
     case GeoSceneAbstractTileProjection::Equirectangular:
-        return -lat * m_normGlobalHeight;
+        return -lat.toRadian() * m_normGlobalHeight;
     case GeoSceneAbstractTileProjection::Mercator:
-        if ( fabs( lat ) < 1.4835 ) {
+        if (qAbs(lat) < GeoDataLatitude::fromRadians(1.4835)) {
             // We develop the inverse Gudermannian into a MacLaurin Series:
             // In spite of the many elements needed to get decent 
             // accuracy this is still faster by far than calculating the 
@@ -137,10 +139,10 @@ inline qreal ScanlineTextureMapperContext::rad2PixelY( const qreal lat ) const
 
             return - gdInv( lat ) * 0.5 * m_normGlobalHeight;
         }
-        if ( lat >= +1.4835 )
+        if (lat >= +GeoDataLatitude::fromRadians(1.4835))
             // asinh( tan (1.4835)) => 3.1309587
             return - 3.1309587 * 0.5 * m_normGlobalHeight; 
-        if ( lat <= -1.4835 )
+        if (lat <= -GeoDataLatitude::fromRadians(1.4835))
             // asinh( tan( -1.4835 )) => −3.1309587
             return 3.1309587 * 0.5 * m_normGlobalHeight; 
     }

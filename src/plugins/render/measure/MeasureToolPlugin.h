@@ -92,7 +92,7 @@ class MeasureToolPlugin : public RenderPlugin, public DialogConfigurationInterfa
     void  setNumberOfMeasurePoints( int number );
     void  addMeasurePointEvent();
 
-    void  addMeasurePoint( qreal lon, qreal lat );
+    void  addMeasurePoint(GeoDataLongitude lon, GeoDataLatitude lat);
     void  removeLastMeasurePoint();
     void  removeMeasurePoints();
 

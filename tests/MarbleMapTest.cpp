@@ -72,115 +72,115 @@ class MarbleMapTest : public QObject
 
 void MarbleMapTest::centerOnSpherical_data()
 {
-    QTest::addColumn<qreal>( "lon" );
-    QTest::addColumn<qreal>( "lat" );
+    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataLatitude>("lat");
 
-    addRow() << qreal(0.0) << qreal(0.0);
+    addRow() << GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(0.0);
 
-    addRow() << qreal(-180.0) << qreal(0.0);
-    addRow() <<  qreal(-90.0) << qreal(0.0);
-    addRow() <<   qreal(90.0) << qreal(0.0);
-    addRow() <<  qreal(180.0) << qreal(0.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(0.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(0.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(0.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(0.0);
 
-    addRow() << qreal(-180.0) << qreal(90.0);
-    addRow() <<  qreal(-90.0) << qreal(90.0);
-    addRow() <<    qreal(0.0) << qreal(90.0);
-    addRow() <<   qreal(90.0) << qreal(90.0);
-    addRow() <<  qreal(180.0) << qreal(90.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(90.0);
 
-    addRow() << qreal(-180.0) << qreal(-90.0);
-    addRow() <<  qreal(-90.0) << qreal(-90.0);
-    addRow() <<    qreal(0.0) << qreal(-90.0);
-    addRow() <<   qreal(90.0) << qreal(-90.0);
-    addRow() <<  qreal(180.0) << qreal(-90.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(-90.0);
 
-    addRow() << qreal(-180.0) << qreal(180.0);
-    addRow() <<  qreal(-90.0) << qreal(180.0);
-    addRow() <<    qreal(0.0) << qreal(180.0);
-    addRow() <<   qreal(90.0) << qreal(180.0);
-    addRow() <<  qreal(180.0) << qreal(180.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(180.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(180.0);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(180.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(180.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(180.0);
 
-    addRow() << qreal(-180.0) << qreal(-180.0);
-    addRow() <<  qreal(-90.0) << qreal(-180.0);
-    addRow() <<    qreal(0.0) << qreal(-180.0);
-    addRow() <<   qreal(90.0) << qreal(-180.0);
-    addRow() <<  qreal(180.0) << qreal(-180.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(-180.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(-180.0);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(-180.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(-180.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(-180.0);
 }
 
 void MarbleMapTest::centerOnSpherical()
 {
-    QFETCH( qreal, lon );
-    QFETCH( qreal, lat );
+    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataLatitude, lat);
 
     MarbleMap map( &m_model );
     map.setProjection( Spherical );
 
     map.centerOn( lon, lat );
-    QFUZZYCOMPARE( map.centerLongitude(), lon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), lat, 0.0001 );
+    QFUZZYCOMPARE(map.centerLongitude(), lon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), lat, GeoDataLatitude::fromDegrees(0.0001));
 }
 
 void MarbleMapTest::centerOnEquirectangular_data()
 {
-    QTest::addColumn<qreal>( "lon" );
-    QTest::addColumn<qreal>( "lat" );
+    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataLatitude>("lat");
 
-    addRow() << qreal(0.0) << qreal(0.0);
+    addRow() << GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(0.0);
 
-    addRow() << qreal(-180.0) << qreal(0.0);
-    addRow() <<  qreal(-90.0) << qreal(0.0);
-    addRow() <<   qreal(90.0) << qreal(0.0);
-    addRow() <<  qreal(180.0) << qreal(0.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(0.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(0.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(0.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(0.0);
 
-    addRow() << qreal(-180.0) << qreal(90.0);
-    addRow() <<  qreal(-90.0) << qreal(90.0);
-    addRow() <<    qreal(0.0) << qreal(90.0);
-    addRow() <<   qreal(90.0) << qreal(90.0);
-    addRow() <<  qreal(180.0) << qreal(90.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(90.0);
 
-    addRow() << qreal(-180.0) << qreal(-90.0);
-    addRow() <<  qreal(-90.0) << qreal(-90.0);
-    addRow() <<    qreal(0.0) << qreal(-90.0);
-    addRow() <<   qreal(90.0) << qreal(-90.0);
-    addRow() <<  qreal(180.0) << qreal(-90.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(-90.0);
 }
 
 void MarbleMapTest::centerOnEquirectangular()
 {
-    QFETCH( qreal, lon );
-    QFETCH( qreal, lat );
+    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataLatitude, lat);
 
     MarbleMap map( &m_model );
     map.setProjection( Equirectangular );
 
     map.centerOn( lon, lat );
-    QFUZZYCOMPARE( map.centerLongitude(), lon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), lat, 0.0001 );
+    QFUZZYCOMPARE(map.centerLongitude(), lon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), lat, GeoDataLatitude::fromDegrees(0.0001));
 }
 
 void MarbleMapTest::centerOnMercator_data()
 {
-    QTest::addColumn<qreal>( "lon" );
-    QTest::addColumn<qreal>( "lat" );
+    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataLatitude>("lat");
 
-    addRow() << qreal(0.0) << qreal(0.0);
+    addRow() << GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(0.0);
 
-    addRow() << qreal(-180.0) << qreal(0.0);
-    addRow() <<  qreal(-90.0) << qreal(0.0);
-    addRow() <<   qreal(90.0) << qreal(0.0);
-    addRow() <<  qreal(180.0) << qreal(0.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(0.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(0.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(0.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(0.0);
 
-    addRow() << qreal(-180.0) << qreal(-85.0511);
-    addRow() <<  qreal(-90.0) << qreal(-85.0511);
-    addRow() <<    qreal(0.0) << qreal(-85.0511);
-    addRow() <<   qreal(90.0) << qreal(-85.0511);
-    addRow() <<  qreal(180.0) << qreal(-85.0511);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(-85.0511);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(-85.0511);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(-85.0511);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(-85.0511);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(-85.0511);
 
-    addRow() << qreal(-180.0) << qreal(85.0511);
-    addRow() <<  qreal(-90.0) << qreal(85.0511);
-    addRow() <<    qreal(0.0) << qreal(85.0511);
-    addRow() <<   qreal(90.0) << qreal(85.0511);
-    addRow() <<  qreal(180.0) << qreal(85.0511);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(85.0511);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(85.0511);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(85.0511);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(85.0511);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(85.0511);
 }
 
 void MarbleMapTest::centerOnMercator()
@@ -189,25 +189,25 @@ void MarbleMapTest::centerOnMercator()
 
     map.setProjection( Mercator );
 
-    QFETCH( qreal, lon );
-    QFETCH( qreal, lat );
+    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataLatitude, lat);
 
     map.centerOn( lon, lat );
 
-    QFUZZYCOMPARE( map.centerLongitude(), lon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), lat, 0.0001 );
+    QFUZZYCOMPARE(map.centerLongitude(), lon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), lat, GeoDataLatitude::fromDegrees(0.0001));
 }
 
 void MarbleMapTest::centerOnSphericalMinLat_data()
 {
-    QTest::addColumn<qreal>( "lon" );
-    QTest::addColumn<qreal>( "lat" );
+    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataLatitude>("lat");
 
-    addRow() << qreal(-180.0) << qreal(-180.001);
-    addRow() <<  qreal(-90.0) << qreal(-180.001);
-    addRow() <<    qreal(0.0) << qreal(-180.001);
-    addRow() <<   qreal(90.0) << qreal(-180.001);
-    addRow() <<  qreal(180.0) << qreal(-180.001);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(-180.001);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(-180.001);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(-180.001);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(-180.001);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(-180.001);
 }
 
 void MarbleMapTest::centerOnSphericalMinLat()
@@ -216,25 +216,25 @@ void MarbleMapTest::centerOnSphericalMinLat()
 
     map.setProjection( Spherical );
 
-    QFETCH( qreal, lon );
-    QFETCH( qreal, lat );
+    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataLatitude, lat);
 
     map.centerOn( lon, lat );
 
-    QFUZZYCOMPARE( map.centerLongitude(), lon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), 179.999, 0.0001 );
+    QFUZZYCOMPARE(map.centerLongitude(), lon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), GeoDataLatitude::fromDegrees(179.999), GeoDataLatitude::fromDegrees(0.0001));
 }
 
 void MarbleMapTest::centerOnSphericalMaxLat_data()
 {
-    QTest::addColumn<qreal>( "lon" );
-    QTest::addColumn<qreal>( "lat" );
+    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataLatitude>("lat");
 
-    addRow() << qreal(-180.0) << qreal(180.001);
-    addRow() <<  qreal(-90.0) << qreal(180.001);
-    addRow() <<    qreal(0.0) << qreal(180.001);
-    addRow() <<   qreal(90.0) << qreal(180.001);
-    addRow() <<  qreal(180.0) << qreal(180.001);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(180.001);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(180.001);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(180.001);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(180.001);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(180.001);
 }
 
 void MarbleMapTest::centerOnSphericalMaxLat()
@@ -243,25 +243,25 @@ void MarbleMapTest::centerOnSphericalMaxLat()
 
     map.setProjection( Spherical );
 
-    QFETCH( qreal, lon );
-    QFETCH( qreal, lat );
+    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataLatitude, lat);
 
     map.centerOn( lon, lat );
 
-    QFUZZYCOMPARE( map.centerLongitude(), lon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), -179.999, 0.0001 );
+    QFUZZYCOMPARE(map.centerLongitude(), lon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), -GeoDataLatitude::fromDegrees(179.999), GeoDataLatitude::fromDegrees(0.0001));
 }
 
 void MarbleMapTest::centerOnEquirectangularMinLat_data()
 {
-    QTest::addColumn<qreal>( "lon" );
-    QTest::addColumn<qreal>( "lat" );
+    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataLatitude>("lat");
 
-    addRow() << qreal(-180.0) << qreal(-90.001);
-    addRow() <<  qreal(-90.0) << qreal(-90.001);
-    addRow() <<    qreal(0.0) << qreal(-90.001);
-    addRow() <<   qreal(90.0) << qreal(-90.001);
-    addRow() <<  qreal(180.0) << qreal(-90.001);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(-90.001);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(-90.001);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(-90.001);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(-90.001);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(-90.001);
 }
 
 void MarbleMapTest::centerOnEquirectangularMinLat()
@@ -270,25 +270,25 @@ void MarbleMapTest::centerOnEquirectangularMinLat()
 
     map.setProjection( Equirectangular );
 
-    QFETCH( qreal, lon );
-    QFETCH( qreal, lat );
+    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataLatitude, lat);
 
     map.centerOn( lon, lat );
 
-    QFUZZYCOMPARE( map.centerLongitude(), lon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), -90.0, 0.0001 );
+    QFUZZYCOMPARE(map.centerLongitude(), lon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), -GeoDataLatitude::fromDegrees(90.0), GeoDataLatitude::fromDegrees(0.0001));
 }
 
 void MarbleMapTest::centerOnEquirectangularMaxLat_data()
 {
-    QTest::addColumn<qreal>( "lon" );
-    QTest::addColumn<qreal>( "lat" );
+    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataLatitude>("lat");
 
-    addRow() << qreal(-180.0) << qreal(90.001);
-    addRow() <<  qreal(-90.0) << qreal(90.001);
-    addRow() <<    qreal(0.0) << qreal(90.001);
-    addRow() <<   qreal(90.0) << qreal(90.001);
-    addRow() <<  qreal(180.0) << qreal(90.001);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(90.001);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(90.001);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(90.001);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(90.001);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(90.001);
 }
 
 void MarbleMapTest::centerOnEquirectangularMaxLat()
@@ -297,31 +297,31 @@ void MarbleMapTest::centerOnEquirectangularMaxLat()
 
     map.setProjection( Equirectangular );
 
-    QFETCH( qreal, lon );
-    QFETCH( qreal, lat );
+    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataLatitude, lat);
 
     map.centerOn( lon, lat );
 
-    QFUZZYCOMPARE( map.centerLongitude(), lon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), 90.0, 0.0001 );
+    QFUZZYCOMPARE(map.centerLongitude(), lon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), GeoDataLatitude::fromDegrees(90.0), GeoDataLatitude::fromDegrees(0.0001));
 }
 
 void MarbleMapTest::centerOnMercatorMinLat_data()
 {
-    QTest::addColumn<qreal>( "lon" );
-    QTest::addColumn<qreal>( "lat" );
+    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataLatitude>("lat");
 
-    addRow() << qreal(-180.0) << qreal(-87.0);
-    addRow() <<  qreal(-90.0) << qreal(-87.0);
-    addRow() <<    qreal(0.0) << qreal(-87.0);
-    addRow() <<   qreal(90.0) << qreal(-87.0);
-    addRow() <<  qreal(180.0) << qreal(-87.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(-87.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(-87.0);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(-87.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(-87.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(-87.0);
 
-    addRow() << qreal(-180.0) << qreal(-90.0);
-    addRow() <<  qreal(-90.0) << qreal(-90.0);
-    addRow() <<    qreal(0.0) << qreal(-90.0);
-    addRow() <<   qreal(90.0) << qreal(-90.0);
-    addRow() <<  qreal(180.0) << qreal(-90.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(-90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(-90.0);
 }
 
 void MarbleMapTest::centerOnMercatorMinLat()
@@ -330,31 +330,31 @@ void MarbleMapTest::centerOnMercatorMinLat()
 
     map.setProjection( Mercator );
 
-    QFETCH( qreal, lon );
-    QFETCH( qreal, lat );
+    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataLatitude, lat);
 
     map.centerOn( lon, lat );
 
-    QFUZZYCOMPARE( map.centerLongitude(), lon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), -85.0511, 0.0001 ); // clip to minLat
+    QFUZZYCOMPARE(map.centerLongitude(), lon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), -GeoDataLatitude::fromDegrees(85.0511), GeoDataLatitude::fromDegrees(0.0001)); // clip to minLat
 }
 
 void MarbleMapTest::centerOnMercatorMaxLat_data()
 {
-    QTest::addColumn<qreal>( "lon" );
-    QTest::addColumn<qreal>( "lat" );
+    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataLatitude>("lat");
 
-    addRow() << qreal(-180.0) << qreal(87.0);
-    addRow() <<  qreal(-90.0) << qreal(87.0);
-    addRow() <<    qreal(0.0) << qreal(87.0);
-    addRow() <<   qreal(90.0) << qreal(87.0);
-    addRow() <<  qreal(180.0) << qreal(87.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(87.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(87.0);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(87.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(87.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(87.0);
 
-    addRow() << qreal(-180.0) << qreal(90.0);
-    addRow() <<  qreal(-90.0) << qreal(90.0);
-    addRow() <<    qreal(0.0) << qreal(90.0);
-    addRow() <<   qreal(90.0) << qreal(90.0);
-    addRow() <<  qreal(180.0) << qreal(90.0);
+    addRow() << GeoDataLongitude::fromDegrees(-180.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-90.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<    GeoDataLongitude::fromDegrees(0.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<   GeoDataLongitude::fromDegrees(90.0) << GeoDataLatitude::fromDegrees(90.0);
+    addRow() <<  GeoDataLongitude::fromDegrees(180.0) << GeoDataLatitude::fromDegrees(90.0);
 }
 
 void MarbleMapTest::centerOnMercatorMaxLat()
@@ -363,71 +363,71 @@ void MarbleMapTest::centerOnMercatorMaxLat()
 
     map.setProjection( Mercator );
 
-    QFETCH( qreal, lon );
-    QFETCH( qreal, lat );
+    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataLatitude, lat);
 
     map.centerOn( lon, lat );
 
-    QFUZZYCOMPARE( map.centerLongitude(), lon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), 85.0511, 0.0001 ); // clip to maxLat
+    QFUZZYCOMPARE(map.centerLongitude(), lon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), GeoDataLatitude::fromDegrees(85.0511), GeoDataLatitude::fromDegrees(0.0001)); // clip to maxLat
 }
 
 void MarbleMapTest::rotateBySpherical_data()
 {
-    QTest::addColumn<int>( "lon" );
-    QTest::addColumn<int>( "lat" );
-    QTest::addColumn<int>( "deltaLon" );
-    QTest::addColumn<int>( "deltaLat" );
+    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataLatitude>("lat");
+    QTest::addColumn<GeoDataLongitude>("deltaLon");
+    QTest::addColumn<GeoDataLatitude>("deltaLat");
 
-    addRow() << 0 << 0 << 0 << 0;
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0);
 
-    addRow() << 0 << 0 << -180 << 0;
-    addRow() << 0 << 0 <<  -90 << 0;
-    addRow() << 0 << 0 <<   -5 << 0;
-    addRow() << 0 << 0 <<    5 << 0;
-    addRow() << 0 << 0 <<   90 << 0;
-    addRow() << 0 << 0 <<  180 << 0;
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(-180) << GeoDataLatitude::fromDegrees(0);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) <<  GeoDataLongitude::fromDegrees(-90) << GeoDataLatitude::fromDegrees(0);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) <<   GeoDataLongitude::fromDegrees(-5) << GeoDataLatitude::fromDegrees(0);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) <<    GeoDataLongitude::fromDegrees(5) << GeoDataLatitude::fromDegrees(0);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) <<   GeoDataLongitude::fromDegrees(90) << GeoDataLatitude::fromDegrees(0);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) <<  GeoDataLongitude::fromDegrees(180) << GeoDataLatitude::fromDegrees(0);
 
-    addRow() << 0 << 0 << 0 << -180;
-    addRow() << 0 << 0 << 0 <<  -90;
-    addRow() << 0 << 0 << 0 <<   -5;
-    addRow() << 0 << 0 << 0 <<    5;
-    addRow() << 0 << 0 << 0 <<   90;
-    addRow() << 0 << 0 << 0 <<  180;
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(-180);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(0) <<  GeoDataLatitude::fromDegrees(-90);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(0) <<   GeoDataLatitude::fromDegrees(-5);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(0) <<    GeoDataLatitude::fromDegrees(5);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(0) <<   GeoDataLatitude::fromDegrees(90);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(0) <<  GeoDataLatitude::fromDegrees(180);
 
-    addRow() << 0 << 0 << -180 << -180;
-    addRow() << 0 << 0 <<  -90 <<  -90;
-    addRow() << 0 << 0 <<   -5 <<   -5;
-    addRow() << 0 << 0 <<    5 <<    5;
-    addRow() << 0 << 0 <<   90 <<   90;
-    addRow() << 0 << 0 <<  180 <<  180;
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(-180) << GeoDataLatitude::fromDegrees(-180);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) <<  GeoDataLongitude::fromDegrees(-90) <<  GeoDataLatitude::fromDegrees(-90);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) <<   GeoDataLongitude::fromDegrees(-5) <<   GeoDataLatitude::fromDegrees(-5);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) <<    GeoDataLongitude::fromDegrees(5) <<    GeoDataLatitude::fromDegrees(5);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) <<   GeoDataLongitude::fromDegrees(90) <<   GeoDataLatitude::fromDegrees(90);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(0) <<  GeoDataLongitude::fromDegrees(180) <<  GeoDataLatitude::fromDegrees(180);
 
-    addRow() << 0 <<  160 << 0 << -20;
-    addRow() << 0 <<  160 << 0 <<  20;
-    addRow() << 0 <<   80 << 0 << -20;
-    addRow() << 0 <<   80 << 0 <<  20;
-    addRow() << 0 <<  -80 << 0 << -20;
-    addRow() << 0 <<  -80 << 0 <<  20;
-    addRow() << 0 << -160 << 0 << -20;
-    addRow() << 0 << -160 << 0 <<  20;
+    addRow() << GeoDataLongitude::fromDegrees(0) <<  GeoDataLatitude::fromDegrees(160) << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(-20);
+    addRow() << GeoDataLongitude::fromDegrees(0) <<  GeoDataLatitude::fromDegrees(160) << GeoDataLongitude::fromDegrees(0) <<  GeoDataLatitude::fromDegrees(20);
+    addRow() << GeoDataLongitude::fromDegrees(0) <<   GeoDataLatitude::fromDegrees(80) << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(-20);
+    addRow() << GeoDataLongitude::fromDegrees(0) <<   GeoDataLatitude::fromDegrees(80) << GeoDataLongitude::fromDegrees(0) <<  GeoDataLatitude::fromDegrees(20);
+    addRow() << GeoDataLongitude::fromDegrees(0) <<  GeoDataLatitude::fromDegrees(-80) << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(-20);
+    addRow() << GeoDataLongitude::fromDegrees(0) <<  GeoDataLatitude::fromDegrees(-80) << GeoDataLongitude::fromDegrees(0) <<  GeoDataLatitude::fromDegrees(20);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(-160) << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(-20);
+    addRow() << GeoDataLongitude::fromDegrees(0) << GeoDataLatitude::fromDegrees(-160) << GeoDataLongitude::fromDegrees(0) <<  GeoDataLatitude::fromDegrees(20);
 
-    addRow() <<  150 << 0 << -30 << 0;
-    addRow() <<  150 << 0 <<  30 << 0;
-    addRow() <<   50 << 0 << -30 << 0;
-    addRow() <<   50 << 0 <<  30 << 0;
-    addRow() <<  -50 << 0 << -30 << 0;
-    addRow() <<  -50 << 0 <<  30 << 0;
-    addRow() << -150 << 0 << -30 << 0;
-    addRow() << -150 << 0 <<  30 << 0;
+    addRow() <<  GeoDataLongitude::fromDegrees(150) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(-30) << GeoDataLatitude::fromDegrees(0);
+    addRow() <<  GeoDataLongitude::fromDegrees(150) << GeoDataLatitude::fromDegrees(0) <<  GeoDataLongitude::fromDegrees(30) << GeoDataLatitude::fromDegrees(0);
+    addRow() <<   GeoDataLongitude::fromDegrees(50) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(-30) << GeoDataLatitude::fromDegrees(0);
+    addRow() <<   GeoDataLongitude::fromDegrees(50) << GeoDataLatitude::fromDegrees(0) <<  GeoDataLongitude::fromDegrees(30) << GeoDataLatitude::fromDegrees(0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-50) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(-30) << GeoDataLatitude::fromDegrees(0);
+    addRow() <<  GeoDataLongitude::fromDegrees(-50) << GeoDataLatitude::fromDegrees(0) <<  GeoDataLongitude::fromDegrees(30) << GeoDataLatitude::fromDegrees(0);
+    addRow() << GeoDataLongitude::fromDegrees(-150) << GeoDataLatitude::fromDegrees(0) << GeoDataLongitude::fromDegrees(-30) << GeoDataLatitude::fromDegrees(0);
+    addRow() << GeoDataLongitude::fromDegrees(-150) << GeoDataLatitude::fromDegrees(0) <<  GeoDataLongitude::fromDegrees(30) << GeoDataLatitude::fromDegrees(0);
 
-    addRow() <<  150 <<  160 << -30 << -20;
-    addRow() <<  150 <<  160 <<  30 <<  20;
-    addRow() <<   50 <<   80 << -30 << -20;
-    addRow() <<   50 <<   80 <<  30 <<  20;
-    addRow() <<  -50 <<  -80 << -30 << -20;
-    addRow() <<  -50 <<  -80 <<  30 <<  20;
-    addRow() << -150 << -160 << -30 << -20;
-    addRow() << -150 << -160 <<  30 <<  20;
+    addRow() <<  GeoDataLongitude::fromDegrees(150) <<  GeoDataLatitude::fromDegrees(160) << GeoDataLongitude::fromDegrees(-30) << GeoDataLatitude::fromDegrees(-20);
+    addRow() <<  GeoDataLongitude::fromDegrees(150) <<  GeoDataLatitude::fromDegrees(160) <<  GeoDataLongitude::fromDegrees(30) <<  GeoDataLatitude::fromDegrees(20);
+    addRow() <<   GeoDataLongitude::fromDegrees(50) <<   GeoDataLatitude::fromDegrees(80) << GeoDataLongitude::fromDegrees(-30) << GeoDataLatitude::fromDegrees(-20);
+    addRow() <<   GeoDataLongitude::fromDegrees(50) <<   GeoDataLatitude::fromDegrees(80) <<  GeoDataLongitude::fromDegrees(30) <<  GeoDataLatitude::fromDegrees(20);
+    addRow() <<  GeoDataLongitude::fromDegrees(-50) <<  GeoDataLatitude::fromDegrees(-80) << GeoDataLongitude::fromDegrees(-30) << GeoDataLatitude::fromDegrees(-20);
+    addRow() <<  GeoDataLongitude::fromDegrees(-50) <<  GeoDataLatitude::fromDegrees(-80) <<  GeoDataLongitude::fromDegrees(30) <<  GeoDataLatitude::fromDegrees(20);
+    addRow() << GeoDataLongitude::fromDegrees(-150) << GeoDataLatitude::fromDegrees(-160) << GeoDataLongitude::fromDegrees(-30) << GeoDataLatitude::fromDegrees(-20);
+    addRow() << GeoDataLongitude::fromDegrees(-150) << GeoDataLatitude::fromDegrees(-160) <<  GeoDataLongitude::fromDegrees(30) <<  GeoDataLatitude::fromDegrees(20);
 }
 
 void MarbleMapTest::rotateBySpherical()
@@ -436,24 +436,24 @@ void MarbleMapTest::rotateBySpherical()
 
     map.setProjection( Spherical );
 
-    QFETCH( int, lon );
-    QFETCH( int, lat );
+    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataLatitude, lat);
 
     map.centerOn( lon, lat );
 
-    QFUZZYCOMPARE( map.centerLongitude(), lon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), lat, 0.0001 );
+    QFUZZYCOMPARE(map.centerLongitude(), lon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), lat, GeoDataLatitude::fromDegrees(0.0001));
 
-    QFETCH( int, deltaLon );
-    QFETCH( int, deltaLat );
+    QFETCH(GeoDataLongitude, deltaLon);
+    QFETCH(GeoDataLatitude, deltaLat);
 
     map.rotateBy( deltaLon, deltaLat );
 
-    const int expectedLon = lon + deltaLon;
-    const int expectedLat = lat + deltaLat;
+    const GeoDataLongitude expectedLon = lon + deltaLon;
+    const GeoDataLatitude expectedLat = lat + deltaLat;
 
-    QFUZZYCOMPARE( map.centerLongitude(), expectedLon, 0.0001 );
-    QFUZZYCOMPARE( map.centerLatitude(), expectedLat, 0.0001 );
+    QFUZZYCOMPARE(map.centerLongitude(), expectedLon, GeoDataLongitude::fromDegrees(0.0001));
+    QFUZZYCOMPARE(map.centerLatitude(), expectedLat, GeoDataLatitude::fromDegrees(0.0001));
 }
 
 void MarbleMapTest::setMapTheme_data()

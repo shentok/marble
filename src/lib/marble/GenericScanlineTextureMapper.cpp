@@ -156,7 +156,7 @@ void GenericScanlineTextureMapper::RenderJob::run()
     // Calculate north pole position to decrease pole distortion later on
     qreal northPoleX, northPoleY;
     bool globeHidesNorthPole;
-    GeoDataCoordinates northPole(0, m_viewport->currentProjection()->maxLat(), 0);
+    const GeoDataCoordinates northPole(GeoDataLongitude::null, m_viewport->currentProjection()->maxLat(), 0);
     m_viewport->screenCoordinates(northPole, northPoleX, northPoleY, globeHidesNorthPole );
 
     // initialize needed variables that are modified during texture mapping:
@@ -236,9 +236,9 @@ void GenericScanlineTextureMapper::RenderJob::run()
             else
                 interpolate = false;
 
-            qreal lon;
-            qreal lat;
-            m_viewport->geoCoordinates(x,y, lon, lat, GeoDataCoordinates::Radian);
+            GeoDataLongitude lon;
+            GeoDataLatitude lat;
+            m_viewport->geoCoordinates(x,y, lon, lat);
 
             if ( interpolate ) {
                 if ( highQuality )

@@ -491,9 +491,9 @@ void MarbleWidgetPopupMenu::Private::setupDialogSkyPlaces( PopupLayer *popup, co
 
     doc["name"] = index->name();
     doc["latitude"] = GeoDataCoordinates::latToString(
-                            location.latitude(), GeoDataCoordinates::Astro, GeoDataCoordinates::Radian, -1, 'f');
+                            location.latitude(), GeoDataCoordinates::Astro, -1, 'f');
     doc["longitude"] = GeoDataCoordinates::lonToString(
-                            location.longitude(), GeoDataCoordinates::Astro, GeoDataCoordinates::Radian, -1, 'f');
+                            location.longitude(), GeoDataCoordinates::Astro, -1, 'f');
     doc["shortDescription"] = filterEmptyShortDescription(index->description());
 
     popup->setContent(doc.finalText());
@@ -613,8 +613,9 @@ void MarbleWidgetPopupMenu::showLmbMenu( int xpos, int ypos )
 
 void MarbleWidgetPopupMenu::showRmbMenu( int xpos, int ypos )
 {
-    qreal lon, lat;
-    const bool visible = d->m_widget->geoCoordinates( xpos, ypos, lon, lat, GeoDataCoordinates::Radian );
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
+    const bool visible = d->m_widget->geoCoordinates(xpos, ypos, lon, lat);
     if ( !visible )
         return;
 
@@ -746,8 +747,8 @@ void MarbleWidgetPopupMenu::slotCopyCoordinates()
 {
     const GeoDataCoordinates coordinates = d->mouseCoordinates( d->m_copyCoordinateAction );
     if ( coordinates.isValid() ) {
-	const qreal longitude_degrees = coordinates.longitude(GeoDataCoordinates::Degree);
-	const qreal latitude_degrees = coordinates.latitude(GeoDataCoordinates::Degree);
+        const qreal longitude_degrees = coordinates.longitude().toDegree();
+        const qreal latitude_degrees = coordinates.latitude().toDegree();
 
 	// importing this representation into Marble does not show anything,
 	// but Merkaartor shows the point
@@ -852,9 +853,10 @@ GeoDataCoordinates MarbleWidgetPopupMenu::Private::mouseCoordinates( QAction* da
         return placemark->coordinate( m_model->clock()->dateTime() );
     } else {
         QPoint p = dataContainer->data().toPoint();
-        qreal lat( 0.0 ), lon( 0.0 );
+        GeoDataLatitude lat = GeoDataLatitude::null;
+        GeoDataLongitude lon = GeoDataLongitude::null;
 
-        const bool valid = m_widget->geoCoordinates( p.x(), p.y(), lon, lat, GeoDataCoordinates::Radian );
+        const bool valid = m_widget->geoCoordinates(p.x(), p.y(), lon, lat);
         if ( valid ) {
             return GeoDataCoordinates( lon, lat );
         }

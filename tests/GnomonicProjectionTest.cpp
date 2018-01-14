@@ -32,8 +32,8 @@ void GnomonicProjectionTest::screenCoordinatesOfCenter_data()
     QTest::addColumn<QPoint>( "screenCoordinates" );
     QTest::addColumn<GeoDataCoordinates>( "expected" );
 
-    addRow() << QPoint( 5, 15 ) << GeoDataCoordinates( -45, 72.5536, 0, GeoDataCoordinates::Degree );
-    addRow() << QPoint( 15, 5 ) << GeoDataCoordinates( 135, 72.5536, 0, GeoDataCoordinates::Degree );
+    addRow() << QPoint( 5, 15 ) << GeoDataCoordinates(-GeoDataLongitude::fromDegrees(45), GeoDataLatitude::fromDegrees(72.5536));
+    addRow() << QPoint( 15, 5 ) << GeoDataCoordinates(GeoDataLongitude::fromDegrees(135), GeoDataLatitude::fromDegrees(72.5536));
 }
 
 void GnomonicProjectionTest::screenCoordinatesOfCenter()
@@ -45,15 +45,16 @@ void GnomonicProjectionTest::screenCoordinatesOfCenter()
     viewport.setProjection( Gnomonic );
     viewport.setRadius( 180 / 4 ); // for easy mapping of lon <-> x
     viewport.setSize( QSize( 20, 20 ) );
-    viewport.centerOn( 0 * DEG2RAD, 90 * DEG2RAD );
+    viewport.centerOn(GeoDataLongitude::null, GeoDataLatitude::null);
 
     {
-        qreal lon, lat;
-        const bool retval = viewport.geoCoordinates( screenCoordinates.x(), screenCoordinates.y(), lon, lat, GeoDataCoordinates::Degree );
+        GeoDataLongitude lon;
+        GeoDataLatitude lat;
+        const bool retval = viewport.geoCoordinates(screenCoordinates.x(), screenCoordinates.y(), lon, lat);
 
         QVERIFY( retval ); // we want valid coordinates
-        QCOMPARE( lon, expected.longitude( GeoDataCoordinates::Degree ) );
-        QFUZZYCOMPARE( lat, expected.latitude( GeoDataCoordinates::Degree ), 0.0001 );
+        QCOMPARE(lon, expected.longitude());
+        QFUZZYCOMPARE(lat, expected.latitude(), GeoDataLatitude::fromDegrees(0.0001));
     }
 }
 

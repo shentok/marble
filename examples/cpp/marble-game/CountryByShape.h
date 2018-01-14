@@ -31,7 +31,7 @@ public:
 
 Q_SIGNALS:
     void gameInitialized();
-    void announceHighlight(qreal, qreal, GeoDataCoordinates::Unit );
+    void announceHighlight(GeoDataLongitude, GeoDataLatitude);
 
 public Q_SLOTS:
     void postQuestion( QObject *gameObject );

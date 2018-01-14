@@ -22,7 +22,11 @@
 
 #include <QWidget>
 
+#include "GeoDataAngle.h"
 #include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include "MarbleGlobal.h"             // types needed in all of marble.
 #include "marble_export.h"
 
@@ -111,8 +115,8 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
     Q_PROPERTY(QString mapThemeId  READ mapThemeId    WRITE setMapThemeId)
     Q_PROPERTY(int projection    READ projection      WRITE setProjection)
 
-    Q_PROPERTY(qreal longitude  READ centerLongitude WRITE setCenterLongitude)
-    Q_PROPERTY(qreal latitude   READ centerLatitude  WRITE setCenterLatitude)
+    Q_PROPERTY(GeoDataLongitude longitude  READ centerLongitude WRITE setCenterLongitude)
+    Q_PROPERTY(GeoDataLatitude latitude   READ centerLatitude  WRITE setCenterLatitude)
 
     Q_PROPERTY(bool showOverviewMap READ showOverviewMap    WRITE setShowOverviewMap)
     Q_PROPERTY(bool showScaleBar READ showScaleBar    WRITE setShowScaleBar)
@@ -329,8 +333,7 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
      * @return @c true  if the geographical coordinates are visible on the screen
      *         @c false if the geographical coordinates are not visible on the screen
      */
-    bool screenCoordinates( qreal lon, qreal lat,
-                            qreal& x, qreal& y ) const;
+    bool screenCoordinates(GeoDataLongitude lon, GeoDataLatitude lat, qreal &x, qreal &y) const;
 
     /**
      * @brief Get the earth coordinates corresponding to a pixel in the widget.
@@ -342,23 +345,21 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
      * @return @c true  if the pixel (x, y) is within the globe
      *         @c false if the pixel (x, y) is outside the globe, i.e. in space.
      */
-    bool geoCoordinates( int x, int y,
-                         qreal& lon, qreal& lat,
-                         GeoDataCoordinates::Unit = GeoDataCoordinates::Degree ) const;
+    bool geoCoordinates(int x, int y, GeoDataLongitude &lon, GeoDataLatitude &lat) const;
 
     /**
      * @brief Return the longitude of the center point.
      * @return The longitude of the center point in degree.
      */
-    qreal centerLongitude() const;
+    GeoDataLongitude centerLongitude() const;
 
     /**
      * @brief Return the latitude of the center point.
      * @return The latitude of the center point in degree.
      */
-    qreal centerLatitude() const;
+    GeoDataLatitude centerLatitude() const;
 
-    qreal heading() const;
+    GeoDataAngle heading() const;
 
     /**
      * @brief  Return how much the map will move if one of the move slots are called.
@@ -683,7 +684,7 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
      *              +180(W) - -180(E)
      * @param  animated whether to use animation
      */
-    void centerOn( const qreal lon, const qreal lat, bool animated = false );
+    void centerOn(const GeoDataLongitude lon, const GeoDataLatitude lat, bool animated = false );
 
     /**
      * @brief  Center the view on a point
@@ -722,16 +723,16 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
      * @param  lat  the new value for the latitude in degree.
      * @param  mode the FlyToMode that will be used.
      */
-    void setCenterLatitude( qreal lat, FlyToMode mode = Instant );
+    void setCenterLatitude(GeoDataLatitude lat, FlyToMode mode = Instant);
 
     /**
      * @brief  Set the longitude for the center point
      * @param  lon  the new value for the longitude in degree.
      * @param  mode the FlyToMode that will be used.
      */
-    void setCenterLongitude( qreal lon, FlyToMode mode = Instant );
+    void setCenterLongitude(GeoDataLongitude lon, FlyToMode mode = Instant);
 
-    void setHeading( qreal heading );
+    void setHeading(GeoDataAngle heading);
 
     /**
      * @brief  Move left by the moveStep.
@@ -1092,7 +1093,7 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
 
     void mouseMoveGeoPosition( const QString& );
 
-    void mouseClickGeoPosition( qreal lon, qreal lat, GeoDataCoordinates::Unit );
+    void mouseClickGeoPosition(GeoDataLongitude lon, GeoDataLatitude lat);
 
     void framesPerSecond( qreal fps );
 
@@ -1127,7 +1128,7 @@ class MARBLE_EXPORT MarbleWidget : public QWidget
 
     void renderStateChanged( const RenderState &state );
 
-    void highlightedPlacemarksChanged( qreal lon, qreal lat, GeoDataCoordinates::Unit unit );
+    void highlightedPlacemarksChanged(GeoDataLongitude lon, GeoDataLatitude lat);
 
  protected:
     /**

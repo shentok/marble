@@ -104,9 +104,9 @@ GeoDataLineString GosmoreRunnerPrivate::parseGosmoreOutput( const QByteArray &co
     for( const QString &line: lines ) {
         const QStringList fields = line.split(QLatin1Char(','));
         if (fields.size() >= 5) {
-            qreal lon = fields.at(1).toDouble();
-            qreal lat = fields.at(0).toDouble();
-            GeoDataCoordinates coordinates( lon, lat, 0.0, GeoDataCoordinates::Degree );
+            const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(fields.at(1).toDouble());
+            const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(fields.at(0).toDouble());
+            GeoDataCoordinates coordinates(lon, lat);
             routeWaypoints.append( coordinates );
         }
     }
@@ -151,7 +151,7 @@ QVector<GeoDataPlacemark*> GosmoreRunnerPrivate::parseGosmoreInstructions( const
         QVector<RoutingWaypoint> items = directions[i].points();
         for (int j=0; j<items.size(); ++j ) {
             RoutingPoint point = items[j].point();
-            GeoDataCoordinates coordinates( point.lon(), point.lat(), 0.0, GeoDataCoordinates::Degree );
+            const GeoDataCoordinates coordinates(point.lon(), point.lat(), 0.0);
             geometry->append( coordinates );
         }
         placemark->setGeometry( geometry );
@@ -219,12 +219,12 @@ void GosmoreRunner::retrieveRoute( const RouteRequest *route )
     {
         QString queryString = "flat=%1&flon=%2&tlat=%3&tlon=%4&fastest=1&v=motorcar";
         GeoDataCoordinates source = route->at(i);
-        double fLon = source.longitude( GeoDataCoordinates::Degree );
-        double fLat = source.latitude( GeoDataCoordinates::Degree );
+        const double fLon = source.longitude().toDegree();
+        const double fLat = source.latitude().toDegree();
         queryString = queryString.arg(fLat, 0, 'f', 8).arg(fLon, 0, 'f', 8);
         GeoDataCoordinates destination = route->at(i+1);
-        double tLon = destination.longitude( GeoDataCoordinates::Degree );
-        double tLat = destination.latitude( GeoDataCoordinates::Degree );
+        const double tLon = destination.longitude().toDegree();
+        const double tLat = destination.latitude().toDegree();
         queryString = queryString.arg(tLat, 0, 'f', 8).arg(tLon, 0, 'f', 8);
 
         QByteArray output;

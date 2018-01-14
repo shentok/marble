@@ -37,10 +37,10 @@ const qreal GeoDataCoordinatesPrivate::sm_eccentricitySquared = 6.69437999013e-0
 const qreal GeoDataCoordinatesPrivate::sm_utmScaleFactor = 0.9996;
 GeoDataCoordinates::Notation GeoDataCoordinates::s_notation = GeoDataCoordinates::DMS;
 
-const GeoDataCoordinates GeoDataCoordinates::null = GeoDataCoordinates( 0, 0, 0 ); // don't use default constructor!
+const GeoDataCoordinates GeoDataCoordinates::null = GeoDataCoordinates(GeoDataLongitude::null, GeoDataLatitude::null, 0 ); // don't use default constructor!
 
-GeoDataCoordinates::GeoDataCoordinates( qreal _lon, qreal _lat, qreal _alt, GeoDataCoordinates::Unit unit, int _detail )
-  : d( new GeoDataCoordinatesPrivate( _lon, _lat, _alt, unit, _detail ) )
+GeoDataCoordinates::GeoDataCoordinates(GeoDataLongitude lon, GeoDataLatitude lat, qreal alt, int detail) :
+    d(new GeoDataCoordinatesPrivate(lon, lat, alt, detail))
 {
     d->ref.ref();
 }
@@ -113,124 +113,51 @@ void GeoDataCoordinates::detach()
 /*
  * call detach() at the start of all non-static, non-const functions
  */
-void GeoDataCoordinates::set( qreal _lon, qreal _lat, qreal _alt, GeoDataCoordinates::Unit unit )
+void GeoDataCoordinates::set(GeoDataLongitude lon, GeoDataLatitude lat, qreal alt)
 {
     detach();
-    d->m_altitude = _alt;
-    switch( unit ){
-    default:
-    case Radian:
-        d->m_lon = _lon;
-        d->m_lat = _lat;
-        break;
-    case Degree:
-        d->m_lon = _lon * DEG2RAD;
-        d->m_lat = _lat * DEG2RAD;
-        break;
-    }
+    d->m_altitude = alt;
+    d->m_lon = lon;
+    d->m_lat = lat;
 }
 
 /*
  * call detach() at the start of all non-static, non-const functions
  */
-void GeoDataCoordinates::setLongitude( qreal _lon, GeoDataCoordinates::Unit unit )
+void GeoDataCoordinates::setLongitude(GeoDataLongitude lon)
 {
     detach();
-    switch( unit ){
-    default:
-    case Radian:
-        d->m_lon = _lon;
-        break;
-    case Degree:
-        d->m_lon = _lon * DEG2RAD;
-        break;
-    }
+    d->m_lon = lon;
 }
 
 
 /*
  * call detach() at the start of all non-static, non-const functions
  */
-void GeoDataCoordinates::setLatitude( qreal _lat, GeoDataCoordinates::Unit unit )
+void GeoDataCoordinates::setLatitude(GeoDataLatitude lat)
 {
     detach();
-    switch( unit ){
-    case Radian:
-        d->m_lat = _lat;
-        break;
-    case Degree:
-        d->m_lat = _lat * DEG2RAD;
-        break;
-    }
+    d->m_lat = lat;
 }
 
-void GeoDataCoordinates::geoCoordinates( qreal& lon, qreal& lat, 
-                               GeoDataCoordinates::Unit unit ) const
-{
-    switch ( unit ) 
-    {
-    default:
-    case Radian:
-            lon = d->m_lon;
-            lat = d->m_lat;
-        break;
-    case Degree:
-            lon = d->m_lon * RAD2DEG;
-            lat = d->m_lat * RAD2DEG;
-        break;
-    }
-}
-
-void GeoDataCoordinates::geoCoordinates(qreal &lon, qreal &lat) const
+void GeoDataCoordinates::geoCoordinates(GeoDataLongitude &lon, GeoDataLatitude &lat) const
 {
     lon = d->m_lon;
     lat = d->m_lat;
 }
 
-void GeoDataCoordinates::geoCoordinates( qreal& lon, qreal& lat, qreal& alt,
-                                         GeoDataCoordinates::Unit unit ) const
+void GeoDataCoordinates::geoCoordinates(GeoDataLongitude &lon, GeoDataLatitude &lat, qreal &alt) const
 {
-    geoCoordinates( lon, lat, unit );
+    geoCoordinates(lon, lat);
     alt = d->m_altitude;
 }
 
-void GeoDataCoordinates::geoCoordinates(qreal &lon, qreal &lat, qreal &alt) const
-{
-    lon = d->m_lon;
-    lat = d->m_lat;
-    alt = d->m_altitude;
-}
-
-qreal GeoDataCoordinates::longitude( GeoDataCoordinates::Unit unit ) const
-{
-    switch ( unit )
-    {
-    default:
-    case Radian:
-        return d->m_lon;
-    case Degree:
-        return d->m_lon * RAD2DEG;
-    }
-}
-
-qreal GeoDataCoordinates::longitude() const
+GeoDataLongitude GeoDataCoordinates::longitude() const
 {
     return d->m_lon;
 }
 
-qreal GeoDataCoordinates::latitude( GeoDataCoordinates::Unit unit ) const
-{
-    switch ( unit )
-    {
-    default:
-    case Radian:
-        return d->m_lat;
-    case Degree:
-        return d->m_lat * RAD2DEG;
-    }
-}
-
-qreal GeoDataCoordinates::latitude() const
+GeoDataLatitude GeoDataCoordinates::latitude() const
 {
     return d->m_lat;
 }
@@ -248,20 +175,15 @@ void GeoDataCoordinates::setDefaultNotation( GeoDataCoordinates::Notation notati
 }
 
 //static
-qreal GeoDataCoordinates::normalizeLon( qreal lon, GeoDataCoordinates::Unit unit )
+GeoDataLongitude GeoDataCoordinates::normalizeLon(GeoDataLongitude lon)
 {
-    qreal halfCircle;
-    if ( unit == GeoDataCoordinates::Radian ) {
-        halfCircle = M_PI;
-    }
-    else {
-        halfCircle = 180;
-    }
+    const GeoDataLongitude halfCircle = GeoDataLongitude::halfCircle;
 
     if ( lon > halfCircle ) {
         int cycles = (int)( ( lon + halfCircle ) / ( 2 * halfCircle ) );
         return lon - ( cycles * 2 * halfCircle );
-    } 
+    }
+
     if ( lon < -halfCircle ) {
         int cycles = (int)( ( lon - halfCircle ) / ( 2 * halfCircle ) );
         return lon - ( cycles * 2 * halfCircle );
@@ -271,114 +193,58 @@ qreal GeoDataCoordinates::normalizeLon( qreal lon, GeoDataCoordinates::Unit unit
 }
 
 //static
-qreal GeoDataCoordinates::normalizeLat( qreal lat, GeoDataCoordinates::Unit unit )
+GeoDataLatitude GeoDataCoordinates::normalizeLat(GeoDataLatitude lat)
 {
-    qreal halfCircle;
-    if ( unit == GeoDataCoordinates::Radian ) {
-        halfCircle = M_PI;
-    }
-    else {
-        halfCircle = 180;
-    }
+    const GeoDataLatitude halfCircle = 2 * GeoDataLatitude::quaterCircle;
 
     if ( lat > ( halfCircle / 2.0 ) ) {
         int cycles = (int)( ( lat + halfCircle ) / ( 2 * halfCircle ) );
-        qreal temp;
-        if( cycles == 0 ) { // pi/2 < lat < pi
+        GeoDataLatitude temp;
+        if (cycles == 0) { // pi/2 < lat < pi
             temp = halfCircle - lat;
         } else {
             temp = lat - ( cycles * 2 * halfCircle );
         }
+
         if ( temp > ( halfCircle / 2.0 ) ) {
             return ( halfCircle - temp );
         }
+
         if ( temp < ( -halfCircle / 2.0 ) ) {
             return ( -halfCircle - temp );
         }
+
         return temp;
-    } 
+    }
+
     if ( lat < ( -halfCircle / 2.0 ) ) {
         int cycles = (int)( ( lat - halfCircle ) / ( 2 * halfCircle ) );
-        qreal temp;
+        GeoDataLatitude temp;
         if( cycles == 0 ) { 
             temp = -halfCircle - lat;
         } else {
             temp = lat - ( cycles * 2 * halfCircle );
         }
+
         if ( temp > ( +halfCircle / 2.0 ) ) {
             return ( +halfCircle - temp );
         }
+
         if ( temp < ( -halfCircle / 2.0 ) ) {
             return ( -halfCircle - temp );
         }
+
         return temp;
     }
+
     return lat;
 }
 
 //static
-void GeoDataCoordinates::normalizeLonLat( qreal &lon, qreal &lat, GeoDataCoordinates::Unit unit )
+void GeoDataCoordinates::normalizeLonLat(GeoDataLongitude &lon, GeoDataLatitude &lat)
 {
-    qreal halfCircle;
-    if ( unit == GeoDataCoordinates::Radian ) {
-        halfCircle = M_PI;
-    }
-    else {
-        halfCircle = 180;
-    }
-
-    if ( lon > +halfCircle ) {
-        int cycles = (int)( ( lon + halfCircle ) / ( 2 * halfCircle ) );
-        lon = lon - ( cycles * 2 * halfCircle );
-    } 
-    if ( lon < -halfCircle ) {
-        int cycles = (int)( ( lon - halfCircle ) / ( 2 * halfCircle ) );
-        lon = lon - ( cycles * 2 * halfCircle );
-    }
-
-    if ( lat > ( +halfCircle / 2.0 ) ) {
-        int cycles = (int)( ( lat + halfCircle ) / ( 2 * halfCircle ) );
-        qreal temp;
-        if( cycles == 0 ) { // pi/2 < lat < pi
-            temp = halfCircle - lat;
-        } else {
-            temp = lat - ( cycles * 2 * halfCircle );
-        }
-        if ( temp > ( +halfCircle / 2.0 ) ) {
-            lat =  +halfCircle - temp;
-        }
-        if ( temp < ( -halfCircle / 2.0 ) ) {
-            lat =  -halfCircle - temp;
-        }
-        lat = temp;
-        if( lon > 0 ) { 
-            lon = -halfCircle + lon;
-        } else {
-            lon = halfCircle + lon;
-        }
-    } 
-    if ( lat < ( -halfCircle / 2.0 ) ) {
-        int cycles = (int)( ( lat - halfCircle ) / ( 2 * halfCircle ) );
-        qreal temp;
-        if( cycles == 0 ) { 
-            temp = -halfCircle - lat;
-        } else {
-            temp = lat - ( cycles * 2 * halfCircle );
-        }
-        if ( temp > ( +halfCircle / 2.0 ) ) {
-            lat =  +halfCircle - temp;
-        }
-        if ( temp < ( -halfCircle / 2.0 ) ) {
-            lat =  -halfCircle - temp;
-        }
-        lat = temp;
-        if( lon > 0 ) { 
-            lon = -halfCircle + lon;
-        } else {
-            lon = halfCircle + lon;
-        }
-    } 
-    return;
+    lon = normalizeLon(lon);
+    lat = normalizeLat(lat);
 }
 
 GeoDataCoordinates GeoDataCoordinates::fromString( const QString& string, bool& successful )
@@ -386,7 +252,7 @@ GeoDataCoordinates GeoDataCoordinates::fromString( const QString& string, bool& 
     LonLatParser parser;
     successful = parser.parse(string);
     if (successful) {
-        return GeoDataCoordinates( parser.lon(), parser.lat(), 0, GeoDataCoordinates::Degree );
+        return GeoDataCoordinates(parser.lon(), parser.lat(), 0);
     } else {
         return GeoDataCoordinates();
     }
@@ -416,16 +282,15 @@ QString GeoDataCoordinates::toString( GeoDataCoordinates::Notation notation, int
             return QString("%1%2 %3 m E, %4 m N").arg(zoneString, bandString, eastingString, northingString);
         }
         else{
-            coordString = lonToString( d->m_lon, notation, Radian, precision )
+            coordString = lonToString( d->m_lon, notation, precision )
                         + QLatin1String(", ")
-                        + latToString( d->m_lat, notation, Radian, precision );
+                        + latToString( d->m_lat, notation, precision );
         }
 
         return coordString;
 }
 
-QString GeoDataCoordinates::lonToString( qreal lon, GeoDataCoordinates::Notation notation,  
-                                                    GeoDataCoordinates::Unit unit, 
+QString GeoDataCoordinates::lonToString(GeoDataLongitude lon, GeoDataCoordinates::Notation notation,
                                                     int precision,
                                                     char format )
 {
@@ -436,34 +301,30 @@ QString GeoDataCoordinates::lonToString( qreal lon, GeoDataCoordinates::Notation
          * (lon, equator), but this can differ a lot at different locations
          * See bug 347536 https://bugs.kde.org/show_bug.cgi?id=347536
          */
-
-        qreal lonRad = ( unit == Radian ) ? lon : lon * DEG2RAD;
-
-        int zoneNumber = GeoDataCoordinatesPrivate::lonLatToZone(lonRad, 0);
+        const int zoneNumber = GeoDataCoordinatesPrivate::lonLatToZone(lon, GeoDataLatitude::null);
 
         // Handle lack of UTM zone number in the poles
         QString result = (zoneNumber > 0) ? QString::number(zoneNumber) : QString();
 
         if(precision > 0){
-            QString eastingString = QString::number( GeoDataCoordinatesPrivate::lonLatToEasting(lonRad, 0), 'f', 2 );
+            const QString eastingString = QString::number(GeoDataCoordinatesPrivate::lonLatToEasting(lon, GeoDataLatitude::null), 'f', 2);
             result += QString(" %1 m E").arg(eastingString);
         }
 
         return result;
     }
 
-    QString weString = ( lon < 0 ) ? tr("W") : tr("E");
+    const QString weString = (lon < GeoDataLongitude::null) ? tr("W") : tr("E");
 
     QString lonString;
-
-    qreal lonDegF = ( unit == Degree ) ? fabs( lon ) : fabs( (qreal)(lon) * RAD2DEG );
 
     // Take care of -1 case
     precision = ( precision < 0 ) ? 5 : precision;
     
     if ( notation == DMS || notation == DM ) {
+        qreal lonDegF = qAbs(lon.toDegree());
         int lonDeg = (int) lonDegF;
-        qreal lonMinF = 60 * (lonDegF - lonDeg);
+        qreal lonMinF = 60 * (lonDegF - lon.toDegree());
         int lonMin = (int) lonMinF;
         qreal lonSecF = 60 * (lonMinF - lonMin);
         int lonSec = (int) lonSecF;
@@ -523,15 +384,15 @@ QString GeoDataCoordinates::lonToString( qreal lon, GeoDataCoordinates::Notation
     }
     else if ( notation == GeoDataCoordinates::Decimal )
     {
-        lonString = QString::fromUtf8("%L1\xc2\xb0").arg(lonDegF, 4 + precision, format, precision, QLatin1Char(' '));
+        lonString = QString::fromUtf8("%L1\xc2\xb0").arg(qAbs(lon).toDegree(), 4 + precision, format, precision, QLatin1Char(' '));
     }
     else if ( notation == GeoDataCoordinates::Astro )
     {
-        if (lon < 0) {
-            lon += ( unit == Degree ) ? 360 : 2 * M_PI;
+        if (lon < GeoDataLongitude::null) {
+            lon += 2 * GeoDataLongitude::halfCircle;
         }
 
-        qreal lonHourF = ( unit == Degree ) ? fabs( lon/15.0  ) : fabs( (qreal)(lon/15.0) * RAD2DEG );
+        qreal lonHourF = qAbs(lon).toDegree() / 15.0;
         int lonHour = (int) lonHourF;
         qreal lonMinF = 60 * (lonHourF - lonHour);
         int lonMin = (int) lonMinF;
@@ -589,8 +450,7 @@ QString GeoDataCoordinates::lonToString() const
     return GeoDataCoordinates::lonToString( d->m_lon , s_notation );
 }
 
-QString GeoDataCoordinates::latToString( qreal lat, GeoDataCoordinates::Notation notation,
-                                                    GeoDataCoordinates::Unit unit,
+QString GeoDataCoordinates::latToString(GeoDataLatitude lat, GeoDataCoordinates::Notation notation,
                                                     int precision,
                                                     char format )
 {
@@ -602,12 +462,10 @@ QString GeoDataCoordinates::latToString( qreal lat, GeoDataCoordinates::Notation
          * See bug 347536 https://bugs.kde.org/show_bug.cgi?id=347536
          */
 
-        qreal latRad = ( unit == Radian ) ? lat : lat * DEG2RAD;
-
-        QString result = GeoDataCoordinatesPrivate::lonLatToLatitudeBand(0, latRad);
+        QString result = GeoDataCoordinatesPrivate::lonLatToLatitudeBand(GeoDataLongitude::null, lat);
 
         if ( precision > 0 ){
-            QString northingString = QString::number( GeoDataCoordinatesPrivate::lonLatToNorthing(0, latRad), 'f', 2 );
+            const QString northingString = QString::number( GeoDataCoordinatesPrivate::lonLatToNorthing(GeoDataLongitude::null, lat), 'f', 2 );
             result += QString(" %1 m N").arg(northingString);
         }
 
@@ -617,21 +475,20 @@ QString GeoDataCoordinates::latToString( qreal lat, GeoDataCoordinates::Notation
     QString pmString;
     QString nsString;
 
-    if (notation == GeoDataCoordinates::Astro){
-        pmString = ( lat > 0 ) ? "+" : "-";
+    if ( notation == GeoDataCoordinates::Astro ) {
+        pmString = (lat > GeoDataLatitude::null) ? "+" : "-";
     }
     else {
-        nsString = ( lat > 0 ) ? tr("N") : tr("S");
+        nsString = (lat > GeoDataLatitude::null) ? tr("N") : tr("S");
     }
 
     QString latString;
-
-    qreal latDegF = ( unit == Degree ) ? fabs( lat ) : fabs( (qreal)(lat) * RAD2DEG );
 
     // Take care of -1 case
     precision = ( precision < 0 ) ? 5 : precision;
     
     if ( notation == DMS || notation == DM || notation == Astro) {
+        qreal latDegF = qAbs(lat).toDegree();
         int latDeg = (int) latDegF;
         qreal latMinF = 60 * (latDegF - latDeg);
         int latMin = (int) latMinF;
@@ -695,7 +552,7 @@ QString GeoDataCoordinates::latToString( qreal lat, GeoDataCoordinates::Notation
     }
     else // notation = GeoDataCoordinates::Decimal
     {
-        latString = QString::fromUtf8("%L1\xc2\xb0").arg(latDegF, 4 + precision, format, precision, QLatin1Char(' '));
+        latString = QString::fromUtf8("%L1\xc2\xb0").arg(qAbs(lat).toDegree(), 4 + precision, format, precision, QLatin1Char(' '));
     }
     return pmString + latString + nsString;
 }
@@ -753,10 +610,10 @@ void GeoDataCoordinates::setDetail(quint8 detail)
     d->m_detail = detail;
 }
 
-GeoDataCoordinates GeoDataCoordinates::rotateAround( const GeoDataCoordinates &axis, qreal angle, Unit unit ) const
+GeoDataCoordinates GeoDataCoordinates::rotateAround(const GeoDataCoordinates &axis, GeoDataAngle angle) const
 {
-    const Quaternion quatAxis = Quaternion::fromEuler( -axis.latitude() , axis.longitude(), 0 );
-    const Quaternion rotationAmount = Quaternion::fromEuler( 0, 0, unit == Radian ? angle : angle * DEG2RAD );
+    const Quaternion quatAxis = Quaternion::fromEuler(-axis.latitude().toRadian(), axis.longitude().toRadian(), 0);
+    const Quaternion rotationAmount = Quaternion::fromEuler(0, 0, angle.toRadian());
     const Quaternion resultAxis = quatAxis * rotationAmount * quatAxis.inverse();
 
     return rotateAround(resultAxis);
@@ -766,30 +623,35 @@ GeoDataCoordinates GeoDataCoordinates::rotateAround(const Quaternion &rotAxis) c
 {
     Quaternion rotatedQuat = quaternion();
     rotatedQuat.rotateAroundAxis(rotAxis);
+
     qreal rotatedLon, rotatedLat;
     rotatedQuat.getSpherical(rotatedLon, rotatedLat);
-    return GeoDataCoordinates(rotatedLon, rotatedLat, altitude());
+
+    return GeoDataCoordinates(GeoDataLongitude::fromRadians(rotatedLon), GeoDataLatitude::fromRadians(rotatedLat), d->m_altitude);
 }
 
-qreal GeoDataCoordinates::bearing( const GeoDataCoordinates &other, Unit unit, BearingType type ) const
+GeoDataAngle GeoDataCoordinates::bearing(const GeoDataCoordinates &other, BearingType type) const
 {
     if ( type == FinalBearing ) {
-        double const offset = unit == Degree ? 180.0 : M_PI;
-        return offset + other.bearing( *this, unit, InitialBearing );
+        const GeoDataAngle offset = GeoDataAngle::fromRadians(M_PI);
+        return offset + other.bearing(*this, InitialBearing);
     }
 
-    qreal const delta = other.d->m_lon - d->m_lon;
-    double const bearing = atan2( sin ( delta ) * cos ( other.d->m_lat ),
-                 cos( d->m_lat ) * sin( other.d->m_lat ) - sin( d->m_lat ) * cos( other.d->m_lat ) * cos ( delta ) );
-    return unit == Radian ? bearing : bearing * RAD2DEG;
+    const GeoDataLongitude delta = other.d->m_lon - d->m_lon;
+    const double bearing =
+            atan2(sin(delta.toRadian()) * cos(other.d->m_lat.toRadian()),
+                  cos(d->m_lat.toRadian()) * sin(other.d->m_lat.toRadian()) - sin(d->m_lat.toRadian()) * cos(other.d->m_lat.toRadian()) * cos(delta.toRadian()));
+    return GeoDataAngle::fromRadians(bearing);
 }
 
-GeoDataCoordinates GeoDataCoordinates::moveByBearing( qreal bearing, qreal distance ) const
+GeoDataCoordinates GeoDataCoordinates::moveByBearing(GeoDataAngle bearing, qreal distance) const
 {
-    qreal newLat = asin( sin(d->m_lat) * cos(distance) +
-                         cos(d->m_lat) * sin(distance) * cos(bearing) );
-    qreal newLon = d->m_lon + atan2( sin(bearing) * sin(distance) * cos(d->m_lat),
-                                     cos(distance) - sin(d->m_lat) * sin(newLat) );
+    const GeoDataLatitude newLat = GeoDataLatitude::fromRadians(
+                asin(sin(d->m_lat.toRadian()) * cos(distance) +
+                     cos(d->m_lat.toRadian()) * sin(distance) * cos(bearing.toRadian())));
+    const GeoDataLongitude newLon = d->m_lon + GeoDataLongitude::fromRadians(
+                atan2(sin(bearing.toRadian()) * sin(distance) * cos(d->m_lat.toRadian()),
+                      cos(distance) - sin(d->m_lat.toRadian()) * sin(newLat.toRadian())));
 
     return GeoDataCoordinates( newLon, newLat );
 }
@@ -797,7 +659,7 @@ GeoDataCoordinates GeoDataCoordinates::moveByBearing( qreal bearing, qreal dista
 const Quaternion& GeoDataCoordinates::quaternion() const
 {
     if (d->m_q == nullptr) {
-        d->m_q = new Quaternion(Quaternion::fromSpherical( d->m_lon , d->m_lat ));
+        d->m_q = new Quaternion(Quaternion::fromSpherical(d->m_lon.toRadian(), d->m_lat.toRadian()));
     }
     return *d->m_q;
 }
@@ -809,7 +671,7 @@ GeoDataCoordinates GeoDataCoordinates::interpolate( const GeoDataCoordinates &ta
     qreal lon, lat;
     quat.getSpherical( lon, lat );
     double const alt = (1.0-t) * d->m_altitude + t * target.d->m_altitude;
-    return GeoDataCoordinates( lon, lat, alt );
+    return GeoDataCoordinates(GeoDataLongitude::fromRadians(lon), GeoDataLatitude::fromRadians(lat), alt);
 }
 
 GeoDataCoordinates GeoDataCoordinates::nlerp(const GeoDataCoordinates &target, double t) const
@@ -822,7 +684,7 @@ GeoDataCoordinates GeoDataCoordinates::nlerp(const GeoDataCoordinates &target, d
 
     const qreal altitude = 0.5 * (d->m_altitude + target.altitude());
 
-    return GeoDataCoordinates(lon, lat, altitude);
+    return GeoDataCoordinates(GeoDataLongitude::fromRadians(lon), GeoDataLatitude::fromRadians(lat), altitude);
 }
 
 GeoDataCoordinates GeoDataCoordinates::interpolate( const GeoDataCoordinates &before, const GeoDataCoordinates &target, const GeoDataCoordinates &after, double t_ ) const
@@ -837,7 +699,7 @@ GeoDataCoordinates GeoDataCoordinates::interpolate( const GeoDataCoordinates &be
     c.getSpherical( lon, lat );
     // @todo spline interpolation of altitude?
     double const alt = (1.0-t) * d->m_altitude + t * target.d->m_altitude;
-    return GeoDataCoordinates( lon, lat, alt );
+    return GeoDataCoordinates(GeoDataLongitude::fromRadians(lon), GeoDataLatitude::fromRadians(lat), alt);
 }
 
 bool GeoDataCoordinates::isPole( Pole pole ) const
@@ -845,20 +707,20 @@ bool GeoDataCoordinates::isPole( Pole pole ) const
     // Evaluate the most likely case first:
     // The case where we haven't hit the pole and where our latitude is normalized
     // to the range of 90 deg S ... 90 deg N
-    if ( fabs( (qreal) 2.0 * d->m_lat ) < M_PI ) {
+    if (qAbs(d->m_lat) < GeoDataLatitude::quaterCircle) {
         return false;
     }
     else {
-        if ( fabs( (qreal) 2.0 * d->m_lat ) == M_PI ) {
+        if (qAbs(d->m_lat) == GeoDataLatitude::quaterCircle) {
             // Ok, we have hit a pole. Now let's check whether it's the one we've asked for:
             if ( pole == AnyPole ){
                 return true;
             }
             else {
-                if ( pole == NorthPole && 2.0 * d->m_lat == +M_PI ) {
+                if (pole == NorthPole && d->m_lat == +GeoDataLatitude::quaterCircle) {
                     return true;
                 }
-                if ( pole == SouthPole && 2.0 * d->m_lat == -M_PI ) {
+                if (pole == SouthPole && d->m_lat == -GeoDataLatitude::quaterCircle) {
                     return true;
                 }
                 return false;
@@ -874,7 +736,7 @@ bool GeoDataCoordinates::isPole( Pole pole ) const
             // Only as a last resort we cover the unlikely case where
             // the latitude is not normalized to the range of 
             // 90 deg S ... 90 deg N
-            if ( fabs( (qreal) 2.0 * normalizeLat( d->m_lat ) ) < M_PI  ) {
+            if (qAbs(normalizeLat(d->m_lat)) < GeoDataLatitude::quaterCircle) {
                 return false;
             }
             else {
@@ -883,10 +745,10 @@ bool GeoDataCoordinates::isPole( Pole pole ) const
                     return true;
                 }
                 else {
-                    if ( pole == NorthPole && 2.0 * d->m_lat == +M_PI ) {
+                    if (pole == NorthPole && d->m_lat == +GeoDataLatitude::quaterCircle) {
                         return true;
                     }
-                    if ( pole == SouthPole && 2.0 * d->m_lat == -M_PI ) {
+                    if (pole == SouthPole && d->m_lat == -GeoDataLatitude::quaterCircle) {
                         return true;
                     }
                     return false;
@@ -898,7 +760,8 @@ bool GeoDataCoordinates::isPole( Pole pole ) const
 
 qreal GeoDataCoordinates::sphericalDistanceTo(const GeoDataCoordinates &other) const
 {
-    qreal lon2, lat2;
+    GeoDataLongitude lon2;
+    GeoDataLatitude lat2;
     other.geoCoordinates( lon2, lat2 );
 
     // FIXME: Take the altitude into account!
@@ -972,9 +835,9 @@ qreal GeoDataCoordinatesPrivate::arcLengthOfMeridian( qreal phi )
     return result;
 }
 
-qreal GeoDataCoordinatesPrivate::centralMeridianUTM( qreal zone )
+GeoDataLongitude GeoDataCoordinatesPrivate::centralMeridianUTM(qreal zone)
 {
-    return DEG2RAD*(-183.0 + (zone * 6.0));
+    return GeoDataLongitude::fromDegrees(-183.0 + (zone * 6.0));
 }
 
 qreal GeoDataCoordinatesPrivate::footpointLatitude( qreal northing )
@@ -1015,7 +878,7 @@ qreal GeoDataCoordinatesPrivate::footpointLatitude( qreal northing )
     return result;
 }
 
-QPointF GeoDataCoordinatesPrivate::mapLonLatToXY( qreal lambda, qreal phi, qreal lambda0 )
+QPointF GeoDataCoordinatesPrivate::mapLonLatToXY(GeoDataLongitude lambda, GeoDataLatitude phi, GeoDataLongitude lambda0)
 {
     // Equation (10.15)
 
@@ -1024,17 +887,17 @@ QPointF GeoDataCoordinatesPrivate::mapLonLatToXY( qreal lambda, qreal phi, qreal
                     / qPow(GeoDataCoordinatesPrivate::sm_semiMinorAxis, 2.0);
 
     // Precalculate the square of nu, just an auxilar quantity
-    const qreal nu2 = ep2 * qPow(qCos(phi), 2.0);
+    const qreal nu2 = ep2 * qPow(qCos(phi.toRadian()), 2.0);
 
     // Precalculate the radius of curvature in prime vertical
     const qreal N = qPow(GeoDataCoordinatesPrivate::sm_semiMajorAxis, 2.0) / (GeoDataCoordinatesPrivate::sm_semiMinorAxis * qSqrt(1 + nu2));
 
     // Precalculate the tangent of phi and its square
-    const qreal t = qTan(phi);
+    const qreal t = qTan(phi.toRadian());
     const qreal t2 = t * t;
 
     // Precalculate longitude difference
-    const qreal l = lambda - lambda0;
+    const GeoDataLongitude l = lambda - lambda0;
 
     /*
      * Precalculate coefficients for l**n in the equations below
@@ -1057,25 +920,26 @@ QPointF GeoDataCoordinatesPrivate::mapLonLatToXY( qreal lambda, qreal phi, qreal
     const qreal coef8 = 1385.0 - 3111.0 * t2 + 543.0 * (t2 * t2) - (t2 * t2 * t2);
 
     // Calculate easting (x)
-    const qreal easting = N * qCos(phi) * coef1 * l
-        + (N / 6.0 * qPow(qCos(phi), 3.0) * coef3 * qPow(l, 3.0))
-        + (N / 120.0 * qPow(qCos(phi), 5.0) * coef5 * qPow(l, 5.0))
-        + (N / 5040.0 * qPow(qCos(phi), 7.0) * coef7 * qPow(l, 7.0));
+    const qreal easting = N * qCos(phi.toRadian()) * coef1 * l.toRadian()
+        + (N / 6.0 * qPow(qCos(phi.toRadian()), 3.0) * coef3 * qPow(l.toRadian(), 3.0))
+        + (N / 120.0 * qPow(qCos(phi.toRadian()), 5.0) * coef5 * qPow(l.toRadian(), 5.0))
+        + (N / 5040.0 * qPow(qCos(phi.toRadian()), 7.0) * coef7 * qPow(l.toRadian(), 7.0));
 
     // Calculate northing (y)
-    const qreal northing = arcLengthOfMeridian (phi)
-        + (t / 2.0 * N * qPow(qCos(phi), 2.0) * coef2 * qPow(l, 2.0))
-        + (t / 24.0 * N * qPow(qCos(phi), 4.0) * coef4 * qPow(l, 4.0))
-        + (t / 720.0 * N * qPow(qCos(phi), 6.0) * coef6 * qPow(l, 6.0))
-        + (t / 40320.0 * N * qPow(qCos(phi), 8.0) * coef8 * qPow(l, 8.0));
+    const qreal northing = arcLengthOfMeridian (phi.toRadian())
+        + (t / 2.0 * N * qPow(qCos(phi.toRadian()), 2.0) * coef2 * qPow(l.toRadian(), 2.0))
+        + (t / 24.0 * N * qPow(qCos(phi.toRadian()), 4.0) * coef4 * qPow(l.toRadian(), 4.0))
+        + (t / 720.0 * N * qPow(qCos(phi.toRadian()), 6.0) * coef6 * qPow(l.toRadian(), 6.0))
+        + (t / 40320.0 * N * qPow(qCos(phi.toRadian()), 8.0) * coef8 * qPow(l.toRadian(), 8.0));
 
     return QPointF(easting, northing);
 }
 
-int GeoDataCoordinatesPrivate::lonLatToZone( qreal lon, qreal lat ){
+int GeoDataCoordinatesPrivate::lonLatToZone(GeoDataLongitude lon, GeoDataLatitude lat)
+{
     // Converts lon and lat to degrees
-    qreal lonDeg = lon * RAD2DEG;
-    qreal latDeg = lat * RAD2DEG;
+    qreal lonDeg = lon.toDegree();
+    qreal latDeg = lat.toDegree();
 
     /* Round the value of the longitude when the distance to the nearest integer
      * is less than 0.0000001. This avoids fuzzy values such as -114.0000000001, which
@@ -1124,12 +988,12 @@ int GeoDataCoordinatesPrivate::lonLatToZone( qreal lon, qreal lat ){
     return zoneNumber;
 }
 
-qreal GeoDataCoordinatesPrivate::lonLatToEasting( qreal lon, qreal lat ){
+qreal GeoDataCoordinatesPrivate::lonLatToEasting(GeoDataLongitude lon, GeoDataLatitude lat)
+{
     int zoneNumber = lonLatToZone( lon, lat );
 
     if ( zoneNumber == 0 ){
-        qreal lonDeg = lon * RAD2DEG;
-        zoneNumber = static_cast<int>( (lonDeg+180) / 6.0 ) + 1;
+        zoneNumber = static_cast<int>((lon.toDegree()+180) / 6.0) + 1;
     }
 
     QPointF coordinates = GeoDataCoordinatesPrivate::mapLonLatToXY( lon, lat, GeoDataCoordinatesPrivate::centralMeridianUTM(zoneNumber) );
@@ -1140,39 +1004,36 @@ qreal GeoDataCoordinatesPrivate::lonLatToEasting( qreal lon, qreal lat ){
     return easting;
 }
 
-QString GeoDataCoordinatesPrivate::lonLatToLatitudeBand( qreal lon, qreal lat ){
+QString GeoDataCoordinatesPrivate::lonLatToLatitudeBand(GeoDataLongitude lon, GeoDataLatitude lat)
+{
     // Obtains the latitude bands handling all the so called "exceptions"
-
-    // Converts lon and lat to degrees
-    qreal lonDeg = lon * RAD2DEG;
-    qreal latDeg = lat * RAD2DEG;
 
     // Regular latitude bands between 80 S and 80 N (that is, between 10 and 170 in the [0,180] interval)
     int bandLetterIndex = 24; //Avoids "may be used uninitialized" warning
 
-    if ( latDeg < -80 ) {
+    if (lat < GeoDataLatitude::fromDegrees(-80)) {
         // South pole (A for zones 1-30, B for zones 31-60)
-        bandLetterIndex = ( (lonDeg+180) < 6*31 ) ? 0 : 1;
-    } else if ( latDeg >= -80 && latDeg <= 80 ) {
+        bandLetterIndex = (lon < GeoDataLongitude::fromDegrees(6*31) - GeoDataLongitude::halfCircle) ? 0 : 1;
+    } else if (lat >= GeoDataLatitude::fromDegrees(-80) && lat <= GeoDataLatitude::fromDegrees(80)) {
         // General (+2 because the general lettering starts in C)
-        bandLetterIndex = static_cast<int>( (latDeg+80.0) / 8.0 ) + 2;
-    } else if ( latDeg >= 80 && latDeg < 84 ) {
+        bandLetterIndex = static_cast<int>((lat.toDegree() + 80.0) / 8.0) + 2;
+    } else if (lat >= GeoDataLatitude::fromDegrees(80) && lat < GeoDataLatitude::fromDegrees(84)) {
         // Band X is extended 4 more degrees
         bandLetterIndex = 21;
-    } else if ( latDeg >= 84 ) {
+    } else if (lat >= GeoDataLatitude::fromDegrees(84)) {
         // North pole (Y for zones 1-30, Z for zones 31-60)
-        bandLetterIndex = ((lonDeg+180) < 6*31) ? 22 : 23;
+        bandLetterIndex = (lon < GeoDataLongitude::fromDegrees(6*31) - GeoDataLongitude::halfCircle) ? 22 : 23;
     }
 
     return QString( "ABCDEFGHJKLMNPQRSTUVWXYZ?" ).at( bandLetterIndex );
 }
 
-qreal GeoDataCoordinatesPrivate::lonLatToNorthing( qreal lon, qreal lat ){
-    int zoneNumber = lonLatToZone( lon, lat );
+qreal GeoDataCoordinatesPrivate::lonLatToNorthing(GeoDataLongitude lon, GeoDataLatitude lat )
+{
+    int zoneNumber = lonLatToZone(lon, lat);
 
-    if ( zoneNumber == 0 ){
-        qreal lonDeg = lon * RAD2DEG;
-        zoneNumber = static_cast<int>( (lonDeg+180) / 6.0 ) + 1;
+    if (zoneNumber == 0) {
+        zoneNumber = static_cast<int>((lon.toDegree() + 180) / 6.0) + 1;
     }
 
     QPointF coordinates = GeoDataCoordinatesPrivate::mapLonLatToXY( lon, lat, GeoDataCoordinatesPrivate::centralMeridianUTM(zoneNumber) );

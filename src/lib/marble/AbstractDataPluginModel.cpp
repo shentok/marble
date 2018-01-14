@@ -571,13 +571,13 @@ void AbstractDataPluginModel::handleChangedViewport()
             && ( !( d->m_downloadedBox == d->m_lastBox )
                  || d->m_downloadedNumber != d->m_lastNumber )
             // We try to filter little changes of the bounding box
-            && ( fabs( d->m_downloadedBox.east() - d->m_lastBox.east() ) * boxComparisonFactor
+            && (qAbs(d->m_downloadedBox.east() - d->m_lastBox.east()) * boxComparisonFactor
                  > d->m_lastBox.width()
-                 || fabs( d->m_downloadedBox.south() - d->m_lastBox.south() ) * boxComparisonFactor
+                 || qAbs(d->m_downloadedBox.south() - d->m_lastBox.south()) * boxComparisonFactor
                  > d->m_lastBox.height()
-                 || fabs( d->m_downloadedBox.north() - d->m_lastBox.north() ) * boxComparisonFactor
+                 || qAbs(d->m_downloadedBox.north() - d->m_lastBox.north()) * boxComparisonFactor
                  > d->m_lastBox.height()
-                 || fabs( d->m_downloadedBox.west() - d->m_lastBox.west() ) * boxComparisonFactor
+                 || qAbs(d->m_downloadedBox.west() - d->m_lastBox.west()) * boxComparisonFactor
                  > d->m_lastBox.width() ) )
     {
         // We will wait a little bit longer to start the

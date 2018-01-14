@@ -18,6 +18,9 @@
 
 #include <QStringList>
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 class QRegularExpressionMatch;
 
 namespace Marble
@@ -75,12 +78,12 @@ public:
     /**
      * @brief return the lon value from the last successful parsing
      */
-    qreal lon() const { return m_lon; }
+    GeoDataLongitude lon() const { return m_lon; }
 
     /**
      * @brief return the lat value from the last successful parsing
      */
-    qreal lat() const { return m_lat; }
+    GeoDataLatitude lat() const { return m_lat; }
 
 private:
     /**
@@ -123,8 +126,8 @@ private:
                         bool& isDirPosHemisphere) const;
 
 private:
-    qreal m_lon;
-    qreal m_lat;
+    GeoDataLongitude m_lon;
+    GeoDataLatitude m_lat;
 
 private: // helper values
     const QString m_north;

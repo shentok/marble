@@ -138,13 +138,11 @@ AprsGatherer::run()
 
         if ( matcher.indexIn( line ) != -1 ) {
             QString callSign  = matcher.cap( 1 );
-            qreal latitude = matcher.cap( 6 ).toFloat() +
-                ( matcher.cap( 7 ).toFloat()/60 );
+            GeoDataLatitude latitude = GeoDataLatitude::fromDegrees(matcher.cap(6).toFloat() + (matcher.cap(7).toFloat()/60));
             if (matcher.cap(8) == QLatin1String("S"))
                 latitude = - latitude;
 
-            qreal longitude = matcher.cap( 10 ).toFloat() +
-                ( matcher.cap( 11 ).toFloat()/60 );
+            GeoDataLongitude longitude = GeoDataLongitude::fromDegrees(matcher.cap(10).toFloat() + (matcher.cap(11).toFloat()/60));
             if (matcher.cap(12) == QLatin1String("W"))
                 longitude = - longitude;
 
@@ -158,7 +156,7 @@ AprsGatherer::run()
             QString myCall  = mic_e_matcher.cap( 1 ); 
             QString dstCall = mic_e_matcher.cap( 2 );
 
-            qreal latitude =
+            GeoDataLatitude latitude = GeoDataLatitude::fromDegrees(
                 // hours
                 m_dstCallDigits[dstCall[0]] * 10 +
                 m_dstCallDigits[dstCall[1]] +
@@ -167,12 +165,12 @@ AprsGatherer::run()
                 ( qreal( m_dstCallDigits[dstCall[2]] * 10 +
                          m_dstCallDigits[dstCall[3]] ) +
                   qreal( m_dstCallDigits[dstCall[4]] ) / 10.0 +
-                  qreal( m_dstCallDigits[dstCall[5]] ) / 100 ) / 60.0;
+                  qreal( m_dstCallDigits[dstCall[5]] ) / 100 ) / 60.0);
 
             if ( m_dstCallSouthEast[dstCall[4]] )
                 latitude = - latitude;
 
-            qreal longitude =
+            const GeoDataLongitude longitude =
                 calculateLongitude( QString ( mic_e_matcher.cap( 4 ) ),
                                     m_dstCallLongitudeOffset[dstCall[4]],
                                     m_dstCallSouthEast[dstCall[5]] );
@@ -209,7 +207,7 @@ AprsGatherer::shutDown()
 
 void
 AprsGatherer::addObject( const QString &callSign,
-                         qreal latitude, qreal longitude, bool canDoDirect,
+                         GeoDataLatitude latitude, GeoDataLongitude longitude, bool canDoDirect,
                          const QString &routePath,
                          const QChar &symbolTable,
                          const QChar &symbolCode )
@@ -236,8 +234,7 @@ AprsGatherer::addObject( const QString &callSign,
     }
 }
 
-qreal AprsGatherer::calculateLongitude( const QString &threeBytes, int offset,
-                                         bool isEast )
+GeoDataLongitude AprsGatherer::calculateLongitude(const QString &threeBytes, int offset, bool isEast)
 {
     // otherwise known as "fun with funky encoding"
     qreal hours = threeBytes[0].toLatin1() - 28 + offset;
@@ -252,7 +249,8 @@ qreal AprsGatherer::calculateLongitude( const QString &threeBytes, int offset,
 
     if ( ! isEast )
         hours = -hours;
-    return hours;
+
+    return GeoDataLongitude::fromDegrees(hours);
 }
 
 void

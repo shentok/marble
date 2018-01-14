@@ -11,8 +11,12 @@
 #ifndef GEODATALATLONQUAD_H
 #define GEODATALATLONQUAD_H
 
-#include "GeoDataCoordinates.h"
 #include "GeoDataObject.h"
+
+#include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include "MarbleGlobal.h"
 
 namespace Marble {
@@ -37,25 +41,25 @@ public:
     /** Provides type information for downcasting a GeoNode */
     const char* nodeType() const override;
 
-    qreal bottomLeftLatitude( GeoDataCoordinates::Unit unit ) const;
-    qreal bottomRightLatitude( GeoDataCoordinates::Unit unit ) const;
-    qreal topRightLatitude( GeoDataCoordinates::Unit unit ) const;
-    qreal topLeftLatitude( GeoDataCoordinates::Unit unit ) const;
+    GeoDataLatitude bottomLeftLatitude() const;
+    GeoDataLatitude bottomRightLatitude() const;
+    GeoDataLatitude topRightLatitude() const;
+    GeoDataLatitude topLeftLatitude() const;
 
-    qreal bottomLeftLongitude( GeoDataCoordinates::Unit unit ) const;
-    qreal bottomRightLongitude( GeoDataCoordinates::Unit unit ) const;
-    qreal topRightLongitude( GeoDataCoordinates::Unit unit ) const;
-    qreal topLeftLongitude( GeoDataCoordinates::Unit unit ) const;
+    GeoDataLongitude bottomLeftLongitude() const;
+    GeoDataLongitude bottomRightLongitude() const;
+    GeoDataLongitude topRightLongitude() const;
+    GeoDataLongitude topLeftLongitude() const;
 
-    void setBottomLeftLatitude( qreal latitude, GeoDataCoordinates::Unit unit );
-    void setBottomRightLatitude( qreal latitude, GeoDataCoordinates::Unit unit );
-    void setTopRightLatitude( qreal latitude, GeoDataCoordinates::Unit unit );
-    void setTopLeftLatitude( qreal latitude, GeoDataCoordinates::Unit unit );
+    void setBottomLeftLatitude(GeoDataLatitude latitude);
+    void setBottomRightLatitude(GeoDataLatitude latitude);
+    void setTopRightLatitude(GeoDataLatitude latitude);
+    void setTopLeftLatitude(GeoDataLatitude latitude);
 
-    void setBottomLeftLongitude( qreal longitude, GeoDataCoordinates::Unit unit );
-    void setBottomRightLongitude( qreal longitude, GeoDataCoordinates::Unit unit );
-    void setTopRightLongitude( qreal longitude, GeoDataCoordinates::Unit unit );
-    void setTopLeftLongitude( qreal longitude, GeoDataCoordinates::Unit unit );
+    void setBottomLeftLongitude(GeoDataLongitude longitude);
+    void setBottomRightLongitude(GeoDataLongitude longitude);
+    void setTopRightLongitude(GeoDataLongitude longitude);
+    void setTopLeftLongitude(GeoDataLongitude longitude);
 
     GeoDataCoordinates& bottomLeft() const;
     void setBottomLeft( const GeoDataCoordinates &coordinates );

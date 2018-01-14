@@ -312,15 +312,16 @@ QSet<TileId> PlacemarkLayout::visibleTiles(const ViewportParams &viewport, int z
      * matching our latLonAltBox.
      */
 
-    qreal north, south, east, west;
+    GeoDataLatitude north, south;
+    GeoDataLongitude east, west;
     viewport.viewLatLonAltBox().boundaries(north, south, east, west);
     QSet<TileId> tileIdSet;
     QVector<GeoDataLatLonBox> geoRects;
     if( west <= east ) {
         geoRects << GeoDataLatLonBox(north, south, east, west);
     } else {
-        geoRects << GeoDataLatLonBox(north, south, M_PI, west);
-        geoRects << GeoDataLatLonBox(north, south, east, -M_PI);
+        geoRects << GeoDataLatLonBox(north, south, GeoDataLongitude::halfCircle, west);
+        geoRects << GeoDataLatLonBox(north, south, east, -GeoDataLongitude::halfCircle);
     }
 
     for (const GeoDataLatLonBox &geoRect : geoRects) {

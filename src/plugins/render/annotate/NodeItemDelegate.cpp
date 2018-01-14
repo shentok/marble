@@ -59,22 +59,22 @@ void NodeItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
         // Setting the latlonedit spinboxes values
         if( index.column() == 1 ) {
             latLonEditWidget->setDimension(LatLonEdit::Longitude);
-            value = outerBoundary.at( index.row() ).longitude( GeoDataCoordinates::Degree );
+            value = outerBoundary.at(index.row()).longitude().toDegree();
         }
         else {
             latLonEditWidget->setDimension(LatLonEdit::Latitude);
-            value = outerBoundary.at( index.row() ).latitude( GeoDataCoordinates::Degree );
+            value = outerBoundary.at(index.row()).latitude().toDegree();
         }
     }
     else if (const auto lineString = geodata_cast<GeoDataLineString>(m_placemark->geometry())) {
         // Setting the latlonedit spinboxes values
         if( index.column() == 1 ) {
             latLonEditWidget->setDimension(LatLonEdit::Longitude);
-            value = lineString->at( index.row() ).longitude( GeoDataCoordinates::Degree );
+            value = lineString->at(index.row()).longitude().toDegree();
         }
         else {
             latLonEditWidget->setDimension(LatLonEdit::Latitude);
-            value = lineString->at( index.row() ).latitude(GeoDataCoordinates::Degree );
+            value = lineString->at(index.row()).latitude().toDegree();
         }
     }
 
@@ -104,10 +104,10 @@ void NodeItemDelegate::previewNodeMove( qreal value )
         GeoDataCoordinates* coordinates = new GeoDataCoordinates( outerBoundary[m_indexBeingEdited.row()] );
 
         if( m_indexBeingEdited.column() == 1) {
-            coordinates->setLongitude( value, GeoDataCoordinates::Degree );
+            coordinates->setLongitude(GeoDataLongitude::fromDegrees(value));
         }
         else {
-            coordinates->setLatitude( value, GeoDataCoordinates::Degree );
+            coordinates->setLatitude(GeoDataLatitude::fromDegrees(value));
         }
 
         outerBoundary[ m_indexBeingEdited.row() ] = *coordinates;
@@ -117,10 +117,10 @@ void NodeItemDelegate::previewNodeMove( qreal value )
         GeoDataCoordinates* coordinates = new GeoDataCoordinates( lineString->at( m_indexBeingEdited.row() ) );
 
         if( m_indexBeingEdited.column() == 1) {
-            coordinates->setLongitude( value, GeoDataCoordinates::Degree );
+            coordinates->setLongitude(GeoDataLongitude::fromDegrees(value));
         }
         else {
-            coordinates->setLatitude( value, GeoDataCoordinates::Degree );
+            coordinates->setLatitude(GeoDataLatitude::fromDegrees(value));
         }
 
         lineString->at( m_indexBeingEdited.row() ) = *coordinates;

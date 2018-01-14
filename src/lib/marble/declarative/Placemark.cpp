@@ -613,12 +613,12 @@ RouteRelationModel* Placemark::routeRelationModel()
 
 double Placemark::longitude() const
 {
-    return m_placemark.coordinate().longitude(GeoDataCoordinates::Degree);
+    return m_placemark.coordinate().longitude().toDegree();
 }
 
 double Placemark::latitude() const
 {
-    return m_placemark.coordinate().latitude(GeoDataCoordinates::Degree);
+    return m_placemark.coordinate().latitude().toDegree();
 }
 
 const QStringList &Placemark::tags() const

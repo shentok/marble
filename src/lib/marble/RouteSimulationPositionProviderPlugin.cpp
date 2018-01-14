@@ -104,8 +104,8 @@ RouteSimulationPositionProviderPlugin::RouteSimulationPositionProviderPlugin(Mar
     m_status( PositionProviderStatusUnavailable ),
     m_currentDateTime(),
     m_speed( 0.0 ),
-    m_direction( 0.0 ),
-    m_directionWithNoise(0.0)
+    m_direction(GeoDataAngle::fromRadians(0.0)),
+    m_directionWithNoise(GeoDataAngle::fromRadians(0.0))
 {
     connect(&m_updateTimer, SIGNAL(timeout()), this, SLOT(update()));
 }
@@ -130,7 +130,7 @@ qreal RouteSimulationPositionProviderPlugin::speed() const
     return m_speed;
 }
 
-qreal RouteSimulationPositionProviderPlugin::direction() const
+GeoDataAngle RouteSimulationPositionProviderPlugin::direction() const
 {
     return m_directionWithNoise;
 }
@@ -179,18 +179,18 @@ void RouteSimulationPositionProviderPlugin::update()
             qreal newSpeed = qMin((m_speed + acceleration*time), maxSpeed);
             for (int i=qMax(1,m_currentIndex); i<m_lineStringInterpolated.size()-1 && checkedDistance<lookForwardDistance; ++i)
             {
-                qreal previousHeading = m_lineStringInterpolated.at( i-1 ).bearing( m_lineStringInterpolated.at( i ), GeoDataCoordinates::Degree, GeoDataCoordinates::FinalBearing );
+                GeoDataAngle previousHeading = m_lineStringInterpolated.at(i-1).bearing(m_lineStringInterpolated.at(i), GeoDataCoordinates::FinalBearing);
                 qreal curveLength = 10;//we treat one point turn as a curve of length 10
-                qreal angleSum = 0;//sum of turn angles in a curve
+                GeoDataAngle angleSum = GeoDataAngle::fromRadians(0);//sum of turn angles in a curve
                 for (int j=i+1; j<m_lineStringInterpolated.size() && curveLength<35; ++j)
                 {
-                    qreal newHeading = m_lineStringInterpolated.at( j-1 ).bearing( m_lineStringInterpolated.at( j ), GeoDataCoordinates::Degree, GeoDataCoordinates::FinalBearing );
-                    qreal differenceHeading = qAbs(previousHeading-newHeading);//angle of turn
-                    if(differenceHeading>180) {
-                        differenceHeading = 360 - differenceHeading;
+                    const GeoDataAngle newHeading = m_lineStringInterpolated.at(j-1).bearing(m_lineStringInterpolated.at(j), GeoDataCoordinates::FinalBearing);
+                    GeoDataAngle differenceHeading = qAbs(previousHeading-newHeading);//angle of turn
+                    if (differenceHeading > GeoDataAngle::fromDegrees(180)) {
+                        differenceHeading = GeoDataAngle::fromDegrees(360) - differenceHeading;
                     }
                     angleSum +=differenceHeading;
-                    qreal maxSpeedAtTurn = qMax((1 - (static_cast<qreal>(angleSum/60.0/curveLength*10.0))*maxSpeed), minSpeed);//speed limit at turn
+                    qreal maxSpeedAtTurn = qMax((1 - (static_cast<qreal>(angleSum.toDegree()/60.0/curveLength*10.0))*maxSpeed), minSpeed);//speed limit at turn
                     if( checkedDistance<25 && maxSpeedAtTurn<newSpeed )//if we are near turn don't accelerate, if we will have to slow down
                         newSpeed = qMin(newSpeed, qMax(m_speed,maxSpeedAtTurn));
                     // formulas:
@@ -243,7 +243,7 @@ void RouteSimulationPositionProviderPlugin::update()
                 m_currentIndex++;
             }
 
-            m_direction = m_currentPosition.bearing( newPosition, GeoDataCoordinates::Degree, GeoDataCoordinates::FinalBearing );
+            m_direction = m_currentPosition.bearing(newPosition, GeoDataCoordinates::FinalBearing);
             m_directionWithNoise = addNoise(m_direction);
         }
         m_currentPosition = newPosition;
@@ -264,15 +264,15 @@ void RouteSimulationPositionProviderPlugin::update()
 
 GeoDataCoordinates RouteSimulationPositionProviderPlugin::addNoise(const Marble::GeoDataCoordinates &position, const Marble::GeoDataAccuracy &accuracy ) const
 {
-    qreal randomBearing = static_cast<qreal>(qrand()) / (static_cast<qreal>(RAND_MAX/M_PI));
+    const GeoDataAngle randomBearing = GeoDataAngle::fromRadians(static_cast<qreal>(qrand()) / (static_cast<qreal>(RAND_MAX/M_PI)));
     qreal randomDistance = static_cast<qreal>(qrand()) / (static_cast<qreal>(RAND_MAX/(accuracy.horizontal / 2.0 / m_marbleModel->planetRadius())));
     return position.moveByBearing(randomBearing, randomDistance);
 }
 
-qreal RouteSimulationPositionProviderPlugin::addNoise(qreal bearing)
+GeoDataAngle RouteSimulationPositionProviderPlugin::addNoise(GeoDataAngle bearing)
 {
-    qreal const maxBearingError = 30.0;
-    return bearing + static_cast<qreal>(qrand()) / (static_cast<qreal>(RAND_MAX/maxBearingError/2.0)) - maxBearingError / 2.0;
+    const qreal maxBearingError = 30.0;
+    return bearing + GeoDataAngle::fromDegrees(static_cast<qreal>(qrand()) / (static_cast<qreal>(RAND_MAX/maxBearingError/2.0)) - maxBearingError / 2.0);
 }
 
 void RouteSimulationPositionProviderPlugin::changeStatus(PositionProviderStatus status)

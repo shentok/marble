@@ -24,6 +24,6 @@ int main(int argc, char** argv)
     MarbleModel model;
     ReverseGeocodingRunnerManager manager( &model );
 
-    GeoDataCoordinates position( -0.15845,  51.52380, 0.0, GeoDataCoordinates::Degree );
+    const GeoDataCoordinates position(-GeoDataLongitude::fromDegrees(0.15845), GeoDataLatitude::fromDegrees(51.52380));
     qDebug() << position.toString() << "is" << manager.searchReverseGeocoding( position );
 }

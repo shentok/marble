@@ -47,19 +47,19 @@ GeoNode* GPXrteptTagHandler::parse(GeoParser& parser) const
 
         QXmlStreamAttributes attributes = parser.attributes();
         QStringRef tmp;
-        qreal lat = 0;
-        qreal lon = 0;
+        GeoDataLatitude lat = GeoDataLatitude::null;
+        GeoDataLongitude lon = GeoDataLongitude::null;
         tmp = attributes.value(QLatin1String(gpxTag_lat));
         if ( !tmp.isEmpty() )
         {
-            lat = tmp.toString().toFloat();
+            lat = GeoDataLatitude::fromDegrees(tmp.toString().toFloat());
         }
         tmp = attributes.value(QLatin1String(gpxTag_lon));
         if ( !tmp.isEmpty() )
         {
-            lon = tmp.toString().toFloat();
+            lon = GeoDataLongitude::fromDegrees(tmp.toString().toFloat());
         }
-        coord.set(lon, lat, 0, GeoDataCoordinates::Degree);
+        coord.set(lon, lat);
         linestring->append(coord);
 
     }

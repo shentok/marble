@@ -99,16 +99,16 @@ qreal RouteSegment::distancePointToLine(const GeoDataCoordinates &p, const GeoDa
 
 GeoDataCoordinates RouteSegment::projected(const GeoDataCoordinates &p, const GeoDataCoordinates &a, const GeoDataCoordinates &b)
 {
-    qreal const y0 = p.latitude();
-    qreal const x0 = p.longitude();
-    qreal const y1 = a.latitude();
-    qreal const x1 = a.longitude();
-    qreal const y2 = b.latitude();
-    qreal const x2 = b.longitude();
-    qreal const y01 = x0 - x1;
-    qreal const x01 = y0 - y1;
-    qreal const y21 = x2 - x1;
-    qreal const x21 = y2 - y1;
+    auto const y0 = p.latitude();
+    auto const x0 = p.longitude();
+    auto const y1 = a.latitude();
+    auto const x1 = a.longitude();
+    auto const y2 = b.latitude();
+    auto const x2 = b.longitude();
+    qreal const y01 = (x0 - x1).toRadian();
+    qreal const x01 = (y0 - y1).toRadian();
+    qreal const y21 = (x2 - x1).toRadian();
+    qreal const x21 = (y2 - y1).toRadian();
     qreal const len = x21*x21 + y21*y21;
     qreal const t = (x01*x21 + y01*y21) / len;
     if ( t<0.0 ) {
@@ -117,8 +117,8 @@ GeoDataCoordinates RouteSegment::projected(const GeoDataCoordinates &p, const Ge
         return b;
     } else {
         // a + t (b - a);
-        qreal const lon = x1 + t * ( x2 - x1 );
-        qreal const lat = y1 + t * ( y2 - y1 );
+        auto const lon = x1 + t * ( x2 - x1 );
+        auto const lat = y1 + t * ( y2 - y1 );
         return GeoDataCoordinates( lon, lat );
     }
 
@@ -159,12 +159,10 @@ qreal RouteSegment::minimalDistanceTo( const GeoDataCoordinates &point ) const
         return 0.0;
     }
 
-    qreal north(0.0), east(0.0), south(0.0), west(0.0);
-    bounds().boundaries( north, south, east, west );
-    GeoDataCoordinates const northWest( west, north );
-    GeoDataCoordinates const northEast( east, north );
-    GeoDataCoordinates const southhWest( west, south );
-    GeoDataCoordinates const southEast( east, south );
+    GeoDataCoordinates const northWest(bounds().west(), bounds().north());
+    GeoDataCoordinates const northEast(bounds().east(), bounds().north());
+    GeoDataCoordinates const southhWest(bounds().west(), bounds().south());
+    GeoDataCoordinates const southEast(bounds().east(), bounds().south());
 
     qreal distNorth = distancePointToLine( point, northWest, northEast );
     qreal distEast = distancePointToLine( point, northEast, southEast );
@@ -173,10 +171,10 @@ qreal RouteSegment::minimalDistanceTo( const GeoDataCoordinates &point ) const
     return qMin( qMin( distNorth, distEast ), qMin( distWest, distSouth ) );
 }
 
-qreal RouteSegment::projectedDirection(const GeoDataCoordinates &point) const
+GeoDataAngle RouteSegment::projectedDirection(const GeoDataCoordinates &point) const
 {
     if (m_path.size() < 2){
-        return 0;
+        return GeoDataAngle::fromRadians(0);
     }
 
     qreal minDistance = -1.0;
@@ -190,9 +188,9 @@ qreal RouteSegment::projectedDirection(const GeoDataCoordinates &point) const
     }
 
     if ( minIndex == 0 ) {
-        return m_path[0].bearing( m_path[1], GeoDataCoordinates::Degree, GeoDataCoordinates::FinalBearing );
+        return m_path[0].bearing(m_path[1], GeoDataCoordinates::FinalBearing);
     } else {
-        return m_path[minIndex-1].bearing( m_path[minIndex], GeoDataCoordinates::Degree, GeoDataCoordinates::FinalBearing );
+        return m_path[minIndex-1].bearing(m_path[minIndex], GeoDataCoordinates::FinalBearing);
     }
 }
 

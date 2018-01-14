@@ -118,8 +118,8 @@ ClickOnThat::ClickOnThat( MarbleWidget *marbleWidget )
       d( new ClickOnThatPrivate(marbleWidget) )
 {
     d->m_parent = this;
-    connect( this, SIGNAL(announceHighlight(qreal,qreal,GeoDataCoordinates::Unit)),
-             d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)) );
+    connect( this, SIGNAL(announceHighlight(GeoDataLongitude,GeoDataLatitude)),
+             d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)) );
 }
 
 ClickOnThat::~ClickOnThat()
@@ -201,10 +201,10 @@ void ClickOnThat::initiateGame()
     }
 
     d->m_marbleWidget->setHighlightEnabled( true );
-    d->m_marbleWidget->centerOn( 23.0, 42.0 );
+    d->m_marbleWidget->centerOn(GeoDataLongitude::fromDegrees(23.0), GeoDataLatitude::fromDegrees(42.0));
     d->m_marbleWidget->setDistance( 7500 );
-    connect( d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)),
-             this, SLOT(determineResult(qreal,qreal,GeoDataCoordinates::Unit)) );
+    connect( d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)),
+             this, SLOT(determineResult(GeoDataLongitude,GeoDataLatitude)) );
 
     if ( d->m_countryBoundaries &&
         d->m_countryNames )
@@ -274,9 +274,9 @@ void ClickOnThat::updateSelectPin(bool result, const GeoDataCoordinates &clicked
     d->m_marbleWidget->model()->treeModel()->updateFeature( d->m_selectPinDocument );
 }
 
-void ClickOnThat::determineResult( qreal lon, qreal lat, GeoDataCoordinates::Unit unit )
+void ClickOnThat::determineResult(GeoDataLongitude lon, GeoDataLatitude lat)
 {
-    GeoDataCoordinates coord( lon, lat, 0, unit );
+    const GeoDataCoordinates coord(lon, lat);
 
     Q_ASSERT_X( d->m_countryNames, "ClickOnThat::determineResult",
                 "CountryByShapePrivate::m_countryBoundaries is NULL" );
@@ -351,12 +351,10 @@ void ClickOnThat::determineResult( qreal lon, qreal lat, GeoDataCoordinates::Uni
 
 void ClickOnThat::highlightCorrectAnswer()
 {
-    disconnect( d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)),
-             this, SLOT(determineResult(qreal,qreal,GeoDataCoordinates::Unit)) );
+    disconnect( d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)),
+             this, SLOT(determineResult(GeoDataLongitude,GeoDataLatitude)) );
 
-    emit announceHighlight( d->m_correctAnswer.longitude(GeoDataCoordinates::Degree),
-                            d->m_correctAnswer.latitude(GeoDataCoordinates::Degree),
-                            GeoDataCoordinates::Degree );
+    emit announceHighlight(d->m_correctAnswer.longitude(), d->m_correctAnswer.latitude());
     updateSelectPin( true, d->m_correctAnswer );
 
     /**
@@ -366,8 +364,8 @@ void ClickOnThat::highlightCorrectAnswer()
      */
     d->m_marbleWidget->centerOn( *(d->m_correctAnswerPlacemark), true );
 
-    connect( d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(qreal,qreal,GeoDataCoordinates::Unit)),
-             this, SLOT(determineResult(qreal,qreal,GeoDataCoordinates::Unit)) );
+    connect( d->m_marbleWidget, SIGNAL(highlightedPlacemarksChanged(GeoDataLongitude,GeoDataLatitude)),
+             this, SLOT(determineResult(GeoDataLongitude,GeoDataLatitude)) );
 }
 
 

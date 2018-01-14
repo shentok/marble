@@ -13,6 +13,8 @@
 
 #include "GeoDataOverlay_p.h"
 
+#include "GeoDataVec2.h"
+
 namespace Marble {
 
 class GeoDataScreenOverlayPrivate : public GeoDataOverlayPrivate
@@ -24,11 +26,11 @@ public:
     GeoDataVec2  m_screenXY;
     GeoDataVec2  m_rotationXY;
     GeoDataVec2  m_size;
-    qreal        m_rotation;
+    GeoDataAngle m_rotation;
 };
 
 GeoDataScreenOverlayPrivate::GeoDataScreenOverlayPrivate() :
-    m_rotation(0.0)
+    m_rotation(GeoDataAngle::null)
 {
 }
 

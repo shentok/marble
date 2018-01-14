@@ -24,17 +24,17 @@ class GeoDataCameraPrivate
  public :
     GeoDataCameraPrivate()
         : m_coordinates(),
-          m_roll( 0.0 ),
-          m_heading( 0.0 ),
-          m_tilt( 0.0 ),
+          m_roll(GeoDataAngle::null),
+          m_heading(GeoDataAngle::null),
+          m_tilt(GeoDataAngle::null),
           ref( 1 )
     {
     }
 
     GeoDataCoordinates m_coordinates;
-    qreal m_roll;
-    qreal m_heading;
-    qreal m_tilt;
+    GeoDataAngle m_roll;
+    GeoDataAngle m_heading;
+    GeoDataAngle m_tilt;
 
     QAtomicInt ref;
 };

@@ -13,8 +13,11 @@
 #define GEODATALOCATION_H
 
 #include "GeoDataObject.h"
-#include "GeoDataCoordinates.h"
-#include "MarbleGlobal.h"
+
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
+#include "marble_export.h"
 
 namespace Marble {
 
@@ -39,13 +42,13 @@ public:
     /** Provides type information for downcasting a GeoNode */
     const char* nodeType() const override;
 
-    qreal latitude(GeoDataCoordinates::Unit) const;
+    GeoDataLatitude latitude() const;
 
-    qreal longitude(GeoDataCoordinates::Unit) const;
+    GeoDataLongitude longitude() const;
 
-    void setLatitude(qreal latitude, GeoDataCoordinates::Unit unit);
+    void setLatitude(GeoDataLatitude latitude);
 
-    void setLongitude(qreal longitude, GeoDataCoordinates::Unit unit);
+    void setLongitude(GeoDataLongitude longitude);
 
     /** Returns the distance to earth's surface in meters, interpreted according to altitudeMode */
     qreal altitude() const;

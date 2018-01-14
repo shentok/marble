@@ -76,11 +76,6 @@ void DownloadOsmDialog::updateCoordinates( const GeoDataLatLonAltBox& boundingBo
 
 void DownloadOsmDialog::downloadFile()
 {
-    QString m_west;
-    QString m_south;
-    QString m_east;
-    QString m_north;
-    QString url;
     m_isDownloadSuccess=false;
     m_file = new QTemporaryFile(QDir::tempPath()+"/"+"XXXXXXosmdata.osm");
     if(!m_file->open())
@@ -91,12 +86,12 @@ void DownloadOsmDialog::downloadFile()
     }
     m_downloadButton->setEnabled(false);
 
-    m_west=QString::number( m_latLonBoxWidget->latLonBox().west()*RAD2DEG );
-    m_south=QString::number( m_latLonBoxWidget->latLonBox().south()*RAD2DEG );
-    m_east=QString::number( m_latLonBoxWidget->latLonBox().east()*RAD2DEG );
-    m_north=QString::number( m_latLonBoxWidget->latLonBox().north()*RAD2DEG );
+    const auto m_west = QString::number(m_latLonBoxWidget->latLonBox().west().toDegree());
+    const auto m_south = QString::number(m_latLonBoxWidget->latLonBox().south().toDegree());
+    const auto m_east = QString::number(m_latLonBoxWidget->latLonBox().east().toDegree());
+    const auto m_north = QString::number(m_latLonBoxWidget->latLonBox().north().toDegree());
 
-    url="http://api.openstreetmap.org/api/0.6/map?bbox=";
+    QString url = "http://api.openstreetmap.org/api/0.6/map?bbox=";
     url+=m_west+",";
     url+=m_south+",";
     url+=m_east+",";

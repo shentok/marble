@@ -114,8 +114,8 @@ class OverviewMap : public AbstractFloatItem, public DialogConfigurationInterfac
     QDialog *m_configDialog;
 
     GeoDataLatLonAltBox m_latLonAltBox;
-    qreal m_centerLat;
-    qreal m_centerLon;
+    GeoDataLatitude m_centerLat;
+    GeoDataLongitude m_centerLon;
     bool m_mapChanged;
 
  private Q_SLOTS:

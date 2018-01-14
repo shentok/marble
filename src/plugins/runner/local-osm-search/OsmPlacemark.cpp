@@ -13,9 +13,11 @@
 
 namespace Marble {
 
-OsmPlacemark::OsmPlacemark() : m_regionId( 0 ),
-    m_category( UnknownCategory ),
-    m_longitude( 0.0 ), m_latitude( 0.0 )
+OsmPlacemark::OsmPlacemark() :
+    m_regionId(0),
+    m_category(UnknownCategory),
+    m_longitude(GeoDataLongitude::null),
+    m_latitude(GeoDataLatitude::null)
 {
     // nothing to do
 }
@@ -70,22 +72,22 @@ void OsmPlacemark::setAdditionalInformation( const QString &name )
     m_additionalInformation = name;
 }
 
-qreal OsmPlacemark::longitude() const
+GeoDataLongitude OsmPlacemark::longitude() const
 {
     return m_longitude;
 }
 
-void OsmPlacemark::setLongitude( qreal longitude )
+void OsmPlacemark::setLongitude(GeoDataLongitude longitude)
 {
     m_longitude = longitude;
 }
 
-qreal OsmPlacemark::latitude() const
+GeoDataLatitude OsmPlacemark::latitude() const
 {
     return m_latitude;
 }
 
-void OsmPlacemark::setLatitude( qreal latitude )
+void OsmPlacemark::setLatitude(GeoDataLatitude latitude)
 {
     m_latitude = latitude;
 }

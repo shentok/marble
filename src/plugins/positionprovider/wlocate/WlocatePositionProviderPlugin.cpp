@@ -36,10 +36,10 @@ class WlocatePositionProviderPluginPrivate
 public:
     PositionProviderStatus m_status;
     qreal m_speed;
-    qreal m_direction;
+    GeoDataAngle m_direction;
     QDateTime m_timestamp;
-    double m_longitude;
-    double m_latitude;
+    qreal m_longitude;
+    qreal m_latitude;
     bool m_initialized;
     char m_quality;
     short m_ccode;
@@ -51,9 +51,15 @@ public:
 };
 
 WlocatePositionProviderPluginPrivate::WlocatePositionProviderPluginPrivate() :
-        m_status( PositionProviderStatusAcquiring ), m_speed( 0 ), m_direction( 0 ),
-        m_longitude( 0.0 ), m_latitude( 0.0 ), m_initialized( false ),
-        m_quality( 0 ), m_ccode( 0 ), m_futureWatcher( nullptr )
+        m_status(PositionProviderStatusAcquiring),
+        m_speed(0),
+        m_direction(GeoDataAngle::null),
+        m_longitude(0),
+        m_latitude(0),
+        m_initialized(false),
+        m_quality(0),
+        m_ccode(0),
+        m_futureWatcher(nullptr)
 {
     // nothing to do
 }
@@ -116,7 +122,7 @@ PositionProviderStatus WlocatePositionProviderPlugin::status() const
 
 GeoDataCoordinates WlocatePositionProviderPlugin::position() const
 {
-    return GeoDataCoordinates( d->m_longitude, d->m_latitude, 0.0, GeoDataCoordinates::Degree );
+    return GeoDataCoordinates(GeoDataLongitude::fromDegrees(d->m_longitude), GeoDataLatitude::fromDegrees(d->m_latitude));
 }
 
 qreal WlocatePositionProviderPlugin::speed() const
@@ -124,7 +130,7 @@ qreal WlocatePositionProviderPlugin::speed() const
     return d->m_speed;
 }
 
-qreal WlocatePositionProviderPlugin::direction() const
+GeoDataAngle WlocatePositionProviderPlugin::direction() const
 {
     return d->m_direction;
 }

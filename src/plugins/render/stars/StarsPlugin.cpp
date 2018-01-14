@@ -816,8 +816,8 @@ bool StarsPlugin::render( GeoPainter *painter, ViewportParams *viewport,
     Vec3 skyVector = sys.getPlanetocentric (0.0, 0.0);
     qreal skyRotationAngle = -atan2(skyVector[1], skyVector[0]);
 
-    const qreal centerLon = viewport->centerLongitude();
-    const qreal centerLat = viewport->centerLatitude();
+    const GeoDataLongitude centerLon = viewport->centerLongitude();
+    const GeoDataLatitude centerLat = viewport->centerLatitude();
 
     const qreal  skyRadius      = 0.6 * sqrt( ( qreal )viewport->width() * viewport->width() + viewport->height() * viewport->height() );
 
@@ -856,7 +856,7 @@ bool StarsPlugin::render( GeoPainter *painter, ViewportParams *viewport,
         QPen dsoLabelPen (m_dsoLabelBrush, 1, Qt::SolidLine);
 
 
-        const Quaternion skyAxis = Quaternion::fromEuler( -centerLat , centerLon + skyRotationAngle, 0.0 );
+        const Quaternion skyAxis = Quaternion::fromEuler(-centerLat.toRadian(), centerLon.toRadian() + skyRotationAngle, 0.0);
         matrix skyAxisMatrix;
         skyAxis.inverse().toMatrix( skyAxisMatrix );
 
@@ -1426,9 +1426,9 @@ bool StarsPlugin::eventFilter( QObject *object, QEvent *e )
         QContextMenuEvent *menuEvent = dynamic_cast<QContextMenuEvent *> ( e );
         if( widget && menuEvent )
         {
-            qreal mouseLon, mouseLat;
-            const bool aboveMap = widget->geoCoordinates( menuEvent->x(), menuEvent->y(),
-                                                     mouseLon, mouseLat, GeoDataCoordinates::Radian );
+            GeoDataLongitude mouseLon;
+            GeoDataLatitude mouseLat;
+            const bool aboveMap = widget->geoCoordinates(menuEvent->x(), menuEvent->y(), mouseLon, mouseLat);
             if ( aboveMap ) {
                 return false;
             }

@@ -149,14 +149,18 @@ GeoDataCoordinates GeoDataLatLonAltBox::center() const
 {
     if ( isEmpty() )
         return GeoDataCoordinates();
-    if( crossesDateLine() )
-        return GeoDataCoordinates( GeoDataCoordinates::normalizeLon(east() + 2 * M_PI - (east() + 2 * M_PI - west()) / 2),
+
+    if (crossesDateLine())
+    {
+        const GeoDataLongitude fullCircle = 2 * GeoDataLongitude::halfCircle;
+        return GeoDataCoordinates(GeoDataCoordinates::normalizeLon(east() + fullCircle - (east() + fullCircle - west()) / 2),
                                 north() - (north() - south()) / 2, 
                                 d->m_maxAltitude - (d->m_maxAltitude - d->m_minAltitude) / 2);
-    else
-        return GeoDataCoordinates( east() - (east() - west()) / 2,
-                                north() - (north() - south()) / 2, 
-                                d->m_maxAltitude - (d->m_maxAltitude - d->m_minAltitude) / 2);
+    }
+
+    return GeoDataCoordinates( east() - (east() - west()) / 2,
+                            north() - (north() - south()) / 2,
+                            d->m_maxAltitude - (d->m_maxAltitude - d->m_minAltitude) / 2);
 }
 
 void GeoDataLatLonAltBox::setAltitudeMode( const AltitudeMode altitudeMode )

@@ -93,8 +93,8 @@ bool MonavRunnerPrivate::retrieveData( const RouteRequest *route, const QString 
 
         for ( int i = 0; i < route->size(); ++i ) {
             Node coordinate;
-            coordinate.longitude = route->at( i ).longitude( GeoDataCoordinates::Degree );
-            coordinate.latitude = route->at( i ).latitude( GeoDataCoordinates::Degree );
+            coordinate.longitude = route->at(i).longitude().toDegree();
+            coordinate.latitude = route->at(i).latitude().toDegree();
             waypoints << coordinate;
         }
 
@@ -139,9 +139,9 @@ int MonavRunnerPrivate::retrieveRoute( const Marble::RouteRequest* route, QVecto
     if ( retrieveData( route, &reply ) ) {
         /** @todo: make use of reply.seconds, the estimated travel time */
         for ( int i = 0; i < reply.pathNodes.size(); ++i ) {
-            qreal lon = reply.pathNodes[i].longitude;
-            qreal lat = reply.pathNodes[i].latitude;
-            GeoDataCoordinates coordinates( lon, lat, 0, GeoDataCoordinates::Degree );
+            const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(reply.pathNodes[i].longitude);
+            const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(reply.pathNodes[i].latitude);
+            const GeoDataCoordinates coordinates(lon, lat, 0);
             geometry->append( coordinates );
         }
 
@@ -155,8 +155,8 @@ int MonavRunnerPrivate::retrieveRoute( const Marble::RouteRequest* route, QVecto
                 junction = RoutingWaypoint::Roundabout;
             }
             for ( unsigned int l = 0; l < reply.pathEdges[i].length; ++k, ++l ) {
-                qreal lon = reply.pathNodes[k].longitude;
-                qreal lat = reply.pathNodes[k].latitude;
+                const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(reply.pathNodes[k].longitude);
+                const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(reply.pathNodes[k].latitude);
                 RoutingPoint point( lon, lat );
                 bool const last = l == reply.pathEdges[i].length - 1;
                 RoutingWaypoint::JunctionType finalJunction = last ? junction : ( reply.pathEdges[i].branchingPossible ? RoutingWaypoint::Other : RoutingWaypoint::None );
@@ -183,7 +183,7 @@ int MonavRunnerPrivate::retrieveRoute( const Marble::RouteRequest* route, QVecto
             QVector<RoutingWaypoint> items = directions[i].points();
             for ( int j = 0; j < items.size(); ++j ) {
                 RoutingPoint point = items[j].point();
-                GeoDataCoordinates coordinates( point.lon(), point.lat(), 0.0, GeoDataCoordinates::Degree );
+                const GeoDataCoordinates coordinates(point.lon(), point.lat(), 0.0);
                 geometry->append( coordinates );
             }
             placemark->setGeometry( geometry );

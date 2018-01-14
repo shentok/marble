@@ -52,9 +52,9 @@ void OsmNominatimRunner::reverseGeocoding( const GeoDataCoordinates &coordinates
     QString base = "https://nominatim.openstreetmap.org/reverse?format=xml&addressdetails=1";
     // @todo: Alternative URI with addressdetails=1 could be used for shorter placemark name
     QString query = "&lon=%1&lat=%2&accept-language=%3";
-    double lon = coordinates.longitude( GeoDataCoordinates::Degree );
-    double lat = coordinates.latitude( GeoDataCoordinates::Degree );
-    QString url = QString( base + query ).arg( lon ).arg( lat ).arg( MarbleLocale::languageCode() );
+    const GeoDataLongitude lon = coordinates.longitude();
+    const GeoDataLatitude lat = coordinates.latitude();
+    const QString url = QString(base + query).arg(lon.toDegree()).arg(lat.toDegree()).arg(MarbleLocale::languageCode());
 
     m_request.setUrl(QUrl(url));
     m_request.setRawHeader("User-Agent", HttpDownloadManager::userAgent("Browser", "OsmNominatimRunner") );

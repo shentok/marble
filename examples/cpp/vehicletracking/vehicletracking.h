@@ -45,7 +45,7 @@ private:
     GeoDataCoordinates m_city;
     qreal m_radius;
     qreal m_speed;
-    qreal m_alpha;
+    GeoDataAngle m_alpha;
 };
 
 // Window Class

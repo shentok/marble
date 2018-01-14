@@ -52,11 +52,11 @@ void YoursRunner::retrieveRoute( const RouteRequest *route )
     GeoDataCoordinates source = route->source();
     GeoDataCoordinates destination = route->destination();
 
-    double fLon = source.longitude( GeoDataCoordinates::Degree );
-    double fLat = source.latitude( GeoDataCoordinates::Degree );
+    const double fLon = source.longitude().toDegree();
+    const double fLat = source.latitude().toDegree();
 
-    double tLon = destination.longitude( GeoDataCoordinates::Degree );
-    double tLat = destination.latitude( GeoDataCoordinates::Degree );
+    const double tLon = destination.longitude().toDegree();
+    const double tLat = destination.latitude().toDegree();
 
     QString base = "http://www.yournavigation.org/api/1.0/gosmore.php";
     //QString base = "http://nroets.dev.openstreetmap.org/demo/gosmore.php";

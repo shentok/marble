@@ -100,10 +100,10 @@ void TileProjectionTest::testTypeMercator()
 
 void TileProjectionTest::testTileIndexesEquirect_data()
 {
-    QTest::addColumn<qreal>("westLon");
-    QTest::addColumn<qreal>("northLat");
-    QTest::addColumn<qreal>("eastLon");
-    QTest::addColumn<qreal>("southLat");
+    QTest::addColumn<GeoDataLongitude>("westLon");
+    QTest::addColumn<GeoDataLatitude>("northLat");
+    QTest::addColumn<GeoDataLongitude>("eastLon");
+    QTest::addColumn<GeoDataLatitude>("southLat");
     QTest::addColumn<int>("zoomLevel");
     QTest::addColumn<int>("expectedTileXWest");
     QTest::addColumn<int>("expectedTileYNorth");
@@ -112,87 +112,87 @@ void TileProjectionTest::testTileIndexesEquirect_data()
 
     // zoomlevel zero: 1 tile
     // bounds matching the tile map
-    addRow() << qreal(-M_PI) << qreal(+M_PI * 0.5)
-             << qreal(+M_PI) << qreal(-M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-M_PI * 0.5)
              << 0
              << 0 << 0 << 0 << 0;
     // bounds inside the 1 tile
-    addRow() << qreal(-M_PI*0.5) << qreal(+M_PI * 0.25)
-             << qreal(+M_PI*0.5) << qreal(-M_PI * 0.25)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI*0.5) << GeoDataLatitude::fromRadians(+M_PI * 0.25)
+             << GeoDataLongitude::fromRadians(+M_PI*0.5) << GeoDataLatitude::fromRadians(-M_PI * 0.25)
              << 0
              << 0 << 0 << 0 << 0;
     // bounds west and north on tile map borders, with normal border values
-    addRow() << qreal(-M_PI)     << qreal(+M_PI * 0.5)
-             << qreal(+M_PI*0.5) << qreal(-M_PI * 0.25)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI)     << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(+M_PI*0.5) << GeoDataLatitude::fromRadians(-M_PI * 0.25)
              << 0
              << 0 << 0 << 0 << 0;
     // bounds west and north on tile map borders, with border values from other map border sides
-    addRow() << qreal(+M_PI)     << qreal(-M_PI * 0.5)
-             << qreal(+M_PI*0.5) << qreal(-M_PI * 0.25)
+    addRow() << GeoDataLongitude::fromRadians(+M_PI)     << GeoDataLatitude::fromRadians(-M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(+M_PI*0.5) << GeoDataLatitude::fromRadians(-M_PI * 0.25)
              << 0
              << 0 << 0 << 0 << 0;
 
     // zoomlevel 1: 2 tiles per dimension
     // bounds matching the tile map
-    addRow() << qreal(-M_PI) << qreal(+M_PI * 0.5)
-             << qreal(+M_PI) << qreal(-M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-M_PI * 0.5)
              << 1
              << 0 << 0 << 1 << 1;
     // bounds inside the 4 tiles
-    addRow() << qreal(-M_PI*0.5) << qreal(+M_PI * 0.25)
-             << qreal(+M_PI*0.5) << qreal(-M_PI * 0.25)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI*0.5) << GeoDataLatitude::fromRadians(+M_PI * 0.25)
+             << GeoDataLongitude::fromRadians(+M_PI*0.5) << GeoDataLatitude::fromRadians(-M_PI * 0.25)
              << 1
              << 0 << 0 << 1 << 1;
     // bounds matching the most north-west tile, with normal border values
-    addRow() << qreal(-M_PI)     << qreal(+M_PI * 0.5)
-             << qreal(0)         << qreal(0)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI)     << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(0)         << GeoDataLatitude::fromRadians(0)
              << 1
              << 0 << 0 << 0 << 0;
     // bounds matching the most north-west tile, with border values from other map border sides
-    addRow() << qreal(+M_PI)     << qreal(-M_PI * 0.5)
-             << qreal(0)         << qreal(0)
+    addRow() << GeoDataLongitude::fromRadians(+M_PI)     << GeoDataLatitude::fromRadians(-M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(0)         << GeoDataLatitude::fromRadians(0)
              << 1
              << 0 << 0 << 0 << 0;
     // bounds matching the most south-east tile, with normal border values
-    addRow() << qreal(0) << qreal(0)
-             << qreal(+M_PI) << qreal(-M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(0) << GeoDataLatitude::fromRadians(0)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-M_PI * 0.5)
              << 1
              << 1 << 1 << 1 << 1;
     // bounds matching the most south-east tile, with border values from other map border sides
-    addRow() << qreal(0) << qreal(0)
-             << qreal(-M_PI) << qreal(+M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(0) << GeoDataLatitude::fromRadians(0)
+             << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+M_PI * 0.5)
              << 1
              << 1 << 1 << 1 << 1;
 
     // zoomlevel 9: 2^8==512 tiles per dimension
     // bounds matching the tile map
-    addRow() << qreal(-M_PI) << qreal(+M_PI * 0.5)
-             << qreal(+M_PI) << qreal(-M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-M_PI * 0.5)
              << 9
              << 0 << 0 << 511 << 511;
     // bounds inside the outer tiles
-    addRow() << qreal(-M_PI*(511/512.0)) << qreal(+M_PI * 0.5 * (511/512.0))
-             << qreal(+M_PI*(511/512.0)) << qreal(-M_PI * 0.5 * (511/512.0))
+    addRow() << GeoDataLongitude::fromRadians(-M_PI*(511/512.0)) << GeoDataLatitude::fromRadians(+M_PI * 0.5 * (511/512.0))
+             << GeoDataLongitude::fromRadians(+M_PI*(511/512.0)) << GeoDataLatitude::fromRadians(-M_PI * 0.5 * (511/512.0))
              << 9
              << 0 << 0 << 511 << 511;
     // bounds matching the most north-west tile, with normal border values
-    addRow() << qreal(-M_PI)             << qreal(+M_PI * 0.5)
-             << qreal(-M_PI*(255/256.0)) << qreal(+M_PI * 0.5 *(255/256.0))
+    addRow() << GeoDataLongitude::fromRadians(-M_PI)             << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(-M_PI*(255/256.0)) << GeoDataLatitude::fromRadians(+M_PI * 0.5 *(255/256.0))
              << 9
              << 0 << 0 << 0 << 0;
     // bounds matching the most north-west tile, with border values from other map border sides
-    addRow() << qreal(+M_PI)             << qreal(-M_PI * 0.5)
-             << qreal(-M_PI*(255/256.0)) << qreal(+M_PI * 0.5 *(255/256.0))
+    addRow() << GeoDataLongitude::fromRadians(+M_PI)             << GeoDataLatitude::fromRadians(-M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(-M_PI*(255/256.0)) << GeoDataLatitude::fromRadians(+M_PI * 0.5 *(255/256.0))
              << 9
              << 0 << 0 << 0 << 0;
     // bounds matching the most south-east tile, with normal border values
-    addRow() << qreal(+M_PI*(255/256.0)) << qreal(-M_PI * 0.5 *(255/256.0))
-             << qreal(+M_PI)             << qreal(-M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(+M_PI*(255/256.0)) << GeoDataLatitude::fromRadians(-M_PI * 0.5 *(255/256.0))
+             << GeoDataLongitude::fromRadians(+M_PI)             << GeoDataLatitude::fromRadians(-M_PI * 0.5)
              << 9
              << 511 << 511 << 511 << 511;
     // bounds matching the most south-east tile, with border values from other map border sides
-    addRow() << qreal(+M_PI*(255/256.0)) << qreal(-M_PI * 0.5 *(255/256.0))
-             << qreal(-M_PI)             << qreal(+M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(+M_PI*(255/256.0)) << GeoDataLatitude::fromRadians(-M_PI * 0.5 *(255/256.0))
+             << GeoDataLongitude::fromRadians(-M_PI)             << GeoDataLatitude::fromRadians(+M_PI * 0.5)
              << 9
              << 511 << 511 << 511 << 511;
 }
@@ -200,17 +200,17 @@ void TileProjectionTest::testTileIndexesEquirect_data()
 
 void TileProjectionTest::testTileIndexesEquirect()
 {
-    QFETCH(qreal, westLon);
-    QFETCH(qreal, northLat);
-    QFETCH(qreal, eastLon);
-    QFETCH(qreal, southLat);
+    QFETCH(GeoDataLongitude, westLon);
+    QFETCH(GeoDataLatitude, northLat);
+    QFETCH(GeoDataLongitude, eastLon);
+    QFETCH(GeoDataLatitude, southLat);
     QFETCH(int, zoomLevel);
     QFETCH(int, expectedTileXWest);
     QFETCH(int, expectedTileYNorth);
     QFETCH(int, expectedTileXEast);
     QFETCH(int, expectedTileYSouth);
 
-    GeoDataLatLonBox latLonBox(northLat, southLat, eastLon, westLon);
+    const GeoDataLatLonBox latLonBox(northLat, southLat, eastLon, westLon);
 
     const GeoSceneEquirectTileProjection projection;
 
@@ -225,10 +225,10 @@ void TileProjectionTest::testTileIndexesEquirect()
 
 void TileProjectionTest::testTileIndexesMercator_data()
 {
-    QTest::addColumn<qreal>("westLon");
-    QTest::addColumn<qreal>("northLat");
-    QTest::addColumn<qreal>("eastLon");
-    QTest::addColumn<qreal>("southLat");
+    QTest::addColumn<GeoDataLongitude>("westLon");
+    QTest::addColumn<GeoDataLatitude>("northLat");
+    QTest::addColumn<GeoDataLongitude>("eastLon");
+    QTest::addColumn<GeoDataLatitude>("southLat");
     QTest::addColumn<int>("zoomLevel");
     QTest::addColumn<int>("expectedTileXWest");
     QTest::addColumn<int>("expectedTileYNorth");
@@ -237,65 +237,65 @@ void TileProjectionTest::testTileIndexesMercator_data()
 
     // zoomlevel zero: 1 tile
     // bounds matching the tile map up to 90 degree latitude
-    addRow() << qreal(-M_PI) << qreal(+M_PI * 0.5)
-             << qreal(+M_PI) << qreal(-M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-M_PI * 0.5)
              << 0
              << 0 << 0 << 0 << 0;
     // bounds matching the tile map with 85 degree latitude limit
-    addRow() << qreal(-M_PI) << qreal(85.0 * DEG2RAD)
-             << qreal(+M_PI) << qreal(-85.0 * DEG2RAD)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(85.0 * DEG2RAD)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-85.0 * DEG2RAD)
              << 0
              << 0 << 0 << 0 << 0;
     // bounds inside the 1 tile
-    addRow() << qreal(-M_PI*0.5) << qreal(+M_PI * 0.25)
-             << qreal(+M_PI*0.5) << qreal(-M_PI * 0.25)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI*0.5) << GeoDataLatitude::fromRadians(+M_PI * 0.25)
+             << GeoDataLongitude::fromRadians(+M_PI*0.5) << GeoDataLatitude::fromRadians(-M_PI * 0.25)
              << 0
              << 0 << 0 << 0 << 0;
     // bounds west and north on tile map borders, with normal border values
-    addRow() << qreal(-M_PI)     << qreal(+M_PI * 0.5)
-             << qreal(+M_PI*0.5) << qreal(-M_PI * 0.25)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI)     << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(+M_PI*0.5) << GeoDataLatitude::fromRadians(-M_PI * 0.25)
              << 0
              << 0 << 0 << 0 << 0;
     // bounds west and north on tile map borders, with border values from other map border sides
-    addRow() << qreal(+M_PI)     << qreal(-M_PI * 0.5)
-             << qreal(+M_PI*0.5) << qreal(-M_PI * 0.25)
+    addRow() << GeoDataLongitude::fromRadians(+M_PI)     << GeoDataLatitude::fromRadians(-M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(+M_PI*0.5) << GeoDataLatitude::fromRadians(-M_PI * 0.25)
              << 0
              << 0 << 0 << 0 << 0;
 
     // zoomlevel 1: 2 tiles per dimension
     // bounds matching the tile map up to 90 degree latitude
-    addRow() << qreal(-M_PI) << qreal(+M_PI * 0.5)
-             << qreal(+M_PI) << qreal(-M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-M_PI * 0.5)
              << 1
              << 0 << 0 << 1 << 1;
     // bounds matching the tile map with 85 degree latitude limit
-    addRow() << qreal(-M_PI) << qreal(85.0 * DEG2RAD)
-             << qreal(+M_PI) << qreal(-85.0 * DEG2RAD)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(85.0 * DEG2RAD)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-85.0 * DEG2RAD)
              << 1
              << 0 << 0 << 1 << 1;
     // bounds inside the 4 tiles
-    addRow() << qreal(-M_PI*0.5) << qreal(+M_PI * 0.25)
-             << qreal(+M_PI*0.5) << qreal(-M_PI * 0.25)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI*0.5) << GeoDataLatitude::fromRadians(+M_PI * 0.25)
+             << GeoDataLongitude::fromRadians(+M_PI*0.5) << GeoDataLatitude::fromRadians(-M_PI * 0.25)
              << 1
              << 0 << 0 << 1 << 1;
     // bounds matching the most north-west tile, with normal border values
-    addRow() << qreal(-M_PI)     << qreal(+M_PI * 0.5)
-             << qreal(0)         << qreal(0)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI)     << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(0)         << GeoDataLatitude::fromRadians(0)
              << 1
              << 0 << 0 << 0 << 0;
     // bounds matching the most north-west tile, with border values from other map border sides
-    addRow() << qreal(+M_PI)     << qreal(-M_PI * 0.5)
-             << qreal(0)         << qreal(0)
+    addRow() << GeoDataLongitude::fromRadians(+M_PI)     << GeoDataLatitude::fromRadians(-M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(0)         << GeoDataLatitude::fromRadians(0)
              << 1
              << 0 << 0 << 0 << 0;
     // bounds matching the most south-east tile, with normal border values
-    addRow() << qreal(0) << qreal(0)
-             << qreal(+M_PI) << qreal(-M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(0) << GeoDataLatitude::fromRadians(0)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-M_PI * 0.5)
              << 1
              << 1 << 1 << 1 << 1;
     // bounds matching the most south-east tile, with border values from other map border sides
-    addRow() << qreal(0) << qreal(0)
-             << qreal(-M_PI) << qreal(+M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(0) << GeoDataLatitude::fromRadians(0)
+             << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+M_PI * 0.5)
              << 1
              << 1 << 1 << 1 << 1;
 
@@ -303,38 +303,38 @@ void TileProjectionTest::testTileIndexesMercator_data()
     // GeoSceneMercatorTileProjection bounds latitude value at +/- 85.0 degree (so not at 85.05113),
     // which results in some tiles missed at the outer sides.
     // bounds matching the tile map up to 90 degree latitude
-    addRow() << qreal(-M_PI) << qreal(+M_PI * 0.5)
-             << qreal(+M_PI) << qreal(-M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-M_PI * 0.5)
              << 9
              << 0 << 5 << 511 << 506;
     // bounds matching the tile map with 85 degree latitude limit
-    addRow() << qreal(-M_PI) << qreal(85.0 * DEG2RAD)
-             << qreal(+M_PI) << qreal(-85.0 * DEG2RAD)
+    addRow() << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(85.0 * DEG2RAD)
+             << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-85.0 * DEG2RAD)
              << 9
              << 0 << 5 << 511 << 506;
     // bounds inside the outer tiles
-    addRow() << qreal(-M_PI*(511/512.0)) << qreal(+M_PI * 0.5 * (511/512.0))
-             << qreal(+M_PI*(511/512.0)) << qreal(-M_PI * 0.5 * (511/512.0))
+    addRow() << GeoDataLongitude::fromRadians(-M_PI*(511/512.0)) << GeoDataLatitude::fromRadians(+M_PI * 0.5 * (511/512.0))
+             << GeoDataLongitude::fromRadians(+M_PI*(511/512.0)) << GeoDataLatitude::fromRadians(-M_PI * 0.5 * (511/512.0))
              << 9
              << 0 << 5 << 511 << 506;
     // bounds matching the most north-west tile, with normal border values
-    addRow() << qreal(-M_PI)             << qreal(+M_PI * 0.5)
-             << qreal(-M_PI*(255/256.0)) << qreal(+M_PI * 0.5 *(255/256.0))
+    addRow() << GeoDataLongitude::fromRadians(-M_PI)             << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(-M_PI*(255/256.0)) << GeoDataLatitude::fromRadians(+M_PI * 0.5 *(255/256.0))
              << 9
              << 0 << 5 << 0 << 5;
     // bounds matching the most north-west tile, with border values from other map border sides
-    addRow() << qreal(+M_PI)             << qreal(-M_PI * 0.5)
-             << qreal(-M_PI*(255/256.0)) << qreal(+M_PI * 0.5 *(255/256.0))
+    addRow() << GeoDataLongitude::fromRadians(+M_PI)             << GeoDataLatitude::fromRadians(-M_PI * 0.5)
+             << GeoDataLongitude::fromRadians(-M_PI*(255/256.0)) << GeoDataLatitude::fromRadians(+M_PI * 0.5 *(255/256.0))
              << 9
              << 0 << 5 << 0 << 5;
     // bounds matching the most south-east tile, with normal border values
-    addRow() << qreal(+M_PI*(255/256.0)) << qreal(-M_PI * 0.5 *(255/256.0))
-             << qreal(+M_PI)             << qreal(-M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(+M_PI*(255/256.0)) << GeoDataLatitude::fromRadians(-M_PI * 0.5 *(255/256.0))
+             << GeoDataLongitude::fromRadians(+M_PI)             << GeoDataLatitude::fromRadians(-M_PI * 0.5)
              << 9
              << 511 << 506 << 511 << 506;
     // bounds matching the most south-east tile, with border values from other map border sides
-    addRow() << qreal(+M_PI*(255/256.0)) << qreal(-M_PI * 0.5 *(255/256.0))
-             << qreal(-M_PI)             << qreal(+M_PI * 0.5)
+    addRow() << GeoDataLongitude::fromRadians(+M_PI*(255/256.0)) << GeoDataLatitude::fromRadians(-M_PI * 0.5 *(255/256.0))
+             << GeoDataLongitude::fromRadians(-M_PI)             << GeoDataLatitude::fromRadians(+M_PI * 0.5)
              << 9
              << 511 << 506 << 511 << 506;
 }
@@ -342,10 +342,10 @@ void TileProjectionTest::testTileIndexesMercator_data()
 
 void TileProjectionTest::testTileIndexesMercator()
 {
-    QFETCH(qreal, westLon);
-    QFETCH(qreal, northLat);
-    QFETCH(qreal, eastLon);
-    QFETCH(qreal, southLat);
+    QFETCH(GeoDataLongitude, westLon);
+    QFETCH(GeoDataLatitude, northLat);
+    QFETCH(GeoDataLongitude, eastLon);
+    QFETCH(GeoDataLatitude, southLat);
     QFETCH(int, zoomLevel);
     QFETCH(int, expectedTileXWest);
     QFETCH(int, expectedTileYNorth);
@@ -370,34 +370,34 @@ void TileProjectionTest::testGeoCoordinatesEquirect_data()
     QTest::addColumn<int>("tileX");
     QTest::addColumn<int>("tileY");
     QTest::addColumn<int>("zoomLevel");
-    QTest::addColumn<qreal>("expectedWesternTileEdgeLon");
-    QTest::addColumn<qreal>("expectedNorthernTileEdgeLat");
-    QTest::addColumn<qreal>("expectedEasternTileEdgeLon");
-    QTest::addColumn<qreal>("expectedSouthernTileEdgeLat");
+    QTest::addColumn<GeoDataLongitude>("expectedWesternTileEdgeLon");
+    QTest::addColumn<GeoDataLatitude>("expectedNorthernTileEdgeLat");
+    QTest::addColumn<GeoDataLongitude>("expectedEasternTileEdgeLon");
+    QTest::addColumn<GeoDataLatitude>("expectedSouthernTileEdgeLat");
 
     // zoomlevel zero: 1 tile
-    addRow() << 0 << 0 << 0 << qreal(-M_PI) << qreal(+M_PI * 0.5)
-                            << qreal(+M_PI) << qreal(-M_PI * 0.5);
+    addRow() << 0 << 0 << 0 << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+                            << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-M_PI * 0.5);
 
     // zoomlevel 1: 2 tiles per dimension
-    addRow() << 0 << 0 << 1 << qreal(-M_PI) << qreal(+M_PI * 0.5)
-                            << qreal(0)     << qreal(0);
-    addRow() << 0 << 1 << 1 << qreal(-M_PI) << qreal(0)
-                            << qreal(0)     << qreal(-M_PI * 0.5);
-    addRow() << 1 << 0 << 1 << qreal(0)     << qreal(+M_PI * 0.5)
-                            << qreal(+M_PI) << qreal(0);
-    addRow() << 1 << 1 << 1 << qreal(0)     << qreal(0)
-                            << qreal(+M_PI) << qreal(-M_PI * 0.5);
+    addRow() << 0 << 0 << 1 << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+                            << GeoDataLongitude::fromRadians(0)     << GeoDataLatitude::fromRadians(0);
+    addRow() << 0 << 1 << 1 << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(0)
+                            << GeoDataLongitude::fromRadians(0)     << GeoDataLatitude::fromRadians(-M_PI * 0.5);
+    addRow() << 1 << 0 << 1 << GeoDataLongitude::fromRadians(0)     << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+                            << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(0);
+    addRow() << 1 << 1 << 1 << GeoDataLongitude::fromRadians(0)     << GeoDataLatitude::fromRadians(0)
+                            << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-M_PI * 0.5);
 
     // zoomlevel 9: 2^8==512 tiles per dimension
-    addRow() <<   0 <<   0 << 9 << qreal(-M_PI)               << qreal(+M_PI * 0.5)
-                                << qreal(-M_PI * (255/256.0)) << qreal(+M_PI * 0.5 * (255/256.0));
-    addRow() <<   0 << 256 << 9 << qreal(-M_PI)               << qreal(0)
-                                << qreal(-M_PI * (255/256.0)) << qreal(-M_PI * 0.5 * (1/256.0));
-    addRow() << 256 <<   0 << 9 << qreal(0)                   << qreal(+M_PI * 0.5)
-                                << qreal(M_PI * (1/256.0))    << qreal(+M_PI * 0.5 * (255/256.0));
-    addRow() << 511 << 511 << 9 << qreal(M_PI * (255/256.0))  << qreal(-M_PI * 0.5 * (255/256.0))
-                                << qreal(+M_PI)               << qreal(-M_PI * 0.5);
+    addRow() <<   0 <<   0 << 9 << GeoDataLongitude::fromRadians(-M_PI)               << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+                                << GeoDataLongitude::fromRadians(-M_PI * (255/256.0)) << GeoDataLatitude::fromRadians(+M_PI * 0.5 * (255/256.0));
+    addRow() <<   0 << 256 << 9 << GeoDataLongitude::fromRadians(-M_PI)               << GeoDataLatitude::fromRadians(0)
+                                << GeoDataLongitude::fromRadians(-M_PI * (255/256.0)) << GeoDataLatitude::fromRadians(-M_PI * 0.5 * (1/256.0));
+    addRow() << 256 <<   0 << 9 << GeoDataLongitude::fromRadians(0)                   << GeoDataLatitude::fromRadians(+M_PI * 0.5)
+                                << GeoDataLongitude::fromRadians(M_PI * (1/256.0))    << GeoDataLatitude::fromRadians(+M_PI * 0.5 * (255/256.0));
+    addRow() << 511 << 511 << 9 << GeoDataLongitude::fromRadians(M_PI * (255/256.0))  << GeoDataLatitude::fromRadians(-M_PI * 0.5 * (255/256.0))
+                                << GeoDataLongitude::fromRadians(+M_PI)               << GeoDataLatitude::fromRadians(-M_PI * 0.5);
 }
 
 
@@ -406,10 +406,10 @@ void TileProjectionTest::testGeoCoordinatesEquirect()
     QFETCH(int, tileX);
     QFETCH(int, tileY);
     QFETCH(int, zoomLevel);
-    QFETCH(qreal, expectedWesternTileEdgeLon);
-    QFETCH(qreal, expectedNorthernTileEdgeLat);
-    QFETCH(qreal, expectedEasternTileEdgeLon);
-    QFETCH(qreal, expectedSouthernTileEdgeLat);
+    QFETCH(GeoDataLongitude, expectedWesternTileEdgeLon);
+    QFETCH(GeoDataLatitude, expectedNorthernTileEdgeLat);
+    QFETCH(GeoDataLongitude, expectedEasternTileEdgeLon);
+    QFETCH(GeoDataLatitude, expectedSouthernTileEdgeLat);
 
     const GeoSceneEquirectTileProjection projection;
 
@@ -435,36 +435,36 @@ void TileProjectionTest::testGeoCoordinatesMercator_data()
     QTest::addColumn<int>("tileX");
     QTest::addColumn<int>("tileY");
     QTest::addColumn<int>("zoomLevel");
-    QTest::addColumn<qreal>("expectedWesternTileEdgeLon");
-    QTest::addColumn<qreal>("expectedNorthernTileEdgeLat");
-    QTest::addColumn<qreal>("expectedEasternTileEdgeLon");
-    QTest::addColumn<qreal>("expectedSouthernTileEdgeLat");
+    QTest::addColumn<GeoDataLongitude>("expectedWesternTileEdgeLon");
+    QTest::addColumn<GeoDataLatitude>("expectedNorthernTileEdgeLat");
+    QTest::addColumn<GeoDataLongitude>("expectedEasternTileEdgeLon");
+    QTest::addColumn<GeoDataLatitude>("expectedSouthernTileEdgeLat");
 
     const qreal absMaxLat = DEG2RAD * 85.05113;
 
     // zoomlevel zero: 1 tile
-    addRow() << 0 << 0 << 0 << qreal(-M_PI) << qreal(+absMaxLat)
-                            << qreal(+M_PI) << qreal(-absMaxLat);
+    addRow() << 0 << 0 << 0 << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+absMaxLat)
+                            << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-absMaxLat);
 
     // zoomlevel 1: 2 tiles per dimension
-    addRow() << 0 << 0 << 1 << qreal(-M_PI) << qreal(+absMaxLat)
-                            << qreal(0)     << qreal(0);
-    addRow() << 0 << 1 << 1 << qreal(-M_PI) << qreal(0)
-                            << qreal(0)     << qreal(-absMaxLat);
-    addRow() << 1 << 0 << 1 << qreal(0)     << qreal(+absMaxLat)
-                            << qreal(+M_PI) << qreal(0);
-    addRow() << 1 << 1 << 1 << qreal(0)     << qreal(0)
-                            << qreal(+M_PI) << qreal(-absMaxLat);
+    addRow() << 0 << 0 << 1 << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(+absMaxLat)
+                            << GeoDataLongitude::fromRadians(0)     << GeoDataLatitude::fromRadians(0);
+    addRow() << 0 << 1 << 1 << GeoDataLongitude::fromRadians(-M_PI) << GeoDataLatitude::fromRadians(0)
+                            << GeoDataLongitude::fromRadians(0)     << GeoDataLatitude::fromRadians(-absMaxLat);
+    addRow() << 1 << 0 << 1 << GeoDataLongitude::fromRadians(0)     << GeoDataLatitude::fromRadians(+absMaxLat)
+                            << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(0);
+    addRow() << 1 << 1 << 1 << GeoDataLongitude::fromRadians(0)     << GeoDataLatitude::fromRadians(0)
+                            << GeoDataLongitude::fromRadians(+M_PI) << GeoDataLatitude::fromRadians(-absMaxLat);
 
     // zoomlevel 9: 2^8==512 tiles per dimension
-    addRow() <<   0 <<   0 << 9 << qreal(-M_PI)               << qreal(+absMaxLat)
-                                << qreal(-M_PI * (255/256.0)) << qreal(+1.48336);
-    addRow() <<   0 << 256 << 9 << qreal(-M_PI)               << qreal(0)
-                                << qreal(-M_PI * (255/256.0)) << qreal(-0.0122715);
-    addRow() << 256 <<   0 << 9 << qreal(0)                   << qreal(+absMaxLat)
-                                << qreal(M_PI * (1/256.0))    << qreal(+1.48336);
-    addRow() << 511 << 511 << 9 << qreal(M_PI * (255/256.0))  << qreal(-1.48336)
-                                << qreal(+M_PI)               << qreal(-absMaxLat);
+    addRow() <<   0 <<   0 << 9 << GeoDataLongitude::fromRadians(-M_PI)               << GeoDataLatitude::fromRadians(+absMaxLat)
+                                << GeoDataLongitude::fromRadians(-M_PI * (255/256.0)) << GeoDataLatitude::fromRadians(+1.48336);
+    addRow() <<   0 << 256 << 9 << GeoDataLongitude::fromRadians(-M_PI)               << GeoDataLatitude::fromRadians(0)
+                                << GeoDataLongitude::fromRadians(-M_PI * (255/256.0)) << GeoDataLatitude::fromRadians(-0.0122715);
+    addRow() << 256 <<   0 << 9 << GeoDataLongitude::fromRadians(0)                   << GeoDataLatitude::fromRadians(+absMaxLat)
+                                << GeoDataLongitude::fromRadians(M_PI * (1/256.0))    << GeoDataLatitude::fromRadians(+1.48336);
+    addRow() << 511 << 511 << 9 << GeoDataLongitude::fromRadians(M_PI * (255/256.0))  << GeoDataLatitude::fromRadians(-1.48336)
+                                << GeoDataLongitude::fromRadians(+M_PI)               << GeoDataLatitude::fromRadians(-absMaxLat);
 }
 
 
@@ -473,10 +473,10 @@ void TileProjectionTest::testGeoCoordinatesMercator()
     QFETCH(int, tileX);
     QFETCH(int, tileY);
     QFETCH(int, zoomLevel);
-    QFETCH(qreal, expectedWesternTileEdgeLon);
-    QFETCH(qreal, expectedNorthernTileEdgeLat);
-    QFETCH(qreal, expectedEasternTileEdgeLon);
-    QFETCH(qreal, expectedSouthernTileEdgeLat);
+    QFETCH(GeoDataLongitude, expectedWesternTileEdgeLon);
+    QFETCH(GeoDataLatitude, expectedNorthernTileEdgeLat);
+    QFETCH(GeoDataLongitude, expectedEasternTileEdgeLon);
+    QFETCH(GeoDataLatitude, expectedSouthernTileEdgeLat);
 
     const GeoSceneMercatorTileProjection projection;
 
@@ -484,17 +484,17 @@ void TileProjectionTest::testGeoCoordinatesMercator()
     const GeoDataLatLonBox latLonBox = projection.geoCoordinates(zoomLevel, tileX, tileY);
 
     QCOMPARE(latLonBox.west(), expectedWesternTileEdgeLon);
-    QFUZZYCOMPARE(latLonBox.north(), expectedNorthernTileEdgeLat, 0.00001);
+    QFUZZYCOMPARE(latLonBox.north().toRadian(), expectedNorthernTileEdgeLat.toRadian(), 0.00001);
     QCOMPARE(latLonBox.east(), expectedEasternTileEdgeLon);
-    QFUZZYCOMPARE(latLonBox.south(), expectedSouthernTileEdgeLat, 0.00001);
+    QFUZZYCOMPARE(latLonBox.south().toRadian(), expectedSouthernTileEdgeLat.toRadian(), 0.00001);
 
     TileId tileId(QStringLiteral("testmap"), zoomLevel, tileX, tileY);
     const GeoDataLatLonBox latLonBox2 = projection.geoCoordinates(tileId);
 
     QCOMPARE(latLonBox2.west(), expectedWesternTileEdgeLon);
-    QFUZZYCOMPARE(latLonBox2.north(), expectedNorthernTileEdgeLat, 0.00001);
+    QFUZZYCOMPARE(latLonBox2.north().toRadian(), expectedNorthernTileEdgeLat.toRadian(), 0.00001);
     QCOMPARE(latLonBox2.east(), expectedEasternTileEdgeLon);
-    QFUZZYCOMPARE(latLonBox2.south(), expectedSouthernTileEdgeLat, 0.00001);
+    QFUZZYCOMPARE(latLonBox2.south().toRadian(), expectedSouthernTileEdgeLat.toRadian(), 0.00001);
 }
 
 } // namespace Marble

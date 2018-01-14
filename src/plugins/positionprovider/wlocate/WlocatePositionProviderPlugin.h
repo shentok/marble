@@ -47,7 +47,7 @@ public:
     PositionProviderStatus status() const override;
     GeoDataCoordinates position() const override;
     qreal speed() const override;
-    qreal direction() const override;
+    GeoDataAngle direction() const override;
     GeoDataAccuracy accuracy() const override;
     QDateTime timestamp() const override;
 

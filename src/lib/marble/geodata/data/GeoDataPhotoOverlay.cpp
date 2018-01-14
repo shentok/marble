@@ -69,13 +69,13 @@ const char *GeoDataPhotoOverlay::nodeType() const
     return GeoDataTypes::GeoDataPhotoOverlayType;
 }
 
-qreal GeoDataPhotoOverlay::rotation() const
+GeoDataAngle GeoDataPhotoOverlay::rotation() const
 {
     Q_D(const GeoDataPhotoOverlay);
     return d->m_rotation;
 }
 
-void GeoDataPhotoOverlay::setRotation( const qreal rotation )
+void GeoDataPhotoOverlay::setRotation(const GeoDataAngle rotation)
 {
     Q_D(GeoDataPhotoOverlay);
     d->m_rotation = rotation;

@@ -21,6 +21,7 @@
 
 #include "DialogConfigurationInterface.h"
 #include "RenderPlugin.h"
+#include "GeoDataAngle.h"
 #include "GeoDataCoordinates.h"
 #include "GeoDataLatLonAltBox.h"
 
@@ -126,7 +127,7 @@ class PositionMarker  : public RenderPlugin, public DialogConfigurationInterface
     float               m_cursorSize;
     QColor              m_accuracyColor;
     QColor              m_trailColor;
-    qreal               m_heading;
+    GeoDataAngle        m_heading;
     QVector<GeoDataCoordinates> m_trail;
     static const int    sm_numTrailPoints = 6;
     bool                m_showTrail;

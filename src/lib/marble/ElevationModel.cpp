@@ -94,7 +94,7 @@ ElevationModel::~ElevationModel()
 }
 
 
-qreal ElevationModel::height( qreal lon, qreal lat ) const
+qreal ElevationModel::height(GeoDataLongitude lon, GeoDataLatitude lat) const
 {
     if ( !d->m_textureLayer ) {
         return invalidElevationData;
@@ -111,11 +111,8 @@ qreal ElevationModel::height( qreal lon, qreal lat ) const
     Q_ASSERT( numTilesX > 0 );
     Q_ASSERT( numTilesY > 0 );
 
-    qreal textureX = 180 + lon;
-    textureX *= numTilesX * width / 360;
-
-    qreal textureY = 90 - lat;
-    textureY *= numTilesY * height / 180;
+    const qreal textureX = 0.5 * (1 + lon / GeoDataLongitude::halfCircle) * numTilesX * width;
+    const qreal textureY = 0.5 * (1 - lat / GeoDataLatitude::quaterCircle) * numTilesY * height;
 
     qreal ret = 0;
     bool hasHeight = false;
@@ -172,7 +169,7 @@ qreal ElevationModel::height( qreal lon, qreal lat ) const
     return ret;
 }
 
-QVector<GeoDataCoordinates> ElevationModel::heightProfile( qreal fromLon, qreal fromLat, qreal toLon, qreal toLat ) const
+QVector<GeoDataCoordinates> ElevationModel::heightProfile(GeoDataLongitude fromLon, GeoDataLatitude fromLat, GeoDataLongitude toLon, GeoDataLatitude toLat) const
 {
     if ( !d->m_textureLayer ) {
         return QVector<GeoDataCoordinates>();
@@ -182,14 +179,14 @@ QVector<GeoDataCoordinates> ElevationModel::heightProfile( qreal fromLon, qreal 
     const int width = d->m_textureLayer->tileSize().width();
     const int numTilesX = TileLoaderHelper::levelToColumn( d->m_textureLayer->levelZeroColumns(), tileZoomLevel );
 
-    qreal distPerPixel = ( qreal )360 / ( width * numTilesX );
+    qreal distPerPixel = ( qreal )(2 * M_PI) / ( width * numTilesX );
     //mDebug() << "heightProfile" << fromLat << fromLon << toLat << toLon << "distPerPixel" << distPerPixel;
 
-    qreal lat = fromLat;
-    qreal lon = fromLon;
+    GeoDataLatitude lat = fromLat;
+    GeoDataLongitude lon = fromLon;
     char dirLat = fromLat < toLat ? 1 : -1;
     char dirLon = fromLon < toLon ? 1 : -1;
-    qreal k = qAbs( ( fromLat - toLat ) / ( fromLon - toLon ) );
+    const qreal k = qAbs((fromLat - toLat).toRadian() / (fromLon - toLon).toRadian());
     //mDebug() << "fromLon" << fromLon << "fromLat" << fromLat;
     //mDebug() << "diff lon" << ( fromLon - toLon ) << "diff lat" << ( fromLat - toLat );
     //mDebug() << "dirLon" << QString::number(dirLon) << "dirLat" << QString::number(dirLat) << "k" << k;
@@ -198,16 +195,16 @@ QVector<GeoDataCoordinates> ElevationModel::heightProfile( qreal fromLon, qreal 
         //mDebug() << lat << lon;
         qreal h = height( lon, lat );
         if ( h < 32000 ) {
-            ret << GeoDataCoordinates( lon, lat, h, GeoDataCoordinates::Degree );
+            ret << GeoDataCoordinates(lon, lat, h);
         }
         if ( k < 0.5 ) {
             //mDebug() << "lon(x) += distPerPixel";
-            lat += distPerPixel * k * dirLat;
-            lon += distPerPixel * dirLon;
+            lat += GeoDataLatitude::fromRadians(distPerPixel) * k * dirLat;
+            lon += GeoDataLongitude::fromRadians(distPerPixel) * dirLon;
         } else {
             //mDebug() << "lat(y) += distPerPixel";
-            lat += distPerPixel * dirLat;
-            lon += distPerPixel / k * dirLon;
+            lat += GeoDataLatitude::fromRadians(distPerPixel) * dirLat;
+            lon += GeoDataLongitude::fromRadians(distPerPixel) / k * dirLon;
         }
     }
     //mDebug() << ret;

@@ -13,6 +13,7 @@
 #include "MarbleDebug.h"
 
 #include "KmlElementDictionary.h"
+#include "GeoDataLatitude.h"
 #include "GeoDataLatLonAltBox.h"
 #include "GeoParser.h"
 
@@ -28,11 +29,11 @@ GeoNode* KmlnorthTagHandler::parse( GeoParser& parser ) const
 
     GeoStackItem parentItem = parser.parentElement();
 
-    qreal const north = parser.readElementText().trimmed().toDouble();
+    const GeoDataLatitude north = GeoDataLatitude::fromDegrees(parser.readElementText().trimmed().toDouble());
     if( parentItem.represents( kmlTag_LatLonAltBox ) ) {
-        parentItem.nodeAs<GeoDataLatLonAltBox>()->setNorth( north, GeoDataCoordinates::Degree );
+        parentItem.nodeAs<GeoDataLatLonAltBox>()->setNorth(north);
     } else if ( parentItem.represents( kmlTag_LatLonBox ) ) {
-        parentItem.nodeAs<GeoDataLatLonBox>()->setNorth( north, GeoDataCoordinates::Degree );
+        parentItem.nodeAs<GeoDataLatLonBox>()->setNorth(north);
     }
 
     return nullptr;

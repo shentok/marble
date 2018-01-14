@@ -13,7 +13,9 @@
 #include "GeoDataModel.h"
 #include "GeoDataAlias.h"
 #include "GeoDataTypes.h"
+#include "GeoDataLatitude.h"
 #include "GeoDataLocation.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataOrientation.h"
 #include "GeoDataResourceMap.h"
 #include "GeoDataScale.h"
@@ -44,8 +46,8 @@ bool KmlModelTagWriter::write( const GeoNode *node, GeoWriter& writer ) const
 
     writer.writeStartElement( kml::kmlTag_Location );
 
-    writer.writeOptionalElement( kml::kmlTag_longitude, QString::number( location.longitude( GeoDataCoordinates::Degree ) ), "0" );
-    writer.writeOptionalElement( kml::kmlTag_latitude, QString::number( location.latitude( GeoDataCoordinates::Degree ) ), "0" );
+    writer.writeOptionalElement(kml::kmlTag_longitude, QString::number(location.longitude().toDegree()), "0");
+    writer.writeOptionalElement(kml::kmlTag_latitude, QString::number(location.latitude().toDegree()), "0");
     writer.writeOptionalElement( kml::kmlTag_altitude, QString::number( location.altitude() ), "0" );
 
     writer.writeEndElement();
@@ -54,9 +56,9 @@ bool KmlModelTagWriter::write( const GeoNode *node, GeoWriter& writer ) const
 
     writer.writeStartElement( kml::kmlTag_Orientation );
 
-    writer.writeOptionalElement( kml::kmlTag_heading, QString::number( orientation.heading() ), "0" );
-    writer.writeOptionalElement( kml::kmlTag_tilt, QString::number( orientation.tilt() ), "0" );
-    writer.writeOptionalElement( kml::kmlTag_roll, QString::number( orientation.roll() ), "0" );
+    writer.writeOptionalElement( kml::kmlTag_heading, QString::number( orientation.heading().toDegree() ), "0" );
+    writer.writeOptionalElement( kml::kmlTag_tilt, QString::number( orientation.tilt().toDegree() ), "0" );
+    writer.writeOptionalElement( kml::kmlTag_roll, QString::number( orientation.roll().toDegree() ), "0" );
 
     writer.writeEndElement();
 

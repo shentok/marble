@@ -39,7 +39,7 @@ GroundOverlayFrame::GroundOverlayFrame( GeoDataPlacemark *placemark,
     m_hoveredHandle( NoRegion ),
     m_editStatus( Resize ),
     m_editStatusChangeNeeded( false ),
-    m_previousRotation( 0.0 ),
+    m_previousRotation(GeoDataAngle::null),
     m_viewport( nullptr )
 {
     m_resizeIcons.reserve(16);
@@ -121,7 +121,7 @@ void GroundOverlayFrame::paint(GeoPainter *painter, const ViewportParams *viewpo
         GeoDataCoordinates southernHandle = ring.at( SouthEast ).interpolate( ring.at( SouthWest ), 0.5 );
         // Special case handle position to take tessellation
         // along latitude circles into account
-        if (m_overlay->latLonBox().rotation() == 0) {
+        if (m_overlay->latLonBox().rotation() == GeoDataAngle::null) {
             northernHandle.setLatitude(ring.at( NorthEast ).latitude());
             southernHandle.setLatitude(ring.at( SouthEast ).latitude());
         }
@@ -228,11 +228,9 @@ bool GroundOverlayFrame::mousePressEvent( QMouseEvent *event )
         if ( m_regionList.at(i).contains( event->pos() ) ) {
             m_movedHandle = i;
 
-            qreal lon, lat;
-            m_viewport->geoCoordinates( event->pos().x(),
-                                        event->pos().y(),
-                                        lon, lat,
-                                        GeoDataCoordinates::Radian );
+            GeoDataLongitude lon;
+            GeoDataLatitude lat;
+            m_viewport->geoCoordinates(event->pos().x(), event->pos().y(), lon, lat);
             m_movedHandleGeoCoordinates.set( lon, lat );
             m_movedHandleScreenCoordinates = event->pos();
             m_previousRotation = m_overlay->latLonBox().rotation();
@@ -274,18 +272,16 @@ bool GroundOverlayFrame::mouseMoveEvent( QMouseEvent *event )
     }
 
     if (geodata_cast<GeoDataPolygon>(placemark()->geometry())) {
-        qreal lon, lat;
-        m_viewport->geoCoordinates( event->pos().x(),
-                                    event->pos().y(),
-                                    lon, lat,
-                                    GeoDataCoordinates::Radian );
+        GeoDataLongitude lon;
+        GeoDataLatitude lat;
+        m_viewport->geoCoordinates(event->pos().x(), event->pos().y(), lon, lat);
 
         if ( m_editStatus == Resize ) {
 
             GeoDataCoordinates coord(lon, lat);
             GeoDataCoordinates rotatedCoord(coord);
 
-            if (m_overlay->latLonBox().rotation() != 0) {
+            if (m_overlay->latLonBox().rotation() != GeoDataAngle::null) {
                 rotatedCoord = coord.rotateAround(m_overlay->latLonBox().center(),
                                                  -m_overlay->latLonBox().rotation());
             }
@@ -315,17 +311,15 @@ bool GroundOverlayFrame::mouseMoveEvent( QMouseEvent *event )
         } else if ( m_editStatus == Rotate ) {
             if ( m_movedHandle != Polygon ) {
                 QPoint center = m_regionList.at( Polygon ).boundingRect().center();
-                qreal angle1 = qAtan2( event->pos().y() - center.y(),
-                                       event->pos().x() - center.x() );
-                qreal angle2 = qAtan2( m_movedHandleScreenCoordinates.y() - center.y(),
-                                       m_movedHandleScreenCoordinates.x() - center.x() );
+                const GeoDataAngle angle1 = GeoDataAngle::fromRadians(qAtan2(event->pos().y() - center.y(), event->pos().x() - center.x()));
+                const GeoDataAngle angle2 = GeoDataAngle::fromRadians(qAtan2(m_movedHandleScreenCoordinates.y() - center.y(), m_movedHandleScreenCoordinates.x() - center.x()));
                 m_overlay->latLonBox().setRotation( angle2 - angle1 + m_previousRotation );
             }
         }
 
         if ( m_movedHandle == Polygon ) {
-            const qreal centerLonDiff = lon - m_movedHandleGeoCoordinates.longitude();
-            const qreal centerLatDiff = lat - m_movedHandleGeoCoordinates.latitude();
+            const GeoDataLongitude centerLonDiff = lon - m_movedHandleGeoCoordinates.longitude();
+            const GeoDataLatitude centerLatDiff = lat - m_movedHandleGeoCoordinates.latitude();
 
             m_overlay->latLonBox().setBoundaries( m_overlay->latLonBox().north() + centerLatDiff,
                                                   m_overlay->latLonBox().south() + centerLatDiff,

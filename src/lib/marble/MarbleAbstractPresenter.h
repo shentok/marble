@@ -15,7 +15,11 @@
 
 #include <QList>
 
+#include "GeoDataAngle.h"
+#include "GeoDataLatitude.h"
 #include "GeoDataLatLonBox.h"
+#include "GeoDataLongitude.h"
+
 #include "MarblePhysics.h"
 #include <marble_export.h>
 
@@ -89,8 +93,8 @@ class ViewportParams;
         void zoomAt(const QPoint &pos, qreal newDistance);
         void moveTo(const QPoint &pos, qreal factor);
 
-        qreal centerLongitude() const;
-        qreal centerLatitude() const;
+        GeoDataLongitude centerLongitude() const;
+        GeoDataLatitude centerLatitude() const;
 
         ViewContext viewContext() const;
 
@@ -128,13 +132,13 @@ class ViewportParams;
 
         void setViewContext(ViewContext viewContext);
 
-        void centerOn(const qreal lon, const qreal lat, bool animated = false);
+        void centerOn(const GeoDataLongitude lon, const GeoDataLatitude lat, bool animated = false);
         void centerOn(const GeoDataCoordinates &point, bool animated = false);
         void centerOn(const GeoDataLatLonBox& box, bool animated = false);
         void centerOn(const GeoDataPlacemark& placemark, bool animated = false);
-        void headingOn(qreal heading);
-        void setCenterLatitude(qreal lat, FlyToMode mode);
-        void setCenterLongitude(qreal lon, FlyToMode mode);
+        void headingOn(GeoDataAngle heading);
+        void setCenterLatitude(GeoDataLatitude lat, FlyToMode mode);
+        void setCenterLongitude(GeoDataLongitude lon, FlyToMode mode);
 
         void setAnimationsEnabled(bool enabled);
         void setRadius(int radius);

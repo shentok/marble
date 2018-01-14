@@ -39,9 +39,9 @@ public:
 
     bool operator()( const OsmPlacemark &a, const OsmPlacemark &b ) const
     {
-        return distanceSphere( a.longitude() * DEG2RAD, a.latitude() * DEG2RAD,
+        return distanceSphere(a.longitude(), a.latitude(),
                                m_currentPosition.longitude(), m_currentPosition.latitude() )
-             < distanceSphere( b.longitude() * DEG2RAD, b.latitude() * DEG2RAD,
+             < distanceSphere(b.longitude(), b.latitude(),
                                m_currentPosition.longitude(), m_currentPosition.latitude() );
     }
 
@@ -140,8 +140,8 @@ QVector<OsmPlacemark> OsmDatabase::find( const DatabaseQuery &userQuery )
                 // sort by distance
                 queryString += QLatin1String(" ORDER BY ((places.lat-%1)*(places.lat-%1)+(places.lon-%2)*(places.lon-%2))");
                 GeoDataCoordinates position = userQuery.position();
-                queryString = queryString.arg( position.latitude( GeoDataCoordinates::Degree ), 0, 'f', 8 )
-                        .arg( position.longitude( GeoDataCoordinates::Degree ), 0, 'f', 8 );
+                queryString = queryString.arg(position.latitude().toDegree(), 0, 'f', 8)
+                        .arg(position.longitude().toDegree(), 0, 'f', 8);
             } else {
                 queryString += regionRestriction;
             }
@@ -176,7 +176,7 @@ QVector<OsmPlacemark> OsmDatabase::find( const DatabaseQuery &userQuery )
         while ( query.next() ) {
             OsmPlacemark placemark;
             if ( userQuery.resultFormat() == DatabaseQuery::DistanceFormat ) {
-                GeoDataCoordinates coordinates( query.value(4).toFloat(), query.value(5).toFloat(), 0.0, GeoDataCoordinates::Degree );
+                const GeoDataCoordinates coordinates(GeoDataLongitude::fromDegrees(query.value(4).toFloat()), GeoDataLatitude::fromDegrees(query.value(5).toFloat()));
                 placemark.setAdditionalInformation( formatDistance( coordinates, userQuery.position() ) );
             } else {
                 placemark.setAdditionalInformation( query.value( 0 ).toString() );
@@ -184,8 +184,8 @@ QVector<OsmPlacemark> OsmDatabase::find( const DatabaseQuery &userQuery )
             placemark.setName( query.value(1).toString() );
             placemark.setHouseNumber( query.value(2).toString() );
             placemark.setCategory( (OsmPlacemark::OsmCategory) query.value(3).toInt() );
-            placemark.setLongitude( query.value(4).toFloat() );
-            placemark.setLatitude( query.value(5).toFloat() );
+            placemark.setLongitude(GeoDataLongitude::fromDegrees(query.value(4).toFloat()));
+            placemark.setLatitude(GeoDataLatitude::fromDegrees(query.value(5).toFloat()));
 
             result.push_back( placemark );
             resultCount++;
@@ -260,37 +260,37 @@ QString OsmDatabase::formatDistance( const GeoDataCoordinates &a, const GeoDataC
 
     QString const fuzzyDistance = QString( "%1 %2" ).arg( distance, 0, 'f', precision ).arg( distanceUnit );
 
-    int direction = 180 + bearing( a, b ) * RAD2DEG;
+    const GeoDataAngle direction = GeoDataAngle::fullCircle / 2 + bearing(a, b);
 
     QString heading = QObject::tr( "north" );
-    if ( direction > 337 ) {
+    if (direction > GeoDataAngle::fromDegrees(337)) {
         heading = QObject::tr( "north" );
-    } else if ( direction > 292 ) {
+    } else if (direction > GeoDataAngle::fromDegrees(292)) {
         heading = QObject::tr( "north-west" );
-    } else if ( direction > 247 ) {
+    } else if (direction > GeoDataAngle::fromDegrees(247)) {
         heading = QObject::tr( "west" );
-    } else if ( direction > 202 ) {
+    } else if (direction > GeoDataAngle::fromDegrees(202)) {
         heading = QObject::tr( "south-west" );
-    } else if ( direction > 157 ) {
+    } else if (direction > GeoDataAngle::fromDegrees(157)) {
         heading = QObject::tr( "south" );
-    } else if ( direction > 112 ) {
+    } else if (direction > GeoDataAngle::fromDegrees(112)) {
         heading = QObject::tr( "south-east" );
-    } else if ( direction > 67 ) {
+    } else if (direction > GeoDataAngle::fromDegrees(67)) {
         heading = QObject::tr( "east" );
-    } else if ( direction > 22 ) {
+    } else if (direction > GeoDataAngle::fromDegrees(22)) {
         heading = QObject::tr( "north-east" );
     }
 
     return fuzzyDistance + QLatin1Char(' ') + heading;
 }
 
-qreal OsmDatabase::bearing( const GeoDataCoordinates &a, const GeoDataCoordinates &b )
+GeoDataAngle OsmDatabase::bearing(const GeoDataCoordinates &a, const GeoDataCoordinates &b)
 {
-    qreal delta = b.longitude() - a.longitude();
-    qreal lat1 = a.latitude();
-    qreal lat2 = b.latitude();
-    return fmod( atan2( sin ( delta ) * cos ( lat2 ),
-                       cos( lat1 ) * sin( lat2 ) - sin( lat1 ) * cos( lat2 ) * cos ( delta ) ), 2 * M_PI );
+    const qreal delta = (b.longitude() - a.longitude()).toRadian();
+    const qreal lat1 = a.latitude().toRadian();
+    const qreal lat2 = b.latitude().toRadian();
+    return GeoDataAngle::fromRadians(fmod( atan2( sin ( delta ) * cos ( lat2 ),
+                       cos( lat1 ) * sin( lat2 ) - sin( lat1 ) * cos( lat2 ) * cos ( delta ) ), 2 * M_PI ));
 }
 
 QString OsmDatabase::wildcardQuery( const QString &term )

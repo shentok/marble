@@ -24,6 +24,8 @@
 #include <QVector>
 
 #include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+
 #include "marble_export.h"
 
 class QIcon;
@@ -99,15 +101,15 @@ class MARBLE_EXPORT AbstractProjection
      * Example: For many projections the value will represent +90 degrees in Radian.
      * In the case of Mercator this value will equal +85.05113 degrees in Radian.
      */
-    virtual qreal  maxValidLat() const;
+    virtual GeoDataLatitude maxValidLat() const;
 
     /**
      * @brief Returns the arbitrarily chosen maximum (northern) latitude.
      * By default this value is equal to the value defined inside maxValidLat().
      * In general this value can only be smaller or equal to maxValidLat().
      */
-    qreal  maxLat()  const;
-    void setMaxLat( qreal maxLat );
+    GeoDataLatitude maxLat() const;
+    void setMaxLat(GeoDataLatitude maxLat);
 
     /**
      * @brief Returns the minimum (southern) latitude that is mathematically defined and reasonable.
@@ -115,15 +117,15 @@ class MARBLE_EXPORT AbstractProjection
      * Example: For many projections the value will represent -90 degrees in Radian.
      * In the case of Mercator this value will equal -85.05113 degrees in Radian.
      */
-    virtual qreal  minValidLat() const;
+    virtual GeoDataLatitude minValidLat() const;
 
     /**
      * @brief Returns the arbitrarily chosen minimum (southern) latitude.
      * By default this value is equal to the value defined inside minValidLat().
      * In general this value can only be larger or equal to minValidLat().
      */
-    qreal  minLat()  const;
-    void setMinLat( qreal minLat );
+    GeoDataLatitude minLat()  const;
+    void setMinLat(GeoDataLatitude minLat);
 
     /**
      * @brief Returns whether the projection allows for wrapping in x direction (along the longitude scale).
@@ -173,9 +175,9 @@ class MARBLE_EXPORT AbstractProjection
      *
      * @see ViewportParams
      */
-    bool screenCoordinates( const qreal lon, const qreal lat,
-                            const ViewportParams *viewport,
-                            qreal& x, qreal& y ) const;
+    bool screenCoordinates(GeoDataLongitude lon, GeoDataLatitude lat,
+                           const ViewportParams *viewport,
+                           qreal &x, qreal &y) const;
 
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.
@@ -235,15 +237,10 @@ class MARBLE_EXPORT AbstractProjection
      * @param viewport the viewport parameters
      * @param lon    the longitude angle is returned through this parameter
      * @param lat    the latitude angle is returned through this parameter
-     * @param unit   the unit of the angles for lon and lat.
      * @return @c true  if the pixel (x, y) is within the globe
      *         @c false if the pixel (x, y) is outside the globe, i.e. in space.
      */
-    virtual bool geoCoordinates( const int x, const int y,
-                                 const ViewportParams *viewport,
-                                 qreal& lon, qreal& lat,
-                                 GeoDataCoordinates::Unit unit = GeoDataCoordinates::Degree ) const = 0;
-
+    virtual bool geoCoordinates(int x, int y, const ViewportParams *viewport, GeoDataLongitude &lon, GeoDataLatitude &lat) const = 0;
 
     /**
      * @brief Returns a GeoDataLatLonAltBox bounding box of the given screenrect inside the given viewport.

@@ -27,12 +27,11 @@
 namespace Marble
 {
 
-GeoDataPoint::GeoDataPoint( qreal lon, qreal lat, qreal alt,
-                            GeoDataCoordinates::Unit unit )
-    : GeoDataGeometry( new GeoDataPointPrivate )
+GeoDataPoint::GeoDataPoint(GeoDataLongitude lon, GeoDataLatitude lat, qreal alt) :
+    GeoDataGeometry(new GeoDataPointPrivate)
 {
     Q_D(GeoDataPoint);
-    d->m_coordinates = GeoDataCoordinates(lon, lat, alt, unit);
+    d->m_coordinates = GeoDataCoordinates(lon, lat, alt);
     d->m_latLonAltBox = GeoDataLatLonAltBox(d->m_coordinates);
 }
 

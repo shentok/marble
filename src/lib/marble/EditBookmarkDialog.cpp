@@ -122,8 +122,8 @@ void EditBookmarkDialog::setCoordinates( const GeoDataCoordinates &coordinates )
         d->m_ui.m_header->setName( coordinates.toString() );
     }
 
-    d->m_ui.m_header->setLongitude( coordinates.longitude(GeoDataCoordinates::Degree) );
-    d->m_ui.m_header->setLatitude( coordinates.latitude(GeoDataCoordinates::Degree) );
+    d->m_ui.m_header->setLongitude(coordinates.longitude());
+    d->m_ui.m_header->setLatitude(coordinates.latitude());
     QObject::connect( d->m_ui.m_header, SIGNAL(valueChanged()), this, SLOT(updateCoordinates()) );
 }
 
@@ -245,8 +245,8 @@ void EditBookmarkDialogPrivate::openNewFolderDialog()
 
 void EditBookmarkDialogPrivate::updateCoordinates()
 {
-    m_bookmarkCoordinates.setLongitude( m_ui.m_header->longitude(), GeoDataCoordinates::Degree );
-    m_bookmarkCoordinates.setLatitude( m_ui.m_header->latitude(), GeoDataCoordinates::Degree );
+    m_bookmarkCoordinates.setLongitude(m_ui.m_header->longitude());
+    m_bookmarkCoordinates.setLatitude(m_ui.m_header->latitude());
 }
 
 GeoDataPlacemark EditBookmarkDialog::bookmark() const

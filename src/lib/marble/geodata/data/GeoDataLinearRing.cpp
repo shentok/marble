@@ -103,9 +103,9 @@ bool GeoDataLinearRing::isClockwise() const
     int const n = size();
     qreal area = 0;
     for ( int i = 1; i < n; ++i ){
-        area += ( operator[]( i ).longitude() - operator[]( i - 1 ).longitude() ) * ( operator[]( i ).latitude() + operator[]( i - 1 ).latitude() );
+        area += (operator[](i).longitude() - operator[](i - 1).longitude()).toRadian() * (operator[](i).latitude() + operator[](i - 1).latitude()).toRadian();
     }
-    area += ( operator[]( 0 ).longitude() - operator[]( n - 1 ).longitude() ) * ( operator[] ( 0 ).latitude() + operator[]( n - 1 ).latitude() );
+    area += (operator[](0).longitude() - operator[](n - 1).longitude()).toRadian() * (operator[](0).latitude() + operator[](n - 1).latitude()).toRadian();
 
     return area > 0;
 }

@@ -116,10 +116,9 @@ namespace Marble
         for(auto item : coordinates) {
             QVariantMap map = item.toMap();
             m_lineString << GeoDataCoordinates(
-                                map["lon"].toReal(),
-                                map["lat"].toReal(),
-                                map["alt"].toReal(),
-                                GeoDataCoordinates::Degree
+                                GeoDataLongitude::fromDegrees(map["lon"].toReal()),
+                                GeoDataLatitude::fromDegrees(map["lat"].toReal()),
+                                map["alt"].toReal()
                             );
         }
 

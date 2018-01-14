@@ -50,10 +50,10 @@ void GeoNamesWeatherService::getAdditionalItems( const GeoDataLatLonAltBox& box,
 
     QUrl geonamesUrl( "http://ws.geonames.org/weatherJSON" );
     QUrlQuery urlQuery;
-    urlQuery.addQueryItem( "north", QString::number( box.north( GeoDataCoordinates::Degree ) ) );
-    urlQuery.addQueryItem( "south", QString::number( box.south( GeoDataCoordinates::Degree ) ) );
-    urlQuery.addQueryItem( "east", QString::number( box.east( GeoDataCoordinates::Degree ) ) );
-    urlQuery.addQueryItem( "west", QString::number( box.west( GeoDataCoordinates::Degree ) ) );
+    urlQuery.addQueryItem( "north", QString::number(box.north().toDegree()) );
+    urlQuery.addQueryItem( "south", QString::number(box.south().toDegree()) );
+    urlQuery.addQueryItem( "east", QString::number(box.east().toDegree()) );
+    urlQuery.addQueryItem( "west", QString::number(box.west().toDegree()) );
     urlQuery.addQueryItem( "maxRows", QString::number( number ) );
     urlQuery.addQueryItem( "username", "marble" );
     geonamesUrl.setQuery( urlQuery );
@@ -120,8 +120,8 @@ AbstractDataPluginItem *GeoNamesWeatherService::parse(const QJsonObject &weather
     const QString name = weatherObservationObject.value(QStringLiteral("stationName")).toString();
     const QDateTime date = QDateTime::fromString(
                 weatherObservationObject.value(QStringLiteral("datetime")).toString(), "yyyy-MM-dd hh:mm:ss" );
-    const double longitude = weatherObservationObject.value(QStringLiteral("lng")).toDouble();
-    const double latitude = weatherObservationObject.value(QStringLiteral("lat")).toDouble();
+    const GeoDataLongitude longitude = GeoDataLongitude::fromDegrees(weatherObservationObject.value(QStringLiteral("lng")).toDouble());
+    const GeoDataLatitude latitude = GeoDataLatitude::fromDegrees(weatherObservationObject.value(QStringLiteral("lat")).toDouble());
 
     if ( !id.isEmpty() ) {
         WeatherData data;
@@ -171,7 +171,7 @@ AbstractDataPluginItem *GeoNamesWeatherService::parse(const QJsonObject &weather
         // ID
         id = QLatin1String("geonames_") + id;
 
-        GeoDataCoordinates coordinates( longitude, latitude, 0.0, GeoDataCoordinates::Degree );
+        GeoDataCoordinates coordinates(longitude, latitude);
         GeoNamesWeatherItem *item = new GeoNamesWeatherItem( this );
         item->setMarbleWidget( marbleWidget() );
         item->setId( id );

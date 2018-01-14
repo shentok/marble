@@ -48,14 +48,14 @@ void PostalCodeModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
         return;
     }
 
-    double const lat = box.center().latitude( GeoDataCoordinates::Degree );
-    double const lon = box.center().longitude( GeoDataCoordinates::Degree );
-    double const radius = qMin<double>( 30.0, box.height() * marbleModel()->planet()->radius() * METER2KM );
+    const GeoDataLatitude lat = box.center().latitude();
+    const GeoDataLongitude lon = box.center().longitude();
+    double const radius = qMin<double>(30.0, box.height().toRadian() * marbleModel()->planet()->radius() * METER2KM);
 
     QUrl geonamesUrl( "http://ws.geonames.org/findNearbyPostalCodesJSON" );
     QUrlQuery urlQuery;
-    urlQuery.addQueryItem( "lat", QString::number( lat ) );
-    urlQuery.addQueryItem( "lng", QString::number( lon ) );
+    urlQuery.addQueryItem( "lat", QString::number(lat.toDegree()) );
+    urlQuery.addQueryItem( "lng", QString::number(lon.toDegree()) );
     urlQuery.addQueryItem( "radius", QString::number( radius ) );
     urlQuery.addQueryItem( "maxRows", QString::number( number ) );
     urlQuery.addQueryItem( "username", "marble" );
@@ -84,8 +84,8 @@ void PostalCodeModel::parseFile( const QByteArray& file )
             QString const adminName3 = postalCodeObject.value(QStringLiteral("adminName3")).toString();
             QString const postalCode = postalCodeObject.value(QStringLiteral("postalCode")).toString();
             QString const countryCode = postalCodeObject.value(QStringLiteral("countryCode")).toString();
-            double const longitude = postalCodeObject.value(QStringLiteral("lng")).toDouble();
-            double const latitude = postalCodeObject.value(QStringLiteral("lat")).toDouble();
+            GeoDataLongitude const longitude = GeoDataLongitude::fromDegrees(postalCodeObject.value(QStringLiteral("lng")).toDouble());
+            GeoDataLatitude const latitude = GeoDataLatitude::fromDegrees(postalCodeObject.value(QStringLiteral("lat")).toDouble());
 
             QString const id = QLatin1String("postalCode_") + countryCode + postalCode;
 
@@ -105,7 +105,7 @@ void PostalCodeModel::parseFile( const QByteArray& file )
 
                 if( !itemExists( id ) ) {
                     // If it does not exist, create it
-                    GeoDataCoordinates coordinates( longitude, latitude, 0.0, GeoDataCoordinates::Degree );
+                    GeoDataCoordinates coordinates(longitude, latitude);
 
                     PostalCodeItem *item = new PostalCodeItem( this );
                     item->setId( id );

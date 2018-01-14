@@ -54,12 +54,11 @@ void OsmNominatimRunner::search( const QString &searchTerm, const GeoDataLatLonB
     QString query = "q=%1&format=xml&addressdetails=1&accept-language=%2";
     QString url = QString(base + query).arg(searchTerm).arg(MarbleLocale::languageCode());
     if( !preferred.isEmpty() ) {
-        GeoDataCoordinates::Unit deg = GeoDataCoordinates::Degree;
         QString viewbox( "&viewbox=%1,%2,%3,%4&bounded=1" ); // left, top, right, bottom
-        url += viewbox.arg(preferred.west(deg))
-                      .arg(preferred.north(deg))
-                      .arg(preferred.east(deg))
-                      .arg(preferred.south(deg));
+        url += viewbox.arg(preferred.west().toDegree())
+                      .arg(preferred.north().toDegree())
+                      .arg(preferred.east().toDegree())
+                      .arg(preferred.south().toDegree());
 
     }
     m_request.setUrl(QUrl(url));
@@ -204,7 +203,7 @@ void OsmNominatimRunner::handleResult( QNetworkReply* reply )
             placemark->setName( placemarkName );
             placemark->setDescription(description);
             placemark->setAddress(desc);
-            placemark->setCoordinate( lon.toDouble(), lat.toDouble(), 0, GeoDataCoordinates::Degree );
+            placemark->setCoordinate(GeoDataLongitude::fromDegrees(lon.toDouble()), GeoDataLatitude::fromDegrees(lat.toDouble()));
             const auto category = StyleBuilder::determineVisualCategory(data);
             placemark->setVisualCategory( category );
             placemark->setExtendedData(placemarkData);

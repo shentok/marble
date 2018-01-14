@@ -157,7 +157,7 @@ int main(int argc, char** argv)
         return 1;
     }
     GeoDataCoordinates start = route.path().at( 0 );
-    start.setLongitude( start.longitude() + 1e-6 );
+    start.setLongitude( start.longitude() + GeoDataLongitude::fromRadians(1e-6) );
     mapWidget->centerOn( start );
     mapWidget->setDistance( 0.8 );
     animatedFlight( mapWidget, createTour( route ) );

@@ -62,8 +62,8 @@ QPainterPath CylindricalProjection::mapShape( const ViewportParams *viewport ) c
     qreal  xDummy;
 
     // Get the top and bottom coordinates of the projected map.
-    screenCoordinates( 0.0, maxLat(), viewport, xDummy, yTop );
-    screenCoordinates( 0.0, minLat(), viewport, xDummy, yBottom );
+    screenCoordinates(GeoDataLongitude::null, maxLat(), viewport, xDummy, yTop);
+    screenCoordinates(GeoDataLongitude::null, minLat(), viewport, xDummy, yBottom);
 
     // Don't let the map area be outside the image
     if ( yTop < 0 )
@@ -171,23 +171,23 @@ int CylindricalProjectionPrivate::processTessellation( const GeoDataCoordinates 
                                       && previousCoords.latitude() == currentCoords.latitude();
 
     // Calculate steps for tessellation: lonDiff and altDiff
-    qreal lonDiff = 0.0;
+    GeoDataLongitude lonDiff = GeoDataLongitude::null;
     if ( followLatitudeCircle ) {
-        const int previousSign = previousCoords.longitude() > 0 ? 1 : -1;
-        const int currentSign = currentCoords.longitude() > 0 ? 1 : -1;
+        const int previousSign = previousCoords.longitude() > GeoDataLongitude::null ? 1 : -1;
+        const int currentSign = currentCoords.longitude() > GeoDataLongitude::null ? 1 : -1;
 
         lonDiff = currentCoords.longitude() - previousCoords.longitude();
         if ( previousSign != currentSign
-             && fabs(previousCoords.longitude()) + fabs(currentCoords.longitude()) > M_PI ) {
+             && qAbs(previousCoords.longitude()) + qAbs(currentCoords.longitude()) > GeoDataLongitude::halfCircle) {
             if ( previousSign > currentSign ) {
                 // going eastwards ->
-                lonDiff += 2 * M_PI ;
+                lonDiff += 2 * GeoDataLongitude::halfCircle;
             } else {
                 // going westwards ->
-                lonDiff -= 2 * M_PI;
+                lonDiff -= 2 * GeoDataLongitude::halfCircle;
             }
         }
-        if ( fabs( lonDiff ) == 2 * M_PI ) {
+        if (qAbs(lonDiff) == 2 * GeoDataLongitude::halfCircle) {
             return mirrorCount;
         }
     }
@@ -205,8 +205,8 @@ int CylindricalProjectionPrivate::processTessellation( const GeoDataCoordinates 
             // interpolate the altitude, too
             const qreal altDiff = currentCoords.altitude() - previousCoords.altitude();
             const qreal altitude = altDiff * t + previousCoords.altitude();
-            const qreal lon = lonDiff * t + previousCoords.longitude();
-            const qreal lat = previousTessellatedCoords.latitude();
+            const GeoDataLongitude lon = lonDiff * t + previousCoords.longitude();
+            const GeoDataLatitude lat = previousTessellatedCoords.latitude();
 
             currentTessellatedCoords = GeoDataCoordinates(lon, lat, altitude);
         }
@@ -249,14 +249,14 @@ int CylindricalProjectionPrivate::crossDateLine( const GeoDataCoordinates & aCoo
                                                  int mirrorCount,
                                                  qreal repeatDistance )
 {
-    qreal aLon = aCoord.longitude();
-    qreal aSign = aLon > 0 ? 1 : -1;
+    GeoDataLongitude aLon = aCoord.longitude();
+    qreal aSign = aLon >= GeoDataLongitude::null ? 1 : -1;
 
-    qreal bLon = bCoord.longitude();
-    qreal bSign = bLon > 0 ? 1 : -1;
+    GeoDataLongitude bLon = bCoord.longitude();
+    qreal bSign = bLon >= GeoDataLongitude::null ? 1 : -1;
 
     qreal delta = 0;
-    if( aSign != bSign && fabs(aLon) + fabs(bLon) > M_PI ) {
+    if (aSign != bSign && qAbs(aLon) + qAbs(bLon) > GeoDataLongitude::halfCircle) {
         int sign = aSign > bSign ? 1 : -1;
         mirrorCount += sign;
     }
@@ -306,7 +306,7 @@ bool CylindricalProjectionPrivate::lineStringToPolygon( const GeoDataLineString 
     // The first node of optimized linestrings has a non-zero detail value.
     const bool hasDetail = itBegin->detail() != 0;
 
-    bool isStraight = lineString.latLonAltBox().height() == 0 || lineString.latLonAltBox().width() == 0;
+    const bool isStraight = lineString.latLonAltBox().height() == GeoDataLatitude::null || lineString.latLonAltBox().width() == GeoDataLongitude::null;
 
     Q_Q( const CylindricalProjection );
     bool const isClosed = lineString.isClosed();
@@ -420,10 +420,10 @@ void CylindricalProjectionPrivate::repeatPolygons( const ViewportParams *viewpor
     qreal y = 0;
 
     // Choose a latitude that is inside the viewport.
-    const qreal centerLatitude = viewport->viewLatLonAltBox().center().latitude();
+    const GeoDataLatitude centerLatitude = viewport->viewLatLonAltBox().center().latitude();
 
-    const GeoDataCoordinates westCoords(-M_PI, centerLatitude);
-    const GeoDataCoordinates eastCoords(+M_PI, centerLatitude);
+    const GeoDataCoordinates westCoords(-GeoDataLongitude::halfCircle, centerLatitude);
+    const GeoDataCoordinates eastCoords(+GeoDataLongitude::halfCircle, centerLatitude);
 
     q->screenCoordinates( westCoords, viewport, xWest, y );
     q->screenCoordinates( eastCoords, viewport, xEast, y );
@@ -465,10 +465,10 @@ void CylindricalProjectionPrivate::repeatPolygons( const ViewportParams *viewpor
 qreal CylindricalProjectionPrivate::repeatDistance( const ViewportParams *viewport ) const
 {
     // Choose a latitude that is inside the viewport.
-    qreal centerLatitude = viewport->viewLatLonAltBox().center().latitude();
+    const GeoDataLatitude centerLatitude = viewport->viewLatLonAltBox().center().latitude();
 
-    GeoDataCoordinates westCoords( -M_PI, centerLatitude );
-    GeoDataCoordinates eastCoords( +M_PI, centerLatitude );
+    GeoDataCoordinates westCoords(-GeoDataLongitude::halfCircle, centerLatitude);
+    GeoDataCoordinates eastCoords(+GeoDataLongitude::halfCircle, centerLatitude);
     qreal xWest, xEast, dummyY;
 
     Q_Q( const AbstractProjection );

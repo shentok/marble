@@ -33,24 +33,24 @@ namespace Marble
 
     qreal GeoItem::longitude() const
     {
-        return m_coordinate.longitude( GeoDataCoordinates::Degree );
+        return m_coordinate.longitude().toDegree();
     }
 
     void GeoItem::setLongitude( qreal lon )
     {
-        m_coordinate.setLongitude( lon, GeoDataCoordinates::Degree );
+        m_coordinate.setLongitude(GeoDataLongitude::fromDegrees(lon));
         updateScreenPosition();
         emit longitudeChanged();
     }
 
     qreal GeoItem::latitude() const
     {
-        return m_coordinate.latitude( GeoDataCoordinates::Degree );
+        return m_coordinate.latitude().toDegree();
     }
 
     void GeoItem::setLatitude( qreal lat )
     {
-        m_coordinate.setLatitude( lat, GeoDataCoordinates::Degree );
+        m_coordinate.setLatitude(GeoDataLatitude::fromDegrees(lat));
         updateScreenPosition();
         emit latitudeChanged();
     }

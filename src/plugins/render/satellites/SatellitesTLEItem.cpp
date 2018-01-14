@@ -168,28 +168,19 @@ GeoDataCoordinates SatellitesTLEItem::fromTEME( double x,
                                                 double z,
                                                 double gmst ) const
 {
-    double lon = atan2( y, x );
     // Rotate the angle by gmst (the origin goes from the vernal equinox
     // point to the Greenwich Meridian)
-    lon = GeoDataCoordinates::normalizeLon( fmod(lon - gmst, 2 * M_PI) );
-
-    double lat = atan2( z, sqrt( x*x + y*y ) );
+    const GeoDataLongitude lon = GeoDataCoordinates::normalizeLon(GeoDataLongitude::fromRadians(fmod(atan2( y, x ) - gmst, 2 * M_PI)));
 
     //TODO: determine if this is worth the extra precision
     // Algorithm from https://celestrak.com/columns/v02n03/
     //TODO: demonstrate it.
-    double a = m_earthSemiMajorAxis;
-    double planetRadius = sqrt( x*x + y*y );
-    double latp = lat;
-    double C;
-    for ( int i = 0; i < 3; i++ ) {
-        C = 1 / sqrt( 1 - square( m_satrec.ecco * sin( latp ) ) );
-        lat = atan2( z + a * C * square( m_satrec.ecco ) * sin( latp ), planetRadius );
-    }
-
-    double alt = planetRadius / cos( lat ) - a * C;
-
-    lat = GeoDataCoordinates::normalizeLat( lat );
+    const double a = m_earthSemiMajorAxis;
+    const double planetRadius = sqrt( x*x + y*y );
+    const double latp = atan2(z, sqrt(x*x + y*y));
+    const double C = 1 / sqrt( 1 - square( m_satrec.ecco * sin( latp ) ) );
+    const GeoDataLatitude lat = GeoDataCoordinates::normalizeLat(GeoDataLatitude::fromRadians(atan2( z + a * C * square( m_satrec.ecco ) * sin( latp ), planetRadius)));
+    const double alt = planetRadius / cos(lat.toRadian()) - a * C;
 
     return GeoDataCoordinates( lon, lat, alt * 1000 );
 }

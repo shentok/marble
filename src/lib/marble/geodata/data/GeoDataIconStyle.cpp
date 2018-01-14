@@ -32,7 +32,7 @@ class GeoDataIconStylePrivate
         m_size(0, 0),
         m_aspectRatioMode(Qt::KeepAspectRatio),
         m_iconPath(),
-        m_heading( 0 )
+        m_heading(GeoDataAngle::null)
     {
     }
 
@@ -42,7 +42,7 @@ class GeoDataIconStylePrivate
           m_aspectRatioMode(Qt::KeepAspectRatio),
           m_iconPath( iconPath ),
           m_hotSpot( hotSpot ),
-          m_heading( 0 )
+          m_heading(GeoDataAngle::null)
     {
     }
 
@@ -112,7 +112,7 @@ class GeoDataIconStylePrivate
     QImage           m_scaledIcon;
     QString          m_iconPath;
     GeoDataHotSpot   m_hotSpot;
-    int              m_heading;
+    GeoDataAngle     m_heading;
 };
 
 GeoDataIconStyle::GeoDataIconStyle() :
@@ -274,12 +274,12 @@ QImage GeoDataIconStyle::scaledIcon() const
     return d->m_scaledIcon;
 }
 
-int GeoDataIconStyle::heading() const
+GeoDataAngle GeoDataIconStyle::heading() const
 {
     return d->m_heading;
 }
 
-void GeoDataIconStyle::setHeading( int heading )
+void GeoDataIconStyle::setHeading(GeoDataAngle heading)
 {
     d->m_heading = heading;
 }

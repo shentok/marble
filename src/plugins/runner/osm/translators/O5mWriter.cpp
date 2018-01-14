@@ -83,8 +83,8 @@ void O5mWriter::writeNodes(const OsmConverter::Nodes &nodes, QDataStream &stream
         writeSigned(idDiff, bufferStream);
         writeVersion(osmData, bufferStream);
         GeoDataCoordinates const & coordinates = node.first;
-        double const lon = coordinates.longitude(GeoDataCoordinates::Degree);
-        double const lat = coordinates.latitude(GeoDataCoordinates::Degree);
+        double const lon = coordinates.longitude().toDegree();
+        double const lat = coordinates.latitude().toDegree();
         writeSigned(deltaTo(lon, lastLon), bufferStream);
         writeSigned(deltaTo(lat, lastLat), bufferStream);
         writeTags(osmData, stringTable, bufferStream);

@@ -16,6 +16,7 @@
 
 #include "GeoDataCoordinates.h"
 #include "GeoDataAccuracy.h"
+#include "GeoDataAngle.h"
 
 #include <QDateTime>
 
@@ -50,7 +51,7 @@ class PlacemarkPositionProviderPlugin: public PositionProviderPlugin
     GeoDataCoordinates position() const override;
     GeoDataAccuracy accuracy() const override;
     qreal speed() const override;
-    qreal direction() const override;
+    GeoDataAngle direction() const override;
     QDateTime timestamp() const override;
 
  private:
@@ -59,7 +60,7 @@ class PlacemarkPositionProviderPlugin: public PositionProviderPlugin
     GeoDataCoordinates m_coordinates;
     QDateTime m_timestamp;
     qreal m_speed;
-    qreal m_direction;
+    GeoDataAngle m_direction;
 
     PositionProviderStatus m_status;
     GeoDataAccuracy m_accuracy;

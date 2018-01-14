@@ -4621,8 +4621,8 @@ std::ostream& operator <<(std::ostream &s, const Paths &p)
 }
 
 IntPoint::IntPoint(const Marble::GeoDataCoordinates *coordinates) :
-    X(qRound64(coordinates->longitude() * scale)),
-    Y(qRound64(coordinates->latitude() * scale)),
+    X(qRound64(coordinates->longitude().toRadian() * scale)),
+    Y(qRound64(coordinates->latitude().toRadian() * scale)),
     m_coordinates(coordinates)
 {
     // nothing to do
@@ -4631,10 +4631,10 @@ IntPoint::IntPoint(const Marble::GeoDataCoordinates *coordinates) :
 Marble::GeoDataCoordinates IntPoint::coordinates() const
 {
     using namespace Marble;
-    GeoDataCoordinates const coords = GeoDataCoordinates(double(X) / scale, double(Y) / scale);
+    GeoDataCoordinates const coords = GeoDataCoordinates(GeoDataLongitude::fromRadians(double(X / scale)), GeoDataLatitude::fromRadians(double(Y) / scale));
     if (m_coordinates) {
-        bool const clipperKeptTheNode = qRound64(m_coordinates->longitude() * scale) == X &&
-                qRound64(m_coordinates->latitude() * scale) == Y;
+        bool const clipperKeptTheNode = qRound64(m_coordinates->longitude().toRadian() * scale) == X &&
+                qRound64(m_coordinates->latitude().toRadian() * scale) == Y;
         if (clipperKeptTheNode) {
             return *m_coordinates;
         }

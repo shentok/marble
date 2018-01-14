@@ -446,10 +446,11 @@ void RoutingInputWidget::reloadBookmarks()
 
 void RoutingInputWidget::setHomePosition()
 {
-    qreal lon( 0.0 ), lat( 0.0 );
+    GeoDataLongitude lon = GeoDataLongitude::null;
+    GeoDataLatitude lat = GeoDataLatitude::null;
     int zoom( 0 );
     d->m_marbleModel->home( lon, lat, zoom );
-    GeoDataCoordinates home( lon, lat, 0.0, GeoDataCoordinates::Degree );
+    const GeoDataCoordinates home(lon, lat);
     setTargetPosition( home );
     requestActivity();
 }

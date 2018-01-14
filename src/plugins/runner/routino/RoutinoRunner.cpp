@@ -137,9 +137,9 @@ GeoDataLineString* RoutinoRunnerPrivate::parseRoutinoOutput( const QByteArray &c
         }
         const QStringList fields = line.split(QLatin1Char('\t'));
         if ( fields.size() >= 10 ) {
-            qreal lon = fields.at(1).trimmed().toDouble();
-            qreal lat = fields.at(0).trimmed().toDouble();
-            GeoDataCoordinates coordinates( lon, lat, 0.0, GeoDataCoordinates::Degree );
+            const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(fields.at(1).trimmed().toDouble());
+            const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(fields.at(0).trimmed().toDouble());
+            const GeoDataCoordinates coordinates(lon, lat);
             routeWaypoints->append( coordinates );
         }
     }
@@ -172,7 +172,7 @@ QVector<GeoDataPlacemark*> RoutinoRunnerPrivate::parseRoutinoInstructions( const
         QVector<RoutingWaypoint> items = directions[i].points();
         for (int j=0; j<items.size(); ++j ) {
             RoutingPoint point = items[j].point();
-            GeoDataCoordinates coordinates( point.lon(), point.lat(), 0.0, GeoDataCoordinates::Degree );
+            const GeoDataCoordinates coordinates(point.lon(), point.lat());
             geometry->append( coordinates );
         }
         placemark->setGeometry( geometry );
@@ -237,8 +237,8 @@ void RoutinoRunner::retrieveRoute( const RouteRequest *route )
     QStringList params;
     for( int i=0; i<route->size(); ++i )
     {
-        double fLon = route->at(i).longitude( GeoDataCoordinates::Degree );
-        double fLat = route->at(i).latitude( GeoDataCoordinates::Degree );
+        double fLon = route->at(i).longitude().toDegree();
+        double fLat = route->at(i).latitude().toDegree();
         params << QString("--lat%1=%2").arg(i+1).arg(fLat, 0, 'f', 8);
         params << QString("--lon%1=%2").arg(i+1).arg(fLon, 0, 'f', 8);
     }

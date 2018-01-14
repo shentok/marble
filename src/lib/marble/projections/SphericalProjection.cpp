@@ -156,8 +156,7 @@ bool SphericalProjection::screenCoordinates( const GeoDataCoordinates &coordinat
 
 bool SphericalProjection::geoCoordinates( const int x, const int y,
                                           const ViewportParams *viewport,
-                                          qreal& lon, qreal& lat,
-                                          GeoDataCoordinates::Unit unit ) const
+                                          GeoDataLongitude &lon, GeoDataLatitude &lat) const
 {
     const qreal  inverseRadius = 1.0 / (qreal)(viewport->radius());
 
@@ -172,12 +171,11 @@ bool SphericalProjection::geoCoordinates( const int x, const int y,
 
     Quaternion  qpos( 0.0, qx, qy, qz );
     qpos.rotateAroundAxis( viewport->planetAxis() );
-    qpos.getSpherical( lon, lat );
+    qreal _lon, _lat;
+    qpos.getSpherical(_lon, _lat);
 
-    if ( unit == GeoDataCoordinates::Degree ) {
-        lon *= RAD2DEG;
-        lat *= RAD2DEG;
-    }
+    lon = GeoDataLongitude::fromRadians(_lon);
+    lat = GeoDataLatitude::fromRadians(_lat);
 
     return true;
 }

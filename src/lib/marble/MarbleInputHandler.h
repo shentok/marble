@@ -16,7 +16,8 @@
 #include <QObject>
 
 #include "marble_export.h"
-#include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 
 class QEvent;
 class QKeyEvent;
@@ -96,7 +97,7 @@ class MARBLE_EXPORT MarbleInputHandler  : public QObject
      * To detect mouse click followed by mouse move
      * with no mouse move in between
      */
-    void mouseClickGeoPosition( qreal, qreal, GeoDataCoordinates::Unit );
+    void mouseClickGeoPosition(GeoDataLongitude, GeoDataLatitude);
 
  protected Q_SLOTS:
     void restoreViewContext();
@@ -151,6 +152,8 @@ class MARBLE_EXPORT MarbleDefaultInputHandler  : public MarbleInputHandler
     virtual void showLmbMenu( int, int ) = 0;
     virtual void showRmbMenu( int, int ) = 0;
     void handlePressAndHold();
+    void centerOn(qreal lon, qreal lat);
+    void headingOn(qreal heading);
 
     virtual void openItemToolTip() = 0;
     virtual void setCursor(const QCursor &) = 0;
@@ -178,7 +181,7 @@ class MARBLE_EXPORT MarbleDefaultInputHandler  : public MarbleInputHandler
     //Returns whatever should be returned from mouse event handling loop
     virtual bool acceptMouse();
 
-    void notifyPosition(bool isAboveMap, qreal mouseLon, qreal mouseLat);
+    void notifyPosition(bool isAboveMap, GeoDataLongitude mouseLon, GeoDataLatitude mouseLat);
     QPoint mouseMovedOutside(QMouseEvent *event);
     void adjustCursorShape(const QPoint& mousePosition, const QPoint& mouseDirection);
 

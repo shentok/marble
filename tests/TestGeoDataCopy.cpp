@@ -86,9 +86,9 @@ class TestGeoDataCopy : public QObject
 };
 
 TestGeoDataCopy::TestGeoDataCopy() :
-    coord1(13.7107, 51.0235, 123.4, GeoDataCoordinates::Degree, 2),
-    coord2(14.7107, 52.0235, 133.4, GeoDataCoordinates::Degree, 3),
-    coord3(15.7107, 53.0235, 143.4, GeoDataCoordinates::Degree, 4)
+    coord1(GeoDataLongitude::fromDegrees(13.7107), GeoDataLatitude::fromDegrees(51.0235), 123.4, 2),
+    coord2(GeoDataLongitude::fromDegrees(14.7107), GeoDataLatitude::fromDegrees(52.0235), 133.4, 3),
+    coord3(GeoDataLongitude::fromDegrees(15.7107), GeoDataLatitude::fromDegrees(53.0235), 143.4, 4)
 {
 }
 
@@ -130,7 +130,7 @@ void TestGeoDataCopy::copyPoint()
 
     QVERIFY(point.coordinates() == other.coordinates());
 
-    point = GeoDataPoint( GeoDataCoordinates(13.7107, 51.0235, 123.4, GeoDataCoordinates::Degree, 17) );
+    point = GeoDataPoint(GeoDataCoordinates(GeoDataLongitude::fromDegrees(13.7107), GeoDataLatitude::fromDegrees(51.0235), 123.4, 17));
     point.setExtrude(false);
     QCOMPARE(other.coordinates().detail(), quint8(2));
     QCOMPARE(point.coordinates().detail(), quint8(17));
@@ -526,26 +526,27 @@ void TestGeoDataCopy::copyHotSpot()
 void TestGeoDataCopy::copyLatLonBox()
 {
     // north south east west
-    GeoDataLatLonBox llbox(30.1, 12.2, 110.0, 44.9, GeoDataCoordinates::Degree);
-    QCOMPARE(llbox.north(GeoDataCoordinates::Degree), 30.1);
-    QCOMPARE(llbox.south(GeoDataCoordinates::Degree), 12.2);
-    QCOMPARE(llbox.east(GeoDataCoordinates::Degree), 110.0);
-    QCOMPARE(llbox.west(GeoDataCoordinates::Degree), 44.9);
+    GeoDataLatLonBox llbox(GeoDataLatitude::fromDegrees(30.1),
+                           GeoDataLatitude::fromDegrees(12.2),
+                           GeoDataLongitude::fromDegrees(110.0),
+                           GeoDataLongitude::fromDegrees(44.9));
+    QCOMPARE(llbox.north(), GeoDataLatitude::fromDegrees(30.1));
+    QCOMPARE(llbox.south(), GeoDataLatitude::fromDegrees(12.2));
+    QCOMPARE(llbox.east(), GeoDataLongitude::fromDegrees(110.0));
+    QCOMPARE(llbox.west(), GeoDataLongitude::fromDegrees(44.9));
 
     GeoDataLatLonBox other = llbox;
 
-    QCOMPARE(other.north(GeoDataCoordinates::Degree), 30.1);
-    QCOMPARE(other.south(GeoDataCoordinates::Degree), 12.2);
-    QCOMPARE(other.east(GeoDataCoordinates::Degree), 110.0);
-    QCOMPARE(other.west(GeoDataCoordinates::Degree), 44.9);
-    
-    llbox.setNorth(0.1);
-    other.setSouth(1.4);
-    
-    QCOMPARE(llbox.north(), 0.1);
-    QCOMPARE(llbox.south(GeoDataCoordinates::Degree), 12.2);
-    QCOMPARE(other.north(GeoDataCoordinates::Degree), 30.1);
-    QCOMPARE(other.south(), 1.4);
+    QCOMPARE(other.north(), GeoDataLatitude::fromDegrees(30.1));
+    QCOMPARE(other.south(), GeoDataLatitude::fromDegrees(12.2));
+    QCOMPARE(other.east(), GeoDataLongitude::fromDegrees(110.0));
+    QCOMPARE(other.west(), GeoDataLongitude::fromDegrees(44.9));
+
+    llbox.setNorth(GeoDataLatitude::fromRadians(0.1));
+    other.setSouth(GeoDataLatitude::fromRadians(1.4));
+
+    QCOMPARE(llbox.north(), GeoDataLatitude::fromRadians(0.1));
+    QCOMPARE(other.south(), GeoDataLatitude::fromRadians(1.4));
 }
 
 void TestGeoDataCopy::copyStyle()

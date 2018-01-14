@@ -39,7 +39,7 @@ bool KmlScreenOverlayWriter::writeMid( const GeoNode *node, GeoWriter& writer ) 
     writeVec2( kml::kmlTag_screenXY, screenOverlay->screenXY(), writer );
     writeVec2( kml::kmlTag_rotationXY, screenOverlay->rotationXY(), writer );
     writeVec2( kml::kmlTag_size, screenOverlay->size(), writer );
-    QString const rotation = QString::number(screenOverlay->rotation());
+    QString const rotation = QString::number(screenOverlay->rotation().toDegree());
     writer.writeOptionalElement( kml::kmlTag_rotation, rotation, "0" );
     return true;
 }

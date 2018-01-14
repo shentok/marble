@@ -150,13 +150,13 @@ void GeoDataScreenOverlay::setSize(qreal x, qreal y, GeoDataVec2::Unit xunit, Ge
     d->m_size.setYunits(yunit);
 }
 
-qreal GeoDataScreenOverlay::rotation() const
+GeoDataAngle GeoDataScreenOverlay::rotation() const
 {
     Q_D(const GeoDataScreenOverlay);
     return d->m_rotation;
 }
 
-void GeoDataScreenOverlay::setRotation(qreal rotation)
+void GeoDataScreenOverlay::setRotation(GeoDataAngle rotation)
 {
     Q_D(GeoDataScreenOverlay);
     d->m_rotation = rotation;

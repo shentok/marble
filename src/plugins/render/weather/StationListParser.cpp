@@ -183,8 +183,8 @@ void StationListParser::readPoint( BBCStation *station )
                 QStringList coorList = coorString.split(QLatin1Char(','));
                 
                 if ( coorList.size() >= 2 ) {
-                    GeoDataCoordinates coordinates( coorList.at( 0 ).toFloat() * DEG2RAD,
-                                                    coorList.at( 1 ).toFloat() * DEG2RAD );
+                    const GeoDataCoordinates coordinates(GeoDataLongitude::fromDegrees(coorList.at(0).toFloat()),
+                                                         GeoDataLatitude::fromDegrees(coorList.at(1).toFloat()));
                     station->setCoordinate( coordinates );
                 }
             }

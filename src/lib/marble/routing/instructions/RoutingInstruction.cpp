@@ -22,7 +22,7 @@ namespace Marble
 RoutingInstruction::RoutingInstruction( const RoutingWaypoint &item ) :
         m_roadName( item.roadName() ), m_roadType( item.roadType() ),
         m_secondsLeft( item.secondsRemaining() ),
-        m_angleToPredecessor( 0.0 ), m_roundaboutExit( 0 ),
+        m_angleToPredecessor(GeoDataAngle::null), m_roundaboutExit( 0 ),
         m_predecessor( nullptr ), m_successor( nullptr )
 {
     m_points.append( item );
@@ -97,7 +97,7 @@ void RoutingInstruction::calculateAngle()
         m_intersectionPoints.push_front( two );
         distance = one.distance( two );
     }
-    qreal before = two.bearing( one );
+    GeoDataAngle before = two.bearing( one );
     m_intersectionPoints.push_back( one );
 
     one = points().first().point();
@@ -118,7 +118,7 @@ void RoutingInstruction::calculateAngle()
         distance = one.distance( two );
     }
 
-    qreal after = one.bearing( two );
+    GeoDataAngle after = one.bearing( two );
     m_angleToPredecessor = after - before;
 }
 
@@ -144,7 +144,7 @@ void RoutingInstruction::calculateTurnType()
         return;
     }
 
-    int angle = qRound( angleToPredecssor() * 180.0 / M_PI + 540 ) % 360;
+    const int angle = qRound(angleToPredecssor().toDegree() + 540) % 360;
     Q_ASSERT( angle >= 0 && angle <= 360 );
 
     const int sharp = 30;
@@ -179,7 +179,7 @@ QVector<RoutingPoint> RoutingInstruction::intersectionPoints() const
     return m_intersectionPoints;
 }
 
-qreal RoutingInstruction::angleToPredecssor() const
+GeoDataAngle RoutingInstruction::angleToPredecssor() const
 {
     return m_angleToPredecessor;
 }
@@ -471,8 +471,8 @@ QTextStream& operator<<( QTextStream& stream, const RoutingInstruction &i )
         QVector<RoutingWaypoint> points = i.points();
         int maxElement = points.size() - ( i.successor() ? 1 : 0 );
         for ( int j = 0; j < maxElement; ++j ) {
-            stream << points[j].point().lat() << ',';
-            stream << points[j].point().lon() << ',';
+            stream << points[j].point().lat().toDegree() << ',';
+            stream << points[j].point().lon().toDegree() << ',';
             stream << points[j].junctionTypeRaw() << ',';
             stream << points[j].roadType() << ',';
             stream << points[j].secondsRemaining() << ',';
@@ -488,8 +488,8 @@ QTextStream& operator<<( QTextStream& stream, const RoutingInstruction &i )
     }
 
     if (QCoreApplication::instance()->arguments().contains(QStringLiteral("--csv"))) {
-        stream << i.points().first().point().lat() << ',';
-        stream << i.points().first().point().lon() << ',';
+        stream << i.points().first().point().lat().toDegree() << ',';
+        stream << i.points().first().point().lon().toDegree() << ',';
     } else {
         QString distanceUnit = "m ";
         int precision = 0;
@@ -509,7 +509,7 @@ QTextStream& operator<<( QTextStream& stream, const RoutingInstruction &i )
     if (QCoreApplication::instance()->arguments().contains(QStringLiteral("--csv")) &&
         QCoreApplication::instance()->arguments().contains(QStringLiteral("--intersection-points"))) {
         for ( const RoutingPoint &point: i.intersectionPoints() ) {
-            stream << ',' << point.lat() << ',' << point.lon();
+            stream << ',' << point.lat().toDegree() << ',' << point.lon().toDegree();
         }
     }
 

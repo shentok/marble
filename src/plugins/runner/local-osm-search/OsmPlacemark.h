@@ -11,6 +11,9 @@
 #ifndef MARBLE_OSMPLACEMARK_H
 #define MARBLE_OSMPLACEMARK_H
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include <QString>
 
 namespace Marble {
@@ -118,14 +121,14 @@ public:
     void setAdditionalInformation( const QString &name );
 
     /** Longitude of the placemark's center point, in degree */
-    qreal longitude() const;
+    GeoDataLongitude longitude() const;
 
-    void setLongitude( qreal longitude );
+    void setLongitude(GeoDataLongitude longitude);
 
     /** Latitude of the placemark's center point, in degree */
-    qreal latitude() const;
+    GeoDataLatitude latitude() const;
 
-    void setLatitude( qreal latitude );
+    void setLatitude(GeoDataLatitude latitude);
 
     /** Placemarks are sorted by name by default */
     bool operator<( const OsmPlacemark &other) const;
@@ -145,9 +148,9 @@ private:
 
     QString m_additionalInformation;
 
-    qreal m_longitude;
+    GeoDataLongitude m_longitude;
 
-    qreal m_latitude;
+    GeoDataLatitude m_latitude;
 };
 
 }

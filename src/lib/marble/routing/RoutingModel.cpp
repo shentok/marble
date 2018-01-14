@@ -132,9 +132,9 @@ QVariant RoutingModel::data ( const QModelIndex & index, int role ) const
         case RoutingModel::CoordinateRole:
             return QVariant::fromValue( segment.maneuver().position() );
         case RoutingModel::LongitudeRole:
-            return QVariant(segment.maneuver().position().longitude(GeoDataCoordinates::Degree));
+            return QVariant(segment.maneuver().position().longitude().toDegree());
         case RoutingModel::LatitudeRole:
-            return QVariant(segment.maneuver().position().latitude(GeoDataCoordinates::Degree));
+            return QVariant(segment.maneuver().position().latitude().toDegree());
         case RoutingModel::TurnTypeIconRole:
             return segment.maneuver().directionPixmap();
         default:
@@ -176,8 +176,8 @@ void RoutingModel::exportGpx( QIODevice *device ) const
     }
     for ( int i=0; i<d->m_route.size(); ++i ) {
         const Maneuver &maneuver = d->m_route.at( i ).maneuver();
-        qreal lon = maneuver.position().longitude( GeoDataCoordinates::Degree );
-        qreal lat = maneuver.position().latitude( GeoDataCoordinates::Degree );
+        const qreal lon = maneuver.position().longitude().toDegree();
+        const qreal lat = maneuver.position().latitude().toDegree();
         QString const text = maneuver.instructionText();
         content += QString( "    <rtept lat=\"%1\" lon=\"%2\">\n" ).arg( lat, 0, 'f', 7 ).arg( lon, 0, 'f', 7 );
         content += QString( "        <name>%1</name>\n").arg( text );
@@ -195,8 +195,8 @@ void RoutingModel::exportGpx( QIODevice *device ) const
     }
     for ( int i=0; i<points.size(); ++i ) {
         GeoDataCoordinates const &point = points[i];
-        qreal lon = point.longitude( GeoDataCoordinates::Degree );
-        qreal lat = point.latitude( GeoDataCoordinates::Degree );
+        const qreal lon = point.longitude().toDegree();
+        const qreal lat = point.latitude().toDegree();
         content += QString( "      <trkpt lat=\"%1\" lon=\"%2\">\n" ).arg( lat, 0, 'f', 7 ).arg( lon, 0, 'f', 7 );
         if ( hasAltitude ) {
             content += QString( "        <ele>%1</ele>\n" ).arg( point.altitude(), 0, 'f', 2 );

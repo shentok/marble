@@ -75,13 +75,13 @@ GeoDataPolygon OpenLocationCodeSearchRunner::polygonFromLatLonBox( const GeoData
     GeoDataPolygon poly;
     GeoDataLinearRing outerBoundry;
     // north-west corner
-    outerBoundry.append( GeoDataCoordinates( boundingBox.west(), boundingBox.north(), GeoDataCoordinates::Unit::Degree ) );
+    outerBoundry.append(GeoDataCoordinates(boundingBox.west(), boundingBox.north()));
     // north-east corner
-    outerBoundry.append( GeoDataCoordinates( boundingBox.east(), boundingBox.north(), GeoDataCoordinates::Unit::Degree ) );
+    outerBoundry.append(GeoDataCoordinates(boundingBox.east(), boundingBox.north()));
     // south-east corner
-    outerBoundry.append( GeoDataCoordinates( boundingBox.east(), boundingBox.south(), GeoDataCoordinates::Unit::Degree ) );
+    outerBoundry.append(GeoDataCoordinates(boundingBox.east(), boundingBox.south()));
     // south-west corner
-    outerBoundry.append( GeoDataCoordinates( boundingBox.west(), boundingBox.south(), GeoDataCoordinates::Unit::Degree ) );
+    outerBoundry.append(GeoDataCoordinates(boundingBox.west(), boundingBox.south()));
 
     poly.setOuterBoundary( outerBoundry );
 
@@ -97,12 +97,12 @@ GeoDataLatLonBox OpenLocationCodeSearchRunner::decodeOLC( const QString &olc ) c
     // remove padding
     QString decoded = olc;
     decoded = decoded.remove( QRegExp("[0+]") );
-    qreal southLatitude = 0;
-    qreal westLongitude = 0;
+    GeoDataLatitude southLatitude = GeoDataLatitude::null;
+    GeoDataLongitude westLongitude = GeoDataLongitude::null;
 
     int digit = 0;
-    qreal latitudeResolution = 400;
-    qreal longitudeResolution = 400;
+    GeoDataLatitude latitudeResolution = GeoDataLatitude::fromDegrees(400);
+    GeoDataLongitude longitudeResolution = GeoDataLongitude::fromDegrees(400);
 
     while( digit < decoded.size() ) {
         if( digit < 10 ) {
@@ -120,7 +120,11 @@ GeoDataLatLonBox OpenLocationCodeSearchRunner::decodeOLC( const QString &olc ) c
             digit += 1;
         }
     }
-    return GeoDataLatLonBox( southLatitude - 90 + latitudeResolution, southLatitude - 90, westLongitude - 180 + longitudeResolution, westLongitude - 180, GeoDataCoordinates::Unit::Degree );
+
+    return GeoDataLatLonBox(southLatitude - GeoDataLatitude::quaterCircle + latitudeResolution,
+                            southLatitude - GeoDataLatitude::quaterCircle,
+                            westLongitude - GeoDataLongitude::halfCircle+ longitudeResolution,
+                            westLongitude - GeoDataLongitude::halfCircle);
 }
 
 bool OpenLocationCodeSearchRunner::isValidOLC( const QString& olc ) const

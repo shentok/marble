@@ -86,11 +86,10 @@ void CycleStreetsRunner::retrieveRoute( const RouteRequest *route )
         mDebug() << Q_FUNC_INFO << "Missing a value for 'speed' in the settings, falling back to '20'";
         queryStrings["speed"] = QStringLiteral("20");
     }
-    GeoDataCoordinates::Unit const degree = GeoDataCoordinates::Degree;
     QString itinerarypoints;
-    itinerarypoints.append(QString::number(route->source().longitude(degree), 'f', 6) + QLatin1Char(',') + QString::number(route->source().latitude(degree), 'f', 6));
+    itinerarypoints.append(QString::number(route->source().longitude().toDegree(), 'f', 6) + QLatin1Char(',') + QString::number(route->source().latitude().toDegree(), 'f', 6));
     for ( int i=1; i<route->size(); ++i ) {
-        itinerarypoints.append(QLatin1Char('|') +  QString::number(route->at(i).longitude(degree), 'f', 6) + QLatin1Char(',') + QString::number(route->at(i).latitude(degree), 'f', 6));
+        itinerarypoints.append(QLatin1Char('|') +  QString::number(route->at(i).longitude().toDegree(), 'f', 6) + QLatin1Char(',') + QString::number(route->at(i).latitude().toDegree(), 'f', 6));
     }
     queryStrings["itinerarypoints"] = itinerarypoints;
 
@@ -189,9 +188,9 @@ GeoDataDocument *CycleStreetsRunner::parse( const QByteArray &content ) const
     for( ; iter != end; ++iter) {
         const QStringList coordinate =  iter->split(QLatin1Char(','));
         if ( coordinate.size() == 2 ) {
-            double const lon = coordinate.at( 0 ).toDouble();
-            double const lat = coordinate.at( 1 ).toDouble();
-            GeoDataCoordinates const position( lon, lat, 0.0, GeoDataCoordinates::Degree );
+            const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(coordinate.at(0).toDouble());
+            const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(coordinate.at(1).toDouble());
+            const GeoDataCoordinates position(lon, lat);
             routeWaypoints->append( position );
         }
     }
@@ -240,10 +239,10 @@ GeoDataDocument *CycleStreetsRunner::parse( const QByteArray &content ) const
         for  ( int j=0; iter != end; ++iter, ++j ) {
             const QStringList coordinate = iter->split(QLatin1Char(','));
             if ( coordinate.size() == 2 ) {
-                double const lon = coordinate.at( 0 ).toDouble();
-                double const lat = coordinate.at( 1 ).toDouble();
+                GeoDataLongitude const lon = GeoDataLongitude::fromDegrees(coordinate.at(0).toDouble());
+                GeoDataLatitude const lat = GeoDataLatitude::fromDegrees(coordinate.at(1).toDouble());
                 double const alt = j < elevation.size() ? elevation[j].toDouble() : 0.0;
-                lineString->append( GeoDataCoordinates( lon, lat, alt, GeoDataCoordinates::Degree ) );
+                lineString->append(GeoDataCoordinates(lon, lat, alt));
             }
         }
         instructions->setGeometry( lineString );

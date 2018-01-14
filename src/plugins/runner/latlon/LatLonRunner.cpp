@@ -41,7 +41,8 @@ void LatLonRunner::search( const QString &searchTerm, const GeoDataLatLonBox & )
     if( successful ) {
         GeoDataPlacemark *placemark = new GeoDataPlacemark;
         placemark->setName( searchTerm );
-        qreal lon, lat;
+        GeoDataLongitude lon;
+        GeoDataLatitude lat;
         coord.geoCoordinates( lon, lat );
         placemark->setCoordinate( lon, lat );
         placemark->setVisualCategory(GeoDataPlacemark::Coordinate);

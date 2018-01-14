@@ -379,11 +379,11 @@ bool JsonParser::parseGeoJsonSubLevel( const QJsonObject& jsonObject,
         // A Point object has a single GeoJSON position: an array of at least two values
 
         GeoDataPoint* geom = new GeoDataPoint();
-        const qreal lon = coordinateArray.at(0).toDouble();
-        const qreal lat = coordinateArray.at(1).toDouble();
+        const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(coordinateArray.at(0).toDouble());
+        const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(coordinateArray.at(1).toDouble());
         const qreal alt = coordinateArray.at(2).toDouble();     // If missing, uses 0 as the default
 
-        geom->setCoordinates( GeoDataCoordinates( lon, lat, alt, GeoDataCoordinates::Degree ));
+        geom->setCoordinates(GeoDataCoordinates(lon, lat, alt));
         geometryList.append(geom);
 
         hasPoints = true;
@@ -396,11 +396,11 @@ bool JsonParser::parseGeoJsonSubLevel( const QJsonObject& jsonObject,
             const QJsonArray positionArray = coordinateArray[positionIndex].toArray();
 
             GeoDataPoint* geom = new GeoDataPoint();
-            const qreal lon = positionArray.at(0).toDouble();
-            const qreal lat = positionArray.at(1).toDouble();
+            const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(positionArray.at(0).toDouble());
+            const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(positionArray.at(1).toDouble());
             const qreal alt = positionArray.at(2).toDouble();
 
-            geom->setCoordinates( GeoDataCoordinates( lon, lat, alt, GeoDataCoordinates::Degree ));
+            geom->setCoordinates(GeoDataCoordinates(lon, lat, alt));
             geometryList.append(geom);
         }
 
@@ -415,11 +415,11 @@ bool JsonParser::parseGeoJsonSubLevel( const QJsonObject& jsonObject,
         for (int positionIndex = 0; positionIndex < coordinateArray.size(); ++positionIndex) {
             const QJsonArray positionArray = coordinateArray[positionIndex].toArray();
 
-            const qreal lon = positionArray.at(0).toDouble();
-            const qreal lat = positionArray.at(1).toDouble();
+            const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(positionArray.at(0).toDouble());
+            const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(positionArray.at(1).toDouble());
             const qreal alt = positionArray.at(2).toDouble();
 
-            geom->append( GeoDataCoordinates( lon, lat, alt, GeoDataCoordinates::Degree ));
+            geom->append(GeoDataCoordinates(lon, lat, alt));
         }
         geometryList.append(geom);
 
@@ -436,11 +436,11 @@ bool JsonParser::parseGeoJsonSubLevel( const QJsonObject& jsonObject,
             for (int positionIndex = 0; positionIndex < lineStringArray.size(); ++positionIndex) {
                 const QJsonArray positionArray = lineStringArray[positionIndex].toArray();
 
-                const qreal lon = positionArray.at(0).toDouble();
-                const qreal lat = positionArray.at(1).toDouble();
+                const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(positionArray.at(0).toDouble());
+                const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(positionArray.at(1).toDouble());
                 const qreal alt = positionArray.at(2).toDouble();
 
-                geom->append( GeoDataCoordinates( lon, lat, alt, GeoDataCoordinates::Degree ));
+                geom->append(GeoDataCoordinates(lon, lat, alt));
             }
             geometryList.append(geom);
         }
@@ -462,11 +462,11 @@ bool JsonParser::parseGeoJsonSubLevel( const QJsonObject& jsonObject,
             for (int positionIndex = 0; positionIndex < ringArray.size(); ++positionIndex) {
                 const QJsonArray positionArray = ringArray[positionIndex].toArray();
 
-                const qreal lon = positionArray.at(0).toDouble();
-                const qreal lat = positionArray.at(1).toDouble();
+                const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(positionArray.at(0).toDouble());
+                const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(positionArray.at(1).toDouble());
                 const qreal alt = positionArray.at(2).toDouble();
 
-                linearRing.append( GeoDataCoordinates( lon, lat, alt, GeoDataCoordinates::Degree ));
+                linearRing.append(GeoDataCoordinates(lon, lat, alt));
             }
 
             if (ringIndex == 0) {
@@ -496,11 +496,11 @@ bool JsonParser::parseGeoJsonSubLevel( const QJsonObject& jsonObject,
                 for (int positionIndex = 0; positionIndex < ringArray.size(); ++positionIndex) {
                     const QJsonArray positionArray = ringArray[positionIndex].toArray();
 
-                    const qreal lon = positionArray.at(0).toDouble();
-                    const qreal lat = positionArray.at(1).toDouble();
+                    const GeoDataLongitude lon = GeoDataLongitude::fromDegrees(positionArray.at(0).toDouble());
+                    const GeoDataLatitude lat = GeoDataLatitude::fromDegrees(positionArray.at(1).toDouble());
                     const qreal alt = positionArray.at(2).toDouble();
 
-                    linearRing.append( GeoDataCoordinates( lon, lat, alt, GeoDataCoordinates::Degree ));
+                    linearRing.append(GeoDataCoordinates(lon, lat, alt));
                 }
 
                 if (ringIndex == 0) {

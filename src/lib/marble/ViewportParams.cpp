@@ -37,7 +37,7 @@ class ViewportParamsPrivate
 {
 public:
     ViewportParamsPrivate( Projection projection,
-                           qreal centerLongitude, qreal centerLatitude,
+                           GeoDataLongitude centerLongitude, GeoDataLatitude centerLatitude,
                            int radius,
                            const QSize &size );
 
@@ -49,9 +49,9 @@ public:
     const AbstractProjection *m_currentProjection;
 
     // Parameters that determine the painting
-    qreal                m_centerLongitude;
-    qreal                m_centerLatitude;
-    qreal                m_heading;
+    GeoDataLongitude     m_centerLongitude;
+    GeoDataLatitude      m_centerLatitude;
+    GeoDataAngle         m_heading;
     Quaternion           m_planetAxis;   // Position, coded in a quaternion
     matrix               m_planetAxisMatrix;
     int                  m_radius;       // Zoom level (pixels / globe radius)
@@ -85,14 +85,14 @@ const AzimuthalEquidistantProjection   ViewportParamsPrivate::s_azimuthalEquidis
 const VerticalPerspectiveProjection   ViewportParamsPrivate::s_verticalPerspectiveProjection;
 
 ViewportParamsPrivate::ViewportParamsPrivate( Projection projection,
-                                              qreal centerLongitude, qreal centerLatitude,
+                                              GeoDataLongitude centerLongitude, GeoDataLatitude centerLatitude,
                                               int radius,
                                               const QSize &size )
     : m_projection( projection ),
       m_currentProjection( abstractProjection( projection ) ),
       m_centerLongitude( centerLongitude ),
       m_centerLatitude( centerLatitude ),
-      m_heading( 0 ),
+      m_heading(GeoDataAngle::fromRadians(0)),
       m_planetAxis(),
       m_planetAxisMatrix(),
       m_radius( radius ),
@@ -128,14 +128,14 @@ const AbstractProjection *ViewportParamsPrivate::abstractProjection(Projection p
 }
 
 
-ViewportParams::ViewportParams()
-    : d( new ViewportParamsPrivate( Spherical, 0, 0, 2000, QSize( 100, 100 ) ) )
+ViewportParams::ViewportParams() :
+    d(new ViewportParamsPrivate(Spherical, GeoDataLongitude::null, GeoDataLatitude::null, 2000, QSize(100, 100)))
 {
     centerOn( d->m_centerLongitude, d->m_centerLatitude );
 }
 
 ViewportParams::ViewportParams( Projection projection,
-                                qreal centerLongitude, qreal centerLatitude,
+                                GeoDataLongitude centerLongitude, GeoDataLatitude centerLatitude,
                                 int radius,
                                 const QSize &size )
     : d( new ViewportParamsPrivate( projection, centerLongitude, centerLatitude, radius, size ) )
@@ -178,8 +178,8 @@ int ViewportParams::polarity() const
 {
     // For mercator this just gives the extreme latitudes
     // instead of the actual poles but it works fine as well:
-    GeoDataCoordinates northPole( 0.0, +currentProjection()->maxLat() );
-    GeoDataCoordinates southPole( 0.0, -currentProjection()->maxLat() );
+    const GeoDataCoordinates northPole(GeoDataLongitude::null, +currentProjection()->maxLat());
+    const GeoDataCoordinates southPole(GeoDataLongitude::null, -currentProjection()->maxLat());
 
     bool globeHidesN, globeHidesS;
     qreal x;
@@ -234,7 +234,7 @@ void ViewportParams::setRadius(int newRadius)
     }
 }
 
-void ViewportParams::centerOn( qreal lon, qreal lat )
+void ViewportParams::centerOn(GeoDataLongitude lon, GeoDataLatitude lat)
 {
     if ( !d->m_currentProjection->traversablePoles() ) {
         if ( lat > d->m_currentProjection->maxLat() )
@@ -243,10 +243,10 @@ void ViewportParams::centerOn( qreal lon, qreal lat )
         if ( lat < d->m_currentProjection->minLat() )
             lat = d->m_currentProjection->minLat();
     } else {
-        while ( lat > M_PI )
-            lat -= 2 * M_PI;
-        while ( lat < -M_PI )
-            lat += 2 * M_PI;
+        while (lat > 2 * GeoDataLatitude::quaterCircle)
+            lat -= 4 * GeoDataLatitude::quaterCircle;
+        while (lat < -2 * GeoDataLatitude::quaterCircle)
+            lat += 4 * GeoDataLatitude::quaterCircle;
     }
 
     lon = GeoDataCoordinates::normalizeLon(lon);
@@ -254,8 +254,8 @@ void ViewportParams::centerOn( qreal lon, qreal lat )
     d->m_centerLongitude = lon;
     d->m_centerLatitude = lat;
 
-    const Quaternion roll = Quaternion::fromEuler( 0, 0, d->m_heading );
-    const Quaternion quat = Quaternion::fromEuler( -lat, lon, 0.0 );
+    const Quaternion roll = Quaternion::fromEuler(0, 0, d->m_heading.toRadian());
+    const Quaternion quat = Quaternion::fromEuler(-lat.toRadian(), lon.toRadian(), 0.0);
 
     d->m_planetAxis = quat * roll;
     d->m_planetAxis.normalize();
@@ -265,16 +265,16 @@ void ViewportParams::centerOn( qreal lon, qreal lat )
     d->m_planetAxis.normalize();
 }
 
-void ViewportParams::setHeading( qreal heading )
+void ViewportParams::setHeading(GeoDataAngle heading)
 {
     d->m_heading = heading;
 
-    const Quaternion roll = Quaternion::fromEuler( 0, 0, heading );
+    const Quaternion roll = Quaternion::fromEuler(0, 0, heading.toRadian());
 
-    const qreal centerLat = centerLatitude();
-    const qreal centerLon = centerLongitude();
+    const GeoDataLatitude centerLat = centerLatitude();
+    const GeoDataLongitude centerLon = centerLongitude();
 
-    const Quaternion quat = Quaternion::fromEuler( -centerLat, centerLon, 0 );
+    const Quaternion quat = Quaternion::fromEuler(-centerLat.toRadian(), centerLon.toRadian(), 0);
 
     d->m_planetAxis = quat * roll;
     d->m_planetAxis.normalize();
@@ -284,7 +284,7 @@ void ViewportParams::setHeading( qreal heading )
     d->m_planetAxis.normalize();
 }
 
-qreal ViewportParams::heading() const
+GeoDataAngle ViewportParams::heading() const
 {
     return d->m_heading;
 }
@@ -338,12 +338,12 @@ void ViewportParams::setSize(const QSize& newSize)
 // ================================================================
 //                        Other functions
 
-qreal ViewportParams::centerLongitude() const
+GeoDataLongitude ViewportParams::centerLongitude() const
 {
     return d->m_centerLongitude;
 }
 
-qreal ViewportParams::centerLatitude() const
+GeoDataLatitude ViewportParams::centerLatitude() const
 {
     return d->m_centerLatitude;
 }
@@ -375,31 +375,33 @@ qreal ViewportParams::angularResolution() const
 
 bool ViewportParams::resolves ( const GeoDataLatLonBox &latLonBox, qreal pixel ) const
 {
-    return latLonBox.width() + latLonBox.height() > pixel * d->m_angularResolution;
+    return latLonBox.width().toRadian() + latLonBox.height().toRadian() > pixel * d->m_angularResolution;
 }
 
 
 bool ViewportParams::resolves ( const GeoDataLatLonAltBox &latLonAltBox, qreal pixel, qreal altitude ) const
 {
-    return    latLonAltBox.width() + latLonAltBox.height() > pixel * d->m_angularResolution
+    return    latLonAltBox.width().toRadian() + latLonAltBox.height().toRadian() > pixel * d->m_angularResolution
            || latLonAltBox.maxAltitude() - latLonAltBox.minAltitude() > altitude;
 }
 
 bool ViewportParams::resolves ( const GeoDataCoordinates &coord1, 
                                 const GeoDataCoordinates &coord2 ) const
 {
-    qreal lon1, lat1;
+    GeoDataLongitude lon1;
+    GeoDataLatitude lat1;
     coord1.geoCoordinates( lon1, lat1 );
 
-    qreal lon2, lat2;
+    GeoDataLongitude lon2;
+    GeoDataLatitude lat2;
     coord2.geoCoordinates( lon2, lat2 );
 
     // We take the manhattan length as an approximation for the distance
-    return ( fabs( lon2 - lon1 ) + fabs( lat2 - lat1 ) > d->m_angularResolution );
+    return (qAbs(lon2 - lon1).toRadian() + qAbs(lat2 - lat1).toRadian()) > d->m_angularResolution;
 }
 
 
-bool ViewportParams::screenCoordinates( const qreal lon, const qreal lat,
+bool ViewportParams::screenCoordinates(const GeoDataLongitude lon, const GeoDataLatitude lat,
                         qreal &x, qreal &y ) const
 {
     return d->m_currentProjection->screenCoordinates( lon, lat, this, x, y );
@@ -434,10 +436,9 @@ bool ViewportParams::screenCoordinates( const GeoDataLineString &lineString,
 }
 
 bool ViewportParams::geoCoordinates( const int x, const int y,
-                     qreal &lon, qreal &lat,
-                     GeoDataCoordinates::Unit unit ) const
+                     GeoDataLongitude &lon, GeoDataLatitude &lat) const
 {
-    return d->m_currentProjection->geoCoordinates( x, y, this, lon, lat, unit );
+    return d->m_currentProjection->geoCoordinates(x, y, this, lon, lat);
 }
 
 bool  ViewportParams::mapCoversViewport() const
@@ -460,13 +461,8 @@ GeoDataCoordinates ViewportParams::focusPoint() const
     if (d->m_focusPoint.isValid()) {
         return d->m_focusPoint;
     }
-    else {
-       const qreal lon = d->m_centerLongitude;
-       const qreal lat = d->m_centerLatitude;
 
-       return GeoDataCoordinates(lon, lat, 0.0, GeoDataCoordinates::Radian);
-    }
-
+    return GeoDataCoordinates(d->m_centerLongitude, d->m_centerLatitude);
 }
 
 void ViewportParams::setFocusPoint(const GeoDataCoordinates &focusPoint)

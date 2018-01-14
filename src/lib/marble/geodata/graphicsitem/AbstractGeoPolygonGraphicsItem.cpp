@@ -115,8 +115,9 @@ bool AbstractGeoPolygonGraphicsItem::contains(const QPoint &screenPosition, cons
         return false;
     }
 
-    double lon, lat;
-    viewport->geoCoordinates(screenPosition.x(), screenPosition.y(), lon, lat, GeoDataCoordinates::Radian);
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
+    viewport->geoCoordinates(screenPosition.x(), screenPosition.y(), lon, lat);
     auto const coordinates = GeoDataCoordinates(lon, lat);
     if (m_polygon) {
         return m_polygon->contains(coordinates);

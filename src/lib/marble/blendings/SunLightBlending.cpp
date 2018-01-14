@@ -15,6 +15,8 @@
 
 #include "SunLightBlending.h"
 
+#include "GeoDataLongitude.h"
+
 #include "MarbleDebug.h"
 #include "SunLocator.h"
 #include "TextureTile.h"
@@ -53,8 +55,8 @@ void SunLightBlending::blend( QImage * const tileImage, TextureTile const * cons
         * TileLoaderHelper::levelToColumn( m_levelZeroColumns, id.zoomLevel() );
     const qreal  global_height = tileImage->height()
         * TileLoaderHelper::levelToRow( m_levelZeroRows, id.zoomLevel() );
-    const qreal lon_scale = 2*M_PI / global_width;
-    const qreal lat_scale = -M_PI / global_height;
+    const auto lon_scale = 2 * GeoDataLongitude::halfCircle / global_width;
+    const auto lat_scale = -2 * GeoDataLatitude::quaterCircle / global_height;
     const int tileHeight = tileImage->height();
     const int tileWidth = tileImage->width();
 
@@ -65,9 +67,9 @@ void SunLightBlending::blend( QImage * const tileImage, TextureTile const * cons
     const QImage *nighttile = top->image();
 
     for ( int cur_y = 0; cur_y < tileHeight; ++cur_y ) {
-        const qreal lat = lat_scale * ( id.y() * tileHeight + cur_y ) - 0.5*M_PI;
-        const qreal a = sin( ( lat+DEG2RAD * m_sunLocator->getLat() )/2.0 );
-        const qreal c = cos(lat)*cos( -DEG2RAD * m_sunLocator->getLat() );
+        const auto lat = lat_scale * ( id.y() * tileHeight + cur_y ) - GeoDataLatitude::quaterCircle;
+        const qreal a = sin((lat + m_sunLocator->getLat()).toRadian() / 2.0);
+        const qreal c = cos(lat.toRadian()) * cos(-m_sunLocator->getLat().toRadian());
 
         QRgb* scanline  = (QRgb*)tileImage->scanLine( cur_y );
         const QRgb* nscanline = (QRgb*)nighttile->scanLine( cur_y );
@@ -84,7 +86,7 @@ void SunLightBlending::blend( QImage * const tileImage, TextureTile const * cons
 
             if ( interpolate ) {
                 const int check = cur_x + n;
-                const qreal checklon   = lon_scale * ( id.x() * tileWidth + check );
+                const auto checklon = lon_scale * (id.x() * tileWidth + check);
                 shade = m_sunLocator->shading( checklon, a, c );
 
                 // if the shading didn't change across the interpolation
@@ -105,9 +107,9 @@ void SunLightBlending::blend( QImage * const tileImage, TextureTile const * cons
                     continue;
                 }
 
-                qreal lon = lon_scale * (id.x() * tileWidth + cur_x);
+                GeoDataLongitude lon = lon_scale * (id.x() * tileWidth + cur_x);
                 for ( int t = 0; t < n ; ++t ) {
-                    shade = m_sunLocator->shading( lon, a, c );
+                    shade = m_sunLocator->shading(lon, a, c);
                     SunLocator::shadePixelComposite(*scanline, *nscanline, shade);
                     ++scanline;
                     ++nscanline;
@@ -119,8 +121,8 @@ void SunLightBlending::blend( QImage * const tileImage, TextureTile const * cons
             else {
                 // Make sure we don't exceed the image memory
                 if ( cur_x < tileWidth ) {
-                    qreal lon   = lon_scale * ( id.x() * tileWidth + cur_x );
-                    shade = m_sunLocator->shading( lon, a, c );
+                    const auto lon = lon_scale * ( id.x() * tileWidth + cur_x );
+                    shade = m_sunLocator->shading(lon, a, c);
                     SunLocator::shadePixelComposite(*scanline, *nscanline, shade);
                     ++scanline;
                     ++nscanline;

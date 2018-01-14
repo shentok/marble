@@ -15,6 +15,8 @@
 #include "RoutingPoint.h"
 #include "marble_export.h"
 
+#include "GeoDataAngle.h"
+
 #include <QVector>
 #include <QMetaType>
 
@@ -79,7 +81,7 @@ public:
     QVector<RoutingPoint> intersectionPoints() const;
 
     /** The angle between the two turn roads, in radians */
-    qreal angleToPredecssor() const;
+    GeoDataAngle angleToPredecssor() const;
 
     /** Previous turn road. Will be 0 for the first one (route start) */
     RoutingInstruction* predecessor();
@@ -142,7 +144,7 @@ private:
 
     int m_secondsLeft;
 
-    qreal m_angleToPredecessor;
+    GeoDataAngle m_angleToPredecessor;
 
     TurnType m_turnType;
 

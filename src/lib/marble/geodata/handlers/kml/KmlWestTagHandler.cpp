@@ -14,6 +14,7 @@
 
 #include "KmlElementDictionary.h"
 #include "GeoDataLatLonAltBox.h"
+#include "GeoDataLongitude.h"
 #include "GeoParser.h"
 
 namespace Marble
@@ -28,11 +29,11 @@ GeoNode* KmlwestTagHandler::parse( GeoParser& parser ) const
 
     GeoStackItem parentItem = parser.parentElement();
 
-    qreal const west = parser.readElementText().trimmed().toDouble();
+    const GeoDataLongitude west = GeoDataLongitude::fromDegrees(parser.readElementText().trimmed().toDouble());
     if( parentItem.represents( kmlTag_LatLonAltBox ) ) {
-        parentItem.nodeAs<GeoDataLatLonAltBox>()->setWest( west, GeoDataCoordinates::Degree );
+        parentItem.nodeAs<GeoDataLatLonAltBox>()->setWest(west);
     } else if( parentItem.represents( kmlTag_LatLonBox ) ) {
-        parentItem.nodeAs<GeoDataLatLonBox>()->setWest( west, GeoDataCoordinates::Degree );
+        parentItem.nodeAs<GeoDataLatLonBox>()->setWest(west);
     }
 
     return nullptr;

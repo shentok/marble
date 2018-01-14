@@ -147,7 +147,7 @@ void GeonamesParser::readLongitude( WikipediaItem *item )
             break;
         
         if ( isCharacters() ) {
-            item->setLongitude( text().toString().toDouble() * DEG2RAD );
+            item->setLongitude(GeoDataLongitude::fromDegrees(text().toString().toDouble()));
         }
     }
 }
@@ -164,7 +164,7 @@ void GeonamesParser::readLatitude( WikipediaItem *item )
             break;
         
         if ( isCharacters() ) {
-            item->setLatitude( text().toString().toDouble() * DEG2RAD );
+            item->setLatitude(GeoDataLatitude::fromDegrees(text().toString().toDouble()));
         }
     }
 }

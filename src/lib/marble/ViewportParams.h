@@ -21,7 +21,11 @@
 
 #include <QSize>
 
+#include "GeoDataAngle.h"
 #include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include "Quaternion.h"
 #include "MarbleGlobal.h"
 #include "marble_export.h"
@@ -48,7 +52,8 @@ class MARBLE_EXPORT ViewportParams
  public:
     ViewportParams( );
     explicit ViewportParams( Projection projection,
-                             qreal centerLongitude = 0, qreal centerLatitude = 0,
+                             GeoDataLongitude centerLongitude = GeoDataLongitude::null,
+                             GeoDataLatitude centerLatitude = GeoDataLatitude::null,
                              int radius = 2000,
                              const QSize &size = QSize( 100, 100 ) );
     ~ViewportParams();
@@ -97,8 +102,8 @@ class MARBLE_EXPORT ViewportParams
      */
     void setRadius(int radius);
 
-    void centerOn( qreal lon, qreal lat );
-    void setHeading( qreal heading );
+    void centerOn(GeoDataLongitude lon, GeoDataLatitude lat);
+    void setHeading(GeoDataAngle heading);
 
     Quaternion planetAxis() const;
     const matrix &planetAxisMatrix() const;
@@ -111,8 +116,8 @@ class MARBLE_EXPORT ViewportParams
     void setHeight(int newHeight);
     void setSize(const QSize& newSize);
 
-    qreal centerLongitude() const;
-    qreal centerLatitude() const;
+    GeoDataLongitude centerLongitude() const;
+    GeoDataLatitude centerLatitude() const;
 
     /**
      * @brief Get the screen coordinates corresponding to geographical coordinates in the map.
@@ -125,7 +130,7 @@ class MARBLE_EXPORT ViewportParams
      *
      * @see ViewportParams
      */
-    bool screenCoordinates( const qreal lon, const qreal lat,
+    bool screenCoordinates(const GeoDataLongitude lon, const GeoDataLatitude lat,
                             qreal &x, qreal &y ) const;
 
     /**
@@ -180,15 +185,12 @@ class MARBLE_EXPORT ViewportParams
      * @param y      the y coordinate of the pixel
      * @param lon    the longitude angle is returned through this parameter
      * @param lat    the latitude angle is returned through this parameter
-     * @param unit   the unit of the angles for lon and lat.
      * @return @c true  if the pixel (x, y) is within the globe
      *         @c false if the pixel (x, y) is outside the globe, i.e. in space.
      */
-    bool geoCoordinates( const int x, const int y,
-                         qreal &lon, qreal &lat,
-                         GeoDataCoordinates::Unit unit = GeoDataCoordinates::Degree ) const;
+    bool geoCoordinates(const int x, const int y, GeoDataLongitude &lon, GeoDataLatitude &lat) const;
 
-    qreal heading() const;
+    GeoDataAngle heading() const;
     bool mapCoversViewport() const;
 
     QPainterPath mapShape() const;

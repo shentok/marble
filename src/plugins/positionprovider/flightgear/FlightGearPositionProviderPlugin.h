@@ -49,7 +49,7 @@ class FlightGearPositionProviderPlugin : public PositionProviderPlugin
     GeoDataAccuracy accuracy() const override;
     QString error() const override;
     qreal speed() const override;
-    qreal direction() const override;
+    GeoDataAngle direction() const override;
     QDateTime timestamp() const override;
 
 private Q_SLOTS:
@@ -63,7 +63,7 @@ private Q_SLOTS:
     GeoDataCoordinates m_position;
     GeoDataAccuracy m_accuracy;
     qreal m_speed;
-    qreal m_track;
+    GeoDataAngle m_track;
     QDateTime m_timestamp;
 };
 

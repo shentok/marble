@@ -102,10 +102,10 @@ QUrl CustomServerLayout::downloadUrl( const QUrl &prototypeUrl, const TileId &id
     urlStr.replace( "{zoomLevel}", QString::number( id.zoomLevel() ) );
     urlStr.replace( "{x}", QString::number( id.x() ) );
     urlStr.replace( "{y}", QString::number( id.y() ) );
-    urlStr.replace( "{west}", QString::number( bbox.west( GeoDataCoordinates::Degree ), 'f', 12 ) );
-    urlStr.replace( "{south}", QString::number( bbox.south( GeoDataCoordinates::Degree ), 'f', 12 ) );
-    urlStr.replace( "{east}", QString::number( bbox.east( GeoDataCoordinates::Degree ), 'f', 12 ) );
-    urlStr.replace( "{north}", QString::number( bbox.north( GeoDataCoordinates::Degree ), 'f', 12 ) );
+    urlStr.replace( "{west}", QString::number(bbox.west().toDegree(), 'f', 12));
+    urlStr.replace( "{south}", QString::number(bbox.south().toDegree(), 'f', 12));
+    urlStr.replace( "{east}", QString::number(bbox.east().toDegree(), 'f', 12));
+    urlStr.replace( "{north}", QString::number(bbox.north().toDegree(), 'f', 12));
 
     return QUrl( urlStr );
 }
@@ -144,10 +144,10 @@ QUrl WmsServerLayout::downloadUrl( const QUrl &prototypeUrl, const Marble::TileI
         url.addQueryItem( "layers", m_textureLayer->name() );
     url.addQueryItem( "width", QString::number( m_textureLayer->tileSize().width() ) );
     url.addQueryItem( "height", QString::number( m_textureLayer->tileSize().height() ) );
-    url.addQueryItem( "bbox", QString( "%1,%2,%3,%4" ).arg( QString::number( box.west( GeoDataCoordinates::Degree ), 'f', 12 ),
-                                                            QString::number( box.south( GeoDataCoordinates::Degree ), 'f', 12 ),
-                                                            QString::number( box.east( GeoDataCoordinates::Degree ), 'f', 12 ),
-                                                            QString::number( box.north( GeoDataCoordinates::Degree ), 'f', 12 ) ) );
+    url.addQueryItem( "bbox", QString( "%1,%2,%3,%4" ).arg(QString::number(box.west().toDegree(), 'f', 12),
+                                                           QString::number(box.south().toDegree(), 'f', 12),
+                                                           QString::number(box.east().toDegree(), 'f', 12),
+                                                           QString::number(box.north().toDegree(), 'f', 12)));
     QUrl finalUrl = prototypeUrl;
     finalUrl.setQuery(url);
     return finalUrl;

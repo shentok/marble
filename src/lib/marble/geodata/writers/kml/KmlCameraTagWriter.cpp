@@ -13,6 +13,8 @@
 #include "KmlCameraTagWriter.h"
 
 #include "GeoDataCamera.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataTypes.h"
 #include "GeoDataTimeSpan.h"
 #include "GeoDataTimeStamp.h"
@@ -53,11 +55,11 @@ bool KmlCameraTagWriter::write( const GeoNode *node, GeoWriter& writer ) const
         writer.writeEndElement();
     }
 
-    if ( camera->longitude() != 0.0 ) {
-        writer.writeElement( "longitude", QString::number( camera->longitude( GeoDataCoordinates::Degree ), 'f', 10 ) );
+    if (camera->longitude() != GeoDataLongitude::null) {
+        writer.writeElement("longitude", QString::number(camera->longitude().toDegree(), 'f', 10));
     }
-    if ( camera->latitude() != 0.0 ) {
-        writer.writeElement( "latitude", QString::number( camera->latitude( GeoDataCoordinates::Degree ), 'f', 10 ) );
+    if (camera->latitude() != GeoDataLatitude::null) {
+        writer.writeElement("latitude", QString::number(camera->latitude().toDegree(), 'f', 10));
     }
     writer.writeOptionalElement( "altitude", camera->altitude() );
     writer.writeOptionalElement( "roll", camera->roll() );

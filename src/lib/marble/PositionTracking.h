@@ -59,7 +59,7 @@ public:
     /**
      * @brief provides direction of the gps device in degrees with geographical north
      */
-    qreal direction() const;
+    GeoDataAngle direction() const;
 
     /**
      * @brief Returns the timestamp of last recent tracking point.

@@ -36,8 +36,8 @@ int main(int argc, char** argv)
     request->setRoutingProfile( manager->defaultProfile( RoutingProfile::Motorcar ) );
 
     // Set start and destination
-    request->append( GeoDataCoordinates( 8.38942, 48.99738, 0.0, GeoDataCoordinates::Degree ) );
-    request->append( GeoDataCoordinates( 8.42002, 49.0058, 0.0, GeoDataCoordinates::Degree ) );
+    request->append( GeoDataCoordinates(GeoDataLongitude::fromDegrees(8.38942), GeoDataLatitude::fromDegrees(48.99738)) );
+    request->append( GeoDataCoordinates(GeoDataLongitude::fromDegrees(8.42002), GeoDataLatitude::fromDegrees(49.0058)) );
 
     // Calculate the route
     manager->retrieveRoute();

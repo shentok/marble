@@ -72,84 +72,84 @@ const char *GeoDataLatLonQuad::nodeType() const
     return GeoDataTypes::GeoDataLatLonQuadType;
 }
 
-qreal GeoDataLatLonQuad::bottomLeftLatitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLatitude GeoDataLatLonQuad::bottomLeftLatitude() const
 {
-    return d->m_bottomLeft.latitude(unit);
+    return d->m_bottomLeft.latitude();
 }
 
-void GeoDataLatLonQuad::setBottomLeftLatitude( qreal latitude, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonQuad::setBottomLeftLatitude(GeoDataLatitude latitude)
 {
-    d->m_bottomLeft.setLatitude( latitude, unit );
+    d->m_bottomLeft.setLatitude(latitude);
 }
 
-qreal GeoDataLatLonQuad::bottomLeftLongitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLongitude GeoDataLatLonQuad::bottomLeftLongitude() const
 {
-    return d->m_bottomLeft.longitude( unit );
+    return d->m_bottomLeft.longitude();
 }
 
-void GeoDataLatLonQuad::setBottomLeftLongitude( qreal longitude, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonQuad::setBottomLeftLongitude(GeoDataLongitude longitude)
 {
-    d->m_bottomLeft.setLongitude( longitude, unit );
+    d->m_bottomLeft.setLongitude(longitude);
 }
 
-qreal GeoDataLatLonQuad::bottomRightLatitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLatitude GeoDataLatLonQuad::bottomRightLatitude() const
 {
-    return d->m_bottomRight.latitude( unit );
+    return d->m_bottomRight.latitude();
 }
 
-void GeoDataLatLonQuad::setBottomRightLatitude( qreal latitude, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonQuad::setBottomRightLatitude(GeoDataLatitude latitude)
 {
-    d->m_bottomRight.setLatitude( latitude, unit );
+    d->m_bottomRight.setLatitude(latitude);
 }
 
-qreal GeoDataLatLonQuad::bottomRightLongitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLongitude GeoDataLatLonQuad::bottomRightLongitude() const
 {
-    return d->m_bottomRight.longitude( unit );
+    return d->m_bottomRight.longitude();
 }
 
-void GeoDataLatLonQuad::setBottomRightLongitude( qreal longitude, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonQuad::setBottomRightLongitude(GeoDataLongitude longitude)
 {
-    d->m_bottomRight.setLongitude( longitude, unit );
+    d->m_bottomRight.setLongitude(longitude);
 }
 
-qreal GeoDataLatLonQuad::topRightLatitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLatitude GeoDataLatLonQuad::topRightLatitude() const
 {
-    return d->m_topRight.latitude( unit );
+    return d->m_topRight.latitude();
 }
 
-void GeoDataLatLonQuad::setTopRightLatitude( qreal latitude, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonQuad::setTopRightLatitude(GeoDataLatitude latitude)
 {
-    d->m_topRight.setLatitude( latitude, unit );
+    d->m_topRight.setLatitude(latitude);
 }
 
-qreal GeoDataLatLonQuad::topRightLongitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLongitude GeoDataLatLonQuad::topRightLongitude() const
 {
-    return d->m_topRight.longitude( unit );
+    return d->m_topRight.longitude();
 }
 
-void GeoDataLatLonQuad::setTopRightLongitude( qreal longitude, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonQuad::setTopRightLongitude(GeoDataLongitude longitude)
 {
-    d->m_topRight.setLongitude( longitude, unit );
+    d->m_topRight.setLongitude(longitude);
 }
 
-qreal GeoDataLatLonQuad::topLeftLatitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLatitude GeoDataLatLonQuad::topLeftLatitude() const
 {
-    return d->m_topLeft.latitude( unit );
+    return d->m_topLeft.latitude();
 }
 
-void GeoDataLatLonQuad::setTopLeftLatitude( qreal latitude, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonQuad::setTopLeftLatitude(GeoDataLatitude latitude)
 {
-    d->m_topLeft.setLatitude( latitude, unit );
+    d->m_topLeft.setLatitude(latitude);
 }
 
-qreal GeoDataLatLonQuad::topLeftLongitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLongitude GeoDataLatLonQuad::topLeftLongitude() const
 {
-    return d->m_topLeft.longitude( unit );
+    return d->m_topLeft.longitude();
 }
 
-void GeoDataLatLonQuad::setTopLeftLongitude( qreal longitude, GeoDataCoordinates::Unit unit )
+void GeoDataLatLonQuad::setTopLeftLongitude(GeoDataLongitude longitude)
 {
-    d->m_topLeft.setLongitude(longitude, unit );
+    d->m_topLeft.setLongitude(longitude);
 }
 
 

@@ -84,26 +84,26 @@ qreal GeoDataLookAt::altitude() const
     return d->m_coordinates.altitude();
 }
 
-void GeoDataLookAt::setLatitude( qreal latitude, GeoDataCoordinates::Unit unit )
+void GeoDataLookAt::setLatitude(GeoDataLatitude latitude)
 {
     detach();
-    d->m_coordinates.setLatitude( latitude,unit );
+    d->m_coordinates.setLatitude(latitude);
 }
 
-qreal GeoDataLookAt::latitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLatitude GeoDataLookAt::latitude() const
 {
-    return d->m_coordinates.latitude( unit );
+    return d->m_coordinates.latitude();
 }
 
-void GeoDataLookAt::setLongitude( qreal longitude, GeoDataCoordinates::Unit unit )
+void GeoDataLookAt::setLongitude(GeoDataLongitude longitude)
 {
     detach();
-    d->m_coordinates.setLongitude( longitude, unit );
+    d->m_coordinates.setLongitude(longitude);
 }
 
-qreal GeoDataLookAt::longitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLongitude GeoDataLookAt::longitude() const
 {
-    return d->m_coordinates.longitude( unit );
+    return d->m_coordinates.longitude();
 }
 
 GeoDataCoordinates GeoDataLookAt::coordinates() const

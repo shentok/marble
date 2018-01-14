@@ -20,6 +20,11 @@
 #include <QVector>
 
 #include "geodata_export.h"
+
+#include "GeoDataAngle.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include "MarbleGlobal.h"
 
 class QString;
@@ -47,18 +52,6 @@ class GEODATA_EXPORT GeoDataCoordinates
  Q_DECLARE_TR_FUNCTIONS(GeoDataCoordinates)
 
  public:
-    /**
-     * @brief enum used constructor to specify the units used
-     *
-     * Internally we always use radian for mathematical convenience.
-     * However the Marble's interfaces to the outside should default
-     * to degrees.
-     */
-    enum Unit{
-        Radian,
-        Degree
-    };
-
     /**
      * @brief enum used to specify the notation / numerical system
      *
@@ -110,12 +103,9 @@ class GEODATA_EXPORT GeoDataCoordinates
      * @param lon longitude
      * @param lat latitude
      * @param alt altitude in meters (default: 0)
-     * @param unit units that lon and lat get measured in
-     * (default for Radian: north pole at pi/2, southpole at -pi/2)
      * @param detail detail (default: 0)
      */
-    GeoDataCoordinates( qreal lon, qreal lat, qreal alt = 0,
-                        GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian,
+    GeoDataCoordinates(GeoDataLongitude lon, GeoDataLatitude lat, qreal alt = 0,
                         int detail = 0 );
 
     virtual ~GeoDataCoordinates();
@@ -134,53 +124,37 @@ class GEODATA_EXPORT GeoDataCoordinates
     * @param lon longitude
     * @param lat latitude
     * @param alt altitude in meters (default: 0)
-    * @param unit units that lon and lat get measured in
-    * (default for Radian: north pole at pi/2, southpole at -pi/2)
     */
-    void set( qreal lon, qreal lat, qreal alt = 0,
-              GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    void set(GeoDataLongitude lon, GeoDataLatitude lat, qreal alt = 0);
 
     /**
     * @brief use this function to get the longitude and latitude with one
-    * call - use the unit parameter to switch between Radian and DMS
+    * call
     * @param lon longitude
     * @param lat latitude
-    * @param unit units that lon and lat get measured in
-    * (default for Radian: north pole at pi/2, southpole at -pi/2)
     */
-    void geoCoordinates(qreal& lon, qreal& lat, GeoDataCoordinates::Unit unit) const;
-    void geoCoordinates(qreal& lon, qreal& lat) const;
+    void geoCoordinates(GeoDataLongitude &lon, GeoDataLatitude &lat) const;
 
     /**
     * @brief use this function to get the longitude, latitude and altitude
-    * with one call - use the unit parameter to switch between Radian and DMS
+    * with one call
     * @param lon longitude
     * @param lat latitude
     * @param alt altitude in meters
-    * @param unit units that lon and lat get measured in
-    * (default for Radian: north pole at pi/2, southpole at -pi/2)
     */
-    void geoCoordinates(qreal& lon, qreal& lat, qreal& alt, GeoDataCoordinates::Unit unit) const;
-    void geoCoordinates(qreal& lon, qreal& lat, qreal& alt) const;
+    void geoCoordinates(GeoDataLongitude &lon, GeoDataLatitude &lat, qreal &altitude) const;
 
     /**
     * @brief set the longitude in a GeoDataCoordinates object
     * @param lon longitude
-    * @param unit units that lon and lat get measured in
-    * (default for Radian: north pole at pi/2, southpole at -pi/2)
     */
-    void setLongitude( qreal lon,
-              GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    void setLongitude(GeoDataLongitude lon);
 
     /**
     * @brief retrieves the longitude of the GeoDataCoordinates object
-    * use the unit parameter to switch between Radian and DMS
-    * @param unit units that lon and lat get measured in
-    * (default for Radian: north pole at pi/2, southpole at -pi/2)
     * @return longitude
     */
-    qreal longitude(GeoDataCoordinates::Unit unit) const;
-    qreal longitude() const;
+    GeoDataLongitude longitude() const;
 
     /**
     * @brief retrieves the latitude of the GeoDataCoordinates object
@@ -189,22 +163,19 @@ class GEODATA_EXPORT GeoDataCoordinates
     * (default for Radian: north pole at pi/2, southpole at -pi/2)
     * @return latitude
     */
-    qreal latitude( GeoDataCoordinates::Unit unit ) const;
-    qreal latitude() const;
+    GeoDataLatitude latitude() const;
 
     /**
     * @brief set the longitude in a GeoDataCoordinates object
     * @param lat longitude
-    * @param unit units that lon and lat get measured in
-    * (default for Radian: north pole at pi/2, southpole at -pi/2)
     */
-    void setLatitude( qreal lat,
-              GeoDataCoordinates::Unit unit = GeoDataCoordinates::Radian );
+    void setLatitude(GeoDataLatitude lat);
 
     /**
-        * @brief return the altitude of the Point in meters
-        */
+     * @brief return the altitude of the Point in meters
+     */
     qreal altitude() const;
+
     /**
     * @brief set the altitude of the Point in meters
     * @param altitude altitude
@@ -255,11 +226,10 @@ class GEODATA_EXPORT GeoDataCoordinates
     /**
      * @brief Rotates one coordinate around another.
      * @param axis The coordinate that serves as a rotation axis
-     * @param angle Rotation angle
-     * @param unit Unit of the result
+     * @param angle Rotation angle in radian
      * @return The coordinate rotated in anticlockwise direction
      */
-    GeoDataCoordinates rotateAround( const GeoDataCoordinates &axis, qreal angle, Unit unit = Radian ) const;
+    GeoDataCoordinates rotateAround(const GeoDataCoordinates &axis, GeoDataAngle angle) const;
 
     GeoDataCoordinates rotateAround(const Quaternion &rotAxis) const;
 
@@ -267,12 +237,11 @@ class GEODATA_EXPORT GeoDataCoordinates
      * @brief Returns the bearing (true bearing, the angle between the line defined
      * by this point and the other and the prime meridian)
      * @param other The second point that, together with this point, defines a line
-     * @param unit Unit of the result
      * @param type Type of the bearing
-     * @return The true bearing in the requested unit, not range normalized,
+     * @return The true bearing, not range normalized,
      * in clockwise direction, with the value 0 corresponding to north
      */
-    qreal bearing( const GeoDataCoordinates &other, Unit unit = Radian, BearingType type = InitialBearing ) const;
+    GeoDataAngle bearing(const GeoDataCoordinates &other, BearingType type = InitialBearing) const;
 
     /**
      * @brief Returns the coordinates of the resulting point after moving this point
@@ -280,7 +249,7 @@ class GEODATA_EXPORT GeoDataCoordinates
      * @param bearing the same as above
      * @param distance the distance on a unit sphere
      */
-    GeoDataCoordinates moveByBearing( qreal bearing, qreal distance ) const;
+    GeoDataCoordinates moveByBearing(GeoDataAngle bearing, qreal distance ) const;
 
     /**
     * @brief return a Quaternion with the used coordinates
@@ -339,18 +308,14 @@ class GEODATA_EXPORT GeoDataCoordinates
     /**
      * @brief normalize the longitude to always be -M_PI <= lon <= +M_PI (Radian).
      * @param lon longitude
-     * @param unit unit of the result
      */
-    static qreal normalizeLon( qreal lon,
-                               GeoDataCoordinates::Unit = GeoDataCoordinates::Radian );
+    static GeoDataLongitude normalizeLon(GeoDataLongitude lon);
 
     /**
      * @brief normalize latitude to always be in -M_PI / 2. <= lat <= +M_PI / 2 (Radian).
      * @param lat latitude
-     * @param unit unit of the result
      */
-    static qreal normalizeLat( qreal lat,
-                               GeoDataCoordinates::Unit = GeoDataCoordinates::Radian );
+    static GeoDataLatitude normalizeLat(GeoDataLatitude lat);
 
     /**
      * @brief normalize both longitude and latitude at the same time
@@ -364,11 +329,9 @@ class GEODATA_EXPORT GeoDataCoordinates
      * normalizeLon() instead.  
      * @param lon the longitude value
      * @param lat the latitude value
-     * @param unit unit of the result
      */
-    static void normalizeLonLat( qreal &lon, qreal &lat,
-                                 GeoDataCoordinates::Unit = GeoDataCoordinates::Radian );
-    
+    static void normalizeLonLat(GeoDataLongitude &lon, GeoDataLatitude &lat);
+
     /**
      * @brief try to parse the string into a coordinate pair
      * @param string the string
@@ -396,9 +359,8 @@ class GEODATA_EXPORT GeoDataCoordinates
     * increase the number of digits after the arc second decimal point. 
     */
     QString toString( GeoDataCoordinates::Notation notation, int precision = -1 ) const;
-    
-    static QString lonToString( qreal lon, GeoDataCoordinates::Notation notation,   
-                                           GeoDataCoordinates::Unit unit = Radian, 
+
+    static QString lonToString(GeoDataLongitude lon, GeoDataCoordinates::Notation notation,
                                            int precision = -1, 
                                            char format = 'f' );
     /**
@@ -407,8 +369,7 @@ class GEODATA_EXPORT GeoDataCoordinates
      */
     QString lonToString() const;
 
-    static QString latToString( qreal lat, GeoDataCoordinates::Notation notation,
-                                           GeoDataCoordinates::Unit unit = Radian,
+    static QString latToString(GeoDataLatitude lat, GeoDataCoordinates::Notation notation,
                                            int precision = -1,
                                            char format = 'f' );
     /**

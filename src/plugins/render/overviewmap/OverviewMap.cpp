@@ -165,8 +165,8 @@ bool OverviewMap::isInitialized () const
 void OverviewMap::setProjection( const ViewportParams *viewport )
 {
     GeoDataLatLonAltBox latLonAltBox = viewport->latLonAltBox( QRect( QPoint( 0, 0 ), viewport->size() ) );
-    const qreal centerLon = viewport->centerLongitude();
-    const qreal centerLat = viewport->centerLatitude();
+    const GeoDataLongitude centerLon = viewport->centerLongitude();
+    const GeoDataLatitude centerLat = viewport->centerLatitude();
     QString target = marbleModel()->planetId();
 
     if ( target != m_target ) {
@@ -238,20 +238,16 @@ void OverviewMap::paintContent( QPainter *painter )
     }
 
     // Now draw the latitude longitude bounding box
-    qreal xWest = mapRect.width() / 2.0 
-                    + mapRect.width() / ( 2.0 * M_PI ) * m_latLonAltBox.west();
-    qreal xEast = mapRect.width() / 2.0
-                    + mapRect.width() / ( 2.0 * M_PI ) * m_latLonAltBox.east();
-    qreal xNorth = mapRect.height() / 2.0 
-                    - mapRect.height() / M_PI * m_latLonAltBox.north();
-    qreal xSouth = mapRect.height() / 2.0
-                    - mapRect.height() / M_PI * m_latLonAltBox.south();
+    const qreal xWest = 0.5 * mapRect.width() * (1 + m_latLonAltBox.west() / GeoDataLongitude::halfCircle);
+    const qreal xEast = 0.5 * mapRect.width() * (1 + m_latLonAltBox.east() / GeoDataLongitude::halfCircle);
+    const qreal xNorth = 0.5 * mapRect.height() * (1 - m_latLonAltBox.north() / GeoDataLatitude::quaterCircle);
+    const qreal xSouth = 0.5 * mapRect.height() * (1 - m_latLonAltBox.south() / GeoDataLatitude::quaterCircle);
 
-    qreal lon = m_centerLon;
-    qreal lat = m_centerLat;
+    GeoDataLongitude lon = m_centerLon;
+    GeoDataLatitude lat = m_centerLat;
     GeoDataCoordinates::normalizeLonLat( lon, lat );
-    qreal x = mapRect.width() / 2.0 + mapRect.width() / ( 2.0 * M_PI ) * lon;
-    qreal y = mapRect.height() / 2.0 - mapRect.height() / M_PI * lat;
+    const qreal x = 0.5 * mapRect.width() * (1 + lon / GeoDataLongitude::halfCircle);
+    const qreal y = 0.5 * mapRect.height() * (1 - lat / GeoDataLatitude::quaterCircle);
 
     painter->setPen( QPen( Qt::white ) );
     painter->setBrush( QBrush( Qt::transparent ) );
@@ -416,8 +412,8 @@ bool OverviewMap::eventFilter( QObject *object, QEvent *e )
                 QPointF pos = event->pos() - floatItemRect.topLeft() 
                     - QPointF(padding(),padding());
 
-                qreal lon = ( pos.x() - mapRect.width() / 2.0 ) / mapRect.width() * 360.0 ;
-                qreal lat = ( mapRect.height() / 2.0 - pos.y() ) / mapRect.height() * 180.0;
+                const GeoDataLongitude lon = GeoDataLongitude::halfCircle * 2 * (pos.x() - mapRect.width() / 2.0) / mapRect.width();
+                const GeoDataLatitude lat = GeoDataLatitude::quaterCircle * 2 * (mapRect.height() / 2.0 - pos.y()) / mapRect.height();
                 widget->centerOn(lon,lat,true);
 
                 return true;

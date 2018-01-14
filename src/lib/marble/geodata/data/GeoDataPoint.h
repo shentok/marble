@@ -22,6 +22,8 @@
 #include "geodata_export.h"
 #include "GeoDataGeometry.h"
 #include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 
 namespace Marble
 {
@@ -47,9 +49,6 @@ class GeoDataPointPrivate;
 class GEODATA_EXPORT GeoDataPoint : public GeoDataGeometry
 {
  public:
-    using Notation = GeoDataCoordinates::Notation;
-    using Unit = GeoDataCoordinates::Unit;
-
     GeoDataPoint( const GeoDataPoint& other );
     explicit GeoDataPoint( const GeoDataCoordinates& other );
     GeoDataPoint();
@@ -59,11 +58,8 @@ class GEODATA_EXPORT GeoDataPoint : public GeoDataGeometry
      * @param lon longitude
      * @param lat latitude
      * @param alt altitude (default: 0)
-     * @param _unit units that lon and lat get measured in
-     * (default for Radian: north pole at pi/2, southpole at -pi/2)
      */
-    GeoDataPoint( qreal lon, qreal lat, qreal alt = 0,
-                  GeoDataPoint::Unit _unit = GeoDataCoordinates::Radian );
+    GeoDataPoint(GeoDataLongitude lon, GeoDataLatitude lat, qreal alt = 0);
 
     ~GeoDataPoint() override;
 
@@ -82,7 +78,7 @@ class GEODATA_EXPORT GeoDataPoint : public GeoDataGeometry
     const char* nodeType() const override;
 
     // Type definitions
-    using Vector = QVector<GeoDataPoint>;
+    typedef QVector<GeoDataPoint> Vector;
 
 
     // Serialize the Placemark to @p stream

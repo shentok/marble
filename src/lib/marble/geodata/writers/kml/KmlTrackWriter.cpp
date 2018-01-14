@@ -11,6 +11,8 @@
 #include "KmlTrackWriter.h"
 
 #include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataTrack.h"
 #include "GeoDataTypes.h"
 #include "GeoWriter.h"
@@ -36,10 +38,12 @@ bool KmlTrackWriter::write( const GeoNode *node, GeoWriter &writer ) const
     for ( int i = 0; i < points; i++ ) {
         writer.writeElement( "when", track->whenList().at( i ).toString( Qt::ISODate ) );
 
-        qreal lon, lat, alt;
-        track->coordinatesList().at( i ).geoCoordinates( lon, lat, alt, GeoDataCoordinates::Degree );
-        const QString coord = QString::number(lon, 'f', 10) + QLatin1Char(' ') +
-                              QString::number(lat, 'f', 10) + QLatin1Char(' ') +
+        GeoDataLongitude lon;
+        GeoDataLatitude lat;
+        qreal alt;
+        track->coordinatesList().at(i).geoCoordinates(lon, lat, alt);
+        const QString coord = QString::number(lon.toDegree(), 'f', 10) + QLatin1Char(' ') +
+                              QString::number(lat.toDegree(), 'f', 10) + QLatin1Char(' ') +
                               QString::number(alt, 'f', 10);
 
         writer.writeElement( "gx:coord", coord );

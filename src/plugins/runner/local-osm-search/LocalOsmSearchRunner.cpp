@@ -119,7 +119,7 @@ void LocalOsmSearchRunner::search( const QString &searchTerm, const GeoDataLatLo
         if ( placemark.category() != OsmPlacemark::UnknownCategory ) {
             hit->setVisualCategory( m_categoryMap[placemark.category()] );
         }
-        hit->setGeometry( new GeoDataPoint( placemark.longitude(), placemark.latitude(), 0.0, GeoDataCoordinates::Degree ) );
+        hit->setGeometry(new GeoDataPoint(placemark.longitude(), placemark.latitude()));
         result << hit;
     }
 

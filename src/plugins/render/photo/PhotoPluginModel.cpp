@@ -73,10 +73,10 @@ void PhotoPluginModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
 
     if( box.west() <= box.east() ) {
         const QString bbox =
-            QString::number(box.west() * RAD2DEG) + QLatin1Char(',') +
-            QString::number(box.south() * RAD2DEG) + QLatin1Char(',') +
-            QString::number(box.east() * RAD2DEG) + QLatin1Char(',') +
-            QString::number(box.north() * RAD2DEG);
+            QString::number(box.west().toDegree()) + QLatin1Char(',') +
+            QString::number(box.south().toDegree()) + QLatin1Char(',') +
+            QString::number(box.east().toDegree()) + QLatin1Char(',') +
+            QString::number(box.north().toDegree());
     
         QHash<QString,QString> options;
         options.insert( "per_page", QString::number( number ) );
@@ -89,10 +89,10 @@ void PhotoPluginModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
     else {
         // Flickr api doesn't support bboxes with west > east so we have to split in two boxes
         const QString bboxWest =
-            QString::number(box.west() * RAD2DEG) + QLatin1Char(',') +
-            QString::number(box.south() * RAD2DEG) + QLatin1Char(',') +
+            QString::number(box.west().toDegree()) + QLatin1Char(',') +
+            QString::number(box.south().toDegree()) + QLatin1Char(',') +
             QString::number(180 ) + QLatin1Char(',') +
-            QString::number(box.north() * RAD2DEG);
+            QString::number(box.north().toDegree());
         
         QHash<QString,QString> optionsWest;
         optionsWest.insert( "per_page", QString::number( number/2 ) );
@@ -105,9 +105,9 @@ void PhotoPluginModel::getAdditionalItems( const GeoDataLatLonAltBox& box,
         
         const QString bboxEast =
             QString::number(-180) +QLatin1Char( ',') +
-            QString::number(box.south() * RAD2DEG) + QLatin1Char(',') +
-            QString::number(box.east() * RAD2DEG) + QLatin1Char(',') +
-            QString::number(box.north() * RAD2DEG);
+            QString::number(box.south().toDegree()) + QLatin1Char(',') +
+            QString::number(box.east().toDegree()) + QLatin1Char(',') +
+            QString::number(box.north().toDegree());
 
         QHash<QString,QString> optionsEast;
         optionsEast.insert( "per_page", QString::number( number/2 ) );

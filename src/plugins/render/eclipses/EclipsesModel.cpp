@@ -32,10 +32,11 @@ EclipsesModel::EclipsesModel( const MarbleModel *model, QObject *parent )
     m_ecl->setLunarEcl( m_withLunarEclipses );
 
     // observation point defaults to home location
-    qreal lon, lat;
+    GeoDataLongitude lon;
+    GeoDataLatitude lat;
     int zoom;
     m_marbleModel->home( lon, lat, zoom );
-    GeoDataCoordinates homeLocation( lon, lat, 0, GeoDataCoordinates::Degree );
+    const GeoDataCoordinates homeLocation(lon, lat);
     setObservationPoint( homeLocation );
 }
 
@@ -52,7 +53,7 @@ const GeoDataCoordinates& EclipsesModel::observationPoint() const
 void EclipsesModel::setObservationPoint( const GeoDataCoordinates &coords )
 {
     m_observationPoint = coords;
-    m_ecl->setLocalPos( coords.latitude(), coords.altitude(), 6000. );
+    m_ecl->setLocalPos(coords.latitude().toRadian(), coords.altitude(), 6000.);
 }
 
 void EclipsesModel::setYear( int year )

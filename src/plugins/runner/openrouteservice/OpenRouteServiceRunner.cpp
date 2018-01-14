@@ -121,8 +121,8 @@ void OpenRouteServiceRunner::get()
 QString OpenRouteServiceRunner::formatCoordinates(const GeoDataCoordinates &coordinates)
 {
     return QStringLiteral("%1,%2")
-            .arg(coordinates.longitude(GeoDataCoordinates::Degree ), 0, 'f', 8)
-            .arg(coordinates.latitude(GeoDataCoordinates::Degree ), 0, 'f', 8);
+            .arg(coordinates.longitude().toDegree(), 0, 'f', 8)
+            .arg(coordinates.latitude().toDegree(), 0, 'f', 8);
 }
 
 void OpenRouteServiceRunner::retrieveData( QNetworkReply *reply )
@@ -174,9 +174,9 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
                 if ( regexp.capturedTexts().size() == 4 ) {
                     GeoDataPlacemark* placemark = new GeoDataPlacemark;
                     placemark->setName( regexp.capturedTexts().at( 1 ) );
-                    GeoDataCoordinates position;
-                    position.setLongitude( regexp.capturedTexts().at( 2 ).toDouble(), GeoDataCoordinates::Degree );
-                    position.setLatitude( regexp.capturedTexts().at( 3 ).toDouble(), GeoDataCoordinates::Degree );
+                    const GeoDataCoordinates position(
+                            GeoDataLongitude::fromDegrees(regexp.capturedTexts().at(2).toDouble()),
+                            GeoDataLatitude::fromDegrees(regexp.capturedTexts().at(3).toDouble()));
                     placemark->setCoordinate( position );
                     result->append( placemark );
                 }
@@ -233,9 +233,9 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
             QDomNode node = waypoints.item( i );
             const QStringList content = node.toElement().text().split(QLatin1Char(' '));
             if ( content.length() == 2 ) {
-                GeoDataCoordinates position;
-                position.setLongitude( content.at( 0 ).toDouble(), GeoDataCoordinates::Degree );
-                position.setLatitude( content.at( 1 ).toDouble(), GeoDataCoordinates::Degree );
+                const GeoDataCoordinates position(
+                        GeoDataLongitude::fromDegrees(content.at(0).toDouble()),
+                        GeoDataLatitude::fromDegrees(content.at(1).toDouble()));
                 routeWaypoints->append( position );
             }
         }
@@ -266,9 +266,9 @@ GeoDataDocument* OpenRouteServiceRunner::parse( const QByteArray &content ) cons
 
                     for( int i = 0; i < positions.count(); ++i ) {
                          const QStringList pointList = positions.at(i).toElement().text().split(QLatin1Char(' '));
-                         GeoDataCoordinates position;
-                         position.setLongitude( pointList.at( 0 ).toDouble(), GeoDataCoordinates::Degree );
-                         position.setLatitude( pointList.at( 1 ).toDouble(), GeoDataCoordinates::Degree );
+                         const GeoDataCoordinates position(
+                                GeoDataLongitude::fromDegrees(pointList.at(0).toDouble()),
+                                GeoDataLatitude::fromDegrees(pointList.at(1).toDouble()));
                          lineString->append( position );
                     }
 

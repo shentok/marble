@@ -28,7 +28,7 @@ namespace Marble
             Directly = 0x08
         };
 
-        GeoAprsCoordinates( qreal lon, qreal lat, int where );
+        GeoAprsCoordinates(GeoDataLongitude lon, GeoDataLatitude lat, int where);
         ~GeoAprsCoordinates() override;
 
         void  addSeenFrom( int where );

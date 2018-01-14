@@ -187,8 +187,7 @@ void SatellitesMSCItem::addTrackPointAt( const QDateTime &dateTime )
     m_planSat->getPlanetographic( lng, lat, height );
 
     m_track->addPoint( dateTime,
-                       GeoDataCoordinates( lng, lat, height * 1000,
-                                           GeoDataCoordinates::Degree) );
+                       GeoDataCoordinates(GeoDataLongitude::fromRadians(lng), GeoDataLatitude::fromRadians(lat), height * KM2METER));
 }
 
 } // namespace Marble

@@ -15,7 +15,8 @@
 
 #include <QObject>
 #include "LayerInterface.h"
-#include "GeoDataCoordinates.h"
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
 #include "GeoDataRelation.h"
 
 class QAbstractItemModel;
@@ -81,7 +82,7 @@ public Q_SLOTS:
      * placemarks will be fletered out in GeoGraphicsScene
      * and will not be highlighted.
      */
-    void handleHighlight( qreal lon, qreal lat, GeoDataCoordinates::Unit unit );
+    void handleHighlight(GeoDataLongitude lon, GeoDataLatitude lat);
 
 Q_SIGNALS:
     void repaintNeeded();

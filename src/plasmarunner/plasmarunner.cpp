@@ -64,8 +64,8 @@ void PlasmaRunner::match(Plasma::RunnerContext &context)
 
     if (success) {
         const QVariant coordinatesData = QVariantList()
-            << QVariant(coordinates.longitude(GeoDataCoordinates::Degree))
-            << QVariant(coordinates.latitude(GeoDataCoordinates::Degree))
+            << QVariant(coordinates.longitude().toDegree())
+            << QVariant(coordinates.latitude().toDegree())
             << QVariant(0.1); // TODO: make this distance value configurable
 
         Plasma::QueryMatch match(this);
@@ -126,8 +126,8 @@ void PlasmaRunner::collectMatches(QList<Plasma::QueryMatch> &matches,
             }
 
             const GeoDataCoordinates coordinates = placemark->coordinate();
-            const qreal lon = coordinates.longitude(GeoDataCoordinates::Degree);
-            const qreal lat = coordinates.latitude(GeoDataCoordinates::Degree);
+            const qreal lon = coordinates.longitude().toDegree();
+            const qreal lat = coordinates.latitude().toDegree();
             const QVariant coordinatesData = QVariantList()
                 << QVariant(lon)
                 << QVariant(lat)

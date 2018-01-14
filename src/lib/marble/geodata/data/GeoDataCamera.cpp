@@ -88,26 +88,26 @@ qreal GeoDataCamera::altitude() const
     return d->m_coordinates.altitude();
 }
 
-void GeoDataCamera::setLatitude( qreal latitude, GeoDataCoordinates::Unit unit )
+void GeoDataCamera::setLatitude(GeoDataLatitude latitude)
 {
     detach();
-    d->m_coordinates.setLatitude( latitude, unit );
+    d->m_coordinates.setLatitude(latitude);
 }
 
-qreal GeoDataCamera::latitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLatitude GeoDataCamera::latitude() const
 {
-    return d->m_coordinates.latitude( unit );
+    return d->m_coordinates.latitude();
 }
 
-void GeoDataCamera::setLongitude( qreal longitude, GeoDataCoordinates::Unit unit )
+void GeoDataCamera::setLongitude(GeoDataLongitude longitude)
 {
     detach();
-    d->m_coordinates.setLongitude( longitude, unit );
+    d->m_coordinates.setLongitude(longitude);
 }
 
-qreal GeoDataCamera::longitude( GeoDataCoordinates::Unit unit ) const
+GeoDataLongitude GeoDataCamera::longitude() const
 {
-    return d->m_coordinates.longitude( unit );
+    return d->m_coordinates.longitude();
 }
 
 GeoDataCoordinates GeoDataCamera::coordinates() const
@@ -115,34 +115,34 @@ GeoDataCoordinates GeoDataCamera::coordinates() const
     return d->m_coordinates;
 }
 
-void GeoDataCamera::setRoll(qreal roll)
+void GeoDataCamera::setRoll(GeoDataAngle roll)
 {
     detach();
     d->m_roll = roll;
 }
 
-qreal GeoDataCamera::roll() const
+GeoDataAngle GeoDataCamera::roll() const
 {
     return d->m_roll;
 }
 
-qreal GeoDataCamera::heading() const
+GeoDataAngle GeoDataCamera::heading() const
 {
     return d->m_heading;
 }
 
-void GeoDataCamera::setHeading(qreal heading)
+void GeoDataCamera::setHeading(GeoDataAngle heading)
 {
     detach();
     d->m_heading = heading;
 }
 
-qreal GeoDataCamera::tilt() const
+GeoDataAngle GeoDataCamera::tilt() const
 {
     return d->m_tilt;
 }
 
-void GeoDataCamera::setTilt(qreal tilt)
+void GeoDataCamera::setTilt(GeoDataAngle tilt)
 {
     detach();
     d->m_tilt = tilt;

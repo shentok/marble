@@ -13,6 +13,9 @@
 
 #include "AbstractDataPluginItem.h"
 
+#include "GeoDataLatitude.h"
+#include "GeoDataLongitude.h"
+
 #include <QHash>
 #include <QUrl>
 #include <QPixmap>
@@ -46,15 +49,15 @@ class WikipediaItem : public AbstractDataPluginItem
     void paint( QPainter *painter ) override;
                  
     bool operator<( const AbstractDataPluginItem *other ) const override;
-    
-    qreal longitude() const;
-    
-    void setLongitude( qreal longitude );
-    
-    qreal latitude() const;
-    
-    void setLatitude( qreal latitude );
-    
+
+    GeoDataLongitude longitude() const;
+
+    void setLongitude(GeoDataLongitude longitude);
+
+    GeoDataLatitude latitude() const;
+
+    void setLatitude(GeoDataLatitude latitude);
+
     QUrl url() const;
     
     void setUrl( const QUrl& url );

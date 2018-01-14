@@ -189,9 +189,10 @@ GeoDataDocument *PntRunner::parseFile(const QString &fileName, DocumentRole role
         GeoDataLineString *polyline = static_cast<GeoDataLineString*>( placemark->geometry() );
 
         // Transforming Range of Coordinates to iLat [0,ARCMINUTE] , iLon [0,2 * ARCMINUTE]
-        polyline->append( GeoDataCoordinates( (qreal)(iLon) * INT2RAD, (qreal)(iLat) * INT2RAD,
-                                              0.0, GeoDataCoordinates::Radian,
-                                              5 - qMin( 5, (int)header  ) ) ); // if 1 <= header <= 5, header contains level of detail
+        polyline->append(GeoDataCoordinates(GeoDataLongitude::fromRadians(iLon * INT2RAD),
+                                            GeoDataLatitude::fromRadians(iLat * INT2RAD),
+                                            0.0,
+                                            5 - qMin<int>(5, header))); // if 1 <= header <= 5, header contains level of detail
                                                                            // else pick most sparse level of detail, which equals 0
 
         ++count;

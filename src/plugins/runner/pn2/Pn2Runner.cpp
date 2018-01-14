@@ -84,10 +84,10 @@ bool Pn2Runner::importPolygon( QDataStream &stream, GeoDataLineString* linestrin
 
         error = error | errorCheckLat( lat ) | errorCheckLon( lon );
 
-        qreal degLat = ( 1.0 * lat / 120.0 );
-        qreal degLon = ( 1.0 * lon / 120.0 );
+        const GeoDataLatitude degLat = GeoDataLatitude::fromDegrees(1.0 * lat / 120.0);
+        const GeoDataLongitude degLon = GeoDataLongitude::fromDegrees(1.0 * lon / 120.0);
 
-        GeoDataCoordinates coord( degLon / 180 * M_PI, degLat / 180 * M_PI );
+        GeoDataCoordinates coord(degLon, degLat);
         linestring->append( coord );
 
         for ( qint16 relativeNode = 1; relativeNode <= nrRelativeNodes; ++relativeNode ) {
@@ -99,11 +99,10 @@ bool Pn2Runner::importPolygon( QDataStream &stream, GeoDataLineString* linestrin
 
             error = error | errorCheckLat( currLat ) | errorCheckLon( currLon );
 
-            qreal currDegLat = ( 1.0 * currLat / 120.0 );
-            qreal currDegLon = ( 1.0 * currLon / 120.0 );
+            const GeoDataLatitude currDegLat = GeoDataLatitude::fromDegrees(1.0 * currLat / 120.0);
+            const GeoDataLongitude currDegLon = GeoDataLongitude::fromDegrees(1.0 * currLon / 120.0);
 
-
-            GeoDataCoordinates currCoord( currDegLon / 180 * M_PI, currDegLat / 180 * M_PI );
+            const GeoDataCoordinates currCoord(currDegLon, currDegLat);
             linestring->append( currCoord );
         }
     }

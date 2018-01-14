@@ -267,14 +267,14 @@ GeoDataCoordinates GeoDataPlacemark::coordinate( const QDateTime &dateTime, bool
     return coord;
 }
 
-void GeoDataPlacemark::coordinate( qreal& lon, qreal& lat, qreal& alt ) const
+void GeoDataPlacemark::coordinate(GeoDataLongitude &lon, GeoDataLatitude &lat, qreal &alt) const
 {
     coordinate().geoCoordinates( lon, lat, alt );
 }
 
-void GeoDataPlacemark::setCoordinate( qreal lon, qreal lat, qreal alt, GeoDataPoint::Unit _unit)
+void GeoDataPlacemark::setCoordinate(GeoDataLongitude lon, GeoDataLatitude lat, qreal alt)
 {
-    setGeometry( new GeoDataPoint(lon, lat, alt, _unit ) );
+    setGeometry(new GeoDataPoint(lon, lat, alt));
 }
 
 void GeoDataPlacemark::setCoordinate( const GeoDataCoordinates &point )

@@ -61,8 +61,8 @@ private:
 
 void TestGeometryDetach::initTestCase()
 {
-    m_coords1 = GeoDataCoordinates(30, 30, 0, GeoDataCoordinates::Degree);
-    m_coords2 = GeoDataCoordinates(60, 60, 0, GeoDataCoordinates::Degree);
+    m_coords1 = GeoDataCoordinates(GeoDataLongitude::fromDegrees(30), GeoDataLatitude::fromDegrees(30));
+    m_coords2 = GeoDataCoordinates(GeoDataLongitude::fromDegrees(60), GeoDataLatitude::fromDegrees(60));
 }
 
 void TestGeometryDetach::testMultiGeometry()

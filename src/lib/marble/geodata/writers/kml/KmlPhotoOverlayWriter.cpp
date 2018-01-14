@@ -40,7 +40,7 @@ bool KmlPhotoOverlayWriter::writeMid( const GeoNode *node, GeoWriter &writer ) c
         static_cast<const GeoDataPhotoOverlay*>( node );
 
     // rotation
-    QString const rotation = QString::number( photo_overlay->rotation(), 'f', 3 );
+    const QString rotation = QString::number(photo_overlay->rotation().toDegree(), 'f', 3);
     writer.writeOptionalElement( kml::kmlTag_rotation, rotation, "0.000" );
 
     // ViewVolume
