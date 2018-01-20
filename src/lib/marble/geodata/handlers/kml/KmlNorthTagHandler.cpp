@@ -31,9 +31,11 @@ GeoNode* KmlnorthTagHandler::parse( GeoParser& parser ) const
 
     const GeoDataLatitude north = GeoDataLatitude::fromDegrees(parser.readElementText().trimmed().toDouble());
     if( parentItem.represents( kmlTag_LatLonAltBox ) ) {
-        parentItem.nodeAs<GeoDataLatLonAltBox>()->setNorth(north);
+        const auto normalizedNorth = GeoDataNormalizedLatitude::fromLatitude(north);
+        parentItem.nodeAs<GeoDataLatLonAltBox>()->setNorth(normalizedNorth);
     } else if ( parentItem.represents( kmlTag_LatLonBox ) ) {
-        parentItem.nodeAs<GeoDataLatLonBox>()->setNorth(north);
+        const auto normalizedNorth = GeoDataNormalizedLatitude::fromLatitude(north);
+        parentItem.nodeAs<GeoDataLatLonBox>()->setNorth(normalizedNorth);
     }
 
     return nullptr;

@@ -157,11 +157,11 @@ GeoDataLatLonBox GeoSceneMercatorTileProjection::geoCoordinates(int zoomLevel, i
     const unsigned int xTileCount = (1 << zoomLevel) * levelZeroColumns();
     const unsigned int yTileCount = (1 << zoomLevel) * levelZeroRows();
 
-    const GeoDataLongitude west = lonFromTileX(x, xTileCount);
-    const GeoDataLatitude north = latFromTileY(y, yTileCount);
+    const auto west = GeoDataNormalizedLongitude::fromLongitude(lonFromTileX(x, xTileCount));
+    const auto north = GeoDataNormalizedLatitude::fromLatitude(latFromTileY(y, yTileCount));
 
-    const GeoDataLongitude east = lonFromTileX(x + 1, xTileCount);
-    const GeoDataLatitude south = latFromTileY(y + 1, yTileCount);
+    const auto east = GeoDataNormalizedLongitude::fromLongitude(lonFromTileX(x + 1, xTileCount));
+    const auto south = GeoDataNormalizedLatitude::fromLatitude(latFromTileY(y + 1, yTileCount));
 
     return GeoDataLatLonBox(north, south, east, west);
 }

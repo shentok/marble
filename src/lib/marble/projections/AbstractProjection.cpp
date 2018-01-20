@@ -42,8 +42,8 @@ AbstractProjection::~AbstractProjection()
 }
 
 AbstractProjectionPrivate::AbstractProjectionPrivate(AbstractProjection *parent) :
-    m_maxLat(GeoDataLatitude::null),
-    m_minLat(GeoDataLatitude::null),
+    m_maxLat(GeoDataNormalizedLatitude::null),
+    m_minLat(GeoDataNormalizedLatitude::null),
     m_previousResolution(-1),
     m_level(-1),
     q_ptr(parent)
@@ -77,18 +77,18 @@ int AbstractProjectionPrivate::levelForResolution(qreal resolution) const
     return m_level;
 }
 
-GeoDataLatitude AbstractProjection::maxValidLat() const
+GeoDataNormalizedLatitude AbstractProjection::maxValidLat() const
 {
-    return GeoDataLatitude::fromDegrees(+90.0);
+    return +GeoDataNormalizedLatitude::quaterCircle;
 }
 
-GeoDataLatitude AbstractProjection::maxLat() const
+GeoDataNormalizedLatitude AbstractProjection::maxLat() const
 {
     Q_D(const AbstractProjection );
     return d->m_maxLat;
 }
 
-void AbstractProjection::setMaxLat(GeoDataLatitude maxLat)
+void AbstractProjection::setMaxLat(GeoDataNormalizedLatitude maxLat)
 {
     if ( maxLat < maxValidLat() ) {
         mDebug() << Q_FUNC_INFO << "Trying to set maxLat to a value that is out of the valid range.";
@@ -99,18 +99,18 @@ void AbstractProjection::setMaxLat(GeoDataLatitude maxLat)
     d->m_maxLat = maxLat;
 }
 
-GeoDataLatitude AbstractProjection::minValidLat() const
+GeoDataNormalizedLatitude AbstractProjection::minValidLat() const
 {
-    return GeoDataLatitude::fromDegrees(-90.0);
+    return -GeoDataNormalizedLatitude::quaterCircle;
 }
 
-GeoDataLatitude AbstractProjection::minLat() const
+GeoDataNormalizedLatitude AbstractProjection::minLat() const
 {
     Q_D( const AbstractProjection );
     return d->m_minLat;
 }
 
-void AbstractProjection::setMinLat(GeoDataLatitude minLat)
+void AbstractProjection::setMinLat(GeoDataNormalizedLatitude minLat)
 {
     if ( minLat < minValidLat() ) {
         mDebug() << Q_FUNC_INFO << "Trying to set minLat to a value that is out of the valid range.";

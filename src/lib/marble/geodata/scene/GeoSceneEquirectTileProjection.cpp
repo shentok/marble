@@ -133,11 +133,11 @@ GeoDataLatLonBox GeoSceneEquirectTileProjection::geoCoordinates(int zoomLevel, i
     const qreal radiusX = (1 << zoomLevel) * levelZeroColumns() / 2.0;
     const qreal radiusY = (1 << zoomLevel) * levelZeroRows() / 2.0;
 
-    const GeoDataLongitude west  = (x - radiusX) / radiusX * GeoDataLongitude::halfCircle;
-    const GeoDataLatitude north = (radiusY - y) / radiusY * GeoDataLatitude::quaterCircle;
+    const auto west  = GeoDataNormalizedLongitude::fromLongitude((x - radiusX) / radiusX * GeoDataLongitude::halfCircle);
+    const auto north = GeoDataNormalizedLatitude::fromLatitude((radiusY - y) / radiusY * GeoDataLatitude::quaterCircle);
 
-    const GeoDataLongitude east  = ((x + 1) - radiusX) / radiusX * GeoDataLongitude::halfCircle;
-    const GeoDataLatitude south = (radiusY - (y + 1)) / radiusY * GeoDataLatitude::quaterCircle;
+    const auto east  = GeoDataNormalizedLongitude::fromLongitude(((x + 1) - radiusX) / radiusX * GeoDataLongitude::halfCircle);
+    const auto south = GeoDataNormalizedLatitude::fromLatitude((radiusY - (y + 1)) / radiusY * GeoDataLatitude::quaterCircle);
 
     return GeoDataLatLonBox(north, south, east, west);
 }

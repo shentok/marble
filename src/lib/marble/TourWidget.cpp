@@ -22,6 +22,8 @@
 #include "GeoDataLatitude.h"
 #include "GeoDataLongitude.h"
 #include "GeoDataLookAt.h"
+#include "GeoDataNormalizedLatitude.h"
+#include "GeoDataNormalizedLongitude.h"
 #include "GeoDataPlaylist.h"
 #include "GeoDataTour.h"
 #include "GeoDataTreeModel.h"
@@ -456,9 +458,8 @@ void TourWidgetPrivate::addPlacemark()
 {
     // Get the normalized coordinates of the focus point. There will be automatically added a new
     // placemark.
-    GeoDataLatitude lat = m_widget->focusPoint().latitude();
-    GeoDataLongitude lon = m_widget->focusPoint().longitude();
-    GeoDataCoordinates::normalizeLonLat( lon, lat );
+    const auto lat = GeoDataNormalizedLatitude::fromLatitude(m_widget->focusPoint().latitude());
+    const auto lon = GeoDataNormalizedLongitude::fromLongitude(m_widget->focusPoint().longitude());
 
     GeoDataDocument *document = new GeoDataDocument;
     if( m_document->id().isEmpty() ) {

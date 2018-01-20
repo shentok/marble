@@ -55,10 +55,10 @@ LatLonBoxWidget::~LatLonBoxWidget()
 
 GeoDataLatLonBox LatLonBoxWidget::latLonBox() const
 {
-    return GeoDataLatLonBox(GeoDataLatitude::fromDegrees(d->m_ui.northSpinBox->value()),
-                            GeoDataLatitude::fromDegrees(d->m_ui.southSpinBox->value()),
-                            GeoDataLongitude::fromDegrees(d->m_ui.eastSpinBox->value()),
-                            GeoDataLongitude::fromDegrees(d->m_ui.westSpinBox->value()));
+    return GeoDataLatLonBox(GeoDataNormalizedLatitude::fromDegrees(d->m_ui.northSpinBox->value()),
+                            GeoDataNormalizedLatitude::fromDegrees(d->m_ui.southSpinBox->value()),
+                            GeoDataNormalizedLongitude::fromDegrees(d->m_ui.eastSpinBox->value()),
+                            GeoDataNormalizedLongitude::fromDegrees(d->m_ui.westSpinBox->value()));
 }
 
 void LatLonBoxWidget::setLatLonBox( GeoDataLatLonBox const & latLonBox )

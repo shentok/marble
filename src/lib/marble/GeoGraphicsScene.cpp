@@ -97,14 +97,14 @@ QList< GeoGraphicsItem* > GeoGraphicsScene::items( const GeoDataLatLonBox &box, 
     if ( box.west() > box.east() ) {
         // Handle boxes crossing the IDL by splitting it into two separate boxes
         GeoDataLatLonBox left;
-        left.setWest(-GeoDataLongitude::halfCircle);
+        left.setWest(-GeoDataNormalizedLongitude::halfCircle);
         left.setEast( box.east() );
         left.setNorth( box.north() );
         left.setSouth( box.south() );
 
         GeoDataLatLonBox right;
         right.setWest( box.west() );
-        right.setEast(GeoDataLongitude::halfCircle);
+        right.setEast(GeoDataNormalizedLongitude::halfCircle);
         right.setNorth( box.north() );
         right.setSouth( box.south() );
 
@@ -113,16 +113,16 @@ QList< GeoGraphicsItem* > GeoGraphicsScene::items( const GeoDataLatLonBox &box, 
 
     QList< GeoGraphicsItem* > result;
     QRect rect;
-    GeoDataLatitude north, south;
-    GeoDataLongitude east, west;
+    GeoDataNormalizedLatitude north, south;
+    GeoDataNormalizedLongitude east, west;
     box.boundaries( north, south, east, west );
     TileId key;
 
-    key = TileId::fromCoordinates( GeoDataCoordinates(west, north, 0), zoomLevel );
+    key = TileId::fromCoordinates(west, north, zoomLevel);
     rect.setLeft( key.x() );
     rect.setTop( key.y() );
 
-    key = TileId::fromCoordinates( GeoDataCoordinates(east, south, 0), zoomLevel );
+    key = TileId::fromCoordinates(east, south, zoomLevel);
     rect.setRight( key.x() );
     rect.setBottom( key.y() );
     
@@ -261,17 +261,17 @@ void GeoGraphicsScene::addItem( GeoGraphicsItem* item )
 {
     // Select zoom level so that the object fit in single tile
     int zoomLevel;
-    GeoDataLatitude north, south;
-    GeoDataLongitude east, west;
+    GeoDataNormalizedLatitude north, south;
+    GeoDataNormalizedLongitude east, west;
     item->latLonAltBox().boundaries( north, south, east, west );
     for(zoomLevel = item->minZoomLevel(); zoomLevel >= 0; zoomLevel--)
     {
-        if( TileId::fromCoordinates( GeoDataCoordinates(west, north, 0), zoomLevel ) ==
-            TileId::fromCoordinates( GeoDataCoordinates(east, south, 0), zoomLevel ) )
+        if( TileId::fromCoordinates(west, north, zoomLevel) ==
+            TileId::fromCoordinates(east, south, zoomLevel) )
             break;
     }
 
-    const TileId key = TileId::fromCoordinates( GeoDataCoordinates(west, north, 0), zoomLevel ); // same as GeoDataCoordinates(east, south, 0), see above
+    const TileId key = TileId::fromCoordinates(west, north, zoomLevel); // same as GeoDataCoordinates(east, south, 0), see above
 
     auto & tileList = d->m_tiledItems[key];
     auto feature = item->feature();

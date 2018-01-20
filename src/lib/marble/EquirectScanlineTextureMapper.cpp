@@ -20,6 +20,7 @@
 #include <QRunnable>
 
 // Marble
+#include "GeoDataNormalizedLongitude.h"
 #include "GeoPainter.h"
 #include "MarbleDebug.h"
 #include "ScanlineTextureMapperContext.h"
@@ -182,7 +183,7 @@ void EquirectScanlineTextureMapper::RenderJob::run()
 
     const int yTop = imageHeight / 2 - radius + yCenterOffset;
 
-    const GeoDataLongitude leftLon = GeoDataCoordinates::normalizeLon(+ centerLon - (imageWidth / 2 * pixel2Lon));
+    const GeoDataLongitude leftLon = GeoDataNormalizedLongitude::fromLongitude(+ centerLon - (imageWidth / 2 * pixel2Lon));
 
     const int maxInterpolationPointX = n * (int)( imageWidth / n - 1 ) + 1;
 

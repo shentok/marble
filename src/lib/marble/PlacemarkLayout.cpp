@@ -255,7 +255,9 @@ void PlacemarkLayout::addPlacemarks( const QModelIndex& parent, int first, int l
             }
 
             int zoomLevel = placemark->zoomLevel();
-            TileId key = TileId::fromCoordinates( coordinates, zoomLevel );
+            const auto lon = GeoDataNormalizedLongitude::fromLongitude(coordinates.longitude());
+            const auto lat = GeoDataNormalizedLatitude::fromLatitude(coordinates.latitude());
+            const auto key = TileId::fromCoordinates(lon, lat, zoomLevel);
             m_placemarkCache[key].append( placemark );
         }
     }
@@ -276,7 +278,9 @@ void PlacemarkLayout::removePlacemarks( const QModelIndex& parent, int first, in
         }
 
         int zoomLevel = placemark->zoomLevel();
-        TileId key = TileId::fromCoordinates( coordinates, zoomLevel );
+        const auto lon = GeoDataNormalizedLongitude::fromLongitude(coordinates.longitude());
+        const auto lat = GeoDataNormalizedLatitude::fromLatitude(coordinates.latitude());
+        const auto key = TileId::fromCoordinates(lon, lat, zoomLevel);
         delete m_visiblePlacemarks[placemark];
         m_visiblePlacemarks.remove(placemark);
         m_placemarkCache[key].removeAll( placemark );
@@ -312,27 +316,27 @@ QSet<TileId> PlacemarkLayout::visibleTiles(const ViewportParams &viewport, int z
      * matching our latLonAltBox.
      */
 
-    GeoDataLatitude north, south;
-    GeoDataLongitude east, west;
+    GeoDataNormalizedLatitude north, south;
+    GeoDataNormalizedLongitude east, west;
     viewport.viewLatLonAltBox().boundaries(north, south, east, west);
     QSet<TileId> tileIdSet;
     QVector<GeoDataLatLonBox> geoRects;
     if( west <= east ) {
         geoRects << GeoDataLatLonBox(north, south, east, west);
     } else {
-        geoRects << GeoDataLatLonBox(north, south, GeoDataLongitude::halfCircle, west);
-        geoRects << GeoDataLatLonBox(north, south, east, -GeoDataLongitude::halfCircle);
+        geoRects << GeoDataLatLonBox(north, south, GeoDataNormalizedLongitude::halfCircle, west);
+        geoRects << GeoDataLatLonBox(north, south, east, -GeoDataNormalizedLongitude::halfCircle);
     }
 
     for (const GeoDataLatLonBox &geoRect : geoRects) {
         TileId key;
         QRect rect;
 
-        key = TileId::fromCoordinates(GeoDataCoordinates(geoRect.west(), north), zoomLevel);
+        key = TileId::fromCoordinates(geoRect.west(), north, zoomLevel);
         rect.setLeft( key.x() );
         rect.setTop( key.y() );
 
-        key = TileId::fromCoordinates(GeoDataCoordinates(geoRect.east(), south), zoomLevel);
+        key = TileId::fromCoordinates(geoRect.east(), south, zoomLevel);
         rect.setRight( key.x() );
         rect.setBottom( key.y() );
 

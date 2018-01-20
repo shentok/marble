@@ -306,33 +306,6 @@ class GEODATA_EXPORT GeoDataCoordinates
     static void setDefaultNotation( GeoDataCoordinates::Notation notation );
 
     /**
-     * @brief normalize the longitude to always be -M_PI <= lon <= +M_PI (Radian).
-     * @param lon longitude
-     */
-    static GeoDataLongitude normalizeLon(GeoDataLongitude lon);
-
-    /**
-     * @brief normalize latitude to always be in -M_PI / 2. <= lat <= +M_PI / 2 (Radian).
-     * @param lat latitude
-     */
-    static GeoDataLatitude normalizeLat(GeoDataLatitude lat);
-
-    /**
-     * @brief normalize both longitude and latitude at the same time
-     * This method normalizes both latitude and longitude, so that the 
-     * latitude and the longitude stay within the "usual" range.
-     * NOTE: If the latitude exceeds M_PI/2 (+90.0 deg) or -M_PI/2 (-90.0 deg)
-     * then this will be interpreted as a pole traversion where the point will  
-     * end up on the opposite side of the globe. Therefore the longitude will 
-     * change by M_PI (180 deg).
-     * If you don't want this behaviour use both normalizeLat() and
-     * normalizeLon() instead.  
-     * @param lon the longitude value
-     * @param lat the latitude value
-     */
-    static void normalizeLonLat(GeoDataLongitude &lon, GeoDataLatitude &lat);
-
-    /**
      * @brief try to parse the string into a coordinate pair
      * @param string the string
      * @param successful becomes true if the conversion succeeds

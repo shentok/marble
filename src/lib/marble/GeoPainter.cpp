@@ -135,16 +135,14 @@ GeoDataLinearRing GeoPainterPrivate::createLinearRingFromGeoRect( const GeoDataC
     qreal altitude = centerCoordinates.altitude();
     centerCoordinates.geoCoordinates(lon, lat);
 
-    lon = GeoDataCoordinates::normalizeLon(lon);
-    lat = GeoDataCoordinates::normalizeLat(lat);
     const GeoDataLongitude rx = GeoDataLongitude::fromDegrees(width) * 0.5;
     const GeoDataLatitude ry = GeoDataLatitude::fromDegrees(height) * 0.5;
 
-    const GeoDataLongitude west = GeoDataCoordinates::normalizeLon(lon - rx);
-    const GeoDataLongitude east = GeoDataCoordinates::normalizeLon(lon + rx);
+    const GeoDataLongitude west = GeoDataNormalizedLongitude::fromLongitude(lon - rx);
+    const GeoDataLongitude east = GeoDataNormalizedLongitude::fromLongitude(lon + rx);
 
-    const GeoDataLatitude north = GeoDataCoordinates::normalizeLat(lat + ry);
-    const GeoDataLatitude south = GeoDataCoordinates::normalizeLat(lat - ry);
+    const GeoDataLatitude north = GeoDataNormalizedLatitude::fromLatitude(lat + ry);
+    const GeoDataLatitude south = GeoDataNormalizedLatitude::fromLatitude(lat - ry);
 
     const GeoDataCoordinates southWest(west, south, altitude);
     const GeoDataCoordinates southEast(east, south, altitude);
@@ -357,7 +355,11 @@ void GeoPainter::drawEllipse ( const GeoDataCoordinates & centerPosition,
         }
 
         // Don't show the ellipse if it's too small:
-        const GeoDataLatLonBox ellipseBox(centerLat + ry, centerLat - ry, centerLon + rx, centerLon - rx);
+        const GeoDataLatLonBox ellipseBox(
+                    GeoDataNormalizedLatitude::fromLatitude(centerLat + ry),
+                    GeoDataNormalizedLatitude::fromLatitude(centerLat - ry),
+                    GeoDataNormalizedLongitude::fromLongitude(centerLon + rx),
+                    GeoDataNormalizedLongitude::fromLongitude(centerLon - rx));
         if ( !d->m_viewport->viewLatLonAltBox().intersects( ellipseBox ) ||
              !d->m_viewport->resolves( ellipseBox ) ) return;
 
@@ -436,7 +438,11 @@ QRegion GeoPainter::regionFromEllipse ( const GeoDataCoordinates & centerPositio
         }
 
         // Don't show the ellipse if it's too small:
-        const GeoDataLatLonBox ellipseBox(centerLat + ry, centerLat - ry, centerLon + rx, centerLon - rx);
+        const GeoDataLatLonBox ellipseBox(
+                    GeoDataNormalizedLatitude::fromLatitude(centerLat + ry),
+                    GeoDataNormalizedLatitude::fromLatitude(centerLat - ry),
+                    GeoDataNormalizedLongitude::fromLongitude(centerLon + rx),
+                    GeoDataNormalizedLongitude::fromLongitude(centerLon - rx));
         if ( !d->m_viewport->viewLatLonAltBox().intersects( ellipseBox ) ||
              !d->m_viewport->resolves( ellipseBox ) ) return QRegion();
 

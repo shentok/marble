@@ -19,6 +19,8 @@
 #include "GeoDataCoordinates.h"
 #include "GeoDataLatitude.h"
 #include "GeoDataLongitude.h"
+#include "GeoDataNormalizedLatitude.h"
+#include "GeoDataNormalizedLongitude.h"
 
 #include "MarbleGlobal.h"
 
@@ -58,7 +60,7 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
 
  public:
     GeoDataLatLonBox();
-    GeoDataLatLonBox(GeoDataLatitude north, GeoDataLatitude south, GeoDataLongitude east, GeoDataLongitude west);
+    GeoDataLatLonBox(GeoDataNormalizedLatitude north, GeoDataNormalizedLatitude south, GeoDataNormalizedLongitude east, GeoDataNormalizedLongitude west);
     GeoDataLatLonBox( const GeoDataLatLonBox & );
     ~GeoDataLatLonBox() override;
 
@@ -71,29 +73,29 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
      * @brief Get the northern boundary of the bounding box.
      * @return the latitude of the northern boundary.
      */
-    GeoDataLatitude north() const;
-    void setNorth(GeoDataLatitude north);
+    GeoDataNormalizedLatitude north() const;
+    void setNorth(GeoDataNormalizedLatitude north);
 
     /**
      * @brief Get the southern boundary of the bounding box.
      * @return the latitude of the southern boundary.
      */
-    GeoDataLatitude south() const;
-    void setSouth(GeoDataLatitude south);
+    GeoDataNormalizedLatitude south() const;
+    void setSouth(GeoDataNormalizedLatitude south);
 
     /**
      * @brief Get the eastern boundary of the bounding box.
      * @return the longitude of the eastern boundary.
      */
-    GeoDataLongitude east() const;
-    void setEast(GeoDataLongitude east);
+    GeoDataNormalizedLongitude east() const;
+    void setEast(GeoDataNormalizedLongitude east);
 
     /**
      * @brief Get the western boundary of the bounding box.
      * @return the longitude of the western boundary.
      */
-    GeoDataLongitude west() const;
-    void setWest(GeoDataLongitude west);
+    GeoDataNormalizedLongitude west() const;
+    void setWest(GeoDataNormalizedLongitude west);
 
     /**
      * @brief Get the rotation of the bounding box.
@@ -102,8 +104,8 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
     GeoDataAngle rotation() const;
     void setRotation(GeoDataAngle rotation);
 
-    void boundaries(GeoDataLatitude &north, GeoDataLatitude &south, GeoDataLongitude &east, GeoDataLongitude &west) const;
-    void setBoundaries(GeoDataLatitude north, GeoDataLatitude south, GeoDataLongitude east, GeoDataLongitude west);
+    void boundaries(GeoDataNormalizedLatitude &north, GeoDataNormalizedLatitude &south, GeoDataNormalizedLongitude &east, GeoDataNormalizedLongitude &west) const;
+    void setBoundaries(GeoDataNormalizedLatitude north, GeoDataNormalizedLatitude south, GeoDataNormalizedLongitude east, GeoDataNormalizedLongitude west);
 
     /**
      * @brief Changes the differences between the boundaries and the center by the given factor, keeping the center unchanged
@@ -120,22 +122,10 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
     GeoDataLongitude width() const;
 
     /**
-     * @brief Get the width of the longitude interval. East and west parameters are in radians.
-     * @return the angle covered by the longitude range in given unit.
-     */
-    static GeoDataLongitude width(GeoDataLongitude east, GeoDataLongitude west);
-
-    /**
      * @brief Get the height of the latitude interval
      * @return the angle covered by the latitude range.
      */
     GeoDataLatitude height() const;
-
-    /**
-     * @brief Get the height of the latitude interval. North and south parameters are in radians.
-     * @return the angle covered by the latitude range in given unit.
-     */
-    static GeoDataLatitude height(GeoDataLatitude north, GeoDataLatitude south);
 
     /**
      * @brief Detect whether the bounding box crosses the IDL.
@@ -143,15 +133,6 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
      *         @c false the bounding box doesn't cross the +/-180 deg longitude.
      */
     bool     crossesDateLine() const;
-
-    /**
-     * @brief Detect whether the bounding box crosses the IDL.
-     * @param east radians east.
-     * @param west radians west.
-     * @return @c true  the bounding box crosses the +/-180 deg longitude.
-     *         @c false the bounding box doesn't cross the +/-180 deg longitude.
-     */
-    static bool crossesDateLine(GeoDataLongitude east, GeoDataLongitude west);
 
     /**
      * @brief returns the center of this box
@@ -175,7 +156,7 @@ class GEODATA_EXPORT GeoDataLatLonBox : public GeoDataObject
      * @param lat latitude in radians.
      * @return true if the box contains given point, false otherwise
      */
-    bool contains(GeoDataLongitude lon, GeoDataLatitude lat) const; //Optimized version for overlay painting
+    bool contains(GeoDataNormalizedLongitude lon, GeoDataNormalizedLatitude lat) const; //Optimized version for overlay painting
 
     virtual bool intersects( const GeoDataLatLonBox & ) const;
 

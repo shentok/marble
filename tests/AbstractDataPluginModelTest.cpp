@@ -101,10 +101,10 @@ const ViewportParams AbstractDataPluginModelTest::fullViewport(Equirectangular, 
 
 void AbstractDataPluginModelTest::init_testcase()
 {
-    const GeoDataLatLonBox viewLatLonBox(GeoDataLatitude::quaterCircle,
-                                         -GeoDataLatitude::quaterCircle,
-                                         GeoDataLongitude::halfCircle,
-                                         -GeoDataLongitude::halfCircle);
+    const GeoDataLatLonBox viewLatLonBox(GeoDataNormalizedLatitude::quaterCircle,
+                                         -GeoDataNormalizedLatitude::quaterCircle,
+                                         GeoDataNormalizedLongitude::halfCircle,
+                                         -GeoDataNormalizedLongitude::halfCircle);
 
     QCOMPARE(GeoDataLatLonBox(fullViewport.viewLatLonAltBox()), viewLatLonBox);
 }

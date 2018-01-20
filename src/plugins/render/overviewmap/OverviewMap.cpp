@@ -238,16 +238,15 @@ void OverviewMap::paintContent( QPainter *painter )
     }
 
     // Now draw the latitude longitude bounding box
-    const qreal xWest = 0.5 * mapRect.width() * (1 + m_latLonAltBox.west() / GeoDataLongitude::halfCircle);
-    const qreal xEast = 0.5 * mapRect.width() * (1 + m_latLonAltBox.east() / GeoDataLongitude::halfCircle);
-    const qreal xNorth = 0.5 * mapRect.height() * (1 - m_latLonAltBox.north() / GeoDataLatitude::quaterCircle);
-    const qreal xSouth = 0.5 * mapRect.height() * (1 - m_latLonAltBox.south() / GeoDataLatitude::quaterCircle);
+    const qreal xWest = 0.5 * mapRect.width() * (1 + m_latLonAltBox.west() / GeoDataNormalizedLongitude::halfCircle);
+    const qreal xEast = 0.5 * mapRect.width() * (1 + m_latLonAltBox.east() / GeoDataNormalizedLongitude::halfCircle);
+    const qreal xNorth = 0.5 * mapRect.height() * (1 - m_latLonAltBox.north() / GeoDataNormalizedLatitude::quaterCircle);
+    const qreal xSouth = 0.5 * mapRect.height() * (1 - m_latLonAltBox.south() / GeoDataNormalizedLatitude::quaterCircle);
 
-    GeoDataLongitude lon = m_centerLon;
-    GeoDataLatitude lat = m_centerLat;
-    GeoDataCoordinates::normalizeLonLat( lon, lat );
-    const qreal x = 0.5 * mapRect.width() * (1 + lon / GeoDataLongitude::halfCircle);
-    const qreal y = 0.5 * mapRect.height() * (1 - lat / GeoDataLatitude::quaterCircle);
+    const auto lon = GeoDataNormalizedLongitude::fromLongitude(m_centerLon);
+    const auto lat = GeoDataNormalizedLatitude::fromLatitude(m_centerLat);
+    const qreal x = 0.5 * mapRect.width() * (1 + lon / GeoDataNormalizedLongitude::halfCircle);
+    const qreal y = 0.5 * mapRect.height() * (1 - lat / GeoDataNormalizedLatitude::quaterCircle);
 
     painter->setPen( QPen( Qt::white ) );
     painter->setBrush( QBrush( Qt::transparent ) );

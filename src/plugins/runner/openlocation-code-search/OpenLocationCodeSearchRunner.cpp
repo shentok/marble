@@ -121,10 +121,10 @@ GeoDataLatLonBox OpenLocationCodeSearchRunner::decodeOLC( const QString &olc ) c
         }
     }
 
-    return GeoDataLatLonBox(southLatitude - GeoDataLatitude::quaterCircle + latitudeResolution,
-                            southLatitude - GeoDataLatitude::quaterCircle,
-                            westLongitude - GeoDataLongitude::halfCircle+ longitudeResolution,
-                            westLongitude - GeoDataLongitude::halfCircle);
+    return GeoDataLatLonBox(GeoDataNormalizedLatitude::fromLatitude(southLatitude - GeoDataLatitude::quaterCircle + latitudeResolution),
+                            GeoDataNormalizedLatitude::fromLatitude(southLatitude - GeoDataLatitude::quaterCircle),
+                            GeoDataNormalizedLongitude::fromLongitude(westLongitude - GeoDataLongitude::halfCircle+ longitudeResolution),
+                            GeoDataNormalizedLongitude::fromLongitude(westLongitude - GeoDataLongitude::halfCircle));
 }
 
 bool OpenLocationCodeSearchRunner::isValidOLC( const QString& olc ) const

@@ -91,10 +91,10 @@ void EditGroundOverlayDialog::updateGroundOverlay()
     d->m_overlay->setIconFile( d->m_header->iconLink() );
     d->m_overlay->setDescription( d->m_formattedTextWidget->text() );
 
-    d->m_overlay->latLonBox().setBoundaries(GeoDataLatitude::fromDegrees(d->m_north->value()),
-                                            GeoDataLatitude::fromDegrees(d->m_south->value()),
-                                            GeoDataLongitude::fromDegrees(d->m_east->value()),
-                                            GeoDataLongitude::fromDegrees(d->m_west->value()));
+    d->m_overlay->latLonBox().setBoundaries(GeoDataNormalizedLatitude::fromDegrees(d->m_north->value()),
+                                            GeoDataNormalizedLatitude::fromDegrees(d->m_south->value()),
+                                            GeoDataNormalizedLongitude::fromDegrees(d->m_east->value()),
+                                            GeoDataNormalizedLongitude::fromDegrees(d->m_west->value()));
 
     d->m_overlay->latLonBox().setRotation(GeoDataAngle::fromDegrees(d->m_rotation->value()));
 }

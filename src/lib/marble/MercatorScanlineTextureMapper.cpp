@@ -21,6 +21,7 @@
 #include <QRunnable>
 
 // Marble
+#include "GeoDataNormalizedLongitude.h"
 #include "GeoPainter.h"
 #include "MarbleDebug.h"
 #include "ScanlineTextureMapperContext.h"
@@ -181,7 +182,7 @@ void MercatorScanlineTextureMapper::RenderJob::run()
 
     const int yCenterOffset = (int)(asinh(tan(centerLat.toRadian())) * rad2Pixel);
 
-    const GeoDataLongitude leftLon = GeoDataCoordinates::normalizeLon(+ centerLon - (imageWidth * GeoDataLongitude::halfCircle / radius));
+    const GeoDataLongitude leftLon = GeoDataNormalizedLongitude::fromLongitude(+ centerLon - (imageWidth * GeoDataLongitude::halfCircle / radius));
 
     const int maxInterpolationPointX = n * (int)( imageWidth / n - 1 ) + 1;
 

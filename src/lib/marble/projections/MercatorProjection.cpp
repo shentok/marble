@@ -55,16 +55,16 @@ QIcon MercatorProjection::icon() const
     return QIcon(QStringLiteral(":/icons/map-mercator.png"));
 }
 
-GeoDataLatitude MercatorProjection::maxValidLat() const
+GeoDataNormalizedLatitude MercatorProjection::maxValidLat() const
 {
     // This is the max value where gd( lat ) is defined.
-    return +GeoDataLatitude::fromDegrees(85.05113);
+    return +GeoDataNormalizedLatitude::fromDegrees(85.05113);
 }
 
-GeoDataLatitude MercatorProjection::minValidLat() const
+GeoDataNormalizedLatitude MercatorProjection::minValidLat() const
 {
     // This is the min value where gd( lat ) is defined.
-    return -GeoDataLatitude::fromDegrees(85.05113);
+    return -GeoDataNormalizedLatitude::fromDegrees(85.05113);
 }
 
 bool MercatorProjection::screenCoordinates( const GeoDataCoordinates &geopoint, 
@@ -76,7 +76,7 @@ bool MercatorProjection::screenCoordinates( const GeoDataCoordinates &geopoint,
     GeoDataLatitude originalLat;
 
     geopoint.geoCoordinates( lon, originalLat );
-    const GeoDataLatitude lat = qBound(minLat(), originalLat, maxLat());
+    const GeoDataLatitude lat = qBound<GeoDataLatitude>(minLat(), originalLat, maxLat());
     const bool isLatValid = lat == originalLat;
 
     // Convenience variables
@@ -179,7 +179,7 @@ bool MercatorProjection::geoCoordinates( const int x, const int y,
         const int halfImageWidth = viewport->width() / 2;
         const int xPixels = (x - halfImageWidth) / (2 * radius);
 
-        lon = GeoDataCoordinates::normalizeLon(xPixels * GeoDataLongitude::halfCircle + centerLon);
+        lon = GeoDataNormalizedLongitude::fromLongitude(xPixels * GeoDataLongitude::halfCircle + centerLon);
     }
 
     {
@@ -203,20 +203,20 @@ GeoDataLatLonAltBox MercatorProjection::latLonAltBox( const QRect& screenRect,
                                                       const ViewportParams *viewport ) const
 {
     GeoDataLongitude west;
-    GeoDataLatitude north = GeoDataLatitude::fromDegrees(85);
+    GeoDataLatitude north = GeoDataNormalizedLatitude::fromDegrees(85);
     geoCoordinates(screenRect.left(), screenRect.top(), viewport, west, north);
 
     GeoDataLongitude east;
-    GeoDataLatitude south = -GeoDataLatitude::fromDegrees(85);
+    GeoDataLatitude south = -GeoDataNormalizedLatitude::fromDegrees(85);
     geoCoordinates(screenRect.right(), screenRect.bottom(), viewport, east, south);
 
     // For the case where the whole viewport gets covered there is a
     // pretty dirty and generic detection algorithm:
     GeoDataLatLonAltBox latLonAltBox;
-    latLonAltBox.setNorth(north);
-    latLonAltBox.setSouth(south);
-    latLonAltBox.setWest(west);
-    latLonAltBox.setEast(east);
+    latLonAltBox.setNorth(GeoDataNormalizedLatitude::fromLatitude(north));
+    latLonAltBox.setSouth(GeoDataNormalizedLatitude::fromLatitude(south));
+    latLonAltBox.setWest(GeoDataNormalizedLongitude::fromLongitude(west));
+    latLonAltBox.setEast(GeoDataNormalizedLongitude::fromLongitude(east));
     latLonAltBox.setMinAltitude(      -100000000.0 );
     latLonAltBox.setMaxAltitude( 100000000000000.0 );
 
@@ -229,8 +229,8 @@ GeoDataLatLonAltBox MercatorProjection::latLonAltBox( const QRect& screenRect,
 
     int xRepeatDistance = 4 * viewport->radius();
     if ( viewport->width() >= xRepeatDistance ) {
-        latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
-        latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
+        latLonAltBox.setWest(-GeoDataNormalizedLongitude::halfCircle);
+        latLonAltBox.setEast(+GeoDataNormalizedLongitude::halfCircle);
     }
 
     return latLonAltBox;

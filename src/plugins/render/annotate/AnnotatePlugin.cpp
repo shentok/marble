@@ -1115,9 +1115,8 @@ void AnnotatePlugin::addTextAnnotation()
 
     // Get the normalized coordinates of the focus point. There will be automatically added a new
     // placemark.
-    GeoDataLatitude lat = m_marbleWidget->focusPoint().latitude();
-    GeoDataLongitude lon = m_marbleWidget->focusPoint().longitude();
-    GeoDataCoordinates::normalizeLonLat( lon, lat );
+    const auto lat = GeoDataNormalizedLatitude::fromLatitude(m_marbleWidget->focusPoint().latitude());
+    const auto lon = GeoDataNormalizedLongitude::fromLongitude(m_marbleWidget->focusPoint().longitude());
 
     GeoDataPlacemark *placemark = new GeoDataPlacemark;
     placemark->setCoordinate( lon, lat );
@@ -1207,10 +1206,10 @@ void AnnotatePlugin::addOverlay()
     const qreal maxDelta = 20;
     const GeoDataLongitude deltaLongitude = qMin(box.width(), GeoDataLongitude::fromDegrees(maxDelta));
     const GeoDataLatitude deltaLatitude = qMin(box.height(), GeoDataLatitude::fromDegrees(maxDelta));
-    const GeoDataLatitude north = centerLatitude + deltaLatitude/4;
-    const GeoDataLatitude south = centerLatitude - deltaLatitude/4;
-    const GeoDataLongitude west = centerLongitude - deltaLongitude/4;
-    const GeoDataLongitude east = centerLongitude + deltaLongitude/4;
+    const auto north = GeoDataNormalizedLatitude::fromLatitude(centerLatitude + deltaLatitude/4);
+    const auto south = GeoDataNormalizedLatitude::fromLatitude(centerLatitude - deltaLatitude/4);
+    const auto west = GeoDataNormalizedLongitude::fromLongitude(centerLongitude - deltaLongitude/4);
+    const auto east = GeoDataNormalizedLongitude::fromLongitude(centerLongitude + deltaLongitude/4);
     overlay->latLonBox().setBoundaries(north, south, east, west);
     overlay->setName( tr( "Untitled Ground Overlay" ) );
     QPointer<EditGroundOverlayDialog> dialog = new EditGroundOverlayDialog(

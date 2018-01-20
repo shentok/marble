@@ -37,16 +37,16 @@ VectorClipper::VectorClipper(GeoDataDocument* document, int maxZoomLevel) :
         if (const auto placemark = geodata_cast<GeoDataPlacemark>(feature)) {
             // Select zoom level such that the placemark fits in a single tile
             int zoomLevel;
-            GeoDataLatitude north, south;
-            GeoDataLongitude east, west;
+            GeoDataNormalizedLatitude north, south;
+            GeoDataNormalizedLongitude east, west;
             placemark->geometry()->latLonAltBox().boundaries(north, south, east, west);
             for (zoomLevel = maxZoomLevel; zoomLevel >= 0; --zoomLevel) {
-                if (TileId::fromCoordinates(GeoDataCoordinates(west, north), zoomLevel) ==
-                        TileId::fromCoordinates(GeoDataCoordinates(east, south), zoomLevel)) {
+                if (TileId::fromCoordinates(west, north, zoomLevel) ==
+                        TileId::fromCoordinates(east, south, zoomLevel)) {
                     break;
                 }
             }
-            TileId const key = TileId::fromCoordinates(GeoDataCoordinates(west, north), zoomLevel);
+            TileId const key = TileId::fromCoordinates(west, north, zoomLevel);
             m_items[key] << placemark;
         } else if (GeoDataRelation *relation = geodata_cast<GeoDataRelation>(feature)) {
             m_relations << relation;
@@ -102,11 +102,11 @@ GeoDataDocument *VectorClipper::clipTo(const GeoDataLatLonBox &tileBoundary, int
 
 QVector<GeoDataPlacemark *> VectorClipper::potentialIntersections(const GeoDataLatLonBox &box) const
 {
-    GeoDataLatitude north, south;
-    GeoDataLongitude east, west;
+    GeoDataNormalizedLatitude north, south;
+    GeoDataNormalizedLongitude east, west;
     box.boundaries(north, south, east, west);
-    TileId const topLeft = TileId::fromCoordinates(GeoDataCoordinates(west, north), m_maxZoomLevel);
-    TileId const bottomRight = TileId::fromCoordinates(GeoDataCoordinates(east, south), m_maxZoomLevel);
+    TileId const topLeft = TileId::fromCoordinates(west, north, m_maxZoomLevel);
+    TileId const bottomRight = TileId::fromCoordinates(east, south, m_maxZoomLevel);
     QRect rect;
     rect.setCoords(topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
 
@@ -145,8 +145,8 @@ ClipperLib::Path VectorClipper::clipPath(const GeoDataLatLonBox &box, int zoomLe
     auto const verticalStep = (box.south() - box.north()) / steps;
 
     Path path;
-    auto x = box.west();
-    auto y = box.north();
+    GeoDataLongitude x = box.west();
+    GeoDataLatitude y = box.north();
     for (int i=0; i<steps; ++i) {
         path << IntPoint(qRound64(x.toRadian() * IntPoint::scale), qRound64(y.toRadian() * IntPoint::scale));
         x += horizontalStep;

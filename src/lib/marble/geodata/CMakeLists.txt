@@ -22,6 +22,8 @@ SET ( geodata_data_SRCS
         geodata/data/GeoDataOverlay.cpp
         geodata/data/GeoDataListStyle.cpp
         geodata/data/GeoDataFlyTo.cpp
+        geodata/data/GeoDataNormalizedLatitude.cpp
+        geodata/data/GeoDataNormalizedLongitude.cpp
         geodata/data/GeoDataMultiTrack.cpp
         geodata/data/GeoDataSnippet.cpp
         geodata/data/GeoDataStyle.cpp

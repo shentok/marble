@@ -286,26 +286,29 @@ bool GroundOverlayFrame::mouseMoveEvent( QMouseEvent *event )
                                                  -m_overlay->latLonBox().rotation());
             }
 
+            const auto rotatedLat = GeoDataNormalizedLatitude::fromLatitude(rotatedCoord.latitude());
+            const auto rotatedLon = GeoDataNormalizedLongitude::fromLongitude(rotatedCoord.longitude());
+
             if ( m_movedHandle == NorthWest ) {
-                m_overlay->latLonBox().setNorth( rotatedCoord.latitude() );
-                m_overlay->latLonBox().setWest( rotatedCoord.longitude() );
+                m_overlay->latLonBox().setNorth(rotatedLat);
+                m_overlay->latLonBox().setWest(rotatedLon);
             } else if ( m_movedHandle == SouthWest ) {
-                m_overlay->latLonBox().setSouth( rotatedCoord.latitude() );
-                m_overlay->latLonBox().setWest( rotatedCoord.longitude() );
+                m_overlay->latLonBox().setSouth(rotatedLat);
+                m_overlay->latLonBox().setWest(rotatedLon);
             } else if ( m_movedHandle == SouthEast ) {
-                m_overlay->latLonBox().setSouth( rotatedCoord.latitude() );
-                m_overlay->latLonBox().setEast( rotatedCoord.longitude() );
+                m_overlay->latLonBox().setSouth(rotatedLat);
+                m_overlay->latLonBox().setEast(rotatedLon);
             } else if ( m_movedHandle == NorthEast ) {
-                m_overlay->latLonBox().setNorth( rotatedCoord.latitude() );
-                m_overlay->latLonBox().setEast( rotatedCoord.longitude() );
+                m_overlay->latLonBox().setNorth(rotatedLat);
+                m_overlay->latLonBox().setEast(rotatedLon);
             } else if ( m_movedHandle == North ) {
-                m_overlay->latLonBox().setNorth( rotatedCoord.latitude() );
+                m_overlay->latLonBox().setNorth(rotatedLat);
             } else if ( m_movedHandle == South ) {
-                m_overlay->latLonBox().setSouth( rotatedCoord.latitude() );
+                m_overlay->latLonBox().setSouth(rotatedLat);
             } else if ( m_movedHandle == East ) {
-                m_overlay->latLonBox().setEast( rotatedCoord.longitude() );
+                m_overlay->latLonBox().setEast(rotatedLon);
             } else if ( m_movedHandle == West ) {
-                m_overlay->latLonBox().setWest( rotatedCoord.longitude() );
+                m_overlay->latLonBox().setWest(rotatedLon);
             }
 
         } else if ( m_editStatus == Rotate ) {
@@ -321,10 +324,10 @@ bool GroundOverlayFrame::mouseMoveEvent( QMouseEvent *event )
             const GeoDataLongitude centerLonDiff = lon - m_movedHandleGeoCoordinates.longitude();
             const GeoDataLatitude centerLatDiff = lat - m_movedHandleGeoCoordinates.latitude();
 
-            m_overlay->latLonBox().setBoundaries( m_overlay->latLonBox().north() + centerLatDiff,
-                                                  m_overlay->latLonBox().south() + centerLatDiff,
-                                                  m_overlay->latLonBox().east()  + centerLonDiff,
-                                                  m_overlay->latLonBox().west()  + centerLonDiff );
+            m_overlay->latLonBox().setBoundaries(GeoDataNormalizedLatitude::fromLatitude(m_overlay->latLonBox().north() + centerLatDiff),
+                                                 GeoDataNormalizedLatitude::fromLatitude(m_overlay->latLonBox().south() + centerLatDiff),
+                                                 GeoDataNormalizedLongitude::fromLongitude(m_overlay->latLonBox().east() + centerLonDiff),
+                                                 GeoDataNormalizedLongitude::fromLongitude(m_overlay->latLonBox().west() + centerLonDiff));
 
             m_movedHandleGeoCoordinates.set( lon, lat );
         }

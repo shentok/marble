@@ -58,14 +58,14 @@ GeoDataLatLonAltBox& GeoDataLatLonAltBox::operator=( const GeoDataLatLonAltBox &
     return *this;
 }
 
-GeoDataLatLonAltBox& GeoDataLatLonAltBox::operator=( const GeoDataCoordinates &other )
+GeoDataLatLonAltBox& GeoDataLatLonAltBox::operator=(const GeoDataCoordinates &coordinates)
 {
-    setWest( other.longitude() );
-    setEast( other.longitude() );
-    setNorth( other.latitude() );
-    setSouth( other.latitude() );
-    setMinAltitude( other.altitude() );
-    setMaxAltitude( other.altitude() );
+    setWest(GeoDataNormalizedLongitude::fromLongitude(coordinates.longitude()));
+    setEast(GeoDataNormalizedLongitude::fromLongitude(coordinates.longitude()));
+    setNorth(GeoDataNormalizedLatitude::fromLatitude(coordinates.latitude()));
+    setSouth(GeoDataNormalizedLatitude::fromLatitude(coordinates.latitude()));
+    setMinAltitude( coordinates.altitude() );
+    setMaxAltitude( coordinates.altitude() );
     return *this;
 }
 
@@ -100,11 +100,11 @@ GeoDataLatLonAltBox::GeoDataLatLonAltBox( const GeoDataCoordinates & coordinates
     : GeoDataLatLonBox(),
       d( new GeoDataLatLonAltBoxPrivate )
 {
-    setWest( coordinates.longitude() );
-    setEast( coordinates.longitude() );
-    setNorth( coordinates.latitude() );
-    setSouth( coordinates.latitude() );
-    
+    setWest(GeoDataNormalizedLongitude::fromLongitude(coordinates.longitude()));
+    setEast(GeoDataNormalizedLongitude::fromLongitude(coordinates.longitude()));
+    setNorth(GeoDataNormalizedLatitude::fromLatitude(coordinates.latitude()));
+    setSouth(GeoDataNormalizedLatitude::fromLatitude(coordinates.latitude()));
+
     d->m_minAltitude = coordinates.altitude();
     d->m_maxAltitude = coordinates.altitude();
 }
@@ -150,16 +150,8 @@ GeoDataCoordinates GeoDataLatLonAltBox::center() const
     if ( isEmpty() )
         return GeoDataCoordinates();
 
-    if (crossesDateLine())
-    {
-        const GeoDataLongitude fullCircle = 2 * GeoDataLongitude::halfCircle;
-        return GeoDataCoordinates(GeoDataCoordinates::normalizeLon(east() + fullCircle - (east() + fullCircle - west()) / 2),
-                                north() - (north() - south()) / 2, 
-                                d->m_maxAltitude - (d->m_maxAltitude - d->m_minAltitude) / 2);
-    }
-
-    return GeoDataCoordinates( east() - (east() - west()) / 2,
-                            north() - (north() - south()) / 2,
+    return GeoDataCoordinates(GeoDataNormalizedLongitude::center(west(), east()),
+                              GeoDataNormalizedLatitude::center(south(), north()),
                             d->m_maxAltitude - (d->m_maxAltitude - d->m_minAltitude) / 2);
 }
 

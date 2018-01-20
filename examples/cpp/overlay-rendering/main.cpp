@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     mapWidget->setMapThemeId(QStringLiteral("earth/bluemarble/bluemarble.dgml"));
 
     // Create a bounding box from the given corner points
-    GeoDataLatLonBox box(GeoDataLatitude::fromDegrees(55), GeoDataLatitude::fromDegrees(48), GeoDataLongitude::fromDegrees(14.5), GeoDataLongitude::fromDegrees(6));
+    GeoDataLatLonBox box(GeoDataNormalizedLatitude::fromDegrees(55), GeoDataNormalizedLatitude::fromDegrees(48), GeoDataNormalizedLongitude::fromDegrees(14.5), GeoDataNormalizedLongitude::fromDegrees(6));
     box.setRotation(GeoDataAngle::null);
 
     // Create an overlay and assign the image to render and its bounding box to it

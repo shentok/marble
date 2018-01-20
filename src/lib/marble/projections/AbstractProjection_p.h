@@ -11,7 +11,7 @@
 #ifndef MARBLE_ABSTRACTPROJECTIONPRIVATE_H
 #define MARBLE_ABSTRACTPROJECTIONPRIVATE_H
 
-#include "GeoDataLatitude.h"
+#include "GeoDataNormalizedLatitude.h"
 
 namespace Marble
 {
@@ -27,8 +27,8 @@ class AbstractProjectionPrivate
 
     int levelForResolution(qreal resolution) const;
 
-    GeoDataLatitude m_maxLat;
-    GeoDataLatitude m_minLat;
+    GeoDataNormalizedLatitude m_maxLat;
+    GeoDataNormalizedLatitude m_minLat;
     mutable qreal  m_previousResolution;
     mutable qreal  m_level;
 

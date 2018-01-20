@@ -12,8 +12,6 @@
 // Own
 #include "TileId.h"
 
-#include "GeoDataCoordinates.h"
-
 #include <QDebug>
 
 namespace Marble
@@ -34,28 +32,28 @@ TileId::TileId()
 {
 }
 
-TileId TileId::fromCoordinates(const GeoDataCoordinates &coords, int zoomLevel)
+TileId TileId::fromCoordinates(const GeoDataNormalizedLongitude lon, const GeoDataNormalizedLatitude lat, int zoomLevel)
 {
     if ( zoomLevel < 0 ) {
         return TileId();
     }
     const int maxLat = 90 * 1000000;
     const int maxLon = 180 * 1000000;
-    int lat = GeoDataCoordinates::normalizeLat(coords.latitude()).toDegree() * 1000000;
-    int lon = GeoDataCoordinates::normalizeLon(coords.longitude()).toDegree() * 1000000;
+    int iLat = lat.toDegree() * 1000000;
+    int iLon = lon.toDegree() * 1000000;
     int x = 0;
     int y = 0;
     for( int i=0; i<zoomLevel; ++i ) {
         const int deltaLat = maxLat >> i;
-        if( lat <= ( maxLat - deltaLat )) {
+        if( iLat <= ( maxLat - deltaLat )) {
             y += 1<<(zoomLevel-i-1);
-            lat += deltaLat;
+            iLat += deltaLat;
         }
         const int deltaLon = maxLon >> i;
-        if( lon >= ( maxLon - deltaLon )) {
+        if( iLon >= ( maxLon - deltaLon )) {
             x += 1<<(zoomLevel-i-1);
         } else {
-            lon += deltaLon;
+            iLon += deltaLon;
         }
     }
     return TileId(0, zoomLevel, x, y);

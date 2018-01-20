@@ -1,4 +1,4 @@
-//
+﻿//
 // This file is part of the Marble Virtual Globe.
 //
 // This program is free software licensed under the GNU LGPL. You can
@@ -80,35 +80,34 @@ GeoDataLatLonAltBox AzimuthalProjection::latLonAltBox( const QRect& screenRect,
 
     // If the whole globe is visible we can easily calculate
     // analytically the lon-/lat- range.
-    const GeoDataLatitude pitch = GeoDataCoordinates::normalizeLat(GeoDataLatitude::fromRadians(viewport->planetAxis().pitch()));
+    const auto pitch = GeoDataNormalizedLatitude::fromRadians(viewport->planetAxis().pitch());
 
     if ( 2.0 * viewport->radius() <= viewport->height()
          &&  2.0 * viewport->radius() <= viewport->width() )
     {
         // Unless the planetaxis is in the screen plane the allowed longitude range
         // covers full -180 deg to +180 deg:
-        if (pitch > GeoDataLatitude::null && pitch < +2 * GeoDataLatitude::quaterCircle) {
-            latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
-            latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
-            latLonAltBox.setNorth(+qAbs(GeoDataLatitude::quaterCircle - qAbs(pitch)));
-            latLonAltBox.setSouth(-GeoDataLatitude::quaterCircle);
+        if (pitch > GeoDataNormalizedLatitude::null) {
+            latLonAltBox.setWest(-GeoDataNormalizedLongitude::halfCircle);
+            latLonAltBox.setEast(+GeoDataNormalizedLongitude::halfCircle);
+            latLonAltBox.setNorth(+GeoDataNormalizedLatitude::fromLatitude(qAbs(GeoDataLatitude::quaterCircle - qAbs(pitch))));
+            latLonAltBox.setSouth(-GeoDataNormalizedLatitude::quaterCircle);
         }
-        if (pitch < GeoDataLatitude::null && pitch > -2 * GeoDataLatitude::quaterCircle) {
-            latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
-            latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
-            latLonAltBox.setNorth(+GeoDataLatitude::quaterCircle);
-            latLonAltBox.setSouth(-qAbs(GeoDataLatitude::quaterCircle - qAbs(pitch)));
+        else if (pitch < GeoDataNormalizedLatitude::null) {
+            latLonAltBox.setWest(-GeoDataNormalizedLongitude::halfCircle);
+            latLonAltBox.setEast(+GeoDataNormalizedLongitude::halfCircle);
+            latLonAltBox.setNorth(+GeoDataNormalizedLatitude::quaterCircle);
+            latLonAltBox.setSouth(-GeoDataNormalizedLatitude::fromLatitude(qAbs(GeoDataLatitude::quaterCircle - qAbs(pitch))));
         }
-
-        // Last but not least we deal with the rare case where the
-        // globe is fully visible and pitch = 0.0 or pitch = -M_PI or
-        // pitch = +M_PI
-        if (pitch == GeoDataLatitude::null || pitch == -2 * GeoDataLatitude::quaterCircle || pitch == +2 * GeoDataLatitude::quaterCircle) {
+        else /* (pitch == GeoDataNormalizedLatitude::null || pitch == -2 * GeoDataLatitude::quaterCircle || pitch == +2 * GeoDataLatitude::quaterCircle) */ {
+            // Last but not least we deal with the rare case where the
+            // globe is fully visible and pitch = 0.0 or pitch = -M_PI or
+            // pitch = +M_PI
             const GeoDataLongitude yaw = GeoDataLongitude::fromRadians(viewport->planetAxis().yaw());
-            latLonAltBox.setWest(GeoDataCoordinates::normalizeLon(yaw - 0.5 * GeoDataLongitude::halfCircle));
-            latLonAltBox.setEast(GeoDataCoordinates::normalizeLon(yaw + 0.5 * GeoDataLongitude::halfCircle));
-            latLonAltBox.setNorth(+GeoDataLatitude::quaterCircle);
-            latLonAltBox.setSouth(-GeoDataLatitude::quaterCircle);
+            latLonAltBox.setWest(GeoDataNormalizedLongitude::fromLongitude(yaw - 0.5 * GeoDataLongitude::halfCircle));
+            latLonAltBox.setEast(GeoDataNormalizedLongitude::fromLongitude(yaw + 0.5 * GeoDataLongitude::halfCircle));
+            latLonAltBox.setNorth(+GeoDataNormalizedLatitude::quaterCircle);
+            latLonAltBox.setSouth(-GeoDataNormalizedLatitude::quaterCircle);
         }
 
         return latLonAltBox;
@@ -128,8 +127,8 @@ GeoDataLatLonAltBox AzimuthalProjection::latLonAltBox( const QRect& screenRect,
 
     if ( screenCoordinates( maxLatPoint, viewport, dummyX, dummyY, dummyVal ) ||
          screenCoordinates( minLatPoint, viewport, dummyX, dummyY, dummyVal ) ) {
-        latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
-        latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
+        latLonAltBox.setWest(-GeoDataNormalizedLongitude::halfCircle);
+        latLonAltBox.setEast(+GeoDataNormalizedLongitude::halfCircle);
     }
 
     return latLonAltBox;
@@ -543,9 +542,9 @@ void AzimuthalProjectionPrivate::horizonToPolygon( const ViewportParams *viewpor
     const GeoDataLongitude beta = GeoDataLongitude::fromRadians(atan2(y - imageHalfHeight, x - imageHalfWidth));
 
     // Calculate the difference between both
-    const GeoDataLongitude diff = GeoDataCoordinates::normalizeLon(beta - alpha);
+    const auto diff = GeoDataNormalizedLongitude::fromLongitude(beta - alpha);
 
-    qreal sgndiff = diff < GeoDataLongitude::null ? -1 : 1;
+    const qreal sgndiff = diff < GeoDataNormalizedLongitude::null ? -1 : 1;
 
     const qreal arcradius = q->clippingRadius() * viewport->radius();
     const int itEnd = qAbs(diff).toDegree();

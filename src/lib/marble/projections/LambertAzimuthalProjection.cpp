@@ -17,6 +17,7 @@
 // Marble
 #include "ViewportParams.h"
 #include "GeoDataPoint.h"
+#include "GeoDataNormalizedLongitude.h"
 #include "GeoDataLineString.h"
 #include "GeoDataCoordinates.h"
 #include "MarbleGlobal.h"
@@ -165,7 +166,7 @@ bool LambertAzimuthalProjection::geoCoordinates( const int x, const int y,
 
     lon = centerLon + GeoDataLongitude::fromRadians(qAtan2(rx*sinc, (p*qCos(centerLat.toRadian())*qCos(c) - ry*qSin(centerLat.toRadian())*sinc)));
 
-    lon = GeoDataCoordinates::normalizeLon(lon);
+    lon = GeoDataNormalizedLongitude::fromLongitude(lon);
 
     lat = GeoDataLatitude::fromRadians(qAsin(qCos(c)*qSin(centerLat.toRadian()) + (ry*sinc*qCos(centerLat.toRadian()))/p));
 

@@ -256,7 +256,7 @@ void MergedLayerDecorator::Private::renderGroundOverlays( QImage *tileImage, con
                      : tileLatLonBox.north() - y * tilePixelToLat;
 
              for ( int x = 0; x < tileImage->width(); ++x, ++scanLine ) {
-                 const auto lon = GeoDataCoordinates::normalizeLon(tileLatLonBox.west() + x * tilePixelToLon);
+                 const auto lon = GeoDataNormalizedLongitude::fromLongitude(tileLatLonBox.west() + x * tilePixelToLon);
 
                  GeoDataCoordinates coords(lon, lat);
                  GeoDataCoordinates rotatedCoords(coords);
@@ -267,11 +267,14 @@ void MergedLayerDecorator::Private::renderGroundOverlays( QImage *tileImage, con
                     rotatedCoords = coords.rotateAround(overlayLatLonBox.center(), -overlay->latLonBox().rotation());
                  }
 
+                 const auto rotatedLon = GeoDataNormalizedLongitude::fromLongitude(coords.longitude());
+                 const auto rotatedLat = GeoDataNormalizedLatitude::fromLatitude(coords.latitude());
+
                  // TODO: The rotated latLonBox is bigger. We need to take this into account.
                  // (Currently the GroundOverlay sometimes gets clipped because of that)
                  if ( overlay->latLonBox().contains( rotatedCoords ) ) {
-                     const qreal px = GeoDataLatLonBox::width(rotatedCoords.longitude(), overlayLatLonBox.west()) / overlayPixelToLon;
-                     const qreal py = overlay->icon().height() - GeoDataLatLonBox::height(rotatedCoords.latitude(), overlayLatLonBox.south()) / overlayPixelToLat - 1;
+                     const qreal px = GeoDataNormalizedLongitude::width(rotatedLon, overlayLatLonBox.west()) / overlayPixelToLon;
+                     const qreal py = overlay->icon().height() - GeoDataNormalizedLatitude::height(rotatedLat, overlayLatLonBox.south()) / overlayPixelToLat - 1;
 
                      if ( px >= 0 && px < overlay->icon().width() && py >= 0 && py < overlay->icon().height() ) {
                          int alpha = qAlpha( overlay->icon().pixel( px, py ) );

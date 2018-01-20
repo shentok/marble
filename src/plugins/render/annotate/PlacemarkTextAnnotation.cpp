@@ -24,6 +24,8 @@
 #include "GeoDataStyle.h"
 #include "GeoDataIconStyle.h"
 #include "GeoDataLabelStyle.h"
+#include "GeoDataNormalizedLatitude.h"
+#include "GeoDataNormalizedLongitude.h"
 #include "GeoPainter.h"
 #include "ViewportParams.h"
 #include "MarbleDirs.h"
@@ -91,9 +93,8 @@ void PlacemarkTextAnnotation::dealWithItemChange( const SceneGraphicsItem *other
 void PlacemarkTextAnnotation::move( const GeoDataCoordinates &source, const GeoDataCoordinates &destination )
 {
     Q_UNUSED( source );
-    GeoDataLatitude lat = destination.latitude();
-    GeoDataLongitude lon = destination.longitude();
-    GeoDataCoordinates::normalizeLonLat( lon, lat );
+    const auto lat = GeoDataNormalizedLatitude::fromLatitude(destination.latitude());
+    const auto lon = GeoDataNormalizedLongitude::fromLongitude(destination.longitude());
     placemark()->setCoordinate( lon, lat );
 }
 

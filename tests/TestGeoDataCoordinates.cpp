@@ -314,45 +314,45 @@ void TestGeoDataCoordinates::testIsPole()
 
 void TestGeoDataCoordinates::testNormalizeLat_data()
 {
-    QTest::addColumn<GeoDataLatitude>("latRadian");
+    QTest::addColumn<GeoDataNormalizedLatitude>("latRadian");
 
-    QTest::newRow("north pole") << +GeoDataLatitude::quaterCircle;
-    QTest::newRow("south pole") << -GeoDataLatitude::quaterCircle;
-    QTest::newRow("somewhere") << GeoDataLatitude::fromRadians(1.0);
+    QTest::newRow("north pole") << +GeoDataNormalizedLatitude::quaterCircle;
+    QTest::newRow("south pole") << -GeoDataNormalizedLatitude::quaterCircle;
+    QTest::newRow("somewhere") << GeoDataNormalizedLatitude::fromRadians(1.0);
 }
 
 void TestGeoDataCoordinates::testNormalizeLat()
 {
-    QFETCH(GeoDataLatitude, latRadian);
+    QFETCH(GeoDataNormalizedLatitude, latRadian);
 
     for ( int i = 1; i < 10; ++i ) {
         if ( ( i % 2 ) == 0 ) {
-            QFUZZYCOMPARE(GeoDataCoordinates::normalizeLat(latRadian + i * 2 * GeoDataLatitude::quaterCircle), latRadian, GeoDataLatitude::fromDegrees(0.0001));
+            QFUZZYCOMPARE(GeoDataNormalizedLatitude::fromLatitude(latRadian + i * 2 * GeoDataLatitude::quaterCircle), latRadian, GeoDataNormalizedLatitude::fromDegrees(0.0001));
         }
         else {
-            QFUZZYCOMPARE(GeoDataCoordinates::normalizeLat(latRadian + i * 2 * GeoDataLatitude::quaterCircle), -latRadian, GeoDataLatitude::fromDegrees(0.0001));
+            QFUZZYCOMPARE(GeoDataNormalizedLatitude::fromLatitude(latRadian + i * 2 * GeoDataLatitude::quaterCircle), -latRadian, GeoDataNormalizedLatitude::fromDegrees(0.0001));
         }
     }
 }
 
 void TestGeoDataCoordinates::testNormalizeLon_data()
 {
-    QTest::addColumn<GeoDataLongitude>("lon");
+    QTest::addColumn<GeoDataNormalizedLongitude>("lon");
 
-    QTest::newRow("half east") << +GeoDataLongitude::halfCircle / 2;
-    QTest::newRow("half west") << -GeoDataLongitude::halfCircle / 2;
-    QTest::newRow("somewhere") << GeoDataLongitude::fromRadians(1.0);
-    QTest::newRow("date line east") << +GeoDataLongitude::halfCircle;
-    QTest::newRow("date line west") << -GeoDataLongitude::halfCircle;
+    QTest::newRow("half east") << +GeoDataNormalizedLongitude::halfCircle / 2;
+    QTest::newRow("half west") << -GeoDataNormalizedLongitude::halfCircle / 2;
+    QTest::newRow("somewhere") << GeoDataNormalizedLongitude::fromRadians(1.0);
+    QTest::newRow("date line east") << +GeoDataNormalizedLongitude::halfCircle;
+    QTest::newRow("date line west") << -GeoDataNormalizedLongitude::halfCircle;
 
 }
 
 void TestGeoDataCoordinates::testNormalizeLon()
 {
-    QFETCH(GeoDataLongitude, lon);
+    QFETCH(GeoDataNormalizedLongitude, lon);
 
     for (int i = -10; i < 10; ++i) {
-        QFUZZYCOMPARE(GeoDataCoordinates::normalizeLon(lon + i * 2 * GeoDataLongitude::halfCircle), lon, GeoDataLongitude::fromDegrees(0.0001));
+        QFUZZYCOMPARE(GeoDataNormalizedLongitude::fromLongitude(lon + i * 2 * GeoDataLongitude::halfCircle), lon, GeoDataNormalizedLongitude::fromDegrees(0.0001));
     }
 }
 
@@ -368,22 +368,15 @@ void TestGeoDataCoordinates::testNormalizeDegree_data()
 }
 
 /*
- * test normalizeLon(), normalizeLat() and normalizeLonLat()
+ * test normalizeLon(), normalizeLat()
  */
 void TestGeoDataCoordinates::testNormalizeDegree()
 {
     QFETCH(GeoDataLongitude, lon);
     QFETCH(GeoDataLatitude, lat);
 
-    QCOMPARE(GeoDataCoordinates::normalizeLon(lon), -GeoDataLongitude::fromDegrees(160));
-    QCOMPARE(GeoDataCoordinates::normalizeLat(lat), GeoDataLatitude::fromDegrees(50));
-
-    GeoDataLongitude normalized_lon = lon;
-    GeoDataLatitude normalized_lat = lat;
-
-    GeoDataCoordinates::normalizeLonLat(normalized_lon, normalized_lat);
-    QCOMPARE(normalized_lon, GeoDataLongitude::fromDegrees(20));
-    QCOMPARE(normalized_lat, GeoDataLatitude::fromDegrees(50));
+    QCOMPARE(GeoDataNormalizedLongitude::fromLongitude(lon).toDegree(), -qreal(160));
+    QCOMPARE(GeoDataNormalizedLatitude::fromLatitude(lat).toDegree(), qreal(50));
 }
 
 /*
@@ -398,7 +391,7 @@ void TestGeoDataCoordinates::testNormalizeRadian_data()
 }
 
 /*
- * test normalizeLon(), normalizeLat() and normalizeLonLat()
+ * test normalizeLon(), normalizeLat()
  */
 void TestGeoDataCoordinates::testNormalizeRadian()
 {
@@ -406,16 +399,8 @@ void TestGeoDataCoordinates::testNormalizeRadian()
     QFETCH(GeoDataLatitude, lat);
 
     // Compare up to three decimals
-    QCOMPARE(ceil(GeoDataCoordinates::normalizeLon(lon).toRadian() * 1000) / 1000, qreal(-2.683));
-    QCOMPARE(ceil(GeoDataCoordinates::normalizeLat(lat).toRadian() * 1000) / 1000, qreal(0.442));
-
-    GeoDataLongitude normalized_lon = lon;
-    GeoDataLatitude normalized_lat = lat;
-
-    GeoDataCoordinates::normalizeLonLat(normalized_lon, normalized_lat);
-
-    QCOMPARE(ceil(normalized_lon.toRadian() * 1000) / 1000, qreal(0.459));
-    QCOMPARE(ceil(normalized_lat.toRadian() * 1000) / 1000, qreal(0.442));
+    QCOMPARE(ceil(GeoDataNormalizedLongitude::fromLongitude(lon).toRadian() * 1000) / 1000, qreal(-2.683));
+    QCOMPARE(ceil(GeoDataNormalizedLatitude::fromLatitude(lat).toRadian() * 1000) / 1000, qreal(0.442));
 }
 
 enum SignType {NoSign, PositiveSign, NegativeSign};

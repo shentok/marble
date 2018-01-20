@@ -471,13 +471,13 @@ GeoDataLatLonBox TileDirectory::boundingBox(const QString &filename) const
     GeoDataLatLonBox boundingBox;
     for(QString const &line: output) {
         if (line.startsWith("lon min:")) {
-            boundingBox.setWest(GeoDataLongitude::fromDegrees(line.mid(8).toDouble()));
+            boundingBox.setWest(GeoDataNormalizedLongitude::fromDegrees(line.mid(8).toDouble()));
         } else if (line.startsWith("lon max")) {
-            boundingBox.setEast(GeoDataLongitude::fromDegrees(line.mid(8).toDouble()));
+            boundingBox.setEast(GeoDataNormalizedLongitude::fromDegrees(line.mid(8).toDouble()));
         } else if (line.startsWith("lat min:")) {
-            boundingBox.setSouth(GeoDataLatitude::fromDegrees(line.mid(8).toDouble()));
+            boundingBox.setSouth(GeoDataNormalizedLatitude::fromDegrees(line.mid(8).toDouble()));
         } else if (line.startsWith("lat max:")) {
-            boundingBox.setNorth(GeoDataLatitude::fromDegrees(line.mid(8).toDouble()));
+            boundingBox.setNorth(GeoDataNormalizedLatitude::fromDegrees(line.mid(8).toDouble()));
         }
     }
     return boundingBox;

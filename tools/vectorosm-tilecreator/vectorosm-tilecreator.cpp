@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
     if (*zoomLevels.cbegin() <= 9) {
         auto map = TileDirectory::open(inputFileName, manager);
         VectorClipper processor(map.data(), maxZoomLevel);
-        GeoDataLatLonBox world(GeoDataLatitude::fromDegrees(85.0), -GeoDataLatitude::fromDegrees(85.0), GeoDataLongitude::halfCircle, -GeoDataLongitude::halfCircle);
+        GeoDataLatLonBox world(GeoDataNormalizedLatitude::fromDegrees(85.0), -GeoDataNormalizedLatitude::fromDegrees(85.0), GeoDataNormalizedLongitude::halfCircle, -GeoDataNormalizedLongitude::halfCircle);
         if (parser.isSet("spellcheck")) {
             SpellChecker spellChecker(parser.value("spellcheck"));
             spellChecker.setVerbose(parser.isSet("verbose"));

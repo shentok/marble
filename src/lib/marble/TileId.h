@@ -14,13 +14,15 @@
 
 #include "marble_export.h"
 
+#include "GeoDataNormalizedLatitude.h"
+#include "GeoDataNormalizedLongitude.h"
+
 #include <QHash>
 
 class QString;
 
 namespace Marble
 {
-class GeoDataCoordinates;
 
 class MARBLE_EXPORT TileId
 {
@@ -37,7 +39,7 @@ class MARBLE_EXPORT TileId
     bool operator==( TileId const& rhs ) const;
     bool operator<( TileId const& rhs ) const;
 
-    static TileId fromCoordinates( const GeoDataCoordinates& coords, int zoomLevel );
+    static TileId fromCoordinates(const GeoDataNormalizedLongitude lon, const GeoDataNormalizedLatitude lat, int zoomLevel);
 
  private:
     uint m_mapThemeIdHash;

@@ -126,12 +126,12 @@ QHash<TileId, QVector<GeoDataPlacemark *> > SpellChecker::parseCities(const QStr
             GeoDataPlacemark* city = new GeoDataPlacemark;
             city->setName(values[1]);
             bool ok;
-            auto const lon = GeoDataLongitude::fromDegrees(values[5].toDouble(&ok));
+            auto const lon = GeoDataNormalizedLongitude::fromDegrees(values[5].toDouble(&ok));
             if (!ok) {
                 qDebug() << values[5] << " is no longitude";
                 continue;
             }
-            auto const lat = GeoDataLatitude::fromDegrees(values[4].toDouble(&ok));
+            auto const lat = GeoDataNormalizedLatitude::fromDegrees(values[4].toDouble(&ok));
             if (!ok) {
                 qDebug() << values[4] << " is no latitude";
                 continue;
@@ -140,7 +140,7 @@ QHash<TileId, QVector<GeoDataPlacemark *> > SpellChecker::parseCities(const QStr
             auto const coordinate = GeoDataCoordinates(lon, lat, ele);
             city->setCoordinate(coordinate);
 
-            auto const tile = TileId::fromCoordinates(coordinate, m_tileLevel);
+            auto const tile = TileId::fromCoordinates(lon, lat, m_tileLevel);
             placeLabels[tile] << city;
         }
     }
@@ -172,7 +172,9 @@ int SpellChecker::levenshteinDistance(const QString &a, const QString &b)
 QVector<GeoDataPlacemark *> SpellChecker::candidatesFor(GeoDataPlacemark *placemark) const
 {
     int const N = pow(2, m_tileLevel);
-    auto const tile = TileId::fromCoordinates(placemark->coordinate(), m_tileLevel);
+    auto const lon = GeoDataNormalizedLongitude::fromLongitude(placemark->coordinate().longitude());
+    auto const lat = GeoDataNormalizedLatitude::fromLatitude(placemark->coordinate().latitude());
+    auto const tile = TileId::fromCoordinates(lon, lat, m_tileLevel);
     QVector<GeoDataPlacemark *> places;
     for (int x=qMax(0, tile.x()-1); x<qMin(N-1, tile.x()+1); ++x) {
         for (int y=qMax(0, tile.y()-1); y<qMin(N-1, tile.y()+1); ++y) {

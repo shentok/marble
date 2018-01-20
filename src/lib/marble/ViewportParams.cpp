@@ -249,7 +249,7 @@ void ViewportParams::centerOn(GeoDataLongitude lon, GeoDataLatitude lat)
             lat += 4 * GeoDataLatitude::quaterCircle;
     }
 
-    lon = GeoDataCoordinates::normalizeLon(lon);
+    lon = GeoDataNormalizedLongitude::fromLongitude(lon);
 
     d->m_centerLongitude = lon;
     d->m_centerLatitude = lat;

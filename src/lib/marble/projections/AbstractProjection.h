@@ -25,6 +25,7 @@
 
 #include "GeoDataCoordinates.h"
 #include "GeoDataLatitude.h"
+#include "GeoDataNormalizedLatitude.h"
 
 #include "marble_export.h"
 
@@ -101,15 +102,15 @@ class MARBLE_EXPORT AbstractProjection
      * Example: For many projections the value will represent +90 degrees in Radian.
      * In the case of Mercator this value will equal +85.05113 degrees in Radian.
      */
-    virtual GeoDataLatitude maxValidLat() const;
+    virtual GeoDataNormalizedLatitude maxValidLat() const;
 
     /**
      * @brief Returns the arbitrarily chosen maximum (northern) latitude.
      * By default this value is equal to the value defined inside maxValidLat().
      * In general this value can only be smaller or equal to maxValidLat().
      */
-    GeoDataLatitude maxLat() const;
-    void setMaxLat(GeoDataLatitude maxLat);
+    GeoDataNormalizedLatitude maxLat() const;
+    void setMaxLat(GeoDataNormalizedLatitude maxLat);
 
     /**
      * @brief Returns the minimum (southern) latitude that is mathematically defined and reasonable.
@@ -117,15 +118,15 @@ class MARBLE_EXPORT AbstractProjection
      * Example: For many projections the value will represent -90 degrees in Radian.
      * In the case of Mercator this value will equal -85.05113 degrees in Radian.
      */
-    virtual GeoDataLatitude minValidLat() const;
+    virtual GeoDataNormalizedLatitude minValidLat() const;
 
     /**
      * @brief Returns the arbitrarily chosen minimum (southern) latitude.
      * By default this value is equal to the value defined inside minValidLat().
      * In general this value can only be larger or equal to minValidLat().
      */
-    GeoDataLatitude minLat()  const;
-    void setMinLat(GeoDataLatitude minLat);
+    GeoDataNormalizedLatitude minLat()  const;
+    void setMinLat(GeoDataNormalizedLatitude minLat);
 
     /**
      * @brief Returns whether the projection allows for wrapping in x direction (along the longitude scale).

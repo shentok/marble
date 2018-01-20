@@ -526,27 +526,27 @@ void TestGeoDataCopy::copyHotSpot()
 void TestGeoDataCopy::copyLatLonBox()
 {
     // north south east west
-    GeoDataLatLonBox llbox(GeoDataLatitude::fromDegrees(30.1),
-                           GeoDataLatitude::fromDegrees(12.2),
-                           GeoDataLongitude::fromDegrees(110.0),
-                           GeoDataLongitude::fromDegrees(44.9));
-    QCOMPARE(llbox.north(), GeoDataLatitude::fromDegrees(30.1));
-    QCOMPARE(llbox.south(), GeoDataLatitude::fromDegrees(12.2));
-    QCOMPARE(llbox.east(), GeoDataLongitude::fromDegrees(110.0));
-    QCOMPARE(llbox.west(), GeoDataLongitude::fromDegrees(44.9));
+    GeoDataLatLonBox llbox(GeoDataNormalizedLatitude::fromDegrees(30.1),
+                           GeoDataNormalizedLatitude::fromDegrees(12.2),
+                           GeoDataNormalizedLongitude::fromDegrees(110.0),
+                           GeoDataNormalizedLongitude::fromDegrees(44.9));
+    QCOMPARE(llbox.north(), GeoDataNormalizedLatitude::fromDegrees(30.1));
+    QCOMPARE(llbox.south(), GeoDataNormalizedLatitude::fromDegrees(12.2));
+    QCOMPARE(llbox.east(), GeoDataNormalizedLongitude::fromDegrees(110.0));
+    QCOMPARE(llbox.west(), GeoDataNormalizedLongitude::fromDegrees(44.9));
 
     GeoDataLatLonBox other = llbox;
 
-    QCOMPARE(other.north(), GeoDataLatitude::fromDegrees(30.1));
-    QCOMPARE(other.south(), GeoDataLatitude::fromDegrees(12.2));
-    QCOMPARE(other.east(), GeoDataLongitude::fromDegrees(110.0));
-    QCOMPARE(other.west(), GeoDataLongitude::fromDegrees(44.9));
+    QCOMPARE(other.north(), GeoDataNormalizedLatitude::fromDegrees(30.1));
+    QCOMPARE(other.south(), GeoDataNormalizedLatitude::fromDegrees(12.2));
+    QCOMPARE(other.east(), GeoDataNormalizedLongitude::fromDegrees(110.0));
+    QCOMPARE(other.west(), GeoDataNormalizedLongitude::fromDegrees(44.9));
 
-    llbox.setNorth(GeoDataLatitude::fromRadians(0.1));
-    other.setSouth(GeoDataLatitude::fromRadians(1.4));
+    llbox.setNorth(GeoDataNormalizedLatitude::fromRadians(0.1));
+    other.setSouth(GeoDataNormalizedLatitude::fromRadians(1.4));
 
-    QCOMPARE(llbox.north(), GeoDataLatitude::fromRadians(0.1));
-    QCOMPARE(other.south(), GeoDataLatitude::fromRadians(1.4));
+    QCOMPARE(llbox.north(), GeoDataNormalizedLatitude::fromRadians(0.1));
+    QCOMPARE(other.south(), GeoDataNormalizedLatitude::fromRadians(1.4));
 }
 
 void TestGeoDataCopy::copyStyle()

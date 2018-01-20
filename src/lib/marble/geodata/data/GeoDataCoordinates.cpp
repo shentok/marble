@@ -16,6 +16,8 @@
 
 #include "GeoDataCoordinates.h"
 #include "GeoDataCoordinates_p.h"
+
+#include "GeoDataNormalizedLatitude.h"
 #include "LonLatParser_p.h"
 
 #include <qmath.h>
@@ -172,79 +174,6 @@ GeoDataCoordinates::Notation GeoDataCoordinates::defaultNotation()
 void GeoDataCoordinates::setDefaultNotation( GeoDataCoordinates::Notation notation )
 {
     s_notation = notation;
-}
-
-//static
-GeoDataLongitude GeoDataCoordinates::normalizeLon(GeoDataLongitude lon)
-{
-    const GeoDataLongitude halfCircle = GeoDataLongitude::halfCircle;
-
-    if ( lon > halfCircle ) {
-        int cycles = (int)( ( lon + halfCircle ) / ( 2 * halfCircle ) );
-        return lon - ( cycles * 2 * halfCircle );
-    }
-
-    if ( lon < -halfCircle ) {
-        int cycles = (int)( ( lon - halfCircle ) / ( 2 * halfCircle ) );
-        return lon - ( cycles * 2 * halfCircle );
-    }
-
-    return lon;
-}
-
-//static
-GeoDataLatitude GeoDataCoordinates::normalizeLat(GeoDataLatitude lat)
-{
-    const GeoDataLatitude halfCircle = 2 * GeoDataLatitude::quaterCircle;
-
-    if ( lat > ( halfCircle / 2.0 ) ) {
-        int cycles = (int)( ( lat + halfCircle ) / ( 2 * halfCircle ) );
-        GeoDataLatitude temp;
-        if (cycles == 0) { // pi/2 < lat < pi
-            temp = halfCircle - lat;
-        } else {
-            temp = lat - ( cycles * 2 * halfCircle );
-        }
-
-        if ( temp > ( halfCircle / 2.0 ) ) {
-            return ( halfCircle - temp );
-        }
-
-        if ( temp < ( -halfCircle / 2.0 ) ) {
-            return ( -halfCircle - temp );
-        }
-
-        return temp;
-    }
-
-    if ( lat < ( -halfCircle / 2.0 ) ) {
-        int cycles = (int)( ( lat - halfCircle ) / ( 2 * halfCircle ) );
-        GeoDataLatitude temp;
-        if( cycles == 0 ) { 
-            temp = -halfCircle - lat;
-        } else {
-            temp = lat - ( cycles * 2 * halfCircle );
-        }
-
-        if ( temp > ( +halfCircle / 2.0 ) ) {
-            return ( +halfCircle - temp );
-        }
-
-        if ( temp < ( -halfCircle / 2.0 ) ) {
-            return ( -halfCircle - temp );
-        }
-
-        return temp;
-    }
-
-    return lat;
-}
-
-//static
-void GeoDataCoordinates::normalizeLonLat(GeoDataLongitude &lon, GeoDataLatitude &lat)
-{
-    lon = normalizeLon(lon);
-    lat = normalizeLat(lat);
 }
 
 GeoDataCoordinates GeoDataCoordinates::fromString( const QString& string, bool& successful )
@@ -736,7 +665,7 @@ bool GeoDataCoordinates::isPole( Pole pole ) const
             // Only as a last resort we cover the unlikely case where
             // the latitude is not normalized to the range of 
             // 90 deg S ... 90 deg N
-            if (qAbs(normalizeLat(d->m_lat)) < GeoDataLatitude::quaterCircle) {
+            if (qAbs(GeoDataNormalizedLatitude::fromLatitude(d->m_lat)) < GeoDataNormalizedLatitude::quaterCircle) {
                 return false;
             }
             else {

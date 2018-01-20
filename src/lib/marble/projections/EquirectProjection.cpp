@@ -154,7 +154,7 @@ bool EquirectProjection::geoCoordinates( const int x, const int y,
         const int halfImageWidth = viewport->width() / 2;
         const int xPixels = (x - halfImageWidth) / (2 * radius);
 
-        lon = GeoDataCoordinates::normalizeLon(+ xPixels * GeoDataLongitude::halfCircle + centerLon);
+        lon = GeoDataNormalizedLongitude::fromLongitude(+ xPixels * GeoDataLongitude::halfCircle + centerLon);
     }
 
     {
@@ -190,10 +190,10 @@ GeoDataLatLonAltBox EquirectProjection::latLonAltBox( const QRect& screenRect,
     // For the case where the whole viewport gets covered there is a
     // pretty dirty and generic detection algorithm:
     GeoDataLatLonAltBox latLonAltBox;
-    latLonAltBox.setNorth(north);
-    latLonAltBox.setSouth(south);
-    latLonAltBox.setWest(west);
-    latLonAltBox.setEast(east);
+    latLonAltBox.setNorth(GeoDataNormalizedLatitude::fromLatitude(north));
+    latLonAltBox.setSouth(GeoDataNormalizedLatitude::fromLatitude(south));
+    latLonAltBox.setWest(GeoDataNormalizedLongitude::fromLongitude(west));
+    latLonAltBox.setEast(GeoDataNormalizedLongitude::fromLongitude(east));
     latLonAltBox.setMinAltitude(      -100000000.0 );
     latLonAltBox.setMaxAltitude( 100000000000000.0 );
 
@@ -206,8 +206,8 @@ GeoDataLatLonAltBox EquirectProjection::latLonAltBox( const QRect& screenRect,
 
     int xRepeatDistance = 4 * radius;
     if ( width >= xRepeatDistance ) {
-        latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
-        latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
+        latLonAltBox.setWest(-GeoDataNormalizedLongitude::halfCircle);
+        latLonAltBox.setEast(+GeoDataNormalizedLongitude::halfCircle);
     }
 
     // Now we need to check whether maxLat (e.g. the north pole) gets displayed
@@ -222,12 +222,12 @@ GeoDataLatLonAltBox EquirectProjection::latLonAltBox( const QRect& screenRect,
     qreal dummyX, dummyY; // not needed
 
     if ( screenCoordinates( maxLatPoint, viewport, dummyX, dummyY ) ) {
-        latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
-        latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
+        latLonAltBox.setEast(+GeoDataNormalizedLongitude::halfCircle);
+        latLonAltBox.setWest(-GeoDataNormalizedLongitude::halfCircle);
     }
     if ( screenCoordinates( minLatPoint, viewport, dummyX, dummyY ) ) {
-        latLonAltBox.setEast(+GeoDataLongitude::halfCircle);
-        latLonAltBox.setWest(-GeoDataLongitude::halfCircle);
+        latLonAltBox.setEast(+GeoDataNormalizedLongitude::halfCircle);
+        latLonAltBox.setWest(-GeoDataNormalizedLongitude::halfCircle);
     }
 
     return latLonAltBox;

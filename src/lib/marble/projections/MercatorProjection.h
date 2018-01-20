@@ -62,8 +62,8 @@ class MercatorProjection : public CylindricalProjection
      */
     QIcon icon() const override;
 
-    GeoDataLatitude maxValidLat() const override;
-    GeoDataLatitude minValidLat() const override;
+    GeoDataNormalizedLatitude maxValidLat() const override;
+    GeoDataNormalizedLatitude minValidLat() const override;
 
     PreservationType preservationType() const override { return Conformal; }
 
