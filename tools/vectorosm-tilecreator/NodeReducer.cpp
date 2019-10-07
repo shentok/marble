@@ -84,7 +84,6 @@ qreal NodeReducer::epsilonFor(qreal multiplier) const
 
 qreal NodeReducer::perpendicularDistance(const GeoDataCoordinates &a, const GeoDataCoordinates &b, const GeoDataCoordinates &c) const
 {
-    qreal ret;
     qreal const y0 = a.latitude();
     qreal const x0 = a.longitude();
     qreal const y1 = b.latitude();
@@ -97,19 +96,21 @@ qreal NodeReducer::perpendicularDistance(const GeoDataCoordinates &a, const GeoD
     qreal const x10 = y1 - y0;
     qreal const y21 = x2 - x1;
     qreal const x21 = y2 - y1;
-    qreal const len = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+    qreal const len = y21 * y21 + x21 * x21;
     qreal const t = len == 0.0 ? -1.0 : (x01 * x21 + y01 * y21) / len;
+
     if ( t < 0.0 ) {
-        ret = EARTH_RADIUS * a.sphericalDistanceTo(b);
-    } else if ( t > 1.0 ) {
-        ret = EARTH_RADIUS * a.sphericalDistanceTo(c);
-    } else {
-        qreal const nom = qAbs( x21 * y10 - x10 * y21 );
-        qreal const den = sqrt( x21 * x21 + y21 * y21 );
-        ret = EARTH_RADIUS * nom / den;
+        return EARTH_RADIUS * a.sphericalDistanceTo(b);
     }
 
-    return ret;
+    if ( t > 1.0 ) {
+        return EARTH_RADIUS * a.sphericalDistanceTo(c);
+    }
+
+    qreal const nom = qAbs( x21 * y10 - x10 * y21 );
+    qreal const den = sqrt( x21 * x21 + y21 * y21 );
+
+    return EARTH_RADIUS * nom / den;
 }
 
 bool NodeReducer::touchesTileBorder(const GeoDataCoordinates &coordinates) const
