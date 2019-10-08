@@ -164,51 +164,6 @@ class GEODATA_EXPORT GeoDataLineString : public GeoDataGeometry
   */
     virtual qreal length( qreal planetRadius, int offset = 0 ) const;
 
-/*!
-    \brief Provides a more generic representation of the LineString.
-
-    The LineString is normalized, and pole corrected.
-
-    Deprecation Warning: This method will likely be removed from the public API.
-*/
-    virtual GeoDataLineString toRangeCorrected() const;
-
-
-/*!
-    \brief The line string with nodes that have proper longitude/latitude ranges.
-
-    \return A LineString that resembles the original linestring with nodes that
-            have longitude values between -180 and +180 deg and that
-            feature latitude values between -90 and +90 deg.
-
-    Deprecation Warning: This method will likely be removed from the public API.
-*/
-    virtual GeoDataLineString toNormalized() const;
-
-
-/*!
-    \brief The line string with more generic pole values.
-
-    \return A LineString that resembles the original linestring. Nodes that
-            represent one of the poles are duplicated to allow for a better
-            visualization of flat projections.
-
-    Deprecation Warning: This method will likely be removed from the public API.
-*/
-    virtual GeoDataLineString toPoleCorrected() const;
-
-
-/*!
-    \brief The line string corrected for date line crossing.
-
-    \return A set of LineStrings that don't cross the dateline and which
-            resemble the original linestring.
-
-    Deprecation Warning: This method will likely be removed from the public API.
-*/
-    virtual QVector<GeoDataLineString*> toDateLineCorrected() const;
-
-
 
     // "Reimplementation" of QVector API
 /*!

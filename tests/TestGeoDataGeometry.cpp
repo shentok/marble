@@ -56,7 +56,6 @@ void TestGeoDataGeometry::deleteAndDetachTest1()
 {
     GeoDataLineString line1;
     line1 << GeoDataCoordinates();
-    line1.toRangeCorrected();
     GeoDataLineString line2 = line1;
     line2 << GeoDataCoordinates();
 }
@@ -69,7 +68,6 @@ void TestGeoDataGeometry::deleteAndDetachTest2()
     GeoDataLineString line1;
     line1 << GeoDataCoordinates();
     GeoDataLineString line2 = line1;
-    line1.toRangeCorrected();
     line2 << GeoDataCoordinates();
 }
 
@@ -81,7 +79,6 @@ void TestGeoDataGeometry::deleteAndDetachTest3()
     GeoDataLineString line1;
     line1 << GeoDataCoordinates();
     GeoDataLineString line2 = line1;
-    line2.toRangeCorrected();
     line2 << GeoDataCoordinates();
 }
 

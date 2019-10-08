@@ -62,11 +62,6 @@ class GeoDataLineStringPrivate : public GeoDataGeometryPrivate
         return copy;
     }
 
-    void toPoleCorrected( const GeoDataLineString & q, GeoDataLineString & poleCorrected ) const;
-
-    void toDateLineCorrected( const GeoDataLineString & q,
-                              QVector<GeoDataLineString*> & lineStrings ) const;
-
     void interpolateDateLine( const GeoDataCoordinates & previousCoords,
                               const GeoDataCoordinates & currentCoords,
                               GeoDataCoordinates & previousAtDateline,
