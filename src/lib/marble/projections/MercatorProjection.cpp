@@ -84,8 +84,6 @@ bool MercatorProjection::screenCoordinates( const GeoDataCoordinates &geopoint,
     qreal  width  = (qreal)(viewport->width());
     qreal  height = (qreal)(viewport->height());
 
-    qreal  rad2Pixel = 2 * radius / M_PI;
-
     const qreal centerLon = viewport->centerLongitude();
     const qreal centerLat = viewport->centerLatitude();
     if (centerLat != m_lastCenterLat) {
@@ -94,8 +92,8 @@ bool MercatorProjection::screenCoordinates( const GeoDataCoordinates &geopoint,
     }
 
     // Let (x, y) be the position on the screen of the placemark..
-    x = ( width  / 2 + rad2Pixel * ( lon - centerLon ) );
-    y = ( height / 2 - rad2Pixel * ( gdInv( lat ) - m_lastCenterLatInv ) );
+    x = ( width  / 2 + 2 * radius * ( lon - centerLon ) / M_PI );
+    y = ( height / 2 - 2 * radius * ( gdInv( lat ) - m_lastCenterLatInv ) / M_PI );
 
     // Return true if the calculated point is inside the screen area,
     // otherwise return false.
