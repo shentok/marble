@@ -249,10 +249,7 @@ void ViewportParams::centerOn( qreal lon, qreal lat )
             lat += 2 * M_PI;
     }
 
-    while ( lon > M_PI )
-        lon -= 2 * M_PI;
-    while ( lon < -M_PI )
-        lon += 2 * M_PI;
+    lon = GeoDataCoordinates::normalizeLon(lon);
 
     d->m_centerLongitude = lon;
     d->m_centerLatitude = lat;
