@@ -97,10 +97,9 @@ bool MercatorProjection::screenCoordinates( const GeoDataCoordinates &geopoint,
 
     // Return true if the calculated point is inside the screen area,
     // otherwise return false.
-    return isLatValid && ( ( 0 <= y && y < height )
-                  && ( ( 0 <= x && x < width )
-                  || ( 0 <= x - 4 * radius && x - 4 * radius < width )
-                  || ( 0 <= x + 4 * radius && x + 4 * radius < width ) ) );
+    return isLatValid
+            && ( 0 <= y && y < height )
+            && ( 0 <= x && x < width );
 }
 
 bool MercatorProjection::screenCoordinates( const GeoDataCoordinates &coordinates,

@@ -57,7 +57,6 @@ bool EquirectProjection::screenCoordinates( const GeoDataCoordinates &geopoint,
     globeHidesPoint = false;
 
     // Convenience variables
-    int  radius = viewport->radius();
     int  width  = viewport->width();
     int  height = viewport->height();
 
@@ -76,10 +75,8 @@ bool EquirectProjection::screenCoordinates( const GeoDataCoordinates &geopoint,
 
     // Return true if the calculated point is inside the screen area,
     // otherwise return false.
-    return ( ( 0 <= y && y < height )
-             && ( ( 0 <= x && x < width )
-                  || ( 0 <= x - 4 * radius && x - 4 * radius < width )
-                  || ( 0 <= x + 4 * radius && x + 4 * radius < width ) ) );
+    return ( 0 <= y && y < height )
+             && ( 0 <= x && x < width );
 }
 
 bool EquirectProjection::screenCoordinates( const GeoDataCoordinates &coordinates,
